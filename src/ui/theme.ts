@@ -1,29 +1,23 @@
 /**
  * Design tokens — the one dark theme from the mockup (`Pentatonic Practice.dc.html`).
- * Single source of truth for colors/typography; components read from here rather than
- * hardcoding hex values. No Tailwind, no CSS-in-JS runtime (see AGENTS.md).
+ * Single source of truth for colors/typography; components read from here rather than hardcoding
+ * hex values. No Tailwind, no CSS-in-JS runtime (see AGENTS.md).
  */
-export const color = {
-  /** Page background. */
+export const theme = {
   bg: '#0c0e0d',
-  /** Raised surface (cards). */
-  surface: '#151917',
-  /** Higher surface / inset. */
-  surfaceRaised: '#1c211e',
-  /** Borders / dividers. */
+  panel: '#151917',
+  card: '#1c211e',
   border: '#2a302c',
-  /** Primary text. */
   text: '#e8ece9',
-  /** Secondary text (subtitles). */
-  textMuted: '#9aa19b',
-  /** Tertiary text (kicker, labels). */
-  textDim: '#7e857f',
-  /** Faint text (fine print). */
-  textFaint: '#6b726c',
-  /** Accent — links, active states, the "lime". */
+  muted: '#7e857f',
+  subtle: '#575d58',
+  line: '#3a413c',
+  faintStroke: '#4a514c',
   accent: '#c3f04b',
-  /** Accent hover / bright. */
   accentBright: '#d4ff57',
+  accentText: '#0c0e0d',
+  /** Translucent accent tint for selected surfaces. */
+  accentTint: 'rgba(195,240,75,0.06)',
 } as const;
 
 export const font = {
@@ -31,4 +25,4 @@ export const font = {
   mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 } as const;
 
-export type Color = keyof typeof color;
+export type ThemeColor = keyof typeof theme;
