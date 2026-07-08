@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0c0e0d;color:#e8ece9;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:#c3f04b;text-decoration:none;} a:hover{color:#d4ff57;}
+  input[type=range]{accent-color:#c3f04b;height:4px;}
+  ::selection{background:rgba(195,240,75,0.25);}
+  button{font-family:inherit;}
+</style>
+</helmet>
+<div style="max-width:1080px;margin:0 auto;padding:30px 20px 70px;">
+
+  <header style="margin-bottom:34px;">
+    <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#7e857f;font-weight:600;font-family:'JetBrains Mono',monospace;">Fretboard Trainer</div>
+    <h1 style="font-size:30px;font-weight:700;margin:8px 0 6px;letter-spacing:-0.01em;">Pentatonic Practice</h1>
+    <p style="margin:0;color:#9aa19b;font-size:15px;max-width:620px;line-height:1.5;">Visualize the scale, target the chord tones under your progression, and generate simple licks to solo over your backing track.</p>
+    <p style="margin:10px 0 0;color:#6b726c;font-size:12.5px;">No audio here — cue up your own YouTube backing track and play along.</p>
+  </header>
+
+  <!-- STEP 1 -->
+  <section style="margin-bottom:36px;">
+    <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#7e857f;font-weight:600;margin-bottom:16px;">1 — Scale &amp; Position</div>
+
+    <div style="background:#151917;border:1px solid #2a302c;border-radius:14px;padding:18px;">
+      <div style="display:flex;flex-wrap:wrap;gap:26px;margin-bottom:20px;">
+        <div>
+          <div style="font-size:12px;color:#7e857f;margin-bottom:9px;font-weight:600;">Root note</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;max-width:340px;">
+            <sc-for list="{{ rootButtons }}" as="rb" hint-placeholder-count="12">
+              <button onClick="{{ rb.onClick }}" style="{{ rb.style }}">{{ rb.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#7e857f;margin-bottom:9px;font-weight:600;">Scale type</div>
+          <div style="display:flex;gap:6px;">
+            <sc-for list="{{ scaleButtons }}" as="sb" hint-placeholder-count="2">
+              <button onClick="{{ sb.onClick }}" style="{{ sb.style }}">{{ sb.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:#7e857f;margin-bottom:10px;font-weight:600;">Position / box <span style="color:#575d58;font-weight:400;">— scroll to see the full neck; tap up to 2 adjacent boxes to combine them</span></div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
+        <sc-for list="{{ positionCards }}" as="pos" hint-placeholder-count="5">
+          <button onClick="{{ pos.onClick }}" style="{{ pos.style }}">
+            <div style="pointer-events:none;">{{ pos.mini }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#e8ece9;">{{ pos.label }}</div>
+                <div style="font-size:11px;color:#7e857f;font-family:'JetBrains Mono',monospace;">{{ pos.range }}</div>
+              </div>
+              <sc-if value="{{ pos.recommended }}" hint-placeholder-val="{{ true }}">
+                <span style="font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:#0c0e0d;background:#c3f04b;padding:3px 6px;border-radius:5px;white-space:nowrap;">Rec</span>
+              </sc-if>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:20px;background:#1c211e;border:1px solid #2a302c;border-radius:12px;padding:16px;">
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:16px;font-weight:600;">{{ scaleTitle }}</div>
+          <div>{{ legendStep1 }}</div>
+        </div>
+        <div style="overflow-x:auto;">{{ selectedDiagram }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section style="margin-bottom:36px;">
+    <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#7e857f;font-weight:600;margin-bottom:16px;">2 — Chord Progression</div>
+
+    <div style="background:#151917;border:1px solid #2a302c;border-radius:14px;padding:18px;">
+      <p style="margin:0 0 14px;color:#9aa19b;font-size:13.5px;">Add chords in the order they play in your backing track.</p>
+
+      <div style="font-size:12px;color:#7e857f;margin-bottom:9px;font-weight:600;">Suggested in key — tap to add</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+        <sc-for list="{{ suggested }}" as="sug" hint-placeholder-count="6">
+          <button onClick="{{ sug.onClick }}" style="padding:7px 12px;border-radius:8px;border:1px solid #2a302c;background:#1c211e;color:#e8ece9;font-size:13.5px;font-weight:600;cursor:pointer;">+ {{ sug.label }}</button>
+        </sc-for>
+      </div>
+
+      <button onClick="{{ toggleAdvanced }}" style="background:none;border:none;color:#9aa19b;font-size:12.5px;cursor:pointer;padding:0;margin-bottom:12px;text-decoration:underline;text-underline-offset:3px;">{{ advancedLabel }}</button>
+
+      <sc-if value="{{ advanced }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#1c211e;border:1px solid #2a302c;border-radius:10px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:12px;color:#7e857f;margin-bottom:8px;font-weight:600;">Root</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;max-width:340px;margin-bottom:12px;">
+            <sc-for list="{{ advRootButtons }}" as="ar" hint-placeholder-count="12">
+              <button onClick="{{ ar.onClick }}" style="{{ ar.style }}">{{ ar.label }}</button>
+            </sc-for>
+          </div>
+          <div style="font-size:12px;color:#7e857f;margin-bottom:8px;font-weight:600;">Quality</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+            <sc-for list="{{ advTypeButtons }}" as="at" hint-placeholder-count="5">
+              <button onClick="{{ at.onClick }}" style="{{ at.style }}">{{ at.label }}</button>
+            </sc-for>
+            <button onClick="{{ advAdd }}" style="margin-left:6px;padding:8px 14px;border-radius:8px;border:1px solid #c3f04b;background:#c3f04b;color:#0c0e0d;font-size:13px;font-weight:700;cursor:pointer;">Add {{ advPreview }}</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;">
+        <div style="font-size:12px;color:#7e857f;font-weight:600;">Your progression <span style="color:#575d58;font-weight:400;">— drag to reorder</span></div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button onClick="{{ resetProgression }}" style="background:none;border:none;color:#7e857f;font-size:12px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;">Reset to default</button>
+          <sc-if value="{{ hasChords }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ clearProgression }}" style="background:none;border:none;color:#7e857f;font-size:12px;cursor:pointer;padding:0;">Clear all</button>
+          </sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasChords }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="4">
+            <div draggable="true" onDragStart="{{ chip.onDragStart }}" onDragOver="{{ allowDrop }}" onDrop="{{ chip.onDrop }}" style="display:inline-flex;align-items:center;gap:9px;padding:9px 10px 9px 12px;border-radius:9px;border:1px solid #2a302c;background:#1c211e;cursor:grab;font-size:15px;font-weight:700;color:#e8ece9;">
+              <span style="color:#575d58;font-size:13px;font-family:'JetBrains Mono',monospace;">{{ chip.pos }}</span>
+              <span>{{ chip.label }}</span>
+              <button onClick="{{ chip.onRemove }}" style="background:none;border:none;color:#7e857f;cursor:pointer;font-size:16px;line-height:1;padding:0 0 2px;">×</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noChords }}" hint-placeholder-val="{{ false }}">
+        <div style="color:#6b726c;font-size:13.5px;padding:6px 0;">No chords yet — add a few above to start practicing.</div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section>
+    <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#7e857f;font-weight:600;margin-bottom:16px;">3 — Practice</div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;background:#151917;border:1px solid #2a302c;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+      <div style="flex:1;min-width:220px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:12px;color:#7e857f;font-weight:600;">Notes per chord</span>
+          <span style="font-size:14px;font-weight:700;color:#c3f04b;font-family:'JetBrains Mono',monospace;">{{ notesPerChord }}</span>
+        </div>
+        <input type="range" min="1" max="8" step="1" value="{{ notesPerChord }}" onChange="{{ setNotes }}" style="width:100%;" />
+        <div style="font-size:11px;color:#6b726c;margin-top:6px;">Start small — hear the change and land the target note.</div>
+      </div>
+      <button onClick="{{ regenerate }}" style="padding:10px 18px;border-radius:9px;border:1px solid #2a302c;background:#1c211e;color:#e8ece9;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;">↻ Regenerate licks</button>
+    </div>
+
+    <sc-if value="{{ hasChords }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-bottom:14px;">{{ legendPractice }}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;">
+        <sc-for list="{{ cards }}" as="card" hint-placeholder-count="4">
+          <div style="background:#151917;border:1px solid #2a302c;border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;">
+              <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em;">{{ card.chordLabel }}</div>
+              <div style="font-size:11.5px;color:#0c0e0d;background:#c3f04b;padding:4px 9px;border-radius:6px;font-weight:700;">target · {{ card.targetLabel }}</div>
+            </div>
+            <div style="overflow-x:auto;">{{ card.fretboard }}</div>
+            <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#7e857f;font-weight:600;margin:12px 0 6px;">Lick</div>
+            <div style="overflow-x:auto;">{{ card.tab }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noChords }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#151917;border:1px dashed #2a302c;border-radius:14px;padding:30px;text-align:center;color:#6b726c;font-size:14px;">Add chords above to generate practice licks.</div>
+    </sc-if>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#c3f04b&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#c3f04b&quot;,&quot;#a3e635&quot;,&quot;#d4ff57&quot;,&quot;#7dd3fc&quot;,&quot;#fbbf24&quot;],&quot;section&quot;:&quot;Appearance&quot;},&quot;showStartRing&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;noteLabels&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;names&quot;,&quot;options&quot;:[&quot;names&quot;,&quot;none&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  NAMES = ['C','C\u266F','D','D\u266F','E','F','F\u266F','G','G\u266F','A','A\u266F','B'];
+  OPEN = [4,11,7,2,9,4];            // rows top->bottom: high e, B, G, D, A, low E
+  STRLBL = ['e','B','G','D','A','E'];
+  KEY = 'penta-practice-v1';
+  // 5 pentatonic boxes, relative fret offsets from root fret on low E; rows top->bottom (s1..s6)
+  PENTA = [
+    [[0,3],[0,3],[0,2],[0,2],[0,2],[0,3]],
+    [[3,5],[3,5],[2,4],[2,5],[2,5],[3,5]],
+    [[5,7],[5,8],[4,7],[5,7],[5,7],[5,7]],
+    [[7,10],[8,10],[7,9],[7,9],[7,10],[7,10]],
+    [[10,12],[10,12],[9,12],[9,12],[10,12],[10,12]]
+  ];
+  CHORD_INT = { maj:[0,4,7], min:[0,3,7], '7':[0,4,7,10], m7:[0,3,7,10], dim:[0,3,6] };
+  SUFFIX = { maj:'', min:'m', '7':'7', m7:'m7', dim:'dim' };
+  ROOTS = [9,10,11,0,1,2,3,4,5,6,7,8];
+
+  state = {
+    rootPc: 9, scale: 'minor', positions: [0],
+    progression: [ {rootPc:9,type:'min'}, {rootPc:7,type:'maj'}, {rootPc:5,type:'maj'}, {rootPc:7,type:'maj'} ],
+    notesPerChord: 2, licks: [], advanced: false, advRoot: 9, advType: 'maj', dragIndex: null
+  };
+
+  // ---------- theory ----------
+  colors(a) {
+    const acc = a || '#c3f04b';
+    return { bg:'#0c0e0d', panel:'#151917', card:'#1c211e', border:'#2a302c', text:'#e8ece9',
+      muted:'#7e857f', line:'#3a413c', faint:'#22271f', faintStroke:'#4a514c', accent:acc, accentText:'#0c0e0d' };
+  }
+  buildBox(rootPc, scale, position) {
+    const rootFret = (((rootPc - 4) % 12) + 12) % 12;
+    const box = this.PENTA[position] || this.PENTA[0];
+    let positions = [], all = [];
+    for (let row = 0; row < 6; row++) for (const rel of box[row]) { const f = rootFret + rel; positions.push({row, fret:f}); all.push(f); }
+    let shift = 0, mn = Math.min.apply(null, all);
+    while (mn - shift > 11) shift += 12;
+    positions.forEach(p => { p.fret -= shift; p.pc = (this.OPEN[p.row] + p.fret) % 12; p.isScaleRoot = p.pc === rootPc; });
+    let minFret = Math.min.apply(null, positions.map(p=>p.fret));
+    let maxFret = Math.max.apply(null, positions.map(p=>p.fret));
+    if (scale === 'blues') {
+      const bluePc = (rootPc + 6) % 12;
+      for (let row = 0; row < 6; row++) for (let f = minFret; f <= maxFret; f++)
+        if (((this.OPEN[row] + f) % 12) === bluePc && !positions.some(p=>p.row===row && p.fret===f))
+          positions.push({row, fret:f, pc:bluePc, isScaleRoot:false, isBlue:true});
+    }
+    return { positions, minFret, maxFret };
+  }
+  orderedPositionIdx(rootPc, scale) {
+    return [0,1,2,3,4].map(i => ({ i, box: this.buildBox(rootPc, scale, i) }))
+      .sort((a,b) => a.box.minFret - b.box.minFret);
+  }
+  mergedBox(rootPc, scale, idxs) {
+    const list = (idxs && idxs.length) ? idxs : [0];
+    const boxes = list.map(i => this.buildBox(rootPc, scale, i));
+    const seen = new Set(); const positions = [];
+    boxes.forEach(b => b.positions.forEach(p => { const k = p.row+'_'+p.fret; if(!seen.has(k)){ seen.add(k); positions.push(p); } }));
+    const minFret = Math.min.apply(null, boxes.map(b=>b.minFret));
+    const maxFret = Math.max.apply(null, boxes.map(b=>b.maxFret));
+    return { positions, minFret, maxFret };
+  }
+  chordName(ch) { return this.NAMES[ch.rootPc] + this.SUFFIX[ch.type]; }
+  // Default practice progression for a given key/scale.
+  // Minor pentatonic: classic minor-key vamp i - bVII - bVI - bVII (e.g. Am-G-F-G).
+  // Blues scale: condensed 12-bar blues changes I7 - IV7 - I7 - V7 (bars 1,5,7,9), all dominant 7ths.
+  defaultProgressionFor(rootPc, scale) {
+    if (scale === 'blues') return [
+      {rootPc, type:'7'}, {rootPc:(rootPc+5)%12, type:'7'}, {rootPc, type:'7'}, {rootPc:(rootPc+7)%12, type:'7'}
+    ];
+    return [
+      {rootPc, type:'min'}, {rootPc:(rootPc+10)%12, type:'maj'}, {rootPc:(rootPc+8)%12, type:'maj'}, {rootPc:(rootPc+10)%12, type:'maj'}
+    ];
+  }
+  chordPcs(ch) { return new Set(this.CHORD_INT[ch.type].map(i => (ch.rootPc + i) % 12)); }
+  suggestions() {
+    const R = this.state.rootPc;
+    if (this.state.scale === 'blues')
+      return [ {rootPc:R,type:'7'}, {rootPc:(R+5)%12,type:'7'}, {rootPc:(R+7)%12,type:'7'},
+               {rootPc:R,type:'min'}, {rootPc:(R+3)%12,type:'maj'}, {rootPc:(R+5)%12,type:'min'}, {rootPc:(R+7)%12,type:'min'} ];
+    return [ {rootPc:R,type:'min'}, {rootPc:(R+3)%12,type:'maj'}, {rootPc:(R+5)%12,type:'min'},
+             {rootPc:(R+7)%12,type:'min'}, {rootPc:(R+8)%12,type:'maj'}, {rootPc:(R+10)%12,type:'maj'} ];
+  }
+  choice(a){ return a[Math.floor(Math.random()*a.length)]; }
+  weightedChoice(a,w){ let s=w.reduce((x,y)=>x+y,0), r=Math.random()*s; for(let i=0;i<a.length;i++){ r-=w[i]; if(r<=0) return a[i]; } return a[a.length-1]; }
+  generateLick(box, chordRootPc, n) {
+    const P = box.positions;
+    let first = P.filter(p=>p.pc===chordRootPc);
+    if(!first.length) first = P.filter(p=>p.isScaleRoot);
+    if(!first.length) first = P;
+    const lick = [this.choice(first)];
+    for (let i=1; i<n; i++) {
+      const prev = lick[i-1];
+      const w = P.map(p => { const d = Math.abs(p.row-prev.row)*1.6 + Math.abs(p.fret-prev.fret); const same = (p.row===prev.row && p.fret===prev.fret)?0.15:1; return same/Math.pow(d+1,2); });
+      lick.push(this.weightedChoice(P,w));
+    }
+    return lick.map(p=>({row:p.row, fret:p.fret, pc:p.pc}));
+  }
+  regenerateLicks() {
+    const {rootPc,scale,positions,progression,notesPerChord} = this.state;
+    const box = this.mergedBox(rootPc,scale,positions);
+    this.setState({ licks: progression.map(ch => this.generateLick(box, ch.rootPc, notesPerChord)) });
+  }
+
+  // ---------- lifecycle ----------
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        const positions = Array.isArray(d.positions) ? d.positions : (typeof d.position === 'number' ? [d.position] : this.state.positions);
+        this.setState({
+          rootPc: d.rootPc ?? this.state.rootPc, scale: d.scale ?? this.state.scale,
+          positions,
+          progression: Array.isArray(d.progression) ? d.progression : this.state.progression,
+          notesPerChord: d.notesPerChord ?? this.state.notesPerChord,
+          licks: Array.isArray(d.licks) ? d.licks : []
+        }, () => { if (this.state.licks.length !== this.state.progression.length) this.regenerateLicks(); });
+        return;
+      }
+    } catch(e) {}
+    this.regenerateLicks();
+  }
+  componentDidUpdate() {
+    try {
+      const {rootPc,scale,positions,progression,notesPerChord,licks} = this.state;
+      localStorage.setItem(this.KEY, JSON.stringify({rootPc,scale,positions,progression,notesPerChord,licks}));
+    } catch(e) {}
+  }
+
+  // ---------- handlers ----------
+  setRoot(pc){ this.setState({rootPc:pc, progression:this.defaultProgressionFor(pc, this.state.scale)}, ()=>this.regenerateLicks()); }
+  setScale(s){ this.setState({scale:s, progression:this.defaultProgressionFor(this.state.rootPc, s)}, ()=>this.regenerateLicks()); }
+  togglePosition(idx){
+    this.setState(s => {
+      const ordered = this.orderedPositionIdx(s.rootPc, s.scale).map(o=>o.i);
+      const rank = ordered.indexOf(idx);
+      let cur = s.positions.slice();
+      if (cur.includes(idx)) {
+        if (cur.length > 1) cur = cur.filter(c=>c!==idx);
+      } else if (cur.length === 0) {
+        cur = [idx];
+      } else if (cur.length === 1) {
+        const otherRank = ordered.indexOf(cur[0]);
+        cur = Math.abs(otherRank - rank) === 1 ? [...cur, idx] : [idx];
+      } else {
+        cur = [idx];
+      }
+      return { positions: cur };
+    }, () => this.regenerateLicks());
+  }
+  setNotes(e){ const n = +e.target.value; this.setState({notesPerChord:n}, ()=>this.regenerateLicks()); }
+  addChord(ch){
+    const box = this.mergedBox(this.state.rootPc, this.state.scale, this.state.positions);
+    const lick = this.generateLick(box, ch.rootPc, this.state.notesPerChord);
+    this.setState(s => ({ progression:[...s.progression, {rootPc:ch.rootPc,type:ch.type}], licks:[...s.licks, lick] }));
+  }
+  removeChord(i){ this.setState(s => ({ progression: s.progression.filter((_,j)=>j!==i), licks: s.licks.filter((_,j)=>j!==i) })); }
+  clearProgression(){ this.setState({progression:[], licks:[]}); }
+  resetProgression(){
+    this.setState({ progression: this.defaultProgressionFor(this.state.rootPc, this.state.scale) }, () => this.regenerateLicks());
+  }
+  drop(i){
+    const from = this.state.dragIndex;
+    if (from == null || from === i) { this.setState({dragIndex:null}); return; }
+    this.setState(s => {
+      const p = [...s.progression], l = [...s.licks];
+      const [mp] = p.splice(from,1); p.splice(i,0,mp);
+      const [ml] = l.splice(from,1); l.splice(i,0,ml);
+      return { progression:p, licks:l, dragIndex:null };
+    });
+  }
+
+  // ---------- rendering helpers ----------
+  fb(box, opts) {
+    const R = React.createElement;
+    const c = this.colors(this.props.accentColor);
+    const accent = c.accent;
+    const showText = (this.props.noteLabels || 'names') !== 'none';
+    const mini = !!opts.mini;
+    const rowGap = mini?9:24, colW = mini?15:44, padL = mini?7:30, padTop = mini?7:16, padBot = mini?7:22, padR = mini?7:14;
+    const count = box.maxFret - box.minFret + 1;
+    const W = padL + count*colW + padR, H = padTop + 5*rowGap + padBot;
+    const y = r => padTop + r*rowGap;
+    const bx = f => padL + (f - box.minFret + 0.5)*colW;
+    const els = [];
+    if (!mini) [3,5,7,9,12,15,17].forEach(f => {
+      if (f>=box.minFret && f<=box.maxFret) {
+        const cx = bx(f);
+        if (f % 12 === 0) { els.push(R('circle',{key:'ia'+f,cx,cy:y(1)+rowGap/2,r:3,fill:c.faintStroke,fillOpacity:0.5})); els.push(R('circle',{key:'ib'+f,cx,cy:y(3)+rowGap/2,r:3,fill:c.faintStroke,fillOpacity:0.5})); }
+        else els.push(R('circle',{key:'i'+f,cx,cy:(y(2)+y(3))/2,r:3,fill:c.faintStroke,fillOpacity:0.5}));
+      }
+    });
+    for (let r=0;r<6;r++){
+      els.push(R('line',{key:'s'+r,x1:padL,y1:y(r),x2:padL+count*colW,y2:y(r),stroke:c.line,strokeWidth:mini?0.6:1}));
+      if(!mini) els.push(R('text',{key:'sl'+r,x:padL-9,y:y(r)+4,fontSize:11,fill:c.muted,textAnchor:'end',fontFamily:'JetBrains Mono, monospace'},this.STRLBL[r]));
+    }
+    for (let i=0;i<=count;i++){ const x=padL+i*colW, nut=(box.minFret===0&&i===0); els.push(R('line',{key:'f'+i,x1:x,y1:y(0),x2:x,y2:y(5),stroke:nut?c.text:c.line,strokeWidth:nut?3:(mini?0.6:1)})); }
+    if(!mini) for(let i=0;i<count;i++) els.push(R('text',{key:'fn'+i,x:padL+(i+0.5)*colW,y:H-6,fontSize:10,fill:c.muted,textAnchor:'middle',fontFamily:'JetBrains Mono, monospace'},String(box.minFret+i)));
+    if (opts.firstNote && (this.props.showStartRing !== false))
+      els.push(R('circle',{key:'ring',cx:bx(opts.firstNote.fret),cy:y(opts.firstNote.row),r:mini?6:15,fill:'none',stroke:accent,strokeWidth:1.5,strokeDasharray:'3 3'}));
+    box.positions.forEach((p,idx) => {
+      let st;
+      if (opts.chord){ if(p.pc===opts.chord.rootPc) st='chordRoot'; else if(opts.chord.pcs.has(p.pc)) st='chordTone'; else if(p.pc===opts.scaleRootPc) st='scaleRoot'; else st='scaleNote'; }
+      else st = p.isScaleRoot ? 'scaleRoot' : 'scaleNote';
+      const r = mini?4:11;
+      let fill='none', stroke=c.faintStroke, txt=c.muted, sw=1.4, fo=1, dash;
+      if(st==='chordRoot'){ fill=accent; stroke=accent; txt=c.accentText; sw=1.6; }
+      else if(st==='chordTone'){ fill=accent; fo=0.22; stroke=accent; txt=accent; sw=1.6; }
+      else if(st==='scaleRoot'){ stroke=accent; sw=2.4; txt=accent; if(mini){ fill=accent; txt=c.accentText; } }
+      else { stroke=c.faintStroke; txt=c.muted; if(p.isBlue) dash='2 2'; }
+      els.push(R('circle',{key:'n'+idx,cx:bx(p.fret),cy:y(p.row),r,fill,fillOpacity:fo,stroke,strokeWidth:sw,strokeDasharray:dash}));
+      if(!mini && showText) els.push(R('text',{key:'t'+idx,x:bx(p.fret),y:y(p.row)+3.5,fontSize:9.5,fill:txt,textAnchor:'middle',fontFamily:'-apple-system, sans-serif',fontWeight:st==='chordRoot'?700:500},this.NAMES[p.pc]));
+    });
+    return R('svg',{viewBox:'0 0 '+W+' '+H, width: mini?'100%':W, style:{maxWidth:'100%',height:'auto',display:'block'}}, els);
+  }
+  tab(lick) {
+    const R = React.createElement;
+    const c = this.colors(this.props.accentColor);
+    const n = Math.max(lick.length, 1);
+    const rowGap=20, padL=26, padTop=14, padBot=10, colW=34, padR=14;
+    const W = padL + n*colW + padR, H = padTop + 5*rowGap + padBot;
+    const y = r => padTop + r*rowGap;
+    const els = [];
+    for(let r=0;r<6;r++){
+      els.push(R('line',{key:'l'+r,x1:padL,y1:y(r),x2:padL+n*colW,y2:y(r),stroke:c.line,strokeWidth:1}));
+      els.push(R('text',{key:'ll'+r,x:padL-9,y:y(r)+4,fontSize:11,fill:c.muted,textAnchor:'end',fontFamily:'JetBrains Mono, monospace'},this.STRLBL[r]));
+    }
+    lick.forEach((p,i) => {
+      const x = padL + (i+0.5)*colW;
+      els.push(R('rect',{key:'r'+i,x:x-11,y:y(p.row)-9,width:22,height:18,rx:4,fill:c.card}));
+      els.push(R('text',{key:'nt'+i,x,y:y(p.row)+4,fontSize:12,fill:c.text,textAnchor:'middle',fontFamily:'JetBrains Mono, monospace',fontWeight:600},String(p.fret)));
+      els.push(R('text',{key:'on'+i,x,y:padTop-4,fontSize:8,fill:c.muted,textAnchor:'middle',fontFamily:'JetBrains Mono, monospace'},String(i+1)));
+    });
+    if(!lick.length) els.push(R('text',{key:'e',x:W/2,y:H/2,fontSize:11,fill:c.muted,textAnchor:'middle'},'\u2014'));
+    return R('svg',{viewBox:'0 0 '+W+' '+H, width:W, style:{maxWidth:'100%',height:'auto',display:'block'}}, els);
+  }
+  legend(items) {
+    const R = React.createElement, c = this.colors(this.props.accentColor), accent = c.accent;
+    const sw = type => {
+      let fill='none', stroke=c.faintStroke, s=1.6, fo=1, dash;
+      if(type==='chordRoot'){ fill=accent; stroke=accent; }
+      else if(type==='chordTone'){ fill=accent; fo=0.22; stroke=accent; }
+      else if(type==='scaleRoot'){ stroke=accent; s=2.4; }
+      else if(type==='start'){ stroke=accent; dash='3 3'; }
+      return R('svg',{width:18,height:18,viewBox:'0 0 18 18'}, R('circle',{cx:9,cy:9,r:6,fill,fillOpacity:fo,stroke,strokeWidth:s,strokeDasharray:dash}));
+    };
+    return R('div',{style:{display:'flex',flexWrap:'wrap',gap:'14px',alignItems:'center'}},
+      items.map((it,i)=>R('div',{key:i,style:{display:'flex',alignItems:'center',gap:'6px',fontSize:'12px',color:c.muted}}, sw(it.type), R('span',null,it.label))));
+  }
+
+  // ---------- style builders ----------
+  btnStyle(sel, wide) {
+    const c = this.colors(this.props.accentColor);
+    return { padding: wide?'8px 14px':'7px 0', minWidth: wide?'auto':'34px', textAlign:'center',
+      borderRadius:'8px', border:'1px solid '+(sel?c.accent:c.border), background: sel?c.accent:'transparent',
+      color: sel?c.accentText:c.text, fontSize:'13px', fontWeight: sel?700:500, cursor:'pointer', fontFamily:'inherit' };
+  }
+  cardStyle(sel, width) {
+    const c = this.colors(this.props.accentColor);
+    return { border:'1px solid '+(sel?c.accent:c.border), background: sel?'rgba(195,240,75,0.06)':c.card,
+      borderRadius:'11px', padding:'10px', cursor:'pointer', textAlign:'left', display:'block', width:(width||168)+'px', flexShrink:0 };
+  }
+  miniCardWidth(box) {
+    const count = box.maxFret - box.minFret + 1;
+    const w = 7 + count*15 + 7; // matches fb() mini padL/colW/padR
+    return Math.round(w * 1.9) + 20; // +20 for the card's own 10px inline padding each side
+  }
+
+  renderVals() {
+    const s = this.state;
+    const hasChords = s.progression.length > 0;
+    const rootButtons = this.ROOTS.map(pc => ({ label:this.NAMES[pc], style:this.btnStyle(pc===s.rootPc,false), onClick:()=>this.setRoot(pc) }));
+    const scaleButtons = [ {k:'minor',l:'Minor Pentatonic'}, {k:'blues',l:'Blues Scale'} ].map(o => ({ label:o.l, style:this.btnStyle(o.k===s.scale,true), onClick:()=>this.setScale(o.k) }));
+    const positionCards = this.orderedPositionIdx(s.rootPc, s.scale).map(({i,box:b}) => {
+      return { label:'Position '+(i+1), range:'frets '+b.minFret+'\u2013'+b.maxFret, recommended:i===0, mini:this.fb(b,{mini:true, scaleRootPc:s.rootPc}), style:this.cardStyle(s.positions.includes(i), this.miniCardWidth(b)), onClick:()=>this.togglePosition(i) };
+    });
+    const selBox = this.mergedBox(s.rootPc, s.scale, s.positions);
+    const advRootButtons = this.ROOTS.map(pc => ({ label:this.NAMES[pc], style:this.btnStyle(pc===s.advRoot,false), onClick:()=>this.setState({advRoot:pc}) }));
+    const advTypeButtons = [ {k:'maj',l:'maj'},{k:'min',l:'min'},{k:'7',l:'7'},{k:'m7',l:'m7'},{k:'dim',l:'dim'} ].map(o => ({ label:o.l, style:this.btnStyle(o.k===s.advType,true), onClick:()=>this.setState({advType:o.k}) }));
+    const cards = s.progression.map((ch,i) => {
+      const box = this.mergedBox(s.rootPc, s.scale, s.positions);
+      const lick = s.licks[i] || [];
+      const first = lick[0];
+      return {
+        chordLabel: this.chordName(ch), targetLabel: this.NAMES[ch.rootPc],
+        fretboard: this.fb(box, { chord:{rootPc:ch.rootPc, pcs:this.chordPcs(ch)}, scaleRootPc:s.rootPc, firstNote: first?{row:first.row,fret:first.fret}:null }),
+        tab: this.tab(lick)
+      };
+    });
+    return {
+      rootButtons, scaleButtons, positionCards,
+      scaleTitle: this.NAMES[s.rootPc] + ' ' + (s.scale==='minor'?'Minor Pentatonic':'Blues Scale') + (s.positions.length>1 ? ' \u2014 frets '+selBox.minFret+'\u2013'+selBox.maxFret+' (combined)' : ''),
+      selectedDiagram: this.fb(selBox, { scaleRootPc:s.rootPc }),
+      legendStep1: this.legend([ {type:'scaleNote',label:'Scale note'}, {type:'scaleRoot',label:'Scale root'} ]),
+      legendPractice: this.legend([ {type:'scaleNote',label:'Scale note'}, {type:'scaleRoot',label:'Scale root'}, {type:'chordTone',label:'Chord tone'}, {type:'chordRoot',label:'Target \u00b7 chord root'}, {type:'start',label:'Lick start'} ]),
+      suggested: this.suggestions().map(ch => ({ label:this.chordName(ch), onClick:()=>this.addChord(ch) })),
+      advanced: s.advanced, advancedLabel: s.advanced?'Hide advanced':'Advanced — add any chord',
+      toggleAdvanced: ()=>this.setState(x=>({advanced:!x.advanced})),
+      advRootButtons, advTypeButtons,
+      advPreview: this.chordName({rootPc:s.advRoot,type:s.advType}),
+      advAdd: ()=>this.addChord({rootPc:s.advRoot,type:s.advType}),
+      chips: s.progression.map((ch,i) => ({ label:this.chordName(ch), pos:String(i+1), onRemove:()=>this.removeChord(i), onDragStart:()=>this.setState({dragIndex:i}), onDrop:()=>this.drop(i) })),
+      allowDrop: (e)=>e.preventDefault(),
+      clearProgression: ()=>this.clearProgression(),
+      resetProgression: ()=>this.resetProgression(),
+      hasChords, noChords: !hasChords,
+      notesPerChord: s.notesPerChord, setNotes: (e)=>this.setNotes(e), regenerate: ()=>this.regenerateLicks(),
+      cards
+    };
+  }
+}
+</script>
+</body>
+</html>
