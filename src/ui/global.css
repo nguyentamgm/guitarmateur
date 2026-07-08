@@ -1,0 +1,39 @@
+/* Global base styles, ported from the mockup's base CSS (pixels, not logic). */
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0c0e0d;
+  color: #e8ece9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: #c3f04b;
+  text-decoration: none;
+}
+a:hover {
+  color: #d4ff57;
+}
+
+input[type='range'] {
+  accent-color: #c3f04b;
+  height: 4px;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(195, 240, 75, 0.25);
+}
