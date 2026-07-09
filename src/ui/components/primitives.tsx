@@ -75,3 +75,34 @@ export function PillButton({
     </button>
   );
 }
+
+/** Underlined muted text button, e.g. "Reset to default" / "Clear all". */
+export function TextButton({
+  onClick,
+  children,
+  ariaLabel,
+}: {
+  onClick: () => void;
+  children: ReactNode;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      onClick={onClick}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        color: theme.muted,
+        fontSize: 12.5,
+        textDecoration: 'underline',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+      }}
+    >
+      {children}
+    </button>
+  );
+}

@@ -14,3 +14,5 @@ export type { ToneRole, QualityId, Chord, ChordEntry } from './chord';
 export { CHORD_QUALITIES, chordNotes, toneRole, chordLabel, suggestedChords } from './chord';
 
 export { romanNumeral } from './roman';
+
+export { defaultProgression } from './harmony';
