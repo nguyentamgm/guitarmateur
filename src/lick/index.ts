@@ -1,0 +1,10 @@
+export type { Technique, LickNote, Lick, LickParams, GenerateLick } from './model';
+export { mulberry32, choice, weightedChoice, int, type Rng } from './rng';
+export type { RhythmSlot, RhythmPattern } from './rhythm';
+export { pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
+export type { Contour } from './contour';
+export { pickContour, pickChordTone, pickFirstNote } from './contour';
+export { fillPath } from './path';
+export type { ScorableNote } from './score';
+export { scoreLick } from './score';
+export { generateLick } from './generate';
