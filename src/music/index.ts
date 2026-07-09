@@ -9,3 +9,10 @@ export { TONICS } from './key';
 
 export type { ScaleId, ScaleDef } from './scales';
 export { SCALES, SCALE_IDS, scaleNoteNames, scalePcs } from './scales';
+
+export type { ToneRole, QualityId, Chord, ChordEntry } from './chord';
+export { CHORD_QUALITIES, chordNotes, toneRole, chordLabel, suggestedChords } from './chord';
+
+export { romanNumeral } from './roman';
+
+export { defaultProgression } from './harmony';

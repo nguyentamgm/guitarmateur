@@ -1,4 +1,4 @@
-import { format } from '../../music';
+import { format, toneRole, type Chord, type ToneRole } from '../../music';
 import type { Box } from '../../fretboard';
 import { font, theme } from '../theme';
 
@@ -15,12 +15,18 @@ export interface FretboardDiagramProps {
   title?: string;
   /** String labels low→high; defaults to standard tuning. */
   stringLabels?: string[];
+  /** Highlights a chord's tones; the `targetRole` tone gets the solid "target" style. */
+  highlight?: { chord: Chord; targetRole: ToneRole };
+  /** Marks where the lick lands with a dashed accent halo. */
+  landing?: { string: number; fret: number };
 }
 
 /**
  * Pure presentational fretboard renderer. Geometry and note styling are ported from the mockup's
- * `fb()` — pixels, not logic. Note *states* (M2): tonic = accent ring, decoration (♭5) = dashed
- * faint ring, other scale notes = faint ring. Chord highlighting/landing arrive with M3/M4.
+ * `fb()` — pixels, not logic. Note *states*: tonic = accent ring, decoration (♭5) = dashed faint
+ * ring, other scale notes = faint ring; when `highlight` is set, the target chord tone gets a
+ * solid accent fill and other chord tones get an accent ring + translucent fill, overriding the
+ * plain scale-note/tonic styling; `landing` adds a dashed accent halo around one note.
  */
 export function FretboardDiagram({
   box,
@@ -28,6 +34,8 @@ export function FretboardDiagram({
   labels = 'names',
   title,
   stringLabels = STANDARD_LABELS,
+  highlight,
+  landing,
 }: FretboardDiagramProps) {
   const numStrings = stringLabels.length;
   const rowGap = mini ? 9 : 24;
@@ -97,6 +105,7 @@ export function FretboardDiagram({
   const r = mini ? 4 : 11;
   box.notes.forEach((n, idx) => {
     let fill: string = 'none';
+    let fillOpacity: number | undefined;
     let stroke: string = theme.faintStroke;
     let txt: string = theme.muted;
     let sw = 1.4;
@@ -114,15 +123,73 @@ export function FretboardDiagram({
       dash = '2 2';
     }
 
+    const role = highlight ? toneRole(n.pitch, highlight.chord) : null;
+    if (role) {
+      dash = undefined;
+      stroke = theme.accent;
+      sw = 2;
+      if (role === highlight!.targetRole) {
+        fill = theme.accent;
+        fillOpacity = undefined;
+        txt = theme.accentText;
+      } else {
+        fill = theme.accent;
+        fillOpacity = 0.22;
+        txt = theme.accent;
+      }
+    }
+
+    const isLanding = landing && n.string === landing.string && n.fret === landing.fret;
+
     els.push(
-      <circle key={`n${idx}`} cx={bx(n.fret)} cy={y(rowOf(n.string))} r={r} fill={fill} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} />,
+      <circle
+        key={`n${idx}`}
+        cx={bx(n.fret)}
+        cy={y(rowOf(n.string))}
+        r={r}
+        fill={fill}
+        fillOpacity={fillOpacity}
+        stroke={stroke}
+        strokeWidth={sw}
+        strokeDasharray={dash}
+      />,
     );
+    if (isLanding) {
+      els.push(
+        <circle
+          key={`land${idx}`}
+          cx={bx(n.fret)}
+          cy={y(rowOf(n.string))}
+          r={r + 4}
+          fill="none"
+          stroke={theme.accent}
+          strokeWidth={1.6}
+          strokeDasharray="3 3"
+        />,
+      );
+    }
     if (!mini && labels === 'names') {
       els.push(
-        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} fill={txt} textAnchor="middle" fontFamily={font.sans} fontWeight={n.isTonic ? 700 : 500}>
+        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} fill={txt} textAnchor="middle" fontFamily={font.sans} fontWeight={n.isTonic || role ? 700 : 500}>
           {format(n.pitch)}
         </text>,
       );
+      if (role) {
+        els.push(
+          <text
+            key={`role${idx}`}
+            x={bx(n.fret) + r - 1}
+            y={y(rowOf(n.string)) - r + 3}
+            fontSize={7}
+            fill={theme.accent}
+            textAnchor="middle"
+            fontFamily={font.mono}
+            fontWeight={700}
+          >
+            {role}
+          </text>,
+        );
+      }
     }
   });
 
