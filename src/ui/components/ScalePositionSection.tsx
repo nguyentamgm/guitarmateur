@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
-import { format, SCALE_IDS, SCALES, TONICS, type Key, type NoteName, type ScaleId } from '../../music';
-import { areAdjacent, mergedBox, positions, recommendedPosition, TUNINGS } from '../../fretboard';
+import { useMemo } from 'react';
+import { format, SCALE_IDS, SCALES, TONICS, type NoteName } from '../../music';
+import { mergedBox, positions, recommendedPosition, TUNINGS } from '../../fretboard';
+import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker } from './primitives';
 import { FretboardDiagram } from './FretboardDiagram';
@@ -9,38 +10,14 @@ import { Legend } from './Legend';
 const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
 /** Step 1 — pick key, scale, and position(s); see spelled notes on the fretboard. */
-export function ScalePositionSection() {
-  const [tonic, setTonic] = useState<NoteName>(TONICS[0]!);
-  const [scaleId, setScaleId] = useState<ScaleId>('minorPentatonic');
-
-  const key: Key = useMemo(() => ({ tonic, scaleId }), [tonic, scaleId]);
-  const pos = useMemo(() => positions(TUNINGS.standard, key), [key]);
+export function ScalePositionSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
+  const { key } = state;
+  const pos = useMemo(() => positions(TUNINGS[state.tuningId], key), [state.tuningId, key]);
   const rec = useMemo(() => recommendedPosition(pos), [pos]);
-
-  const [selected, setSelected] = useState<number[]>([rec]);
-
-  // Reset selection to the recommended box whenever key/scale (and thus positions) change.
-  const changeKey = (next: Partial<{ tonic: NoteName; scaleId: ScaleId }>) => {
-    const nextKey: Key = { tonic: next.tonic ?? tonic, scaleId: next.scaleId ?? scaleId };
-    if (next.tonic) setTonic(next.tonic);
-    if (next.scaleId) setScaleId(next.scaleId);
-    const nextPos = positions(TUNINGS.standard, nextKey);
-    setSelected([recommendedPosition(nextPos)]);
-  };
-
-  // Toggle: min 1 selected, max 2, and a pair must be adjacent (else it replaces).
-  const togglePosition = (i: number) => {
-    setSelected((cur) => {
-      if (cur.includes(i)) return cur.length > 1 ? cur.filter((x) => x !== i) : cur;
-      if (cur.length === 1 && areAdjacent(pos, cur[0]!, i)) return [cur[0]!, i].sort((a, b) => a - b);
-      return [i];
-    });
-  };
-
-  const box = useMemo(() => mergedBox(pos, selected), [pos, selected]);
-  const scaleName = SCALES[scaleId].name;
-  const combined = selected.length > 1;
-  const title = `${format(tonic)} ${scaleName}${combined ? ` — frets ${box.minFret}–${box.maxFret} (combined)` : ''}`;
+  const box = useMemo(() => mergedBox(pos, state.positions), [pos, state.positions]);
+  const scaleName = SCALES[key.scaleId].name;
+  const combined = state.positions.length > 1;
+  const title = `${format(key.tonic)} ${scaleName}${combined ? ` — frets ${box.minFret}–${box.maxFret} (combined)` : ''}`;
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -50,7 +27,7 @@ export function ScalePositionSection() {
         <Label>Key</Label>
         <Row>
           {TONICS.map((t) => (
-            <PillButton key={format(t)} selected={sameNote(t, tonic)} onClick={() => changeKey({ tonic: t })}>
+            <PillButton key={format(t)} selected={sameNote(t, key.tonic)} onClick={() => dispatch({ type: 'setKey', tonic: t })}>
               {format(t)}
             </PillButton>
           ))}
@@ -60,7 +37,7 @@ export function ScalePositionSection() {
         <Label style={{ marginTop: 16 }}>Scale</Label>
         <Row>
           {SCALE_IDS.map((id) => (
-            <PillButton key={id} selected={id === scaleId} wide onClick={() => changeKey({ scaleId: id })}>
+            <PillButton key={id} selected={id === key.scaleId} wide onClick={() => dispatch({ type: 'setScale', scaleId: id })}>
               {SCALES[id].name}
             </PillButton>
           ))}
@@ -75,8 +52,8 @@ export function ScalePositionSection() {
               index={p.index}
               range={`frets ${p.minFret}–${p.maxFret}`}
               recommended={p.index === rec}
-              selected={selected.includes(p.index)}
-              onClick={() => togglePosition(p.index)}
+              selected={state.positions.includes(p.index)}
+              onClick={() => dispatch({ type: 'togglePosition', index: p.index })}
               box={{ notes: p.notes, minFret: p.minFret, maxFret: p.maxFret }}
             />
           ))}
@@ -89,7 +66,7 @@ export function ScalePositionSection() {
             items={[
               { type: 'tonic', label: 'root' },
               { type: 'scaleNote', label: 'scale note' },
-              ...(scaleId === 'blues' ? [{ type: 'decoration' as const, label: '♭5 (blue note)' }] : []),
+              ...(key.scaleId === 'blues' ? [{ type: 'decoration' as const, label: '♭5 (blue note)' }] : []),
             ]}
           />
           <div style={{ overflowX: 'auto', marginTop: 12 }}>

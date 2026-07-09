@@ -1,11 +1,16 @@
+import { useAppState } from '../state';
 import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
+import { ProgressionSection } from './components/ProgressionSection';
+import { PracticeSection } from './components/PracticeSection';
 
 /**
- * App shell: header + the practice steps. M2 ships Step 1 (scale & position explorer). Steps 2–3
- * (progression, practice cards) arrive with M3.
+ * App shell: header + the three practice steps. State is provided by `useAppState` and threaded
+ * down to sections — each section is presentational apart from reading its slice of state.
  */
 export function App() {
+  const [state, dispatch] = useAppState();
+
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', padding: '30px 20px 70px' }}>
       <header style={{ marginBottom: 34 }}>
@@ -33,7 +38,9 @@ export function App() {
         </p>
       </header>
 
-      <ScalePositionSection />
+      <ScalePositionSection state={state} dispatch={dispatch} />
+      <ProgressionSection state={state} dispatch={dispatch} />
+      <PracticeSection state={state} dispatch={dispatch} />
     </div>
   );
 }

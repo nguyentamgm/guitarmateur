@@ -57,9 +57,26 @@ export type Action =
 /** Non-deterministic at the app boundary on purpose; tests inject a counter instead. */
 export const defaultNextSeed = (): number => (Date.now() ^ Math.floor(Math.random() * 2 ** 31)) | 0;
 
+/**
+ * Lightweight UUID v4 generator that works in all environments (browser, jsdom, Node).
+ * Falls back to Math.random if crypto.randomUUID is unavailable (e.g. older jsdom).
+ */
+const generateId = (): string => {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    // Fallback for jsdom / SSR: not cryptographically secure, but sufficient for
+    // session-local state identifiers.
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+  }
+};
+
 function freshProgression(key: Key, nextSeed: () => number): ProgressionEntry[] {
   return defaultProgression(key).map((chord) => ({
-    id: crypto.randomUUID(),
+    id: generateId(),
     chord,
     lickSeed: nextSeed(),
   }));
