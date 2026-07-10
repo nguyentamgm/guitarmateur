@@ -5,6 +5,7 @@ import { activeSlots, patternLengthBeats, pickPattern } from './rhythm';
 import { pickChordTone, pickContour, pickFirstNote } from './contour';
 import { fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
+import { decorateTechniques } from './techniques';
 import type { Lick, LickNote, LickParams } from './model';
 
 /** Deterministic (attempt i uses `seed + i`) — bounds worst-case work and guarantees output. */
@@ -33,7 +34,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const first = pickFirstNote(box, chord, last, contour, rng);
     const path = fillPath(box, first, last, slots.length, contour, params.level, rng);
 
-    const notes: LickNote[] = path.map((fretNote, i) => ({
+    const rawNotes: LickNote[] = path.map((fretNote, i) => ({
       string: fretNote.string,
       fret: fretNote.fret,
       pitch: fretNote.pitch,
@@ -42,10 +43,13 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
       role: toneRole(fretNote.pitch, chord) ?? undefined,
     }));
 
+    const notes = decorateTechniques(rawNotes, params.level, mulberry32(params.seed + attempt + 1000));
+
     const scorable: ScorableNote[] = path.map((fretNote, i) => ({
       string: fretNote.string,
       fret: fretNote.fret,
       startBeat: slots[i]!.startBeat,
+      technique: notes[i]!.technique,
       isDecoration: fretNote.isDecoration,
     }));
     const score = scoreLick(scorable, lengthBeats);

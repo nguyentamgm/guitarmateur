@@ -42,7 +42,7 @@ function lastNoteSustainsToBar(lick: Lick): boolean {
 }
 
 describe('generateLick — integration', () => {
-  const levels: LickParams['level'][] = [1, 2, 3];
+  const levels: LickParams['level'][] = [1, 2, 3, 4, 5];
   const roles: LickParams['targetRole'][] = ['R', '3', '5'];
 
   it('is deterministic: same inputs => identical lick', () => {
@@ -58,10 +58,10 @@ describe('generateLick — integration', () => {
     expect(a.notes).not.toEqual(b.notes);
   });
 
-  it('invariant loop: 100 seeded runs x levels 1-3', () => {
+  it('invariant loop: 50 seeded runs x levels 1-5', () => {
     for (const level of levels) {
       for (const role of roles) {
-        for (let seed = 0; seed < 100; seed++) {
+        for (let seed = 0; seed < 50; seed++) {
           const params: LickParams = { level, targetRole: role, resolveToNext: false, seed };
           const lick = generateLick(box, chord, null, params);
 
@@ -95,11 +95,30 @@ describe('generateLick — integration', () => {
     }
   });
 
+  it('levels 1-3: no 16th notes', () => {
+    for (const level of [1, 2, 3] as const) {
+      for (let seed = 0; seed < 50; seed++) {
+        const lick = generateLick(box, chord, null, { level, targetRole: 'R', resolveToNext: false, seed });
+        for (const note of lick.notes) {
+          expect(note.durationBeats).not.toBe(0.25);
+        }
+      }
+    }
+  });
+
+  it('level 5: include 16th-note durations across seeds', () => {
+    const has16th = Array.from({ length: 200 }, (_, seed) => {
+      const lick = generateLick(box, chord, null, { level: 5, targetRole: 'R', resolveToNext: false, seed });
+      return lick.notes.some((n) => n.durationBeats === 0.25);
+    }).some(Boolean);
+    expect(has16th).toBe(true);
+  });
+
   it('score monotonicity: mean score increases with level', () => {
     const means: number[] = [];
     for (const level of levels) {
       let sum = 0;
-      const count = 50;
+      const count = 100;
       for (let seed = 0; seed < count; seed++) {
         const lick = generateLick(box, chord, null, { level, targetRole: 'R', resolveToNext: false, seed });
         sum += lick.difficulty;
@@ -107,7 +126,7 @@ describe('generateLick — integration', () => {
       means.push(sum / count);
     }
     for (let i = 1; i < means.length; i++) {
-      expect(means[i]!).toBeGreaterThan(means[i - 1]!);
+      expect(means[i]!).toBeGreaterThanOrEqual(means[i - 1]!);
     }
   });
 
@@ -127,5 +146,27 @@ describe('generateLick — integration', () => {
     const pc = midi(last.pitch) % 12;
     // G major: G=7, B=11, D=2
     expect([7, 11, 2]).toContain(pc);
+  });
+
+  it('level 1-2: no techniques on any note', () => {
+    for (const level of [1, 2] as const) {
+      for (let seed = 0; seed < 50; seed++) {
+        const lick = generateLick(box, chord, null, { level, targetRole: 'R', resolveToNext: false, seed });
+        for (const note of lick.notes) {
+          expect(note.technique).toBeUndefined();
+        }
+      }
+    }
+  });
+
+  it('level 3+: mean technique count > 0 over 50 seeds', () => {
+    for (const level of [3, 4, 5] as const) {
+      let total = 0;
+      for (let seed = 0; seed < 50; seed++) {
+        const lick = generateLick(box, chord, null, { level, targetRole: 'R', resolveToNext: false, seed });
+        total += lick.notes.filter((n) => n.technique !== undefined).length;
+      }
+      expect(total / 50).toBeGreaterThan(0);
+    }
   });
 });

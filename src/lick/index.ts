@@ -8,3 +8,4 @@ export { fillPath } from './path';
 export type { ScorableNote } from './score';
 export { scoreLick } from './score';
 export { generateLick } from './generate';
+export { decorateTechniques } from './techniques';

@@ -35,26 +35,8 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
             <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>Level</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {([1, 2, 3, 4, 5] as const).map((l) => (
-                <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={`Level ${l}${l > 3 ? ' (coming soon)' : ''}`}>
-                  <span style={{ opacity: l > 3 ? 0.4 : 1, position: 'relative' }}>
-                    {l}
-                    {l > 3 && (
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: -14,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          fontSize: 8,
-                          color: theme.muted,
-                          whiteSpace: 'nowrap',
-                          fontFamily: font.mono,
-                        }}
-                      >
-                        soon
-                      </span>
-                    )}
-                  </span>
+                <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={`Level ${l}`}>
+                  {l}
                 </PillButton>
               ))}
             </div>
