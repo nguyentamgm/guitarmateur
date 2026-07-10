@@ -40,13 +40,34 @@ const LEVEL3: RhythmPattern[] = [
   [e(0), restE(0.5), e(1), e(1.5), restE(2), e(2.5), e(3), e(3.5)],
 ];
 
+export const s = (startBeat: number): RhythmSlot => ({ startBeat, durationBeats: 0.25 });
+export const restS = (startBeat: number): RhythmSlot => ({ startBeat, durationBeats: 0.25, rest: true });
+
+/** Level 4 — syncopation, 8th rests, off-beat starts (7–8 notes, high density). */
+const LEVEL4: RhythmPattern[] = [
+  [e(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],          // straight 8ths
+  [e(0), e(0.5), e(1), restE(1.5), e(2), e(2.5), e(3), e(3.5)],       // 7 notes
+  [restE(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],       // pickup start
+  [e(0), e(0.5), e(1), e(1.5), restE(2), e(2.5), e(3), e(3.5)],       // mid rest
+  [e(0), restE(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],       // off-beat start
+  [e(0), e(0.5), restE(1), e(1.5), e(2), restE(2.5), e(3), e(3.5)],   // 6 notes — lowest, but syncopated
+];
+
+/** Level 5 — 16th pairs/runs, mixed. */
+const LEVEL5: RhythmPattern[] = [
+  [e(0), e(0.5), e(1), e(1.5), s(2), s(2.25), s(2.5), s(2.75), e(3), e(3.5)],
+  [s(0), s(0.25), s(0.5), s(0.75), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
+  [e(0), s(0.5), s(0.75), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
+  [restE(0), e(0.5), e(1), restS(1.5), s(1.75), e(2), e(2.5), s(3), s(3.25), s(3.5), s(3.75)],
+  [s(0), s(0.25), restS(0.5), s(0.75), e(1), restE(1.5), s(2), s(2.25), e(2.5), e(3), e(3.5)],
+];
+
 const LIBRARY: Record<LickParams['level'], RhythmPattern[]> = {
   1: LEVEL1,
   2: LEVEL2,
   3: LEVEL3,
-  // M4 ships syncopation/tuplets for levels 4–5; until then they reuse level 3's pool.
-  4: LEVEL3,
-  5: LEVEL3,
+  4: LEVEL4,
+  5: LEVEL5,
 };
 
 /** Deterministic pick of one pattern from the level's pool. */
