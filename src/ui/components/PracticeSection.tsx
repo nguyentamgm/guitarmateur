@@ -8,10 +8,15 @@ import { Panel, PillButton, SectionKicker } from './primitives';
 import { FretboardDiagram } from './FretboardDiagram';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
+import { PlaybackControls } from './PlaybackControls';
+import { useTransport } from '../useTransport';
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
   const licks = useMemo(() => licksForState(state), [state]);
+  const transport = useTransport();
+  const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
+  const active = transport.position;
   const box = useMemo(() => {
     const pos = positions(TUNINGS[state.tuningId], state.key);
     return mergedBox(pos, state.positions);
@@ -86,6 +91,14 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
           </div>
         ) : (
           <>
+            {/* Playback */}
+            <PlaybackControls
+              licks={plainLicks}
+              tempoBpm={state.tempoBpm}
+              onTempoChange={(bpm) => dispatch({ type: 'setTempo', bpm })}
+              transport={transport}
+            />
+
             {/* Legend */}
             <div style={{ marginBottom: 14 }}>
               <Legend
@@ -101,11 +114,12 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
 
             {/* Cards grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
-              {licks.map(({ entryId, lick }) => {
+              {licks.map(({ entryId, lick }, i) => {
                 const entry = chordMap.get(entryId);
                 if (!entry) return null;
                 const chord: Chord = { tonic: entry.chord.tonic, quality: entry.chord.quality };
                 const targetTone = chordLabel(chord);
+                const isActiveCard = active?.entryIndex === i;
 
                 // Find landing note (last note of the lick)
                 const lastNote = lick.notes.length > 0 ? lick.notes[lick.notes.length - 1] : undefined;
@@ -115,7 +129,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                     key={entryId}
                     style={{
                       background: theme.card,
-                      border: `1px solid ${theme.border}`,
+                      border: `1px solid ${isActiveCard ? theme.accent : theme.border}`,
                       borderRadius: 12,
                       padding: 14,
                     }}
@@ -165,7 +179,11 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                     </div>
 
                     {/* Tab staff */}
-                    <TabStaff lick={lick} title={`Lick for ${targetTone}`} />
+                    <TabStaff
+                      lick={lick}
+                      title={`Lick for ${targetTone}`}
+                      activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
+                    />
 
                     {/* Per-card regenerate */}
                     <div style={{ marginTop: 10, textAlign: 'right' }}>

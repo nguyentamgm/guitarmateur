@@ -1,6 +1,6 @@
 import { CHORD_QUALITIES, SCALE_IDS, TONICS, type Chord, type Key, type NoteName, type QualityId, type ScaleId } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
-import { defaultState, type AppState, type ProgressionEntry } from './appState';
+import { clampBpm, defaultState, type AppState, type Bars, type ProgressionEntry } from './appState';
 
 const STORAGE_KEY = 'guitarmateur-state';
 
@@ -40,6 +40,11 @@ function isValidTargetRole(x: unknown): x is 'R' | '3' | '5' {
   return x === 'R' || x === '3' || x === '5';
 }
 
+/** `bars` was added in schema v3; older (v2) entries lack it and default to 1. */
+function readBars(x: unknown): Bars {
+  return x === 2 ? 2 : 1;
+}
+
 function readValidProgression(x: unknown): ProgressionEntry[] | null {
   if (!Array.isArray(x)) return null;
   const out: ProgressionEntry[] = [];
@@ -47,7 +52,7 @@ function readValidProgression(x: unknown): ProgressionEntry[] | null {
     if (!e || typeof e !== 'object') continue;
     const entry = e as Record<string, unknown>;
     if (typeof entry.id !== 'string' || typeof entry.lickSeed !== 'number' || !isValidChord(entry.chord)) continue;
-    out.push({ id: entry.id, chord: entry.chord, lickSeed: entry.lickSeed });
+    out.push({ id: entry.id, chord: entry.chord, lickSeed: entry.lickSeed, bars: readBars(entry.bars) });
   }
   return out;
 }
@@ -83,9 +88,11 @@ export function migrate(raw: unknown): AppState {
   const level = isValidLevel(r.level) ? r.level : fallback.level;
   const targetRole = isValidTargetRole(r.targetRole) ? r.targetRole : fallback.targetRole;
   const resolveToNext = typeof r.resolveToNext === 'boolean' ? r.resolveToNext : fallback.resolveToNext;
+  // Added in schema v3; absent in v2 payloads → falls back to the default tempo.
+  const tempoBpm = typeof r.tempoBpm === 'number' ? clampBpm(r.tempoBpm) : fallback.tempoBpm;
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     tuningId,
     key,
     positions: positionsField,
@@ -93,14 +100,15 @@ export function migrate(raw: unknown): AppState {
     level,
     targetRole,
     resolveToNext,
+    tempoBpm,
     ui: fallback.ui,
   };
 }
 
 /** Persists everything but `ui`. Quota errors / private-mode `setItem` failures are a silent no-op. */
 export function saveState(state: AppState): void {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
   } catch {

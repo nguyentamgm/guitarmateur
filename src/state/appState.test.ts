@@ -33,6 +33,28 @@ describe('reducer', () => {
     expect(next.progression).not.toEqual(s.progression);
   });
 
+  it('setTempo clamps to the 40–200 BPM range', () => {
+    const s = fresh();
+    expect(reducer(s, { type: 'setTempo', bpm: 128 }, testNextSeed).tempoBpm).toBe(128);
+    expect(reducer(s, { type: 'setTempo', bpm: 5 }, testNextSeed).tempoBpm).toBe(40);
+    expect(reducer(s, { type: 'setTempo', bpm: 9000 }, testNextSeed).tempoBpm).toBe(200);
+  });
+
+  it('setBars toggles a single entry between 1 and 2 without touching others', () => {
+    const s = fresh();
+    const id = s.progression[0]!.id;
+    const two = reducer(s, { type: 'setBars', id, bars: 2 }, testNextSeed);
+    expect(two.progression[0]!.bars).toBe(2);
+    expect(two.progression[0]!.lickSeed).toBe(s.progression[0]!.lickSeed); // seed preserved
+    expect(two.progression.slice(1)).toEqual(s.progression.slice(1));
+  });
+
+  it('new chords default to 1 bar', () => {
+    const s = fresh();
+    const next = reducer(s, { type: 'addChord', chord: gMajor }, testNextSeed);
+    expect(next.progression[next.progression.length - 1]!.bars).toBe(1);
+  });
+
   it('togglePosition: min 1 selected (cannot deselect the last)', () => {
     const s = fresh();
     const only = s.positions[0]!;

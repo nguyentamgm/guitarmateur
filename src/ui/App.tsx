@@ -34,7 +34,7 @@ export function App() {
           licks to solo over your backing track.
         </p>
         <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
-          No audio here — cue up your own YouTube backing track and play along.
+          Play along in the browser, or cue your own backing track and solo over it.
         </p>
       </header>
 

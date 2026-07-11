@@ -44,3 +44,8 @@ ui → state → (lick → fretboard → music)      audio → lick/state
 
 Lower layers never import React or a higher layer (enforced by an ESLint rule). See
 [`AGENTS.md`](AGENTS.md) for conventions and [`docs/plans/`](docs/plans/) for the full design.
+
+## Progress
+
+Current milestone status and per-plan acceptance criteria live in
+[`docs/plans/09-progress.md`](docs/plans/09-progress.md).

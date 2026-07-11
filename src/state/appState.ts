@@ -9,14 +9,24 @@ import {
 } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
 
+/** Bars a chord spans (× 4 beats). v1 audio supports 1- or 2-bar licks. */
+export type Bars = 1 | 2;
+
 export interface ProgressionEntry {
   id: string;
   chord: Chord;
   lickSeed: number;
+  /** How many 4/4 bars this chord's lick spans (added in schema v3, default 1). */
+  bars: Bars;
 }
 
+/** Tempo bounds shared by state clamping and the UI slider. */
+export const MIN_BPM = 40;
+export const MAX_BPM = 200;
+export const DEFAULT_BPM = 90;
+
 export interface AppState {
-  schemaVersion: 2;
+  schemaVersion: 3;
   tuningId: TuningId;
   key: Key;
   /** 1–2 selected position indices. */
@@ -25,6 +35,8 @@ export interface AppState {
   level: 1 | 2 | 3 | 4 | 5;
   targetRole: 'R' | '3' | '5';
   resolveToNext: boolean;
+  /** Playback tempo in BPM (40–200), added in schema v3. */
+  tempoBpm: number;
   /** Not persisted. */
   ui: {
     advancedOpen: boolean;
@@ -46,6 +58,8 @@ export type Action =
   | { type: 'clearProgression' }
   | { type: 'resetProgression' }
   | { type: 'reorderChord'; fromId: string; toIndex: number }
+  | { type: 'setBars'; id: string; bars: Bars }
+  | { type: 'setTempo'; bpm: number }
   | { type: 'rerollLick'; id: string }
   | { type: 'rerollAll' }
   | { type: 'toggleAdvanced' }
@@ -79,7 +93,14 @@ function freshProgression(key: Key, nextSeed: () => number): ProgressionEntry[] 
     id: generateId(),
     chord,
     lickSeed: nextSeed(),
+    bars: 1,
   }));
+}
+
+/** Clamp any number to the supported BPM range, rounding to a whole beat-per-minute. */
+export function clampBpm(bpm: number): number {
+  if (!Number.isFinite(bpm)) return DEFAULT_BPM;
+  return Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(bpm)));
 }
 
 export function defaultState(nextSeed: () => number = defaultNextSeed): AppState {
@@ -89,7 +110,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
   const rec = recommendedPosition(pos);
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     tuningId,
     key,
     positions: [rec],
@@ -97,6 +118,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
     level: 2,
     targetRole: 'R',
     resolveToNext: false,
+    tempoBpm: DEFAULT_BPM,
     ui: {
       advancedOpen: false,
       advRoot: TONICS[0]!,
@@ -144,7 +166,7 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
     case 'addChord':
       return {
         ...state,
-        progression: [...state.progression, { id: crypto.randomUUID(), chord: action.chord, lickSeed: nextSeed() }],
+        progression: [...state.progression, { id: generateId(), chord: action.chord, lickSeed: nextSeed(), bars: 1 }],
       };
     case 'removeChord':
       return { ...state, progression: state.progression.filter((e) => e.id !== action.id) };
@@ -161,6 +183,13 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       next.splice(clamped, 0, entry!);
       return { ...state, progression: next };
     }
+    case 'setBars':
+      return {
+        ...state,
+        progression: state.progression.map((e) => (e.id === action.id ? { ...e, bars: action.bars } : e)),
+      };
+    case 'setTempo':
+      return { ...state, tempoBpm: clampBpm(action.bpm) };
     case 'rerollLick':
       return {
         ...state,

@@ -58,6 +58,30 @@ describe('generateLick — integration', () => {
     expect(a.notes).not.toEqual(b.notes);
   });
 
+  it('bars sets lengthBeats = bars * 4 and keeps notes within the span (M5)', () => {
+    for (const bars of [1, 2] as const) {
+      for (let seed = 0; seed < 30; seed++) {
+        const lick = generateLick(box, chord, null, { level: 3, targetRole: 'R', resolveToNext: false, seed, bars });
+        expect(lick.lengthBeats).toBe(bars * 4);
+        expect(allNotesInBox(lick, box)).toBe(true);
+        expect(notesSortedByBeat(lick)).toBe(true);
+        expect(notesNoOverlap(lick)).toBe(true);
+        expect(lastNoteSustainsToBar(lick)).toBe(true);
+        for (const n of lick.notes) {
+          expect(n.startBeat).toBeGreaterThanOrEqual(0);
+          expect(n.startBeat).toBeLessThan(bars * 4);
+        }
+      }
+    }
+  });
+
+  it('omitting bars defaults to a single bar', () => {
+    const withDefault = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 7 });
+    const explicitOne = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 7, bars: 1 });
+    expect(withDefault.lengthBeats).toBe(4);
+    expect(withDefault).toEqual(explicitOne);
+  });
+
   it('invariant loop: 50 seeded runs x levels 1-5', () => {
     for (const level of levels) {
       for (const role of roles) {

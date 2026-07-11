@@ -36,6 +36,7 @@ export function licksForState(state: AppState): EntryLick[] {
       targetRole: state.targetRole,
       resolveToNext: state.resolveToNext,
       seed: entry.lickSeed,
+      bars: entry.bars,
     });
     return { entryId: entry.id, lick };
   });
