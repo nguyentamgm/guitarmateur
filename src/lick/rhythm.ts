@@ -75,6 +75,23 @@ export function pickPattern(level: LickParams['level'], rng: Rng): RhythmPattern
   return choice(rng, LIBRARY[level]);
 }
 
+/**
+ * Build a `bars`-bar rhythm by tiling one freshly-picked 1-bar pattern per bar, each offset by
+ * `LENGTH_BEATS`. Reusing the 1-bar library keeps this a data-assembly step (no new pattern tables)
+ * while letting a chord span 2 bars — the second bar can differ from the first, so 2-bar licks
+ * aren't just a repeat. Deterministic: successive bars advance the shared `rng`.
+ */
+export function buildRhythm(level: LickParams['level'], bars: number, rng: Rng): RhythmPattern {
+  const out: RhythmPattern = [];
+  for (let bar = 0; bar < bars; bar++) {
+    const offset = bar * LENGTH_BEATS;
+    for (const slot of pickPattern(level, rng)) {
+      out.push({ ...slot, startBeat: slot.startBeat + offset });
+    }
+  }
+  return out;
+}
+
 /** The non-rest slots — these are the ones that receive a `LickNote`. */
 export function activeSlots(pattern: RhythmPattern): RhythmSlot[] {
   return pattern.filter((s) => !s.rest);

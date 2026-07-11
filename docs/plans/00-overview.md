@@ -57,6 +57,7 @@ Hosting: **Vercel Hobby (free)**, auto-deploy on merge to `main`, no staging. Do
 | 06 | [State & persistence](06-state-and-persistence.md) | `src/state/` — versioned schema, migrations |
 | 07 | [Audio (phase 2)](07-audio.md) | `src/audio/` — metronome, lick playback, tempo |
 | 08 | [CI & deployment](08-deployment.md) | GitHub Actions + Vercel + guitarmateur.com |
+| 09 | [Progress tracker](09-progress.md) | **Current status — check here first** |
 
 ## Milestones (build order)
 
@@ -84,14 +85,17 @@ hidden until then), left-handed view, preset sharing via URL, PWA/offline.
 
 ## Definition of done (v1 = end of M3)
 
-- [ ] https://guitarmateur.com serves the app over HTTPS; www and http variants redirect.
-- [ ] Merging to `main` deploys automatically; CI (lint, typecheck, test, build) gates PRs.
-- [ ] Keys are spelled correctly (F minor shows B♭, not A♯) across all 12 keys × 3 scales.
-- [ ] Positions are generated algorithmically — no hardcoded shape tables anywhere.
-- [ ] Licks have rhythm, respect the chosen difficulty level, and end on the selected target
-      chord tone; regenerating with the same seed reproduces the same lick.
-- [ ] State (including licks, via seeds) survives reload; schema is versioned with a migration path.
-- [ ] All engine/state packages ≥ solidly unit-tested; `npm test` passes in CI.
+This is the spec's definition, fixed at plan time. For live checked/unchecked status against the
+current codebase, see [09-progress.md](09-progress.md) — don't hand-edit checkboxes here.
+
+- https://guitarmateur.com serves the app over HTTPS; www and http variants redirect.
+- Merging to `main` deploys automatically; CI (lint, typecheck, test, build) gates PRs.
+- Keys are spelled correctly (F minor shows B♭, not A♯) across all 12 keys × 3 scales.
+- Positions are generated algorithmically — no hardcoded shape tables anywhere.
+- Licks have rhythm, respect the chosen difficulty level, and end on the selected target
+  chord tone; regenerating with the same seed reproduces the same lick.
+- State (including licks, via seeds) survives reload; schema is versioned with a migration path.
+- All engine/state packages ≥ solidly unit-tested; `npm test` passes in CI.
 
 ## Constraints & non-goals
 

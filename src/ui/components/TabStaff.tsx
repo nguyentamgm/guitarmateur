@@ -15,11 +15,13 @@ function durationGlyph(beats: number): string {
 export interface TabStaffProps {
   lick: Lick;
   title?: string;
+  /** Index of the currently-sounding note (in `lick.notes` order) to highlight during playback. */
+  activeNoteIndex?: number;
 }
 
 /** SVG tab notation for a lick: fret numbers on string lines, positioned proportional to
  *  `startBeat`, with beat ticks along the top and duration glyphs underneath. */
-export function TabStaff({ lick, title }: TabStaffProps) {
+export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
   const numStrings = STRING_LABELS.length;
   const rowGap = 20;
   const padL = 26;
@@ -70,14 +72,26 @@ export function TabStaff({ lick, title }: TabStaffProps) {
     );
   }
 
+  // Note order matches `lick.notes` (already ascending by startBeat), so the index lines up with
+  // the transport's `noteIndex` for highlighting the currently-sounding note.
   const sorted = [...lick.notes].sort((a, b) => a.startBeat - b.startBeat);
   sorted.forEach((n, i) => {
     const cx = x(n.startBeat);
     const cy = y(rowOf(n.string));
+    const active = i === activeNoteIndex;
     els.push(
       <g key={`n${i}`}>
-        <rect x={cx - 9} y={cy - 8} width={18} height={16} rx={3} fill={theme.card} stroke={theme.faintStroke} strokeWidth={1} />
-        <text x={cx} y={cy + 4} fontSize={10.5} fill={theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600}>
+        <rect
+          x={cx - 9}
+          y={cy - 8}
+          width={18}
+          height={16}
+          rx={3}
+          fill={active ? theme.accent : theme.card}
+          stroke={active ? theme.accent : theme.faintStroke}
+          strokeWidth={1}
+        />
+        <text x={cx} y={cy + 4} fontSize={10.5} fill={active ? theme.accentText : theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600}>
           {n.fret}
         </text>
       </g>,

@@ -1,7 +1,7 @@
 import { toneRole, type Chord } from '../music';
 import type { Box } from '../fretboard';
 import { mulberry32 } from './rng';
-import { activeSlots, patternLengthBeats, pickPattern } from './rhythm';
+import { activeSlots, buildRhythm, patternLengthBeats } from './rhythm';
 import { pickChordTone, pickContour, pickFirstNote } from './contour';
 import { fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
@@ -19,13 +19,14 @@ const SCORE_TOLERANCE = 0.75;
  */
 export function generateLick(box: Box, chord: Chord, next: Chord | null, params: LickParams): Lick {
   const targetChord = params.resolveToNext && next ? next : chord;
+  const bars = params.bars ?? 1;
 
   let best: { notes: LickNote[]; lengthBeats: number; score: number } | null = null;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const rng = mulberry32(params.seed + attempt);
 
-    const pattern = pickPattern(params.level, rng);
+    const pattern = buildRhythm(params.level, bars, rng);
     const slots = activeSlots(pattern);
     const lengthBeats = patternLengthBeats(pattern);
     const contour = pickContour(params.level, rng);

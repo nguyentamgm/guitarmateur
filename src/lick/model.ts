@@ -32,6 +32,8 @@ export interface LickParams {
   /** Land on the *next* chord's target at the bar line (M4). */
   resolveToNext: boolean;
   seed: number;
+  /** Bars the lick spans (× 4 beats); optional for back-compat, defaults to 1 (M5). */
+  bars?: 1 | 2;
 }
 
 export type GenerateLick = (box: Box, chord: Chord, next: Chord | null, params: LickParams) => Lick;

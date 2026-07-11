@@ -154,6 +154,25 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 </div>
                 <button
                   type="button"
+                  aria-label={`${chordLabel(entry.chord)} spans ${entry.bars} bar${entry.bars > 1 ? 's' : ''} — click to toggle`}
+                  title={`${entry.bars} bar${entry.bars > 1 ? 's' : ''}`}
+                  onClick={() => dispatch({ type: 'setBars', id: entry.id, bars: entry.bars === 1 ? 2 : 1 })}
+                  style={{
+                    background: entry.bars === 2 ? theme.accentTint : 'transparent',
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: 6,
+                    color: entry.bars === 2 ? theme.accent : theme.muted,
+                    fontSize: 10,
+                    fontFamily: font.mono,
+                    cursor: 'pointer',
+                    padding: '3px 6px',
+                    lineHeight: 1,
+                  }}
+                >
+                  ×{entry.bars}
+                </button>
+                <button
+                  type="button"
                   aria-label={`Remove ${chordLabel(entry.chord)}`}
                   onClick={() => dispatch({ type: 'removeChord', id: entry.id })}
                   style={{

@@ -19,7 +19,7 @@ describe('persistence', () => {
     const state = defaultState(() => 42);
     saveState(state);
     const loaded = loadState()!;
-    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.schemaVersion).toBe(3);
     expect(loaded.key.tonic).toEqual(state.key.tonic);
     expect(loaded.positions).toEqual(state.positions);
     expect(loaded.level).toBe(state.level);
@@ -39,10 +39,39 @@ describe('persistence', () => {
   it('migrate handles missing fields with defaults', () => {
     const loaded = migrate({});
     const fallback = defaultState();
-    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.schemaVersion).toBe(3);
     expect(loaded.key.tonic).toEqual(fallback.key.tonic);
     expect(loaded.level).toBe(fallback.level);
     expect(loaded.targetRole).toBe(fallback.targetRole);
+  });
+
+  it('migrates a v2 payload to v3 with default tempo and per-entry bars', () => {
+    const v2 = {
+      schemaVersion: 2,
+      tuningId: 'standard',
+      key: { tonic: A, scaleId: 'minorPentatonic' },
+      positions: [],
+      // v2 entries have no `bars` field
+      progression: [{ id: 'x', chord: { tonic: A, quality: 'm' }, lickSeed: 7 }],
+      level: 3,
+      targetRole: '3',
+      resolveToNext: true,
+    };
+    const loaded = migrate(v2);
+    expect(loaded.schemaVersion).toBe(3);
+    // Existing user choices survive the migration...
+    expect(loaded.level).toBe(3);
+    expect(loaded.targetRole).toBe('3');
+    expect(loaded.resolveToNext).toBe(true);
+    expect(loaded.progression[0]!.lickSeed).toBe(7);
+    // ...and the new v3 fields are defaulted.
+    expect(loaded.tempoBpm).toBe(90);
+    expect(loaded.progression[0]!.bars).toBe(1);
+  });
+
+  it('clamps an out-of-range persisted tempo', () => {
+    const loaded = migrate({ tempoBpm: 5000 });
+    expect(loaded.tempoBpm).toBe(200);
   });
 
   it('migrate validates positions against actual positions for the key', () => {
@@ -96,6 +125,7 @@ describe('persistence', () => {
     const state = defaultState(() => 0);
     saveState(state);
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
-    expect(raw.schemaVersion).toBe(2);
+    expect(raw.schemaVersion).toBe(3);
+    expect(raw.tempoBpm).toBe(90);
   });
 });
