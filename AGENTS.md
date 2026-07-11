@@ -9,16 +9,18 @@ product is a **pentatonic/blues fretboard trainer**: pick a key/scale/position �
 progression → get per-chord practice licks (rhythm + technique + tab) that land target notes on the
 changes. No accounts, no backend, no analytics — all user state lives in `localStorage`.
 
-## Current status
+## Current status & how to pick up work
 
 See [`docs/plans/09-progress.md`](docs/plans/09-progress.md) for live milestone status and
-per-plan acceptance criteria — **check it before starting work** so you know which layers exist
-and which milestone is next. Update it in the same PR that finishes a milestone or checks off an
-acceptance-criteria item; don't let this file's status go stale again.
+per-plan acceptance criteria — **check it before starting work**. For **what to build next and in
+what increments**, see [`docs/plans/10-roadmap.md`](docs/plans/10-roadmap.md): work ships as
+**small, CI-green, one-concern tasks**, not whole milestones. Before starting anything that spans
+multiple layers (schema + engine + UI), slice it per plan 10 first — bundling a whole milestone
+into one change is what made M5 painful. Update 09 in the same PR that closes a task.
 
 Existing files:
-- `docs/plans/00–09` — the authoritative specs (`09-progress.md` is the live status tracker).
-  **Read the relevant plan before implementing a layer.**
+- `docs/plans/00–10` — the specs (`09-progress.md` = live status; `10-roadmap.md` = forward plan +
+  task-sizing discipline). **Read the relevant plan before implementing a layer.**
 - `Pentatonic Practice.dc.html` — visual mockup. Authoritative for **look & feel only** (colors,
   type, spacing, the 3-step page rhythm). **Not** for logic.
 - `support.js` — the mockup's throwaway preview runtime. **Never shipped, never imported, never edited.**

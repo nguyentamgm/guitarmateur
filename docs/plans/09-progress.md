@@ -3,7 +3,8 @@
 Living status doc for this project. **Update this file in the same PR that finishes a milestone
 or checks off an acceptance-criteria item.** This is the single place to look to answer "where are
 we right now" — don't rely on AGENTS.md or 00-overview.md for current status, they describe the
-plan, not the state.
+plan, not the state. For **what to build next, sliced into right-sized tasks**, see
+[10-roadmap.md](10-roadmap.md).
 
 Last updated: 2026-07-11 (M5 audio implemented on top of M4/`afeac56`; not yet committed/PR'd).
 
@@ -45,9 +46,9 @@ is wrong.
 | M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete, pending manual browser verification | working tree (uncommitted) |
 | — | Later/unscheduled (7-note scales & modes, alt-tunings UI, left-handed view, preset sharing via URL, PWA/offline) | ⬜ Not started | — |
 
-**M5 is implemented and passes all four CI gates. What's left before it can be marked ✅ Done: a
-manual audio pass in a real browser (the two audible-playback boxes under plan 07), then commit/PR.
-After that, next up is a later/unscheduled item.**
+**M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
+[10-roadmap.md](10-roadmap.md): a manual audio pass in a real browser to resolve the two open
+plan-07 boxes and mark M5 ✅ Done. The task-decomposed backlog after that lives in plan 10.**
 
 M5 implementation notes (deviations from plan 07, all deliberate):
 - **2-bar licks reuse the 1-bar rhythm library** (tiled two bars deep in `lick/rhythm.ts`

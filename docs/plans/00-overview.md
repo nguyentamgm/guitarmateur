@@ -58,30 +58,26 @@ Hosting: **Vercel Hobby (free)**, auto-deploy on merge to `main`, no staging. Do
 | 07 | [Audio (phase 2)](07-audio.md) | `src/audio/` — metronome, lick playback, tempo |
 | 08 | [CI & deployment](08-deployment.md) | GitHub Actions + Vercel + guitarmateur.com |
 | 09 | [Progress tracker](09-progress.md) | **Current status — check here first** |
+| 10 | [Roadmap & task discipline](10-roadmap.md) | **What to build next, in right-sized tasks** |
 
-## Milestones (build order)
+## Milestones (themes)
 
-**M1 — Walking skeleton.** Plan 01 + plan 08: scaffolded app with the page header on the dark
-theme, CI green, **deployed to guitarmateur.com**. Deploy first, build features on top — every
-merge from here on is visible in production.
+Milestones name *themes of value*, each **delivered by a sequence of small, independently-shippable
+tasks** — see [10-roadmap.md](10-roadmap.md) for the task breakdown and the sizing discipline (a
+milestone is not a unit of work; a task is). Sizing a whole milestone as one change is what made M5
+painful; don't repeat it.
 
-**M2 — Scale explorer.** Plans 02, 03 + the Step-1 UI from plan 05: pick key / scale
-(minor pentatonic, major pentatonic, blues) / positions; see correctly-spelled notes on the
-fretboard. Useful on its own; ship it.
+**M1 — Walking skeleton** ✅ — scaffold + deploy to guitarmateur.com (plans 01, 08).
+**M2 — Scale explorer** ✅ — pick key/scale/positions; correctly-spelled notes on the fretboard
+(plans 02, 03 + Step-1 UI).
+**M3 — MVP practice loop (v1)** ✅ — progression builder + per-chord rhythmic-tab licks +
+persistence (plan 04 lv.1–3, Steps 2–3 UI, plan 06).
+**M4 — Musicality** ✅ — lick levels 4–5: techniques, target-note modes, resolve-to-next.
+**M5 — Audio** 🟡 — metronome, playback, loop, tempo (plan 07); code complete, manual browser pass
+pending. *This is the milestone that should have been 5 tasks — see the worked example in plan 10.*
 
-**M3 — MVP practice loop (v1 launch).** Plan 04 (levels 1–3) + Steps 2–3 UI + plan 06:
-progression builder, per-chord practice cards with rhythmic tab, difficulty control, full
-localStorage persistence. This is the public v1.
-
-**M4 — Musicality.** Lick engine levels 4–5: techniques (hammer/pull/slide/bend), target-note
-modes (root / 3rd / 5th), "land on the next chord" resolution mode.
-
-**M5 — Audio (phase 2).** Plan 07: metronome, count-in, lick playback, tempo control, per-chord
-bar counts.
-
-**Later / unscheduled:** 7-note scales & modes (engine supports them from M2 — only UI +
-registry entries needed), alternate tunings UI (drop D ships in the registry from M2 but stays
-hidden until then), left-handed view, preset sharing via URL, PWA/offline.
+**Next / unscheduled:** 7-note scales & modes, alternate tunings UI, left-handed view, preset
+sharing via URL, PWA/offline — each already broken into tasks in [10-roadmap.md](10-roadmap.md).
 
 ## Definition of done (v1 = end of M3)
 
