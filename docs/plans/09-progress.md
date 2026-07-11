@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-11 (M5 audio implemented on top of M4/`afeac56`; not yet committed/PR'd).
+Last updated: 2026-07-11 (M5 PR #7 merged, verified fresh pull — all CI gates green, 136 tests)
 
 ## Verify current status in one paste
 
@@ -43,7 +43,7 @@ is wrong.
 | M2 | Scale explorer (plans 02, 03 + Step-1 UI) | ✅ Done | PR #4 `36a0ea9` |
 | M3 | MVP practice loop / v1 launch (plan 04 lv.1–3, Steps 2–3 UI, plan 06) | ✅ Done | PR #5 `3a9286a` |
 | M4 | Musicality (plan 04 lv.4–5, technique decoration) | ✅ Done | PR #6 `afeac56` |
-| M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete, pending manual browser verification | working tree (uncommitted) |
+| M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete — needs manual browser verification | PR #7 `93f13c8` |
 | — | Later/unscheduled (7-note scales & modes, alt-tunings UI, left-handed view, preset sharing via URL, PWA/offline) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
