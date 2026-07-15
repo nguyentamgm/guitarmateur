@@ -1,4 +1,5 @@
 import type { Lick } from '../../lick';
+import type { Technique } from '../../lick';
 import { font, theme } from '../theme';
 
 const STRING_LABELS = ['E', 'A', 'D', 'G', 'B', 'E'];
@@ -11,6 +12,15 @@ function durationGlyph(beats: number): string {
   const table: Record<string, string> = { '2': '2', '1.5': '1½', '1': '1', '0.5': '½', '0.25': '¼' };
   return table[String(beats)] ?? String(beats);
 }
+
+/** Standard tab articulation glyphs, prefixed before the fret number (e.g. "h7"). */
+const TECHNIQUE_GLYPHS: Record<Technique, string> = {
+  hammer: 'h',
+  pull: 'p',
+  slide: '/',
+  bendHalf: 'b',
+  bendFull: 'b',
+};
 
 export interface TabStaffProps {
   lick: Lick;
@@ -91,6 +101,18 @@ export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
           stroke={active ? theme.accent : theme.faintStroke}
           strokeWidth={1}
         />
+        {n.technique && (
+          <text
+            x={cx - 6}
+            y={cy + 4}
+            fontSize={9}
+            fill={theme.muted}
+            textAnchor="end"
+            fontFamily={font.mono}
+          >
+            {TECHNIQUE_GLYPHS[n.technique]}
+          </text>
+        )}
         <text x={cx} y={cy + 4} fontSize={10.5} fill={active ? theme.accentText : theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600}>
           {n.fret}
         </text>
