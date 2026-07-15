@@ -4,7 +4,7 @@ import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
-import { Panel, PillButton, SectionKicker } from './primitives';
+import { Panel, PillButton, SectionKicker, Toggle } from './primitives';
 import { FretboardDiagram } from './FretboardDiagram';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
@@ -55,6 +55,15 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                 </PillButton>
               ))}
             </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>&nbsp;</div>
+            <Toggle
+              checked={state.resolveToNext}
+              onChange={(value) => dispatch({ type: 'setResolveToNext', value })}
+              label="Land on next chord"
+              ariaLabel="Land on next chord"
+            />
           </div>
           <button
             type="button"
