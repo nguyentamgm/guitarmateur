@@ -76,6 +76,35 @@ export function PillButton({
   );
 }
 
+/** Boolean on/off switch, e.g. "Land on next chord". Track + thumb, styled via `.toggle` in global.css. */
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  ariaLabel,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  label?: ReactNode;
+  ariaLabel?: string;
+}) {
+  return (
+    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={ariaLabel}
+        onClick={() => onChange(!checked)}
+        className={`toggle${checked ? ' toggle--on' : ''}`}
+      >
+        <span className="toggle__thumb" />
+      </button>
+      {label !== undefined && <span style={{ fontSize: 13, color: theme.text }}>{label}</span>}
+    </label>
+  );
+}
+
 /** Underlined muted text button, e.g. "Reset to default" / "Clear all". */
 export function TextButton({
   onClick,
