@@ -23,6 +23,11 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
+/** How many positions before the immediate previous note count as "recently visited". */
+const RECENCY_WINDOW = 2;
+/** Weight subtracted per recent-window hit on a (string, fret) pair, suppressing A-B-A bounce. */
+const RECENCY_PENALTY = 0.2;
+
 /** Where the melody "should" be at this fraction of the way from first to last, per contour. */
 function expectedMidi(contour: Contour, firstMidi: number, lastMidi: number, progress: number): number {
   switch (contour) {
@@ -78,6 +83,8 @@ export function fillPath(
     });
     const pool = strict.length ? strict : box.notes;
     const expected = expectedMidi(contour, firstMidi, lastMidi, progress);
+    // Positions visited before `prev` (which the `repeat` factor already penalizes on its own).
+    const recent = out.slice(-1 - RECENCY_WINDOW, -1);
 
     const weighted = pool.map((cand) => {
       const dString = Math.abs(cand.string - prev.string);
@@ -85,7 +92,9 @@ export function fillPath(
       const proximity = 1 / Math.pow(1.6 * dString + dFret + 1, 2);
       const contourFit = 1 / (1 + Math.abs(midi(cand.pitch) - expected));
       const repeat = cand.string === prev.string && cand.fret === prev.fret ? 0.15 : 1;
-      return { item: cand, weight: proximity * contourFit * repeat + 1e-6 };
+      const recencyHits = recent.filter((p) => p.string === cand.string && p.fret === cand.fret).length;
+      const recency = Math.max(1 - RECENCY_PENALTY * recencyHits, 0.1);
+      return { item: cand, weight: proximity * contourFit * repeat * recency + 1e-6 };
     });
     const chosen = weightedChoice(rng, weighted);
     out.push(chosen);
