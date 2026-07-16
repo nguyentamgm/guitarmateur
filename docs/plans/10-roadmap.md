@@ -71,11 +71,12 @@ milestones needed slicing.
   follow-up tasks. *Out of scope:* new features. *Exit:* both boxes resolved.
 
 ### 7-note scales & modes (engine already supports them)
-- [ ] **T1 — Registry + tests.** Add dorian/mixolydian/etc. to `src/music/scales.ts` and a harmony
+- [x] **T1 — Registry + tests.** Add dorian/mixolydian/etc. to `src/music/scales.ts` and a harmony
   row each; add spelling tests across 12 tonics. Pure data, no UI. *Exit:* new scales pass the same
-  spelling/box tests as the pentatonics.
-- [ ] **T2 — Picker exposure.** Surface the new scales in the Step-1 scale picker (registry-driven —
+  spelling/box tests as the pentatonics. (PR #12, merged)
+- [x] **T2 — Picker exposure.** Surface the new scales in the Step-1 scale picker (registry-driven —
   likely near-zero UI code). *Exit:* selecting one renders correct notes on the fretboard.
+  (PR #12, merged)
 
 ### Alternate tunings UI (drop-D already in the tuning registry)
 - [ ] **T3 — Tuning picker.** A picker wired to the existing `TUNINGS` registry; persist the choice

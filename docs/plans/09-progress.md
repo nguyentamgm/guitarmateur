@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-11 (M5 PR #7 merged, verified fresh pull — all CI gates green, 136 tests)
+Last updated: 2026-07-16 (PR #12 — 7-note scales & modes; all CI gates green, 142 tests)
 
 ## Verify current status in one paste
 
@@ -23,7 +23,7 @@ Measured snapshot at last update (2026-07-11, M5 working tree):
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 2 warnings (`react-hooks/exhaustive-deps` in `src/ui/components/PracticeSection.tsx` — pre-existing, non-blocking) |
-| `test` | **136 passed** across 14 test files |
+| test | **142 passed** across 14 test files (+6 from 7-note-scales) |
 | `build` | clean → `dist/` (~74 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
@@ -44,7 +44,7 @@ is wrong.
 | M3 | MVP practice loop / v1 launch (plan 04 lv.1–3, Steps 2–3 UI, plan 06) | ✅ Done | PR #5 `3a9286a` |
 | M4 | Musicality (plan 04 lv.4–5, technique decoration) | ✅ Done | PR #6 `afeac56` |
 | M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete — needs manual browser verification | PR #7 `93f13c8` |
-| — | Later/unscheduled (7-note scales & modes, alt-tunings UI, left-handed view, preset sharing via URL, PWA/offline) | ⬜ Not started | — |
+| — | Later/unscheduled (alt-tunings UI, left-handed view, preset sharing via URL, PWA/offline) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
 [10-roadmap.md](10-roadmap.md): a manual audio pass in a real browser to resolve the two open
