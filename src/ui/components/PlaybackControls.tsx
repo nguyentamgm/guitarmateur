@@ -11,14 +11,20 @@ export function PlaybackControls({
   tempoBpm,
   onTempoChange,
   transport,
+  countIn,
+  loop,
+  onCountInChange,
+  onLoopChange,
 }: {
   licks: Lick[];
   tempoBpm: number;
   onTempoChange: (bpm: number) => void;
   transport: UseTransport;
+  countIn: boolean;
+  loop: boolean;
+  onCountInChange: (v: boolean) => void;
+  onLoopChange: (v: boolean) => void;
 }) {
-  const [countIn, setCountIn] = useState(true);
-  const [loop, setLoop] = useState(true);
 
   if (!transport.supported) {
     return (
@@ -109,10 +115,10 @@ export function PlaybackControls({
 
       {/* Count-in / loop */}
       <div style={{ display: 'flex', gap: 6 }}>
-        <PillButton selected={countIn} onClick={() => setCountIn((v) => !v)} wide ariaLabel="Toggle count-in">
+        <PillButton selected={countIn} onClick={() => onCountInChange(!countIn)} wide ariaLabel="Toggle count-in">
           Count-in
         </PillButton>
-        <PillButton selected={loop} onClick={() => setLoop((v) => !v)} wide ariaLabel="Toggle loop">
+        <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel="Toggle loop">
           Loop
         </PillButton>
       </div>

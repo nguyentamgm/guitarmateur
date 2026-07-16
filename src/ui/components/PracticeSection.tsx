@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format, romanNumeral, chordLabel, type Chord } from '../../music';
 import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
@@ -10,11 +10,14 @@ import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
 import { PlaybackControls } from './PlaybackControls';
 import { useTransport } from '../useTransport';
+import { KeyboardShortcuts } from '../KeyboardShortcuts';
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
   const licks = useMemo(() => licksForState(state), [state]);
   const transport = useTransport();
+  const [countIn, setCountIn] = useState(true);
+  const [loop, setLoop] = useState(true);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
   const active = transport.position;
   const box = useMemo(() => {
@@ -32,6 +35,14 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
 
   return (
     <section style={{ marginBottom: 34 }}>
+      <KeyboardShortcuts
+        dispatch={dispatch}
+        transport={transport}
+        licks={plainLicks}
+        tempoBpm={state.tempoBpm}
+        countIn={countIn}
+        loop={loop}
+      />
       <SectionKicker style={{ marginBottom: 12 }}>Step 3 · Practice Licks</SectionKicker>
       <Panel>
         {/* Controls */}
@@ -106,6 +117,10 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               tempoBpm={state.tempoBpm}
               onTempoChange={(bpm) => dispatch({ type: 'setTempo', bpm })}
               transport={transport}
+              countIn={countIn}
+              loop={loop}
+              onCountInChange={setCountIn}
+              onLoopChange={setLoop}
             />
 
             {/* Legend */}
