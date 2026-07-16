@@ -30,6 +30,42 @@ export function defaultProgression(key: Key): Chord[] {
     ];
   }
 
+  if (key.scaleId === 'major') {
+    return [
+      { tonic: t, quality: 'M7' },
+      { tonic: transpose(t, IV.P4), quality: 'M7' },
+      { tonic: transpose(t, IV.P5), quality: 'dom7' },
+      { tonic: transpose(t, IV.M6), quality: 'm7' },
+    ];
+  }
+
+  if (key.scaleId === 'dorian') {
+    return [
+      { tonic: t, quality: 'm7' },
+      { tonic: transpose(t, IV.P4), quality: 'dom7' },
+      { tonic: t, quality: 'm7' },
+      { tonic: transpose(t, IV.m7), quality: 'M7' },
+    ];
+  }
+
+  if (key.scaleId === 'mixolydian') {
+    return [
+      { tonic: t, quality: 'dom7' },
+      { tonic: transpose(t, IV.m7), quality: 'M7' },
+      { tonic: transpose(t, IV.P4), quality: 'M7' },
+      { tonic: t, quality: 'dom7' },
+    ];
+  }
+
+  if (key.scaleId === 'natural-minor') {
+    return [
+      { tonic: t, quality: 'm7' },
+      { tonic: transpose(t, IV.m3), quality: 'M7' },
+      { tonic: transpose(t, IV.m7), quality: 'M7' },
+      { tonic: transpose(t, IV.P5), quality: 'm7' },
+    ];
+  }
+
   // minorPentatonic
   return [
     { tonic: t, quality: 'm' },
