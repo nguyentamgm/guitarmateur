@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-16 (PR #12 — 7-note scales & modes; all CI gates green, 142 tests)
+Last updated: 2026-07-16 (PR #12 7-note scales + PR #13 keyboard shortcuts + PR #14 major blues scale; all CI gates green, 144 tests)
 
 ## Verify current status in one paste
 
@@ -23,7 +23,7 @@ Measured snapshot at last update (2026-07-11, M5 working tree):
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 2 warnings (`react-hooks/exhaustive-deps` in `src/ui/components/PracticeSection.tsx` — pre-existing, non-blocking) |
-| test | **142 passed** across 14 test files (+6 from 7-note-scales) |
+| test | **144 passed** across 14 test files (+8 from 7-note-scales + major-blues) |
 | `build` | clean → `dist/` (~74 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
