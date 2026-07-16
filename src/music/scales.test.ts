@@ -64,6 +64,16 @@ describe('scaleNoteNames — spelled', () => {
       'A', 'B', 'C', 'D', 'E', 'F', 'G',
     ]);
   });
+  it('F major blues flat-3 spells A♭ not G♯', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'F', alter: 0 }, scaleId: 'major-blues' }))).toEqual([
+      'F', 'G', 'A♭', 'A', 'C', 'D',
+    ]);
+  });
+  it('C major blues = C D E♭ E G A', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'C', alter: 0 }, scaleId: 'major-blues' }))).toEqual([
+      'C', 'D', 'E♭', 'E', 'G', 'A',
+    ]);
+  });
 });
 
 describe('all 12 tonics × 7 scales', () => {
