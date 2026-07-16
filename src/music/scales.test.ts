@@ -34,9 +34,39 @@ describe('scaleNoteNames — spelled', () => {
       'A♭',
     ]);
   });
+  it('C major = C D E F G A B', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'C', alter: 0 }, scaleId: 'major' }))).toEqual([
+      'C', 'D', 'E', 'F', 'G', 'A', 'B',
+    ]);
+  });
+  it('F major uses B♭ not A♯', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'F', alter: 0 }, scaleId: 'major' }))).toEqual([
+      'F', 'G', 'A', 'B♭', 'C', 'D', 'E',
+    ]);
+  });
+  it('D dorian = D E F G A B C', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'D', alter: 0 }, scaleId: 'dorian' }))).toEqual([
+      'D', 'E', 'F', 'G', 'A', 'B', 'C',
+    ]);
+  });
+  it('G mixolydian = G A B C D E F', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'G', alter: 0 }, scaleId: 'mixolydian' }))).toEqual([
+      'G', 'A', 'B', 'C', 'D', 'E', 'F',
+    ]);
+  });
+  it('F natural minor uses B♭ E♭ A♭ not A♯ D♯ G♯', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'F', alter: 0 }, scaleId: 'natural-minor' }))).toEqual([
+      'F', 'G', 'A♭', 'B♭', 'C', 'D♭', 'E♭',
+    ]);
+  });
+  it('A natural minor = A B C D E F G', () => {
+    expect(spell(scaleNoteNames({ tonic: { letter: 'A', alter: 0 }, scaleId: 'natural-minor' }))).toEqual([
+      'A', 'B', 'C', 'D', 'E', 'F', 'G',
+    ]);
+  });
 });
 
-describe('all 12 tonics × 3 scales', () => {
+describe('all 12 tonics × 7 scales', () => {
   it('spell without throwing, within valid accidentals (±2)', () => {
     for (const tonic of TONICS) {
       for (const scaleId of SCALE_IDS) {

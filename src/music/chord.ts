@@ -64,6 +64,42 @@ export function suggestedChords(key: Key): { chord: Chord; label: string; roman:
     ];
   }
 
+  if (key.scaleId === 'major') {
+    return [
+      make(t,                   'M7',    'I'),
+      make(transpose(t, IV.M2), 'm7',    'ii'),
+      make(transpose(t, IV.M3), 'm7',    'iii'),
+      make(transpose(t, IV.P4), 'M7',    'IV'),
+      make(transpose(t, IV.P5), 'dom7',  'V'),
+      make(transpose(t, IV.M6), 'm7',    'vi'),
+    ];
+  }
+
+  if (key.scaleId === 'dorian') {
+    return [
+      make(t,                   'm7',   'i'),
+      make(transpose(t, IV.P4), 'dom7', 'IV'),
+      make(transpose(t, IV.m7), 'M7',   '♭VII'),
+    ];
+  }
+
+  if (key.scaleId === 'mixolydian') {
+    return [
+      make(t,                   'dom7', 'I'),
+      make(transpose(t, IV.m7), 'M7',   '♭VII'),
+      make(transpose(t, IV.m3), 'M7',   '♭III'),
+    ];
+  }
+
+  if (key.scaleId === 'natural-minor') {
+    return [
+      make(t,                   'm7',  'i'),
+      make(transpose(t, IV.m3), 'M7',  '♭III'),
+      make(transpose(t, IV.m7), 'M7',  '♭VII'),
+      make(transpose(t, IV.P5), 'm7',  'v'),
+    ];
+  }
+
   // minorPentatonic + blues
   return [
     make(t,                   'm',    'i'),
