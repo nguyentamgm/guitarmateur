@@ -66,6 +66,17 @@ export function defaultProgression(key: Key): Chord[] {
     ];
   }
 
+  if (key.scaleId === 'major-blues') {
+    return [
+      { tonic: t, quality: 'dom7' },
+      { tonic: transpose(t, IV.P4), quality: 'dom7' },
+      { tonic: t, quality: 'dom7' },
+      { tonic: transpose(t, IV.P5), quality: 'dom7' },
+      { tonic: transpose(t, IV.P4), quality: 'dom7' },
+      { tonic: t, quality: 'dom7' },
+    ];
+  }
+
   // minorPentatonic
   return [
     { tonic: t, quality: 'm' },

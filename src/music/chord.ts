@@ -100,6 +100,14 @@ export function suggestedChords(key: Key): { chord: Chord; label: string; roman:
     ];
   }
 
+  if (key.scaleId === 'major-blues') {
+    return [
+      make(t,                   'dom7', 'I7'),
+      make(transpose(t, IV.P4), 'dom7', 'IV7'),
+      make(transpose(t, IV.P5), 'dom7', 'V7'),
+    ];
+  }
+
   // minorPentatonic + blues
   return [
     make(t,                   'm',    'i'),

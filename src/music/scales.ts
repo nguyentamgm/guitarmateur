@@ -2,7 +2,7 @@ import { IV, type Interval } from './interval';
 import { pc, transpose, type NoteName, type PitchClass } from './pitch';
 import type { Key } from './key';
 
-export type ScaleId = 'minorPentatonic' | 'majorPentatonic' | 'blues' | 'major' | 'dorian' | 'mixolydian' | 'natural-minor';
+export type ScaleId = 'minorPentatonic' | 'majorPentatonic' | 'blues' | 'major' | 'dorian' | 'mixolydian' | 'natural-minor' | 'major-blues';
 
 export interface ScaleDef {
   id: ScaleId;
@@ -62,10 +62,16 @@ export const SCALES: Record<ScaleId, ScaleDef> = {
     name: 'Natural Minor',
     intervals: [IV.P1, IV.M2, IV.m3, IV.P4, IV.P5, IV.m6, IV.m7],
   },
+  'major-blues': {
+    id: 'major-blues',
+    name: 'Major Blues',
+    intervals: [IV.P1, IV.M2, IV.m3, IV.M3, IV.P5, IV.M6],
+    decoration: { baseScaleId: 'majorPentatonic', addedIntervals: [IV.m3] },
+  },
 };
 
 /** Ordered list of scale ids for registry-driven pickers. */
-export const SCALE_IDS: ScaleId[] = ['minorPentatonic', 'majorPentatonic', 'blues', 'major', 'dorian', 'mixolydian', 'natural-minor'];
+export const SCALE_IDS: ScaleId[] = ['minorPentatonic', 'majorPentatonic', 'blues', 'major', 'dorian', 'mixolydian', 'natural-minor', 'major-blues'];
 
 /** Spelled note names of a scale, ascending from the tonic (excluding the octave). */
 export function scaleNoteNames(key: Key): NoteName[] {
