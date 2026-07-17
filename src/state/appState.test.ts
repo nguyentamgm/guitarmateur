@@ -145,6 +145,16 @@ describe('reducer', () => {
     });
   });
 
+  it('setTuning changes tuningId, resets positions, and replaces progression', () => {
+    const s = fresh();
+    expect(s.tuningId).toBe('standard');
+    const next = reducer(s, { type: 'setTuning', tuningId: 'dropD' }, testNextSeed);
+    expect(next.tuningId).toBe('dropD');
+    expect(next.positions.length).toBeGreaterThan(0);
+    expect(next.progression).not.toEqual(s.progression);
+    expect(next.progression.length).toBeGreaterThan(0);
+  });
+
   it('toggleAdvanced flips ui.advancedOpen', () => {
     const s = fresh();
     expect(s.ui.advancedOpen).toBe(false);

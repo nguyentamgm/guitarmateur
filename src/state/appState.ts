@@ -61,6 +61,7 @@ export type Action =
   | { type: 'setBars'; id: string; bars: Bars }
   | { type: 'setTempo'; bpm: number }
   | { type: 'rerollLick'; id: string }
+  | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
   | { type: 'toggleAdvanced' }
   | { type: 'setAdvRoot'; tonic: NoteName }
@@ -195,6 +196,15 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
         ...state,
         progression: state.progression.map((e) => (e.id === action.id ? { ...e, lickSeed: nextSeed() } : e)),
       };
+    case 'setTuning': {
+      const newPos = positions(TUNINGS[action.tuningId], state.key);
+      return {
+        ...state,
+        tuningId: action.tuningId,
+        positions: [recommendedPosition(newPos)],
+        progression: freshProgression(state.key, nextSeed),
+      };
+    }
     case 'rerollAll':
       return { ...state, progression: state.progression.map((e) => ({ ...e, lickSeed: nextSeed() })) };
     case 'toggleAdvanced':
