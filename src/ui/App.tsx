@@ -1,4 +1,5 @@
-import { useAppState } from '../state';
+import { useState } from 'react';
+import { useAppState, encodeState } from '../state';
 import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
@@ -10,6 +11,16 @@ import { PracticeSection } from './components/PracticeSection';
  */
 export function App() {
   const [state, dispatch] = useAppState();
+  const [copied, setCopied] = useState(false);
+
+  function handleShare() {
+    const encoded = encodeState(state);
+    const url = `${window.location.origin}${window.location.pathname}?s=${encodeURIComponent(encoded)}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', padding: '30px 20px 70px' }}>
@@ -36,6 +47,24 @@ export function App() {
         <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
           Play along in the browser, or cue your own backing track and solo over it.
         </p>
+        <div style={{ marginTop: 14 }}>
+          <button
+            onClick={handleShare}
+            style={{
+              background: '#2a2e2b',
+              color: theme.accent,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 20,
+              padding: '4px 14px',
+              fontSize: 12,
+              fontFamily: font.mono,
+              cursor: 'pointer',
+              letterSpacing: '.05em',
+            }}
+          >
+            {copied ? 'Copied!' : 'Share'}
+          </button>
+        </div>
       </header>
 
       <ScalePositionSection state={state} dispatch={dispatch} />
