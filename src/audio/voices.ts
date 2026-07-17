@@ -20,23 +20,22 @@ export function delayTimeForMidi(m: number): number {
   return 1 / midiToFrequency(m);
 }
 
-/** A short metronome blip: a square-wave click, slightly louder on the downbeat. */
+/** A short metronome blip: a triangle-wave click, slightly louder on the downbeat. */
 export function click(ctx: AudioContext, dest: AudioNode, when: number, accented: boolean): void {
   const osc = ctx.createOscillator();
-  osc.type = 'square';
-  osc.frequency.value = accented ? 2000 : 1500;
+  osc.type = 'triangle';
+  osc.frequency.value = accented ? 1200 : 900;
 
   const gain = ctx.createGain();
-  // Lower peak so metronome is a subtle background element, not overpowering
-  const peak = accented ? 0.3 : 0.15;
+  const peak = accented ? 0.25 : 0.15;
   gain.gain.setValueAtTime(0.0001, when);
-  gain.gain.exponentialRampToValueAtTime(peak, when + 0.001);
-  gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.05);
+  gain.gain.linearRampToValueAtTime(peak, when + 0.002);
+  gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.03);
 
   osc.connect(gain);
   gain.connect(dest);
   osc.start(when);
-  osc.stop(when + 0.06);
+  osc.stop(when + 0.04);
   osc.onended = () => {
     osc.disconnect();
     gain.disconnect();

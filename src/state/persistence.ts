@@ -1,6 +1,7 @@
 import { CHORD_QUALITIES, SCALE_IDS, TONICS, type Chord, type Key, type NoteName, type QualityId, type ScaleId } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
 import { clampBpm, defaultState, type AppState, type Bars, type ProgressionEntry } from './appState';
+import { decodeState } from './share';
 
 const STORAGE_KEY = 'guitarmateur-state';
 
@@ -116,7 +117,21 @@ export function saveState(state: AppState): void {
   }
 }
 
+export function loadFromUrl(): AppState | null {
+  try {
+    const raw = new URLSearchParams(window.location.search).get('s');
+    return raw ? decodeState(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function loadState(): AppState | null {
+  const fromUrl = loadFromUrl();
+  if (fromUrl) {
+    saveState(fromUrl);
+    return fromUrl;
+  }
   let raw: unknown;
   try {
     const item = localStorage.getItem(STORAGE_KEY);

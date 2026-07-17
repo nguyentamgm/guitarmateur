@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { format, SCALE_IDS, SCALES, TONICS, type NoteName } from '../../music';
-import { mergedBox, positions, recommendedPosition, TUNINGS } from '../../fretboard';
+import { mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker } from './primitives';
@@ -23,8 +23,18 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
     <section style={{ marginBottom: 34 }}>
       <SectionKicker style={{ marginBottom: 12 }}>Step 1 · Scale &amp; Position</SectionKicker>
       <Panel>
+        {/* Tuning picker */}
+        <Label style={{ marginTop: 0 }}>Tuning</Label>
+        <Row>
+          {(Object.entries(TUNINGS) as [string, { id: string; name: string }][]).map(([, t]) => (
+            <PillButton key={t.id} selected={t.id === state.tuningId} onClick={() => dispatch({ type: 'setTuning', tuningId: t.id as TuningId })}>
+              {t.name}
+            </PillButton>
+          ))}
+        </Row>
+
         {/* Key picker */}
-        <Label>Key</Label>
+        <Label style={{ marginTop: 16 }}>Key</Label>
         <Row>
           {TONICS.map((t) => (
             <PillButton key={format(t)} selected={sameNote(t, key.tonic)} onClick={() => dispatch({ type: 'setKey', tonic: t })}>
