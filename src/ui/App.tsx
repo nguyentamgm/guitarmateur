@@ -4,6 +4,7 @@ import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
+import { InstallPrompt } from './components/InstallPrompt';
 
 /**
  * App shell: header + the three practice steps. State is provided by `useAppState` and threaded
@@ -70,6 +71,7 @@ export function App() {
       <ScalePositionSection state={state} dispatch={dispatch} />
       <ProgressionSection state={state} dispatch={dispatch} />
       <PracticeSection state={state} dispatch={dispatch} />
+      <InstallPrompt />
     </div>
   );
 }

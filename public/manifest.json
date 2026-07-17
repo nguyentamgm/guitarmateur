@@ -1,0 +1,17 @@
+{
+  "name": "Guitarmateur",
+  "short_name": "Guitarmateur",
+  "description": "Pentatonic & blues fretboard trainer — visualize scales, target chord tones, generate practice licks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0e0d",
+  "theme_color": "#0c0e0d",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
