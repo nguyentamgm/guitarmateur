@@ -37,11 +37,11 @@ export function createEngine(): AudioEngine {
   master.connect(ctx.destination);
 
   const clickBus = ctx.createGain();
-  clickBus.gain.value = 0.35;
+  clickBus.gain.value = 0.3;
   clickBus.connect(master);
 
   const noteBus = ctx.createGain();
-  noteBus.gain.value = 0.5;
+  noteBus.gain.value = 0.8;
   noteBus.connect(master);
 
   return { ctx, master, clickBus, noteBus };
