@@ -33,15 +33,15 @@ export function createEngine(): AudioEngine {
 
   const ctx = new Ctor();
   const master = ctx.createGain();
-  master.gain.value = 0.8;
+  master.gain.value = 0.7;
   master.connect(ctx.destination);
 
   const clickBus = ctx.createGain();
-  clickBus.gain.value = 0.6;
+  clickBus.gain.value = 0.35;
   clickBus.connect(master);
 
   const noteBus = ctx.createGain();
-  noteBus.gain.value = 0.9;
+  noteBus.gain.value = 0.5;
   noteBus.connect(master);
 
   return { ctx, master, clickBus, noteBus };
