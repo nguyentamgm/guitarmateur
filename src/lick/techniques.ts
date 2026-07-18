@@ -15,8 +15,6 @@ const LEVEL_PROB: Record<LickParams['level'], number> = {
  * - Same-string ascending step (dFret === 1) ⇒ `hammer`
  * - Same-string descending step (dFret === -1) ⇒ `pull`
  * - Same-string |dFret| === 2 ⇒ `slide`
- * - Level 5 only: step up by 1 fret to a chord-tone target ⇒ `bendHalf`;
- *   2-fret step up to a chord-tone target ⇒ `bendFull`
  *
  * Constraints:
  * - ≤ 1 technique per `startBeat`
@@ -61,21 +59,11 @@ export function decorateTechniques(
       } else if (usedBeats.has(cur.startBeat)) {
         // skip — already one technique on this beat
       } else if (dFret === 1) {
-        // Ascending step → hammer, unless level 5 targets a chord tone → bendHalf
-        if (level >= 5 && cur.role) {
-          technique = 'bendHalf';
-        } else {
-          technique = 'hammer';
-        }
+        technique = 'hammer';
       } else if (dFret === -1) {
         technique = 'pull';
       } else if (Math.abs(dFret) === 2) {
-        // 2-fret move → slide, unless level 5 ascending to chord tone → bendFull
-        if (level >= 5 && dFret > 0 && cur.role) {
-          technique = 'bendFull';
-        } else {
-          technique = 'slide';
-        }
+        technique = 'slide';
       }
     }
 
