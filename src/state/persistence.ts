@@ -129,7 +129,7 @@ export function loadFromUrl(): AppState | null {
 export function loadState(): AppState | null {
   const fromUrl = loadFromUrl();
   if (fromUrl) {
-    saveState(fromUrl);
+    history.replaceState(null, '', window.location.pathname);
     return fromUrl;
   }
   let raw: unknown;
