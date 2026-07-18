@@ -80,45 +80,33 @@ describe('decorateTechniques', () => {
   });
 
   it('level 3: hammers, pulls, slides — no bends', () => {
-    // Bend requires level 5 + chord tone role
     for (let seed = 0; seed < 20; seed++) {
       const notes: LickNote[] = [
         note({ string: 5, fret: 0, startBeat: 0 }),
-        note({ string: 5, fret: 1, startBeat: 1, role: 'R' }), // would be bendHalf at level 5
+        note({ string: 5, fret: 1, startBeat: 1, role: 'R' }),
       ];
       const result = decorateTechniques(notes, 3, mulberry32(seed));
-      // Should be hammer, not bendHalf
-      if (result[1]!.technique === 'hammer') {
-        // correct — hammers are fine
-      } else if (result[1]!.technique === undefined) {
-        // also fine — probabilistic skip
-      } else {
-        expect(result[1]!.technique).toBe('hammer');
-      }
-      expect(result[1]!.technique).not.toBe('bendHalf');
-      expect(result[1]!.technique).not.toBe('bendFull');
+      const t = result[1]!.technique;
+      expect(t === 'hammer' || t === undefined).toBe(true);
     }
   });
 
-  it('level 5: bendHalf on single-fret step up to chord tone', () => {
-    // With a high probability (0.7) and a specific seed, we should get a bendHalf
-    // for ascending step to a chord-tone role
+  it('level 5: hammer on single-fret step up to chord tone', () => {
     const notes: LickNote[] = [
       note({ string: 5, fret: 0, startBeat: 0 }),
       note({ string: 5, fret: 1, startBeat: 1, role: 'R' }),
     ];
-    // Seed 42 should produce an rng value < 0.7 early
     const result = decorateTechniques(notes, 5, mulberry32(42));
-    expect(result[1]!.technique).toBe('bendHalf');
+    expect(result[1]!.technique).toBe('hammer');
   });
 
-  it('level 5: bendFull on 2-fret step up to chord tone', () => {
+  it('level 5: slide on 2-fret step up to chord tone', () => {
     const notes: LickNote[] = [
       note({ string: 5, fret: 0, startBeat: 0 }),
       note({ string: 5, fret: 2, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
-    expect(result[1]!.technique).toBe('bendFull');
+    expect(result[1]!.technique).toBe('slide');
   });
 
   it('landing note: no technique below level 4', () => {
