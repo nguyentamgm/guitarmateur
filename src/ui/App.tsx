@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useAppState, encodeState } from '../state';
+import { useRef, useState } from 'react';
+import { useAppState, encodeState, exportStateToJson, importStateFromJson } from '../state';
 import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
@@ -13,6 +13,8 @@ import { InstallPrompt } from './components/InstallPrompt';
 export function App() {
   const [state, dispatch] = useAppState();
   const [copied, setCopied] = useState(false);
+  const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleShare() {
     const encoded = encodeState(state);
@@ -22,6 +24,59 @@ export function App() {
       setTimeout(() => setCopied(false), 2000);
     });
   }
+
+  function handleExport() {
+    const json = exportStateToJson(state);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'guitarmateur-practice.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result;
+      if (typeof text !== 'string') {
+        setImportStatus('err');
+        setTimeout(() => setImportStatus('idle'), 2500);
+        return;
+      }
+      const imported = importStateFromJson(text);
+      if (!imported) {
+        setImportStatus('err');
+        setTimeout(() => setImportStatus('idle'), 2500);
+      } else {
+        dispatch({ type: 'SET_STATE', payload: imported });
+        setImportStatus('ok');
+        setTimeout(() => setImportStatus('idle'), 2000);
+      }
+    };
+    reader.readAsText(file);
+    // Reset so re-selecting the same file triggers onChange again
+    e.target.value = '';
+  }
+
+  const btnStyle: React.CSSProperties = {
+    background: '#2a2e2b',
+    color: theme.accent,
+    border: `1px solid ${theme.border}`,
+    borderRadius: 20,
+    padding: '4px 14px',
+    fontSize: 12,
+    fontFamily: font.mono,
+    cursor: 'pointer',
+    letterSpacing: '.05em',
+  };
 
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', padding: '30px 20px 70px' }}>
@@ -48,23 +103,23 @@ export function App() {
         <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
           Play along in the browser, or cue your own backing track and solo over it.
         </p>
-        <div style={{ marginTop: 14 }}>
-          <button
-            onClick={handleShare}
-            style={{
-              background: '#2a2e2b',
-              color: theme.accent,
-              border: `1px solid ${theme.border}`,
-              borderRadius: 20,
-              padding: '4px 14px',
-              fontSize: 12,
-              fontFamily: font.mono,
-              cursor: 'pointer',
-              letterSpacing: '.05em',
-            }}
-          >
+        <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={handleShare} style={btnStyle}>
             {copied ? 'Copied!' : 'Share'}
           </button>
+          <button onClick={handleExport} style={btnStyle}>
+            Export
+          </button>
+          <button onClick={handleImportClick} style={btnStyle}>
+            {importStatus === 'ok' ? 'Loaded!' : importStatus === 'err' ? 'Invalid file' : 'Import'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+          />
         </div>
       </header>
 

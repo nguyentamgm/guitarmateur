@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TONICS } from '../music';
 import { defaultState } from './appState';
-import { encodeState, decodeState } from './share';
+import { encodeState, decodeState, exportStateToJson, importStateFromJson } from './share';
 
 const G = TONICS.find((t) => t.letter === 'G' && t.alter === 0)!;
 
@@ -69,5 +69,56 @@ describe('share: encode/decode', () => {
 
   it('returns null for garbage input', () => {
     expect(decodeState('v1:' + btoa('not-json-at-all'))).toBeNull();
+  });
+});
+
+describe('share: exportStateToJson / importStateFromJson', () => {
+  it('round-trips the default state', () => {
+    const state = defaultState(() => 42);
+    const json = exportStateToJson(state);
+    const imported = importStateFromJson(json);
+
+    expect(imported).not.toBeNull();
+    expect(imported!.schemaVersion).toBe(3);
+    expect(imported!.key.tonic).toEqual(state.key.tonic);
+    expect(imported!.key.scaleId).toBe(state.key.scaleId);
+    expect(imported!.tuningId).toBe(state.tuningId);
+    expect(imported!.positions).toEqual(state.positions);
+    expect(imported!.level).toBe(state.level);
+    expect(imported!.targetRole).toBe(state.targetRole);
+    expect(imported!.resolveToNext).toBe(state.resolveToNext);
+    expect(imported!.tempoBpm).toBe(state.tempoBpm);
+    expect(imported!.progression.length).toBe(state.progression.length);
+  });
+
+  it('produces valid JSON with a v field', () => {
+    const state = defaultState(() => 1);
+    const json = exportStateToJson(state);
+    const obj = JSON.parse(json) as Record<string, unknown>;
+    expect(obj.v).toBe(3);
+    expect(obj.state).toBeTruthy();
+  });
+
+  it('does not include ui in the exported JSON', () => {
+    const state = defaultState(() => 1);
+    const json = exportStateToJson(state);
+    const obj = JSON.parse(json) as { state: Record<string, unknown> };
+    expect(obj.state.ui).toBeUndefined();
+  });
+
+  it('returns null for non-JSON input', () => {
+    expect(importStateFromJson('not json')).toBeNull();
+  });
+
+  it('returns null when v field is missing', () => {
+    expect(importStateFromJson('{"state":{}}')).toBeNull();
+  });
+
+  it('returns null when v is greater than current schema', () => {
+    expect(importStateFromJson('{"v":99,"state":{}}')).toBeNull();
+  });
+
+  it('returns null for empty string', () => {
+    expect(importStateFromJson('')).toBeNull();
   });
 });
