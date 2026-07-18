@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-16 (PR #12 7-note scales + PR #13 keyboard shortcuts + PR #14 major blues scale; all CI gates green, 144 tests)
+Last updated: 2026-07-18 (PR #20 export/import state + PR #21 fix shared-link state clobber + PR #22 fix bend technique; all CI gates green, 158 tests)
 
 ## Verify current status in one paste
 
@@ -17,13 +17,13 @@ file's date — if this block passes, the "CI gate" boxes are genuinely true rig
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-Measured snapshot at last update (2026-07-11, M5 working tree):
+Measured snapshot at last update (2026-07-17):
 
 | Gate | Result |
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 2 warnings (`react-hooks/exhaustive-deps` in `src/ui/components/PracticeSection.tsx` — pre-existing, non-blocking) |
-| test | **144 passed** across 14 test files (+8 from 7-note-scales + major-blues) |
+| test | **158 passed** across 15 test files (+2 tests from export/import, +12 from earlier milestones) |
 | `build` | clean → `dist/` (~74 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
@@ -44,7 +44,13 @@ is wrong.
 | M3 | MVP practice loop / v1 launch (plan 04 lv.1–3, Steps 2–3 UI, plan 06) | ✅ Done | PR #5 `3a9286a` |
 | M4 | Musicality (plan 04 lv.4–5, technique decoration) | ✅ Done | PR #6 `afeac56` |
 | M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete — needs manual browser verification | PR #7 `93f13c8` |
-| — | Later/unscheduled (alt-tunings UI, left-handed view, preset sharing via URL, PWA/offline) | ⬜ Not started | — |
+| — | URL sharing (T5+T6) | ✅ Done | PR #17 `8d871f7` |
+| — | PWA / offline (T7+T8) | ✅ Done | PR #18 `a9fd35a` |
+| — | Tuning picker (T3) | ✅ Done | PR #19 `2c006da` |
+| — | Export/import state as JSON file (survey #1) | ✅ Done | PR #20 `e717ef9` |
+| — | Fix shared-link state clobber bug (survey #2) | ✅ Done | PR #21 `d61b6ba` |
+| — | Fix bend technique on fret change (survey #3) | ✅ Done | PR #22 `3302b7b` |
+| — | Later/unscheduled (left-handed view, alt-tunings beyond drop-D) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
 [10-roadmap.md](10-roadmap.md): a manual audio pass in a real browser to resolve the two open
