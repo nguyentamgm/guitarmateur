@@ -63,6 +63,7 @@ export type Action =
   | { type: 'rerollLick'; id: string }
   | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
+  | { type: 'SET_STATE'; payload: AppState }
   | { type: 'toggleAdvanced' }
   | { type: 'setAdvRoot'; tonic: NoteName }
   | { type: 'setAdvQuality'; quality: QualityId }
@@ -207,6 +208,8 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
     }
     case 'rerollAll':
       return { ...state, progression: state.progression.map((e) => ({ ...e, lickSeed: nextSeed() })) };
+    case 'SET_STATE':
+      return action.payload;
     case 'toggleAdvanced':
       return { ...state, ui: { ...state.ui, advancedOpen: !state.ui.advancedOpen } };
     case 'setAdvRoot':
