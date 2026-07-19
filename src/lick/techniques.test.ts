@@ -61,6 +61,15 @@ describe('decorateTechniques', () => {
     expect(result[1]!.technique).toBe('slide');
   });
 
+  it('same string 3-fret move → slide', () => {
+    const notes: LickNote[] = [
+      note({ string: 5, fret: 0, startBeat: 0 }),
+      note({ string: 5, fret: 3, startBeat: 1 }),
+    ];
+    const result = decorateTechniques(notes, 5, mulberry32(42));
+    expect(result[1]!.technique).toBe('slide');
+  });
+
   it('level 1-2: no techniques ever', () => {
     for (const level of [1, 2] as const) {
       // Create many eligible pairs across multiple seeds
@@ -89,6 +98,14 @@ describe('decorateTechniques', () => {
       const t = result[1]!.technique;
       expect(t === 'hammer' || t === undefined).toBe(true);
     }
+
+    // slides also work at dFret=3 on same string at level 3 (with role to allow landing note)
+    const notesSlide: LickNote[] = [
+      note({ string: 5, fret: 0, startBeat: 0 }),
+      note({ string: 5, fret: 3, startBeat: 1, role: 'R' }),
+    ];
+    const slideResult = decorateTechniques(notesSlide, 5, mulberry32(42));
+    expect(slideResult[1]!.technique).toBe('slide');
   });
 
   it('level 5: hammer on single-fret step up to chord tone', () => {
@@ -104,6 +121,15 @@ describe('decorateTechniques', () => {
     const notes: LickNote[] = [
       note({ string: 5, fret: 0, startBeat: 0 }),
       note({ string: 5, fret: 2, startBeat: 1, role: 'R' }),
+    ];
+    const result = decorateTechniques(notes, 5, mulberry32(42));
+    expect(result[1]!.technique).toBe('slide');
+  });
+
+  it('level 5: slide on 3-fret step up to chord tone', () => {
+    const notes: LickNote[] = [
+      note({ string: 5, fret: 0, startBeat: 0 }),
+      note({ string: 5, fret: 3, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
     expect(result[1]!.technique).toBe('slide');

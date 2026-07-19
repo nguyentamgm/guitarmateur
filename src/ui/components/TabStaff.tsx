@@ -18,7 +18,7 @@ const TECHNIQUE_GLYPHS: Record<Technique, string> = {
   hammer: 'h',
   pull: 'p',
   slide: '/',
-  bendHalf: 'b',
+  bendHalf: '½',
   bendFull: 'b',
 };
 
