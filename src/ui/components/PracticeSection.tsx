@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { format, romanNumeral, chordLabel, type Chord } from '../../music';
 import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
@@ -20,6 +20,15 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
   const [loop, setLoop] = useState(true);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
   const active = transport.position;
+
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (active?.entryIndex !== undefined && cardRefs.current[active.entryIndex]) {
+      cardRefs.current[active.entryIndex]!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [active?.entryIndex]);
+
   const box = useMemo(() => {
     const pos = positions(TUNINGS[state.tuningId], state.key);
     return mergedBox(pos, state.positions);
@@ -151,6 +160,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                 return (
                   <div
                     key={entryId}
+                    ref={(el) => { cardRefs.current[i] = el; }}
                     style={{
                       background: theme.card,
                       border: `1px solid ${isActiveCard ? theme.accent : theme.border}`,
