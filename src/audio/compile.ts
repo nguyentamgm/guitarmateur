@@ -25,6 +25,8 @@ export interface CompileOptions {
   metronome?: boolean;
   /** How many times the progression plays back-to-back. Default 1. */
   repeats?: number;
+  /** Swing/shuffle feel: 0 = straight (default), 1 = full triplet swing. Off-beat 8ths are delayed by swing * (1/6) beats. */
+  swing?: number;
 }
 
 export interface CompiledProgression {
@@ -48,6 +50,7 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
   const countIn = opts.countIn ?? false;
   const metronome = opts.metronome ?? true;
   const repeats = Math.max(1, Math.floor(opts.repeats ?? 1));
+  const swing = Math.min(1, Math.max(0, opts.swing ?? 0));
   const secPerBeat = 60 / opts.tempoBpm;
 
   const musicBeats = licks.reduce((sum, l) => sum + l.lengthBeats, 0);
@@ -65,8 +68,12 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
     let entryStartBeat = passStartBeat;
     licks.forEach((lick, entryIndex) => {
       lick.notes.forEach((note, noteIndex) => {
+        let adjustedBeat = entryStartBeat + note.startBeat;
+        if (swing > 0 && Math.abs((note.startBeat % 1) - 0.5) < 0.01) {
+          adjustedBeat += swing * (1 / 6);
+        }
         events.push({
-          timeSec: (entryStartBeat + note.startBeat) * secPerBeat,
+          timeSec: adjustedBeat * secPerBeat,
           kind: 'pluck',
           midi: midi(note.pitch),
           durationSec: note.durationBeats * secPerBeat,

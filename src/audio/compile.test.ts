@@ -82,3 +82,54 @@ describe('compileProgression', () => {
     }
   });
 });
+
+describe("swing feel", () => {
+  it("swing=0 produces straight 8ths (no offset)", () => {
+    const l = lick(4, [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]);
+    const { events } = compileProgression([l], { tempoBpm: 60, metronome: false, swing: 0 });
+    const p = plucks(events);
+    // Straight 8ths at 0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5
+    expect(p.map((e) => e.timeSec)).toEqual([
+      0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5
+    ]);
+  });
+
+  it("swing=1 delays off-beat 8ths by 1/6 of a beat", () => {
+    const l = lick(4, [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]);
+    const { events } = compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 });
+    const p = plucks(events);
+    // On-beat: 0, 1, 2, 3
+    // Off-beat (&): 0.5 → 0.667, 1.5 → 1.667, 2.5 → 2.667, 3.5 → 3.667
+    const expected = [0, 2 / 3, 1, 1 + 2 / 3, 2, 2 + 2 / 3, 3, 3 + 2 / 3];
+    for (let i = 0; i < p.length; i++) {
+      expect(p[i]!.timeSec).toBeCloseTo(expected[i]!);
+    }
+  });
+
+  it("swing=0.5 applies half the offset", () => {
+    const l = lick(4, [0.5]);
+    const { events } = compileProgression([l], { tempoBpm: 60, metronome: false, swing: 0.5 });
+    // 0.5 + 0.5 * (1/6) = 0.5 + 0.0833 = 0.5833
+    expect(plucks(events)[0]!.timeSec).toBeCloseTo(0.5 + 0.5 * (1 / 6));
+  });
+
+  it("swing does not affect on-beat notes", () => {
+    const l = lick(4, [0, 1, 2, 3]);
+    const { events } = compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 });
+    const p = plucks(events);
+    expect(p[0]!.timeSec).toBeCloseTo(0);
+    expect(p[1]!.timeSec).toBeCloseTo(1);
+    expect(p[2]!.timeSec).toBeCloseTo(2);
+    expect(p[3]!.timeSec).toBeCloseTo(3);
+  });
+
+  it("swing does not affect click/metronome events", () => {
+    const l = lick(4, [0, 0.5]);
+    const { events } = compileProgression([l], { tempoBpm: 60, swing: 1 });
+    const c = clicks(events);
+    // Clicks should still be at integer beat positions
+    for (const click of c) {
+      expect(click.timeSec).toBe(Math.round(click.timeSec));
+    }
+  });
+});
