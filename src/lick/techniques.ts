@@ -14,7 +14,7 @@ const LEVEL_PROB: Record<LickParams['level'], number> = {
  *
  * - Same-string ascending step (dFret === 1) ⇒ `hammer`
  * - Same-string descending step (dFret === -1) ⇒ `pull`
- * - Same-string |dFret| === 2 ⇒ `slide`
+ * - Same-string |dFret| > 1 ⇒ `slide`
  *
  * Constraints:
  * - ≤ 1 technique per `startBeat`
@@ -62,7 +62,7 @@ export function decorateTechniques(
         technique = 'hammer';
       } else if (dFret === -1) {
         technique = 'pull';
-      } else if (Math.abs(dFret) === 2) {
+      } else if (Math.abs(dFret) > 1) {
         technique = 'slide';
       }
     }
