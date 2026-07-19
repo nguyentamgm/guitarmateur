@@ -42,6 +42,14 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
 
   const targetLabel = state.targetRole === 'R' ? 'Root' : state.targetRole === '3' ? '3rd' : '5th';
 
+  const levelDescriptions: Record<number, string> = {
+    1: 'Quarter notes + half notes (easy)',
+    2: 'Quarters + paired 8ths',
+    3: 'Straight 8ths + shuffle feel',
+    4: 'Syncopation with rests',
+    5: '16th runs + advanced techniques',
+  };
+
   return (
     <section style={{ marginBottom: 34 }}>
       <KeyboardShortcuts
@@ -64,6 +72,9 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                   {l}
                 </PillButton>
               ))}
+            </div>
+            <div style={{ fontSize: 10, color: theme.muted, fontFamily: font.mono, marginTop: 4 }}>
+              {levelDescriptions[state.level]}
             </div>
           </div>
           <div>
