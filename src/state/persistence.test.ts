@@ -19,14 +19,22 @@ describe('persistence', () => {
     const state = defaultState(() => 42);
     saveState(state);
     const loaded = loadState()!;
-    expect(loaded.schemaVersion).toBe(3);
+    expect(loaded.schemaVersion).toBe(4);
     expect(loaded.key.tonic).toEqual(state.key.tonic);
     expect(loaded.positions).toEqual(state.positions);
     expect(loaded.level).toBe(state.level);
     expect(loaded.targetRole).toBe(state.targetRole);
     expect(loaded.progression.length).toBe(state.progression.length);
+    expect(loaded.swingEnabled).toBe(state.swingEnabled);
     // UI is not persisted
     expect(loaded.ui.advancedOpen).toBe(false);
+  });
+
+  it('save + load round-trips a non-default swingEnabled value', () => {
+    const state = { ...defaultState(() => 42), swingEnabled: true };
+    saveState(state);
+    const loaded = loadState()!;
+    expect(loaded.swingEnabled).toBe(true);
   });
 
   it('corrupt JSON returns defaults', () => {
@@ -39,10 +47,11 @@ describe('persistence', () => {
   it('migrate handles missing fields with defaults', () => {
     const loaded = migrate({});
     const fallback = defaultState();
-    expect(loaded.schemaVersion).toBe(3);
+    expect(loaded.schemaVersion).toBe(4);
     expect(loaded.key.tonic).toEqual(fallback.key.tonic);
     expect(loaded.level).toBe(fallback.level);
     expect(loaded.targetRole).toBe(fallback.targetRole);
+    expect(loaded.swingEnabled).toBe(false);
   });
 
   it('migrates a v2 payload to v3 with default tempo and per-entry bars', () => {
@@ -58,15 +67,35 @@ describe('persistence', () => {
       resolveToNext: true,
     };
     const loaded = migrate(v2);
-    expect(loaded.schemaVersion).toBe(3);
+    expect(loaded.schemaVersion).toBe(4);
     // Existing user choices survive the migration...
     expect(loaded.level).toBe(3);
     expect(loaded.targetRole).toBe('3');
     expect(loaded.resolveToNext).toBe(true);
     expect(loaded.progression[0]!.lickSeed).toBe(7);
-    // ...and the new v3 fields are defaulted.
+    // ...and the new v3/v4 fields are defaulted.
     expect(loaded.tempoBpm).toBe(90);
     expect(loaded.progression[0]!.bars).toBe(1);
+    expect(loaded.swingEnabled).toBe(false);
+  });
+
+  it('migrates a v3 payload to v4 with default swingEnabled', () => {
+    const v3 = {
+      schemaVersion: 3,
+      tuningId: 'standard',
+      key: { tonic: A, scaleId: 'minorPentatonic' },
+      positions: [],
+      progression: [{ id: 'x', chord: { tonic: A, quality: 'm' }, lickSeed: 7, bars: 1 }],
+      level: 3,
+      targetRole: '3',
+      resolveToNext: true,
+      tempoBpm: 120,
+      // v3 payloads have no `swingEnabled` field
+    };
+    const loaded = migrate(v3);
+    expect(loaded.schemaVersion).toBe(4);
+    expect(loaded.tempoBpm).toBe(120);
+    expect(loaded.swingEnabled).toBe(false);
   });
 
   it('clamps an out-of-range persisted tempo', () => {
@@ -125,7 +154,8 @@ describe('persistence', () => {
     const state = defaultState(() => 0);
     saveState(state);
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
-    expect(raw.schemaVersion).toBe(3);
+    expect(raw.schemaVersion).toBe(4);
     expect(raw.tempoBpm).toBe(90);
+    expect(raw.swingEnabled).toBe(false);
   });
 });

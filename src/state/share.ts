@@ -2,11 +2,11 @@ import type { AppState } from './appState';
 import { migrate } from './persistence';
 
 const VERSION_PREFIX = 'v1:';
-const CURRENT_SCHEMA = 3;
+const CURRENT_SCHEMA = 4;
 
 export function encodeState(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled };
   return VERSION_PREFIX + btoa(encodeURIComponent(JSON.stringify(persisted)));
 }
 
@@ -23,8 +23,8 @@ export function decodeState(raw: string): AppState | null {
 }
 
 export function exportStateToJson(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled };
   return JSON.stringify({ v: CURRENT_SCHEMA, state: persisted }, null, 2);
 }
 

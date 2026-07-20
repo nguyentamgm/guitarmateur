@@ -59,6 +59,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
         tempoBpm={state.tempoBpm}
         countIn={countIn}
         loop={loop}
+        swingEnabled={state.swingEnabled}
       />
       <SectionKicker style={{ marginBottom: 12 }}>Step 3 · Practice Licks</SectionKicker>
       <Panel>
@@ -141,6 +142,8 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               loop={loop}
               onCountInChange={setCountIn}
               onLoopChange={setLoop}
+              swingEnabled={state.swingEnabled}
+              onSwingChange={(v) => dispatch({ type: 'setSwing', value: v })}
             />
 
             {/* Legend */}
