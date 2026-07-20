@@ -10,10 +10,11 @@ interface Props {
   tempoBpm: number;
   countIn: boolean;
   loop: boolean;
+  swingEnabled: boolean;
 }
 
 /** Global keyboard shortcuts — Space: play/stop, R: reroll, 1-5: set level. */
-export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countIn, loop }: Props) {
+export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countIn, loop, swingEnabled }: Props) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as Element;
@@ -32,7 +33,7 @@ export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countI
         } else {
           const canPlay = licks.some((l) => l.notes.length > 0);
           if (canPlay) {
-            transport.play(licks, { tempoBpm, countIn, loop, metronome: true });
+            transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0 });
           }
         }
       } else if (e.key === 'r' || e.key === 'R') {
@@ -45,7 +46,7 @@ export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countI
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, transport, licks, tempoBpm, countIn, loop]);
+  }, [dispatch, transport, licks, tempoBpm, countIn, loop, swingEnabled]);
 
   return null;
 }

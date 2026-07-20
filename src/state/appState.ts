@@ -26,7 +26,7 @@ export const MAX_BPM = 200;
 export const DEFAULT_BPM = 90;
 
 export interface AppState {
-  schemaVersion: 3;
+  schemaVersion: 4;
   tuningId: TuningId;
   key: Key;
   /** 1–2 selected position indices. */
@@ -37,6 +37,8 @@ export interface AppState {
   resolveToNext: boolean;
   /** Playback tempo in BPM (40–200), added in schema v3. */
   tempoBpm: number;
+  /** Swing/shuffle feel toggle, added in schema v4. */
+  swingEnabled: boolean;
   /** Not persisted. */
   ui: {
     advancedOpen: boolean;
@@ -60,6 +62,7 @@ export type Action =
   | { type: 'reorderChord'; fromId: string; toIndex: number }
   | { type: 'setBars'; id: string; bars: Bars }
   | { type: 'setTempo'; bpm: number }
+  | { type: 'setSwing'; value: boolean }
   | { type: 'rerollLick'; id: string }
   | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
@@ -112,7 +115,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
   const rec = recommendedPosition(pos);
 
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     tuningId,
     key,
     positions: [rec],
@@ -121,6 +124,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
     targetRole: 'R',
     resolveToNext: false,
     tempoBpm: DEFAULT_BPM,
+    swingEnabled: false,
     ui: {
       advancedOpen: false,
       advRoot: TONICS[0]!,
@@ -192,6 +196,8 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       };
     case 'setTempo':
       return { ...state, tempoBpm: clampBpm(action.bpm) };
+    case 'setSwing':
+      return { ...state, swingEnabled: action.value };
     case 'rerollLick':
       return {
         ...state,

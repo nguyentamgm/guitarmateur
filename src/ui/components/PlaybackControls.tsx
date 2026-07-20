@@ -15,6 +15,8 @@ export function PlaybackControls({
   loop,
   onCountInChange,
   onLoopChange,
+  swingEnabled,
+  onSwingChange,
 }: {
   licks: Lick[];
   tempoBpm: number;
@@ -24,6 +26,8 @@ export function PlaybackControls({
   loop: boolean;
   onCountInChange: (v: boolean) => void;
   onLoopChange: (v: boolean) => void;
+  swingEnabled: boolean;
+  onSwingChange: (v: boolean) => void;
 }) {
 
   if (!transport.supported) {
@@ -40,7 +44,7 @@ export function PlaybackControls({
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.play(licks, { tempoBpm, countIn, loop, metronome: true });
+      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0 });
     }
   };
 
@@ -117,6 +121,9 @@ export function PlaybackControls({
       <div style={{ display: 'flex', gap: 6 }}>
         <PillButton selected={countIn} onClick={() => onCountInChange(!countIn)} wide ariaLabel="Toggle count-in">
           Count-in
+        </PillButton>
+        <PillButton selected={swingEnabled} onClick={() => onSwingChange(!swingEnabled)} wide ariaLabel="Toggle swing">
+          Swing
         </PillButton>
         <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel="Toggle loop">
           Loop

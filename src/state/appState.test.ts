@@ -40,6 +40,15 @@ describe('reducer', () => {
     expect(reducer(s, { type: 'setTempo', bpm: 9000 }, testNextSeed).tempoBpm).toBe(200);
   });
 
+  it('setSwing toggles swingEnabled', () => {
+    const s = fresh();
+    expect(s.swingEnabled).toBe(false);
+    const next = reducer(s, { type: 'setSwing', value: true }, testNextSeed);
+    expect(next.swingEnabled).toBe(true);
+    const back = reducer(next, { type: 'setSwing', value: false }, testNextSeed);
+    expect(back.swingEnabled).toBe(false);
+  });
+
   it('setBars toggles a single entry between 1 and 2 without touching others', () => {
     const s = fresh();
     const id = s.progression[0]!.id;
