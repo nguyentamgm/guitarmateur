@@ -12,9 +12,10 @@ const LEVEL_PROB: Record<LickParams['level'], number> = {
 /**
  * Decorate eligible adjacent note pairs with techniques.
  *
- * - Same-string ascending step (dFret === 1) ⇒ `hammer`
+ * - Same-string ascending step (dFret === 1) ⇒ `hammer` (or `bendHalf` at level 5, 50/50)
  * - Same-string descending step (dFret === -1) ⇒ `pull`
- * - Same-string |dFret| > 1 ⇒ `slide`
+ * - Same-string dFret === 2 ⇒ `slide` (or `bendFull` at level 5, 50/50)
+ * - Same-string |dFret| > 2 ⇒ `slide`
  *
  * Constraints:
  * - ≤ 1 technique per `startBeat`
@@ -59,9 +60,11 @@ export function decorateTechniques(
       } else if (usedBeats.has(cur.startBeat)) {
         // skip — already one technique on this beat
       } else if (dFret === 1) {
-        technique = 'hammer';
+        technique = level === 5 && rng() < 0.5 ? 'bendHalf' : 'hammer';
       } else if (dFret === -1) {
         technique = 'pull';
+      } else if (dFret === 2) {
+        technique = level === 5 && rng() < 0.5 ? 'bendFull' : 'slide';
       } else if (Math.abs(dFret) > 1) {
         technique = 'slide';
       }
