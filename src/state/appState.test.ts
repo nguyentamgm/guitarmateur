@@ -49,6 +49,20 @@ describe('reducer', () => {
     expect(back.swingEnabled).toBe(false);
   });
 
+  it('setClickGain updates clickGain', () => {
+    const s = fresh();
+    expect(s.clickGain).toBe(0.6);
+    const next = reducer(s, { type: 'setClickGain', gain: 0.3 }, testNextSeed);
+    expect(next.clickGain).toBe(0.3);
+  });
+
+  it('setNoteGain updates noteGain', () => {
+    const s = fresh();
+    expect(s.noteGain).toBe(0.9);
+    const next = reducer(s, { type: 'setNoteGain', gain: 0.5 }, testNextSeed);
+    expect(next.noteGain).toBe(0.5);
+  });
+
   it('setBars toggles a single entry between 1 and 2 without touching others', () => {
     const s = fresh();
     const id = s.progression[0]!.id;

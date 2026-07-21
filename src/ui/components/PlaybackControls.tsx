@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { Lick } from '../../lick';
 import { MIN_BPM, MAX_BPM } from '../../state';
 import { font, theme } from '../theme';
@@ -17,6 +16,10 @@ export function PlaybackControls({
   onLoopChange,
   swingEnabled,
   onSwingChange,
+  clickGain,
+  noteGain,
+  onClickGainChange,
+  onNoteGainChange,
 }: {
   licks: Lick[];
   tempoBpm: number;
@@ -28,6 +31,10 @@ export function PlaybackControls({
   onLoopChange: (v: boolean) => void;
   swingEnabled: boolean;
   onSwingChange: (v: boolean) => void;
+  clickGain: number;
+  noteGain: number;
+  onClickGainChange: (gain: number) => void;
+  onNoteGainChange: (gain: number) => void;
 }) {
 
   if (!transport.supported) {
@@ -132,8 +139,8 @@ export function PlaybackControls({
 
       {/* Mix */}
       <div style={{ display: 'flex', gap: 14 }}>
-        <MixSlider label="Click" onChange={transport.setClickGain} defaultValue={0.6} />
-        <MixSlider label="Notes" onChange={transport.setNoteGain} defaultValue={0.9} />
+        <MixSlider label="Click" value={clickGain} onChange={(v) => { transport.setClickGain(v); onClickGainChange(v); }} />
+        <MixSlider label="Notes" value={noteGain} onChange={(v) => { transport.setNoteGain(v); onNoteGainChange(v); }} />
       </div>
     </div>
   );
@@ -141,14 +148,13 @@ export function PlaybackControls({
 
 function MixSlider({
   label,
-  defaultValue,
+  value,
   onChange,
 }: {
   label: string;
-  defaultValue: number;
+  value: number;
   onChange: (value: number) => void;
 }) {
-  const [value, setValue] = useState(defaultValue);
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{label}</span>
@@ -158,11 +164,7 @@ function MixSlider({
         max={1}
         step={0.05}
         value={value}
-        onChange={(e) => {
-          const v = Number(e.target.value);
-          setValue(v);
-          onChange(v);
-        }}
+        onChange={(e) => onChange(Number(e.target.value))}
         aria-label={`${label} volume`}
         style={{ accentColor: theme.accent, width: 70 }}
       />
