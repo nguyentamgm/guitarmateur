@@ -18,6 +18,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
   const scaleName = SCALES[key.scaleId].name;
   const combined = state.positions.length > 1;
   const title = `${format(key.tonic)} ${scaleName}${combined ? ` — frets ${box.minFret}–${box.maxFret} (combined)` : ''}`;
+  const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -80,7 +81,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
             ]}
           />
           <div style={{ overflowX: 'auto', marginTop: 12 }}>
-            <FretboardDiagram box={box} title={title} />
+            <FretboardDiagram box={box} title={title} stringLabels={stringLabels} />
           </div>
         </div>
       </Panel>

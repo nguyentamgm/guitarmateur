@@ -34,6 +34,8 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     return mergedBox(pos, state.positions);
   }, [state.tuningId, state.key.tonic, state.key.scaleId, state.positions]);
 
+  const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
+
   const chordMap = useMemo(() => {
     const m = new Map<string, (typeof state.progression)[number]>();
     for (const e of state.progression) m.set(e.id, e);
@@ -214,6 +216,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                       highlight={{ chord, targetRole: state.targetRole }}
                       landing={lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined}
                       title={`${targetTone} — ${targetLabel} highlighting`}
+                      stringLabels={stringLabels}
                     />
 
                     {/* Lick header */}
