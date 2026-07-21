@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import type { Lick } from '../../lick';
 import { MIN_BPM, MAX_BPM } from '../../state';
 import { font, theme } from '../theme';
@@ -36,6 +37,27 @@ export function PlaybackControls({
   onClickGainChange: (gain: number) => void;
   onNoteGainChange: (gain: number) => void;
 }) {
+
+  const tapTimes = useRef<number[]>([]);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleTap = () => {
+    const now = performance.now();
+    tapTimes.current.push(now);
+    if (tapTimes.current.length > 4) tapTimes.current.shift();
+    if (tapTimer.current !== null) clearTimeout(tapTimer.current);
+    tapTimer.current = setTimeout(() => { tapTimes.current = []; }, 2000);
+    if (tapTimes.current.length >= 2) {
+      const intervals: number[] = [];
+      for (let i = 1; i < tapTimes.current.length; i++) {
+        intervals.push(tapTimes.current[i]! - tapTimes.current[i - 1]!);
+      }
+      const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      if (avg > 0) {
+        const bpm = Math.round(60000 / avg);
+        onTempoChange(Math.max(MIN_BPM, Math.min(MAX_BPM, bpm)));
+      }
+    }
+  };
 
   if (!transport.supported) {
     return (
@@ -134,6 +156,9 @@ export function PlaybackControls({
         </PillButton>
         <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel="Toggle loop">
           Loop
+        </PillButton>
+        <PillButton selected={false} onClick={handleTap} wide ariaLabel="Tap tempo">
+          Tap
         </PillButton>
       </div>
 
