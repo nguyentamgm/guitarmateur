@@ -26,7 +26,7 @@ export const MAX_BPM = 200;
 export const DEFAULT_BPM = 90;
 
 export interface AppState {
-  schemaVersion: 4;
+  schemaVersion: 5;
   tuningId: TuningId;
   key: Key;
   /** 1–2 selected position indices. */
@@ -39,6 +39,10 @@ export interface AppState {
   tempoBpm: number;
   /** Swing/shuffle feel toggle, added in schema v4. */
   swingEnabled: boolean;
+  /** Metronome click gain [0–1], added in schema v5. */
+  clickGain: number;
+  /** Note gain [0–1], added in schema v5. */
+  noteGain: number;
   /** Not persisted. */
   ui: {
     advancedOpen: boolean;
@@ -63,6 +67,8 @@ export type Action =
   | { type: 'setBars'; id: string; bars: Bars }
   | { type: 'setTempo'; bpm: number }
   | { type: 'setSwing'; value: boolean }
+  | { type: 'setClickGain'; gain: number }
+  | { type: 'setNoteGain'; gain: number }
   | { type: 'rerollLick'; id: string }
   | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
@@ -115,7 +121,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
   const rec = recommendedPosition(pos);
 
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     tuningId,
     key,
     positions: [rec],
@@ -125,6 +131,8 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
     resolveToNext: false,
     tempoBpm: DEFAULT_BPM,
     swingEnabled: false,
+    clickGain: 0.6,
+    noteGain: 0.9,
     ui: {
       advancedOpen: false,
       advRoot: TONICS[0]!,
@@ -198,6 +206,10 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       return { ...state, tempoBpm: clampBpm(action.bpm) };
     case 'setSwing':
       return { ...state, swingEnabled: action.value };
+    case 'setClickGain':
+      return { ...state, clickGain: action.gain };
+    case 'setNoteGain':
+      return { ...state, noteGain: action.gain };
     case 'rerollLick':
       return {
         ...state,

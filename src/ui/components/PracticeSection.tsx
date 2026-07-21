@@ -144,6 +144,10 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               onLoopChange={setLoop}
               swingEnabled={state.swingEnabled}
               onSwingChange={(v) => dispatch({ type: 'setSwing', value: v })}
+              clickGain={state.clickGain}
+              noteGain={state.noteGain}
+              onClickGainChange={(gain) => dispatch({ type: 'setClickGain', gain })}
+              onNoteGainChange={(gain) => dispatch({ type: 'setNoteGain', gain })}
             />
 
             {/* Legend */}
