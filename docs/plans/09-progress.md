@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-18 (PR #20 export/import state + PR #21 fix shared-link state clobber + PR #22 fix bend technique; all CI gates green, 158 tests)
+Last updated: 2026-07-21 (PR #29 persist mix volumes + PR #30 tuning string labels + PR #31 7th target role + PR #32 tap-tempo; all CI gates green, 176 tests)
 
 ## Verify current status in one paste
 
@@ -23,7 +23,7 @@ Measured snapshot at last update (2026-07-17):
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 2 warnings (`react-hooks/exhaustive-deps` in `src/ui/components/PracticeSection.tsx` — pre-existing, non-blocking) |
-| test | **158 passed** across 15 test files (+2 tests from export/import, +12 from earlier milestones) |
+| `test` | **176 passed** across 15 test files (+18 tests from M5/M6, +2 from PR #29 schema migration)
 | `build` | clean → `dist/` (~74 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
@@ -50,7 +50,11 @@ is wrong.
 | — | Export/import state as JSON file (survey #1) | ✅ Done | PR #20 `e717ef9` |
 | — | Fix shared-link state clobber bug (survey #2) | ✅ Done | PR #21 `d61b6ba` |
 | — | Fix bend technique on fret change (survey #3) | ✅ Done | PR #22 `3302b7b` |
-| — | Later/unscheduled (left-handed view, alt-tunings beyond drop-D) | ⬜ Not started | — |
+| — | MixSlider volumes persisted in AppState (survey #1) | ✅ Done | PR #29 `ad048a9` |
+| — | Tuning-aware fretboard string labels (survey #2) | ✅ Done | PR #30 `7785978` |
+| — | 7th as selectable target role (survey #5) | ✅ Done | PR #31 `37d9554` |
+| — | Tap-tempo button (survey #7) | ✅ Done | PR #32 `bc9a893` |
+| — | Later/unscheduled (left-handed view, alt-tunings beyond drop-D, inter-lick voice leading) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
 [10-roadmap.md](10-roadmap.md): a manual audio pass in a real browser to resolve the two open
