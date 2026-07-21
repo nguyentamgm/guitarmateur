@@ -42,7 +42,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     return m;
   }, [state.progression]);
 
-  const targetLabel = state.targetRole === 'R' ? 'Root' : state.targetRole === '3' ? '3rd' : '5th';
+  const targetLabel = state.targetRole === 'R' ? 'Root' : state.targetRole === '3' ? '3rd' : state.targetRole === '5' ? '5th' : '7th';
 
   const levelDescriptions: Record<number, string> = {
     1: 'Quarter notes + half notes (easy)',
@@ -83,9 +83,9 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
           <div>
             <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>Target</div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {(['R', '3', '5'] as const).map((r) => (
+              {(['R', '3', '5', '7'] as const).map((r) => (
                 <PillButton key={r} selected={state.targetRole === r} onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
-                  {r === 'R' ? 'Root' : r === '3' ? '3rd' : '5th'}
+                  {r === 'R' ? 'Root' : r === '3' ? '3rd' : r === '5' ? '5th' : '7th'}
                 </PillButton>
               ))}
             </div>

@@ -6,6 +6,7 @@ import {
   type NoteName,
   type QualityId,
   type ScaleId,
+  type ToneRole,
 } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
 
@@ -33,7 +34,7 @@ export interface AppState {
   positions: number[];
   progression: ProgressionEntry[];
   level: 1 | 2 | 3 | 4 | 5;
-  targetRole: 'R' | '3' | '5';
+  targetRole: ToneRole;
   resolveToNext: boolean;
   /** Playback tempo in BPM (40–200), added in schema v3. */
   tempoBpm: number;
@@ -57,7 +58,7 @@ export type Action =
   | { type: 'setScale'; scaleId: ScaleId }
   | { type: 'togglePosition'; index: number }
   | { type: 'setLevel'; level: 1 | 2 | 3 | 4 | 5 }
-  | { type: 'setTargetRole'; role: 'R' | '3' | '5' }
+  | { type: 'setTargetRole'; role: ToneRole }
   | { type: 'setResolveToNext'; value: boolean }
   | { type: 'addChord'; chord: Chord }
   | { type: 'removeChord'; id: string }
