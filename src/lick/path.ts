@@ -43,7 +43,7 @@ function expectedMidi(contour: Contour, firstMidi: number, lastMidi: number, pro
       return progress < 0.5 ? lerp(firstMidi, trough, progress / 0.5) : lerp(trough, lastMidi, (progress - 0.5) / 0.5);
     }
     case 'wave':
-      return lerp(firstMidi, lastMidi, progress) + Math.sin(progress * Math.PI * 2) * 3;
+      return lerp(firstMidi, lastMidi, progress) + Math.sin(progress * Math.PI * 2) * 6;
   }
 }
 
