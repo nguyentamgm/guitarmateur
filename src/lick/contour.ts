@@ -47,7 +47,14 @@ export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng):
 }
 
 /** First note: any chord tone of the current chord, weighted to give the contour room to move. */
-export function pickFirstNote(box: Box, chord: Chord, last: FretNote, contour: Contour, rng: Rng): FretNote {
+export function pickFirstNote(
+  box: Box,
+  chord: Chord,
+  last: FretNote,
+  contour: Contour,
+  rng: Rng,
+  prevLastMidi?: number,
+): FretNote {
   const anyChordTone = box.notes.filter((n) => toneRole(n.pitch, chord) !== null);
   const pool = anyChordTone.length ? anyChordTone : box.notes;
   const lastMidi = midi(last.pitch);
@@ -64,6 +71,10 @@ export function pickFirstNote(box: Box, chord: Chord, last: FretNote, contour: C
         break;
       default:
         weight = 1 / (1 + Math.abs(d));
+    }
+    if (prevLastMidi !== undefined) {
+      const distance = Math.abs(midi(n.pitch) - prevLastMidi);
+      weight *= 1 / (1 + distance * 0.2);
     }
     return { item: n, weight };
   });
