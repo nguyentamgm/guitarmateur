@@ -12,8 +12,8 @@ const LEVEL_WEIGHTS: Record<LickParams['level'], Record<Contour, number>> = {
   1: { ascend: 4, descend: 4, arch: 1, valley: 1, wave: 0.5 },
   2: { ascend: 3, descend: 3, arch: 2, valley: 2, wave: 1 },
   3: { ascend: 2, descend: 2, arch: 2.5, valley: 2.5, wave: 2 },
-  4: { ascend: 2, descend: 2, arch: 2.5, valley: 2.5, wave: 2.5 },
-  5: { ascend: 1.5, descend: 1.5, arch: 2.5, valley: 2.5, wave: 3 },
+  4: { ascend: 2, descend: 2, arch: 2.5, valley: 2.5, wave: 3 },
+  5: { ascend: 1.5, descend: 1.5, arch: 2.5, valley: 2.5, wave: 4 },
 };
 
 export function pickContour(level: LickParams['level'], rng: Rng): Contour {
