@@ -193,4 +193,24 @@ describe('generateLick — integration', () => {
       expect(total / 50).toBeGreaterThan(0);
     }
   });
+
+  it('voice leading: second lick first note is biased toward previous lick last note', () => {
+    const params: LickParams = { level: 3, targetRole: 'R', resolveToNext: false, seed: 7 };
+    const lick1 = generateLick(box, chord, null, params);
+    const lick1LastMidi = midi(lick1.notes[lick1.notes.length - 1]!.pitch);
+
+    // Generate many second licks with voice leading and without, measure mean distance
+    const seeds = Array.from({ length: 100 }, (_, i) => i);
+    let sumWithVL = 0;
+    let sumWithout = 0;
+    for (const seed of seeds) {
+      const p: LickParams = { level: 3, targetRole: 'R', resolveToNext: false, seed };
+      const withVL = generateLick(box, chord, null, p, lick1LastMidi);
+      const without = generateLick(box, chord, null, p);
+      sumWithVL += Math.abs(midi(withVL.notes[0]!.pitch) - lick1LastMidi);
+      sumWithout += Math.abs(midi(without.notes[0]!.pitch) - lick1LastMidi);
+    }
+    // Voice-led first notes should on average be closer to the anchor pitch
+    expect(sumWithVL / seeds.length).toBeLessThan(sumWithout / seeds.length);
+  });
 });

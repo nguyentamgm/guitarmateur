@@ -17,7 +17,7 @@ const SCORE_TOLERANCE = 0.75;
  * Generate a practice lick over `chord` (landing on `next` when `params.resolveToNext`), built
  * entirely from `box`'s notes. Pure and deterministic: same inputs ⇒ identical lick.
  */
-export function generateLick(box: Box, chord: Chord, next: Chord | null, params: LickParams): Lick {
+export function generateLick(box: Box, chord: Chord, next: Chord | null, params: LickParams, prevLastMidi?: number): Lick {
   const targetChord = params.resolveToNext && next ? next : chord;
   const bars = params.bars ?? 1;
 
@@ -32,7 +32,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const contour = pickContour(params.level, rng);
 
     const last = pickChordTone(box, targetChord, params.targetRole, rng);
-    const first = pickFirstNote(box, chord, last, contour, rng);
+    const first = pickFirstNote(box, chord, last, contour, rng, prevLastMidi);
     const path = fillPath(box, first, last, slots.length, contour, params.level, rng);
 
     const rawNotes: LickNote[] = path.map((fretNote, i) => ({

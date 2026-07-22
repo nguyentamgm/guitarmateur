@@ -1,4 +1,5 @@
 import { generateLick, type Lick } from '../lick';
+import { midi } from '../music';
 import { TUNINGS, mergedBox, positions } from '../fretboard';
 import type { AppState } from './appState';
 
@@ -28,18 +29,29 @@ export function licksForState(state: AppState): EntryLick[] {
   const box = mergedBox(pos, state.positions);
   const entries = state.progression;
 
-  const result: EntryLick[] = entries.map((entry, i) => {
+  const result: EntryLick[] = [];
+  let prevLastMidi: number | undefined;
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i]!;
     const next =
       state.resolveToNext && entries.length > 1 ? entries[(i + 1) % entries.length]!.chord : null;
-    const lick = generateLick(box, entry.chord, next, {
-      level: state.level,
-      targetRole: state.targetRole,
-      resolveToNext: state.resolveToNext,
-      seed: entry.lickSeed,
-      bars: entry.bars,
-    });
-    return { entryId: entry.id, lick };
-  });
+    const lick = generateLick(
+      box,
+      entry.chord,
+      next,
+      {
+        level: state.level,
+        targetRole: state.targetRole,
+        resolveToNext: state.resolveToNext,
+        seed: entry.lickSeed,
+        bars: entry.bars,
+      },
+      prevLastMidi,
+    );
+    const lastNote = lick.notes[lick.notes.length - 1]!;
+    prevLastMidi = midi(lastNote.pitch);
+    result.push({ entryId: entry.id, lick });
+  }
 
   cache = { inputKey, result };
   return result;
