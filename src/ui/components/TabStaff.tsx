@@ -95,7 +95,7 @@ export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
           x={cx - 9}
           y={cy - 8}
           width={18}
-          height={16}
+          height={n.role ? 20 : 16}
           rx={3}
           fill={active ? theme.accent : theme.card}
           stroke={active ? theme.accent : theme.faintStroke}
@@ -116,6 +116,11 @@ export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
         <text x={cx} y={cy + 4} fontSize={10.5} fill={active ? theme.accentText : theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600}>
           {n.fret}
         </text>
+        {n.role && (
+          <text x={cx} y={cy + 11} fontSize={7} fill={theme.muted} textAnchor="middle" fontFamily={font.mono}>
+            {n.role}
+          </text>
+        )}
       </g>,
     );
   });
