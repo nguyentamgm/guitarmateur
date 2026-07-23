@@ -27,12 +27,16 @@ export interface TabStaffProps {
   title?: string;
   /** Index of the currently-sounding note (in `lick.notes` order) to highlight during playback. */
   activeNoteIndex?: number;
+  /** Per-string letter labels from low to high (e.g. ['D','A','D','G','B','E'] for Drop-D).
+   *  Defaults to standard tuning when omitted. */
+  stringLabels?: string[];
 }
 
 /** SVG tab notation for a lick: fret numbers on string lines, positioned proportional to
  *  `startBeat`, with beat ticks along the top and duration glyphs underneath. */
-export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
-  const numStrings = STRING_LABELS.length;
+export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp }: TabStaffProps) {
+  const labels = stringLabelsProp ?? STRING_LABELS;
+  const numStrings = labels.length;
   const rowGap = 20;
   const padL = 26;
   const padTop = 22;
@@ -65,7 +69,7 @@ export function TabStaff({ lick, title, activeNoteIndex }: TabStaffProps) {
     els.push(<line key={`s${row}`} x1={padL} y1={y(row)} x2={padL + stageW} y2={y(row)} stroke={theme.line} strokeWidth={1} />);
     els.push(
       <text key={`sl${row}`} x={padL - 8} y={y(row) + 3.5} fontSize={10} fill={theme.muted} textAnchor="end" fontFamily={font.mono}>
-        {STRING_LABELS[numStrings - 1 - row]}
+        {labels[numStrings - 1 - row]}
       </text>,
     );
   }
