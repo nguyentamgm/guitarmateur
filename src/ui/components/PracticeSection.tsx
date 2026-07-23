@@ -238,6 +238,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                       lick={lick}
                       title={`Lick for ${targetTone}`}
                       activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
+                      stringLabels={stringLabels}
                     />
 
                     {/* Per-card regenerate */}
