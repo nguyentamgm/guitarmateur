@@ -69,6 +69,12 @@ export function pickFirstNote(
       case 'descend':
         weight = d > 0 ? 1 + Math.min(d, 12) : 0.2;
         break;
+      case 'arch':
+        weight = d < 0 ? 1 + Math.min(-d, 12) : 0.2;
+        break;
+      case 'valley':
+        weight = d > 0 ? 1 + Math.min(d, 12) : 0.2;
+        break;
       default:
         weight = 1 / (1 + Math.abs(d));
     }
