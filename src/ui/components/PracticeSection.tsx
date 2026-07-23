@@ -176,6 +176,9 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
 
                 // Find landing note (last note of the lick)
                 const lastNote = lick.notes.length > 0 ? lick.notes[lick.notes.length - 1] : undefined;
+                const actualRoleLabel = lastNote?.role
+                  ? (lastNote.role === 'R' ? 'Root' : lastNote.role === '3' ? '3rd' : lastNote.role === '5' ? '5th' : '7th')
+                  : undefined;
 
                 return (
                   <div
@@ -207,7 +210,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                         marginBottom: 10,
                       }}
                     >
-                      target · {targetLabel} ({format(chord.tonic)})
+                      target · {targetLabel}{actualRoleLabel && actualRoleLabel !== targetLabel ? ` → ${actualRoleLabel}` : ''} ({format(chord.tonic)})
                     </div>
 
                     {/* Fretboard with chord highlighting + landing */}
