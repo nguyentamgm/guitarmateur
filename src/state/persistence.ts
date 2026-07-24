@@ -96,9 +96,11 @@ export function migrate(raw: unknown): AppState {
   // Added in schema v5; absent in v4 (and earlier) payloads → falls back to defaults.
   const clickGain = typeof r.clickGain === 'number' && isFinite(r.clickGain) ? Math.max(0, Math.min(1, r.clickGain)) : fallback.clickGain;
   const noteGain = typeof r.noteGain === 'number' && isFinite(r.noteGain) ? Math.max(0, Math.min(1, r.noteGain)) : fallback.noteGain;
+  // Added in schema v6; absent in v5 (and earlier) payloads → falls back to false.
+  const leftHanded = typeof r.leftHanded === 'boolean' ? r.leftHanded : fallback.leftHanded;
 
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     tuningId,
     key,
     positions: positionsField,
@@ -110,13 +112,14 @@ export function migrate(raw: unknown): AppState {
     swingEnabled,
     clickGain,
     noteGain,
+    leftHanded,
     ui: fallback.ui,
   };
 }
 
 /** Persists everything but `ui`. Quota errors / private-mode `setItem` failures are a silent no-op. */
 export function saveState(state: AppState): void {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain } = state;
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
   const persisted = {
     schemaVersion,
     tuningId,
@@ -130,6 +133,7 @@ export function saveState(state: AppState): void {
     swingEnabled,
     clickGain,
     noteGain,
+    leftHanded,
   };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));

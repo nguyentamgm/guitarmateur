@@ -2,11 +2,11 @@ import type { AppState } from './appState';
 import { migrate } from './persistence';
 
 const VERSION_PREFIX = 'v1:';
-const CURRENT_SCHEMA = 5;
+const CURRENT_SCHEMA = 6;
 
 export function encodeState(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded };
   return VERSION_PREFIX + btoa(encodeURIComponent(JSON.stringify(persisted)));
 }
 
@@ -23,8 +23,8 @@ export function decodeState(raw: string): AppState | null {
 }
 
 export function exportStateToJson(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded };
   return JSON.stringify({ v: CURRENT_SCHEMA, state: persisted }, null, 2);
 }
 
