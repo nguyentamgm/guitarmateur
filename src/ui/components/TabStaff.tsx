@@ -30,11 +30,13 @@ export interface TabStaffProps {
   /** Per-string letter labels from low to high (e.g. ['D','A','D','G','B','E'] for Drop-D).
    *  Defaults to standard tuning when omitted. */
   stringLabels?: string[];
+  /** Mirror the tab horizontally for left-handed players. */
+  leftHanded?: boolean;
 }
 
 /** SVG tab notation for a lick: fret numbers on string lines, positioned proportional to
  *  `startBeat`, with beat ticks along the top and duration glyphs underneath. */
-export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp }: TabStaffProps) {
+export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp, leftHanded = false }: TabStaffProps) {
   const labels = stringLabelsProp ?? STRING_LABELS;
   const numStrings = labels.length;
   const rowGap = 20;
@@ -54,12 +56,14 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
 
   if (lick.notes.length === 0) {
     return (
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? 'empty lick'}>
-        {title && <title>{title}</title>}
-        <text x={W / 2} y={H / 2} fontSize={18} fill={theme.subtle} textAnchor="middle" dominantBaseline="middle">
-          —
-        </text>
-      </svg>
+      <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? 'empty lick'}>
+          {title && <title>{title}</title>}
+          <text x={W / 2} y={H / 2} fontSize={18} fill={theme.subtle} textAnchor="middle" dominantBaseline="middle">
+            —
+          </text>
+        </svg>
+      </div>
     );
   }
 
@@ -140,9 +144,11 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
   });
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title}>
-      {title && <title>{title}</title>}
-      {els}
-    </svg>
+    <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title}>
+        {title && <title>{title}</title>}
+        {els}
+      </svg>
+    </div>
   );
 }

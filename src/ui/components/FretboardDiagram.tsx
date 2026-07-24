@@ -19,6 +19,8 @@ export interface FretboardDiagramProps {
   highlight?: { chord: Chord; targetRole: ToneRole };
   /** Marks where the lick lands with a dashed accent halo. */
   landing?: { string: number; fret: number };
+  /** Mirror the diagram horizontally for left-handed players. */
+  leftHanded?: boolean;
 }
 
 /**
@@ -36,6 +38,7 @@ export function FretboardDiagram({
   stringLabels = STANDARD_LABELS,
   highlight,
   landing,
+  leftHanded = false,
 }: FretboardDiagramProps) {
   const numStrings = stringLabels.length;
   const rowGap = mini ? 9 : 24;
@@ -194,7 +197,7 @@ export function FretboardDiagram({
   });
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width={mini ? '100%' : W} style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title}>
+    <svg viewBox={`0 0 ${W} ${H}`} width={mini ? '100%' : W} style={{ maxWidth: '100%', height: 'auto', display: 'block', ...(leftHanded ? { transform: 'scaleX(-1)' } : {}) }} role="img" aria-label={title}>
       {title && <title>{title}</title>}
       {els}
     </svg>

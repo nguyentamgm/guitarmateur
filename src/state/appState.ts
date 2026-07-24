@@ -27,7 +27,7 @@ export const MAX_BPM = 200;
 export const DEFAULT_BPM = 90;
 
 export interface AppState {
-  schemaVersion: 5;
+  schemaVersion: 6;
   tuningId: TuningId;
   key: Key;
   /** 1–2 selected position indices. */
@@ -44,6 +44,8 @@ export interface AppState {
   clickGain: number;
   /** Note gain [0–1], added in schema v5. */
   noteGain: number;
+  /** Mirror fretboard and tab for left-handed players, added in schema v6. */
+  leftHanded: boolean;
   /** Not persisted. */
   ui: {
     advancedOpen: boolean;
@@ -70,6 +72,7 @@ export type Action =
   | { type: 'setSwing'; value: boolean }
   | { type: 'setClickGain'; gain: number }
   | { type: 'setNoteGain'; gain: number }
+  | { type: 'setLeftHanded'; value: boolean }
   | { type: 'rerollLick'; id: string }
   | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
@@ -122,7 +125,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
   const rec = recommendedPosition(pos);
 
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     tuningId,
     key,
     positions: [rec],
@@ -134,6 +137,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
     swingEnabled: false,
     clickGain: 0.6,
     noteGain: 0.9,
+    leftHanded: false,
     ui: {
       advancedOpen: false,
       advRoot: TONICS[0]!,
@@ -211,6 +215,8 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       return { ...state, clickGain: action.gain };
     case 'setNoteGain':
       return { ...state, noteGain: action.gain };
+    case 'setLeftHanded':
+      return { ...state, leftHanded: action.value };
     case 'rerollLick':
       return {
         ...state,

@@ -81,7 +81,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
             ]}
           />
           <div style={{ overflowX: 'auto', marginTop: 12 }}>
-            <FretboardDiagram box={box} title={title} stringLabels={stringLabels} />
+            <FretboardDiagram box={box} title={title} stringLabels={stringLabels} leftHanded={state.leftHanded} />
           </div>
         </div>
       </Panel>

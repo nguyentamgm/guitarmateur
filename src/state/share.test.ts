@@ -12,7 +12,7 @@ describe('share: encode/decode', () => {
     const decoded = decodeState(encoded);
 
     expect(decoded).not.toBeNull();
-    expect(decoded!.schemaVersion).toBe(5);
+    expect(decoded!.schemaVersion).toBe(6);
     expect(decoded!.key.tonic).toEqual(state.key.tonic);
     expect(decoded!.key.scaleId).toBe(state.key.scaleId);
     expect(decoded!.tuningId).toBe(state.tuningId);
@@ -79,7 +79,7 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     const imported = importStateFromJson(json);
 
     expect(imported).not.toBeNull();
-    expect(imported!.schemaVersion).toBe(5);
+    expect(imported!.schemaVersion).toBe(6);
     expect(imported!.key.tonic).toEqual(state.key.tonic);
     expect(imported!.key.scaleId).toBe(state.key.scaleId);
     expect(imported!.tuningId).toBe(state.tuningId);
@@ -95,7 +95,7 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     const state = defaultState(() => 1);
     const json = exportStateToJson(state);
     const obj = JSON.parse(json) as Record<string, unknown>;
-    expect(obj.v).toBe(5);
+    expect(obj.v).toBe(6);
     expect(obj.state).toBeTruthy();
   });
 

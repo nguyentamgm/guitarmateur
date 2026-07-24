@@ -220,6 +220,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                       landing={lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined}
                       title={`${targetTone} — ${targetLabel} highlighting`}
                       stringLabels={stringLabels}
+                      leftHanded={state.leftHanded}
                     />
 
                     {/* Lick header */}
@@ -242,6 +243,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                       title={`Lick for ${targetTone}`}
                       activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
                       stringLabels={stringLabels}
+                      leftHanded={state.leftHanded}
                     />
 
                     {/* Per-card regenerate */}
