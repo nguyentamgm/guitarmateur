@@ -5,6 +5,7 @@ import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
 import { InstallPrompt } from './components/InstallPrompt';
+import { ErrorBoundary } from './ErrorBoundary';
 
 /**
  * App shell: header + the three practice steps. State is provided by `useAppState` and threaded
@@ -123,10 +124,12 @@ export function App() {
         </div>
       </header>
 
-      <ScalePositionSection state={state} dispatch={dispatch} />
-      <ProgressionSection state={state} dispatch={dispatch} />
-      <PracticeSection state={state} dispatch={dispatch} />
-      <InstallPrompt />
+      <ErrorBoundary>
+        <ScalePositionSection state={state} dispatch={dispatch} />
+        <ProgressionSection state={state} dispatch={dispatch} />
+        <PracticeSection state={state} dispatch={dispatch} />
+        <InstallPrompt />
+      </ErrorBoundary>
     </div>
   );
 }
