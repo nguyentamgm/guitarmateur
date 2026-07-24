@@ -191,6 +191,21 @@ describe('reducer', () => {
     expect(next.ui.advRoot).toBe(G);
   });
 
+  it('setLeftHanded toggles the left-handed view', () => {
+    const s = fresh();
+    expect(s.leftHanded).toBe(false);
+    const next = reducer(s, { type: 'setLeftHanded', value: true }, testNextSeed);
+    expect(next.leftHanded).toBe(true);
+    const back = reducer(next, { type: 'setLeftHanded', value: false }, testNextSeed);
+    expect(back.leftHanded).toBe(false);
+  });
+
+  it('defaultState has leftHanded = false and schemaVersion = 6', () => {
+    const s = fresh();
+    expect(s.leftHanded).toBe(false);
+    expect(s.schemaVersion).toBe(6);
+  });
+
   it('setAdvQuality updates advQuality', () => {
     const s = fresh();
     const next = reducer(s, { type: 'setAdvQuality', quality: 'm' }, testNextSeed);
