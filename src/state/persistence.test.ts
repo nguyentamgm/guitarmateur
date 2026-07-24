@@ -19,7 +19,7 @@ describe('persistence', () => {
     const state = defaultState(() => 42);
     saveState(state);
     const loaded = loadState()!;
-    expect(loaded.schemaVersion).toBe(5);
+    expect(loaded.schemaVersion).toBe(6);
     expect(loaded.key.tonic).toEqual(state.key.tonic);
     expect(loaded.positions).toEqual(state.positions);
     expect(loaded.level).toBe(state.level);
@@ -49,7 +49,7 @@ describe('persistence', () => {
   it('migrate handles missing fields with defaults', () => {
     const loaded = migrate({});
     const fallback = defaultState();
-    expect(loaded.schemaVersion).toBe(5);
+    expect(loaded.schemaVersion).toBe(6);
     expect(loaded.key.tonic).toEqual(fallback.key.tonic);
     expect(loaded.level).toBe(fallback.level);
     expect(loaded.targetRole).toBe(fallback.targetRole);
@@ -71,7 +71,7 @@ describe('persistence', () => {
       resolveToNext: true,
     };
     const loaded = migrate(v2);
-    expect(loaded.schemaVersion).toBe(5);
+    expect(loaded.schemaVersion).toBe(6);
     // Existing user choices survive the migration...
     expect(loaded.level).toBe(3);
     expect(loaded.targetRole).toBe('3');
@@ -99,7 +99,7 @@ describe('persistence', () => {
       // v3 payloads have no `swingEnabled` field
     };
     const loaded = migrate(v3);
-    expect(loaded.schemaVersion).toBe(5);
+    expect(loaded.schemaVersion).toBe(6);
     expect(loaded.tempoBpm).toBe(120);
     expect(loaded.swingEnabled).toBe(false);
     expect(loaded.clickGain).toBe(0.6);
@@ -121,7 +121,7 @@ describe('persistence', () => {
       // v4 payloads have no clickGain / noteGain fields
     };
     const loaded = migrate(v4);
-    expect(loaded.schemaVersion).toBe(5);
+    expect(loaded.schemaVersion).toBe(6);
     expect(loaded.swingEnabled).toBe(true);
     expect(loaded.tempoBpm).toBe(100);
     expect(loaded.clickGain).toBe(0.6);
@@ -192,7 +192,7 @@ describe('persistence', () => {
     const state = defaultState(() => 0);
     saveState(state);
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
-    expect(raw.schemaVersion).toBe(5);
+    expect(raw.schemaVersion).toBe(6);
     expect(raw.tempoBpm).toBe(90);
     expect(raw.swingEnabled).toBe(false);
     expect(raw.clickGain).toBe(0.6);

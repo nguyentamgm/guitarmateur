@@ -114,6 +114,15 @@ export function App() {
           <button onClick={handleImportClick} style={btnStyle}>
             {importStatus === 'ok' ? 'Loaded!' : importStatus === 'err' ? 'Invalid file' : 'Import'}
           </button>
+          <button
+            onClick={() => dispatch({ type: 'setLeftHanded', value: !state.leftHanded })}
+            style={{
+              ...btnStyle,
+              borderColor: state.leftHanded ? theme.accent : theme.border,
+            }}
+          >
+            {state.leftHanded ? 'Normal' : 'Left-handed'}
+          </button>
           <input
             ref={fileInputRef}
             type="file"
