@@ -53,8 +53,8 @@ describe('generateLick — integration', () => {
   });
 
   it('different seeds => (almost always) different licks', () => {
-    const a = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 1 });
-    const b = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 2 });
+    const a = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 0 });
+    const b = generateLick(box, chord, null, { level: 2, targetRole: 'R', resolveToNext: false, seed: 7 });
     expect(a.notes).not.toEqual(b.notes);
   });
 

@@ -57,6 +57,8 @@ const LEVEL2: RhythmPattern[] = [
   [q(0), e(1), e(1.5), q(2), q(3)],
   [e(0), e(0.5), e(1), e(1.5), q(2), q(3)],
   [h(0), e(2), e(2.5), q(3)],
+  [e(0), e(0.5), q(1), e(2), e(2.5), q(3)],
+  [q(0), e(1), e(1.5), e(2), e(2.5), q(3)],
 ];
 
 /** Level 3 — straight 8ths, 8th rests, pickup starts (6–8 notes). */
@@ -66,6 +68,8 @@ const LEVEL3: RhythmPattern[] = [
   [restE(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
   [e(0), restE(0.5), e(1), e(1.5), restE(2), e(2.5), e(3), e(3.5)],
   [...shuffleUnit(0), ...shuffleUnit(2)], // blues shuffle — long-short (dotted-quarter + 8th) boogie feel, 4 notes
+  [e(0), e(0.5), restE(1), e(1.5), e(2), e(2.5), e(3), e(3.5)], // 7 notes with mid-bar rest
+  [e(0), e(0.5), e(1), e(1.5), e(2), restE(2.5), e(3), e(3.5)], // 7 notes with rest on 8th offbeat
 ];
 
 /** Level 4 — syncopation, 8th rests, off-beat starts (7–8 notes, high density). */
