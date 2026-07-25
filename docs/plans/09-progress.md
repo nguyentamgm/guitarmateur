@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-18 (PR #20 export/import state + PR #21 fix shared-link state clobber + PR #22 fix bend technique; all CI gates green, 158 tests)
+Last updated: 2026-07-25 (PR #43 fix lint warnings + add rhythm variety to levels 2 and 3; all CI gates green, 181 tests)
 
 ## Verify current status in one paste
 
@@ -17,14 +17,14 @@ file's date — if this block passes, the "CI gate" boxes are genuinely true rig
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-Measured snapshot at last update (2026-07-17):
+Measured snapshot at last update (2026-07-25):
 
 | Gate | Result |
 |------|--------|
 | `typecheck` | clean |
-| `lint` | 0 errors, 2 warnings (`react-hooks/exhaustive-deps` in `src/ui/components/PracticeSection.tsx` — pre-existing, non-blocking) |
-| test | **158 passed** across 15 test files (+2 tests from export/import, +12 from earlier milestones) |
-| `build` | clean → `dist/` (~74 kB gzip JS) |
+| `lint` | 0 errors, 0 warnings |
+| test | **181 passed** across 16 test files (+18 tests from 5 post-M5 PRs, +2 from rhythm variety, +2 from left-handed, +1 from error boundary) |
+| `build` | clean → `dist/` (~77 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
 is wrong.
@@ -50,6 +50,7 @@ is wrong.
 | — | Export/import state as JSON file (survey #1) | ✅ Done | PR #20 `e717ef9` |
 | — | Fix shared-link state clobber bug (survey #2) | ✅ Done | PR #21 `d61b6ba` |
 | — | Fix bend technique on fret change (survey #3) | ✅ Done | PR #22 `3302b7b` |
+| — | Rhythm variety + lint fix (PR #43) | ✅ Done | PR #43 `68a162a` |
 | — | Later/unscheduled (left-handed view, alt-tunings beyond drop-D) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
