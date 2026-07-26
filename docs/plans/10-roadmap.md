@@ -83,7 +83,7 @@ milestones needed slicing.
   (already in schema). *Exit:* switching to drop-D re-maps the fretboard/boxes correctly.
 
 ### Left-handed view
-- [ ] **T4 — Mirror toggle.** A persisted preference that mirrors the fretboard + tab renderers.
+- [x] **T4 — Mirror toggle.** A persisted preference that mirrors the fretboard + tab renderers.
   Presentational only — no engine changes. *Exit:* toggle flips the view; tests for the mirror
   transform.
 
