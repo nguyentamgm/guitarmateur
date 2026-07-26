@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from './rng';
-import { pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
+import { buildRhythm, pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
 
 describe('rhythm patterns', () => {
   it('every pattern sums to LENGTH_BEATS beats', () => {
@@ -47,5 +47,37 @@ describe('rhythm patterns', () => {
     const a = pickPattern(2, mulberry32(10));
     const b = pickPattern(2, mulberry32(10));
     expect(a.map((s) => s.startBeat)).toEqual(b.map((s) => s.startBeat));
+  });
+});
+
+describe('buildRhythm', () => {
+  it('1 bar spans LENGTH_BEATS beats', () => {
+    const rng = mulberry32(0);
+    const pattern = buildRhythm(1, 1, rng);
+    expect(patternLengthBeats(pattern)).toBe(LENGTH_BEATS);
+  });
+
+  it('2 bars span 2 × LENGTH_BEATS beats', () => {
+    const rng = mulberry32(0);
+    const pattern = buildRhythm(1, 2, rng);
+    expect(patternLengthBeats(pattern)).toBe(LENGTH_BEATS * 2);
+  });
+
+  it('second bar slots are offset by LENGTH_BEATS', () => {
+    const rng = mulberry32(42);
+    const pattern = buildRhythm(1, 2, rng);
+    const secondBarSlots = pattern.filter((slot) => slot.startBeat >= LENGTH_BEATS);
+    expect(secondBarSlots.length).toBeGreaterThan(0);
+    for (const slot of secondBarSlots) {
+      expect(slot.startBeat).toBeGreaterThanOrEqual(LENGTH_BEATS);
+      expect(slot.startBeat).toBeLessThan(LENGTH_BEATS * 2);
+    }
+  });
+
+  it('is deterministic: same seed produces same multi-bar pattern', () => {
+    const a = buildRhythm(3, 2, mulberry32(7));
+    const b = buildRhythm(3, 2, mulberry32(7));
+    expect(a.map((s) => s.startBeat)).toEqual(b.map((s) => s.startBeat));
+    expect(a.map((s) => s.durationBeats)).toEqual(b.map((s) => s.durationBeats));
   });
 });
