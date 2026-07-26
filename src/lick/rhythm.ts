@@ -43,11 +43,13 @@ const shuffleUnit = (beat: number): RhythmSlot[] => [dq(beat), e(beat + 1.5)];
  */
 const tripletBeat = (beat: number): RhythmSlot[] => [e(beat), s(beat + 0.5), s(beat + 0.75)];
 
-/** Level 1 — sparse, on-beat quarters/halves (3–4 notes). */
+/** Level 1 — sparse, on-beat quarters/halves (2–4 notes). */
 const LEVEL1: RhythmPattern[] = [
   [q(0), q(1), q(2), q(3)],
   [h(0), q(2), q(3)],
   [q(0), h(1), q(3)],
+  [q(0), q(1), h(2)],
+  [h(0), h(2)],
 ];
 
 /** Level 2 — quarters + paired 8ths (4–6 notes). */

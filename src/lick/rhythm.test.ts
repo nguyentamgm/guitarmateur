@@ -22,8 +22,11 @@ describe('rhythm patterns', () => {
         const p = pickPattern(level, rng);
         const act = activeSlots(p);
         const last = act[act.length - 1]!;
-        // Levels 1-2: on beat 4 (startBeat 3), Level 3+: can start off-beat after beat 3
-        if (level <= 2) {
+        // Level 1: last note starts on beat 2+ (half notes like h(2) sustain to end)
+        // Level 2: always ends with q(3), Level 3+: can start off-beat after beat 3
+        if (level === 1) {
+          expect(last.startBeat).toBeGreaterThanOrEqual(2);
+        } else if (level === 2) {
           expect(last.startBeat).toBe(3);
         } else {
           expect(last.startBeat).toBeGreaterThanOrEqual(3);
