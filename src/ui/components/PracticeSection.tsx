@@ -29,18 +29,19 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     }
   }, [active?.entryIndex]);
 
+  const { key: stateKey, progression: stateProgression } = state;
   const box = useMemo(() => {
-    const pos = positions(TUNINGS[state.tuningId], state.key);
+    const pos = positions(TUNINGS[state.tuningId], stateKey);
     return mergedBox(pos, state.positions);
-  }, [state.tuningId, state.key.tonic, state.key.scaleId, state.positions]);
+  }, [state.tuningId, stateKey, state.positions]);
 
   const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
 
   const chordMap = useMemo(() => {
-    const m = new Map<string, (typeof state.progression)[number]>();
-    for (const e of state.progression) m.set(e.id, e);
+    const m = new Map<string, (typeof stateProgression)[number]>();
+    for (const e of stateProgression) m.set(e.id, e);
     return m;
-  }, [state.progression]);
+  }, [stateProgression]);
 
   const targetLabel = state.targetRole === 'R' ? 'Root' : state.targetRole === '3' ? '3rd' : state.targetRole === '5' ? '5th' : '7th';
 
