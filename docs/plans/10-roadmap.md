@@ -79,8 +79,9 @@ milestones needed slicing.
   (PR #12, merged)
 
 ### Alternate tunings UI (drop-D already in the tuning registry)
-- [ ] **T3 — Tuning picker.** A picker wired to the existing `TUNINGS` registry; persist the choice
+- [x] **T3 — Tuning picker.** A picker wired to the existing `TUNINGS` registry; persist the choice
   (already in schema). *Exit:* switching to drop-D re-maps the fretboard/boxes correctly.
+  (PR #19, merged)
 
 ### Left-handed view
 - [x] **T4 — Mirror toggle.** A persisted preference that mirrors the fretboard + tab renderers.
@@ -88,16 +89,20 @@ milestones needed slicing.
   transform.
 
 ### Preset sharing via URL
-- [ ] **T5 — Encode.** Serialize the persisted state slice to a URL param (versioned, migration-
+- [x] **T5 — Encode.** Serialize the persisted state slice to a URL param (versioned, migration-
   aware). *Exit:* a "copy link" action produces a URL; unit test round-trips encode→decode.
-- [ ] **T6 — Decode on load.** Hydrate from the URL param on startup, falling back to localStorage.
+  (PR #17, merged)
+- [x] **T6 — Decode on load.** Hydrate from the URL param on startup, falling back to localStorage.
   *Exit:* opening a shared link reproduces the sender's key/scale/progression.
+  (PR #17, merged)
 
 ### PWA / offline
-- [ ] **T7 — Manifest + icons.** Web app manifest and icons; installable. *Exit:* Lighthouse PWA
+- [x] **T7 — Manifest + icons.** Web app manifest and icons; installable. *Exit:* Lighthouse PWA
   install criteria pass.
-- [ ] **T8 — Service worker.** Cache the static build for offline use (build-time, no runtime deps).
+  (PR #18, merged)
+- [x] **T8 — Service worker.** Cache the static build for offline use (build-time, no runtime deps).
   *Exit:* app loads with the network throttled to offline.
+  (PR #18, merged)
 
 ## Repo gotchas (things that cost time — check before you start)
 
