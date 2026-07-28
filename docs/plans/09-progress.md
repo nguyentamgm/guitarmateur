@@ -6,7 +6,7 @@ we right now" — don't rely on AGENTS.md or 00-overview.md for current status, 
 plan, not the state. For **what to build next, sliced into right-sized tasks**, see
 [10-roadmap.md](10-roadmap.md).
 
-Last updated: 2026-07-26 (PR #44 update progress tracker, add buildRhythm tests; all CI gates green, 185 tests)
+Last updated: 2026-07-28 (nightly improve: path.test.ts +28, contour.test.ts +18, harmony.test.ts +23; 69 new tests across 3 PRs)
 
 ## Verify current status in one paste
 
@@ -23,7 +23,7 @@ Measured snapshot at last update (2026-07-26):
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 0 warnings |
-| test | **185 passed** across 16 test files (+18 tests from 5 post-M5 PRs, +2 from rhythm variety, +2 from left-handed, +1 from error boundary, +4 from buildRhythm) |
+| test | **273 passed** across 21 test files (+69 tests: path.ts +28, contour.ts +18, harmony.ts +23) |
 | `build` | clean → `dist/` (~77 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
