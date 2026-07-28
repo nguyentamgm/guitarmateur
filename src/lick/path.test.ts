@@ -11,18 +11,14 @@ function fn(
   fret: number,
   overrides: Partial<FretNote> = {},
 ): FretNote {
-  const p = pitch('C', 0, 4);
   return {
     string,
     fret,
-    pitch: p,
     degree: 1,
     isTonic: false,
     isDecoration: false,
     ...overrides,
-    // Ensure pitch reflects fret+string so midi values are sensible
-    pitch: overrides.pitch ?? pitch('E', 0, 2 + string),
-  };
+  } as FretNote;
 }
 
 /** Compute a sensible pitch for a fret on a string (standard tuning E2 A2 D3 G3 B3 E4). */
