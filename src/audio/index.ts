@@ -1,7 +1,15 @@
 export type { AudioEvent, CompileOptions, CompiledProgression } from './compile';
 export { compileProgression } from './compile';
 
-export { midiToFrequency, delayTimeForMidi, click, pluck } from './voices';
+export type { Articulation, PluckOptions } from './voices';
+export {
+  midiToFrequency,
+  makeDriveCurve,
+  decayScaleForMidi,
+  articulationFor,
+  click,
+  pluck,
+} from './voices';
 
 export type { SchedulerDeps } from './scheduler';
 export { Scheduler, drainDue } from './scheduler';

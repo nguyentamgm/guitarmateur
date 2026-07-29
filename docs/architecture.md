@@ -83,22 +83,33 @@ versions; roughly:
 ## `src/audio/` internals
 
 ```
-engine.ts      AudioContext lifecycle (created on first user gesture), master gain
+engine.ts      AudioContext lifecycle (created on first user gesture), master gain, and the
+               fixed guitar amp chain on the note path:
+               noteBus → pickup peak (3 kHz) → preGain → waveShaper (soft-clip, 4x
+               oversampled) → cabinet (highpass 90 Hz + cascaded lowpass ~4 kHz) →
+               tone stack → noteOut → master
 scheduler.ts   lookahead scheduler (the standard "tale of two clocks" pattern:
                setInterval(25ms) schedules events falling in the next 100ms window
                on the AudioContext clock) — sample-accurate, tab-throttle-proof
 voices.ts      click(when, accented) — short filtered noise/oscillator blip, two pitches
-               pluck(when, midi, durationSec) — Karplus-Strong plucked string:
-               noise burst into a feedback delay line (delay = 1/f) with lowpass damping,
-               via native DelayNode/BiquadFilterNode (no AudioWorklet)
+               pluck(when, midi, durationSec, opts) — one string: two sawtooth oscillators
+               7 cents apart plus a pick-noise transient, through a lowpass whose cutoff
+               falls as the note decays; rings past its notated length so notes overlap
 transport.ts   play/stop/loop state machine; converts Lick + tempo into scheduled events;
                emits beat/position callbacks for UI highlighting
 ```
 
+The amp chain lives on the bus, not per note: a `WaveShaperNode` curve is a 2048-sample array that
+would otherwise be rebuilt every note, and distortion is non-linear, so applying it once after the
+mix is what a real amp does. `setNoteGain` rides `noteOut` (post-drive) so the mix slider doesn't
+change how hard the waveshaper is driven.
+
 `useTransport()` in `src/ui/` adapts the transport to React (play state, current beat, current
-card). Techniques map to playback pragmatically: slides/hammers/pulls retrigger softly (shorter
-attack); bends play the target pitch rather than a pitch ramp. Note pitch comes from
-`LickNote.pitch` → `midi()`.
+card). Techniques are rendered as articulation: hammer-ons/pull-offs skip the pick transient and
+sound softer; slides and bends ramp `frequency` from the previous note's pitch (`AudioEvent`
+carries `technique` + `fromMidi` for this), with bends leaning in slower than slides. Notes held
+past ~0.5s get a delayed-onset vibrato LFO on `detune`. Note pitch comes from `LickNote.pitch` →
+`midi()`.
 
 **Autoplay gate**: the `AudioContext` is created/resumed only inside the play button's click
 handler (browsers require a user gesture) — never at module load.

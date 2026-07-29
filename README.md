@@ -84,8 +84,10 @@ reproduces the same lick — nothing is lost on reload.
 Hit **play** to hear your practice licks instead of just reading tab — the app plays a metronome
 and each chord's lick in sequence, so you don't need a separate backing track running.
 
-- **Tempo** — set BPM to match the speed you want to practice at.
+- **Tempo** — set BPM to match the speed you want to practice at, or tap the **Tap** button a few times to set it by feel.
 - **Count-in** — one bar of clicks before playback starts, so you come in on time.
+- **Swing** — shifts off-beat 8th notes later for a shuffle/blues feel instead of a straight
+  rhythm. The metronome click stays straight, so notes swing against a steady beat.
 - **Loop** — repeat the whole progression continuously.
 - **Bar length (×1/×2)** — give a chord more room by doubling its length to two bars.
 - Two gain sliders balance the click against the notes.

@@ -94,7 +94,9 @@ export class Transport {
     this.engine.clickBus.gain.value = clamp01(value);
   }
   setNoteGain(value: number): void {
-    this.engine.noteBus.gain.value = clamp01(value);
+    // Rides the post-amp output, not the bus feeding it, so turning the notes down doesn't also
+    // turn the overdrive down.
+    this.engine.noteOut.gain.value = clamp01(value);
   }
 
   private pump(windowEnd: number): void {
@@ -127,7 +129,10 @@ export class Transport {
       click(this.engine.ctx, this.engine.clickBus, event.timeSec, event.accented);
       return;
     }
-    pluck(this.engine.ctx, this.engine.noteBus, event.timeSec, event.midi, event.durationSec);
+    pluck(this.engine.ctx, this.engine.noteBus, event.timeSec, event.midi, event.durationSec, {
+      technique: event.technique,
+      fromMidi: event.fromMidi,
+    });
     if (this.cb.onPosition) {
       const delayMs = Math.max(0, (event.timeSec - this.engine.ctx.currentTime) * 1000);
       const timer = setTimeout(() => {

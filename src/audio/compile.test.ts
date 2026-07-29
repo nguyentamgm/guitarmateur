@@ -132,4 +132,52 @@ describe("swing feel", () => {
       expect(click.timeSec).toBe(Math.round(click.timeSec));
     }
   });
+
+  it('carries each note technique through to the audio event', () => {
+    const l: Lick = {
+      lengthBeats: 4,
+      difficulty: 3,
+      notes: [
+        { ...note(0, 1), pitch: A(3) },
+        { ...note(1, 1), pitch: A(4), technique: 'bendFull' },
+        { ...note(2, 1), pitch: A(4), technique: 'hammer' },
+      ],
+    };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false }).events);
+    expect(p.map((e) => e.technique)).toEqual([undefined, 'bendFull', 'hammer']);
+  });
+
+  it('gives every note but the first a fromMidi to glide from', () => {
+    const l: Lick = {
+      lengthBeats: 4,
+      difficulty: 1,
+      notes: [
+        { ...note(0, 1), pitch: A(3) },
+        { ...note(1, 1), pitch: A(4) },
+        { ...note(2, 1), pitch: A(5) },
+      ],
+    };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false }).events);
+    expect(p[0]!.fromMidi).toBeUndefined();
+    expect(p[1]!.fromMidi).toBe(p[0]!.midi);
+    expect(p[2]!.fromMidi).toBe(p[1]!.midi);
+  });
+
+  it('never glides across a chord change — each lick starts fresh', () => {
+    const l = lick(4, [0, 1]);
+    const p = plucks(compileProgression([l, l], { tempoBpm: 60, metronome: false }).events);
+    const firstOfEachLick = p.filter((e) => e.noteIndex === 0);
+    expect(firstOfEachLick).toHaveLength(2);
+    for (const e of firstOfEachLick) expect(e.fromMidi).toBeUndefined();
+  });
+
+  it('repeats restate fromMidi identically on every pass', () => {
+    const l = lick(4, [0, 1]);
+    const p = plucks(
+      compileProgression([l], { tempoBpm: 60, metronome: false, repeats: 2 }).events,
+    );
+    expect(p).toHaveLength(4);
+    expect(p[1]!.fromMidi).toBe(p[0]!.midi);
+    expect(p[3]!.fromMidi).toBe(p[2]!.midi);
+  });
 });

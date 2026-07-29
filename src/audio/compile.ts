@@ -1,5 +1,5 @@
 import { midi } from '../music';
-import type { Lick } from '../lick';
+import type { Lick, Technique } from '../lick';
 
 /**
  * A single scheduled audio event on the transport timeline. Times are in seconds relative to the
@@ -15,6 +15,10 @@ export type AudioEvent =
       /** Which progression entry / note this pluck belongs to — used for UI highlighting. */
       entryIndex: number;
       noteIndex: number;
+      /** Articulation *into* this note from the previous one, if any. */
+      technique?: Technique;
+      /** MIDI of the previous note in the same lick — the start pitch for bend/slide glides. */
+      fromMidi?: number;
     };
 
 export interface CompileOptions {
@@ -72,6 +76,9 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
         if (swing > 0 && Math.abs((note.startBeat % 1) - 0.5) < 0.01) {
           adjustedBeat += swing * (1 / 6);
         }
+        // A technique articulates *into* a note, so it needs where the previous note was. Licks
+        // never articulate across a chord change, hence the lookup stays inside this lick.
+        const prev = noteIndex > 0 ? lick.notes[noteIndex - 1] : undefined;
         events.push({
           timeSec: adjustedBeat * secPerBeat,
           kind: 'pluck',
@@ -79,6 +86,8 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
           durationSec: note.durationBeats * secPerBeat,
           entryIndex,
           noteIndex,
+          technique: note.technique,
+          fromMidi: prev ? midi(prev.pitch) : undefined,
         });
       });
       entryStartBeat += lick.lengthBeats;
