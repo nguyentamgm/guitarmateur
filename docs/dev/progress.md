@@ -6,7 +6,7 @@ we right now" — don't rely on `AGENTS.md` or [`architecture.md`](architecture.
 status, they describe the design, not the state. For **what to build next, sliced into
 right-sized tasks**, see [`roadmap.md`](roadmap.md).
 
-Last updated: 2026-07-28 (nightly improve: path.test.ts +28, contour.test.ts +18, harmony.test.ts +23; 69 new tests across 3 PRs)
+Last updated: 2026-07-29 (nightly improve: neck.test.ts +12, roman.test.ts +24, recommend.test.ts +4; 40 new tests across 3 PRs)
 
 ## Verify current status in one paste
 
@@ -23,7 +23,7 @@ Measured snapshot at last update (2026-07-26):
 |------|--------|
 | `typecheck` | clean |
 | `lint` | 0 errors, 0 warnings |
-| test | **273 passed** across 21 test files (+69 tests: path.ts +28, contour.ts +18, harmony.ts +23) |
+|| test | **313 passed** across 24 test files (+40 tests: neck.ts +12, roman.ts +24, recommend.ts +4) |
 | `build` | clean → `dist/` (~77 kB gzip JS) |
 
 If a run diverges from this, the tracker is stale — fix the code or update the snapshot, whichever
