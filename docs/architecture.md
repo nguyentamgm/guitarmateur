@@ -1,7 +1,6 @@
 # Architecture
 
-Current-state reference for how Guitarmateur is built. For live status and what's being worked on
-next, see [`progress.md`](progress.md) and [`roadmap.md`](roadmap.md).
+Current-state reference for how Guitarmateur is built.
 
 ## What this is
 
@@ -23,8 +22,7 @@ everything the user does persists in `localStorage`.
 ```
 /
 ├─ docs/
-│  ├─ guide/                    # user-facing feature docs (linked from README.md)
-│  └─ dev/                      # this file, progress tracker, roadmap
+│  └─ architecture.md           # this file
 ├─ Pentatonic Practice.dc.html  # visual mockup (style reference only)
 ├─ support.js                   # mockup preview runtime (not shipped)
 ├─ index.html                   # Vite entry: title, meta, fonts, theme-color #0c0e0d

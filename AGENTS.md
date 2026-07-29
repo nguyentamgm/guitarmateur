@@ -1,7 +1,6 @@
 # AGENTS.md — Guitarmateur
 
-Guidance for AI coding agents working in this repository. Humans: see [`docs/guide/`](docs/guide/)
-for how to use the app, or [`docs/dev/`](docs/dev/) for development docs.
+Guidance for AI coding agents working in this repository. Humans: [`docs/`](docs/) for development docs.
 
 ## What this is
 
@@ -11,16 +10,7 @@ progression → get per-chord practice licks (rhythm + technique + tab) that lan
 changes. No accounts, no backend, no analytics — all user state lives in `localStorage`.
 
 Architecture, tech stack, layer rules, conventions, and deployment: see
-[`docs/dev/architecture.md`](docs/dev/architecture.md).
-
-## Current status & how to pick up work
-
-See [`docs/dev/progress.md`](docs/dev/progress.md) for live milestone status and per-area
-acceptance criteria — **check it before starting work**. For **what to build next and in what
-increments**, see [`docs/dev/roadmap.md`](docs/dev/roadmap.md): work ships as **small, CI-green,
-one-concern tasks**, not whole milestones. Before starting anything that spans multiple layers
-(schema + engine + UI), slice it per the roadmap first. Update `progress.md` in the same PR that
-closes a task.
+[`docs/architecture.md`](docs/architecture.md).
 
 ## Commands
 
@@ -40,7 +30,7 @@ merges. Match that order locally before pushing.
 
 ## Working agreements for agents
 
-- **Read [`docs/dev/architecture.md`](docs/dev/architecture.md) before touching a layer** — it
+- **Read [`docs/architecture.md`](docs/architecture.md) before touching a layer** — it
   carries the design intent (dependency rule, conventions, invariants) that this file only points at.
 - Respect the layer dependency rule; don't reach for a new dependency to avoid it — an ESLint rule
   fails the build on a bad cross-layer import.

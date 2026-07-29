@@ -10,12 +10,133 @@ chords in your progression, and generate licks to jam over your own backing trac
 sign-up, no backend — everything runs in your browser and your progress is saved locally on your
 device.
 
-## Learn more
+# Scales & the fretboard
 
-See the [guide](docs/guide/index.md) for how to use each part of the app: scales & the fretboard,
-progressions & licks, playback, tunings & left-handed view, and sharing your setup.
+**Step 1** of the practice loop is picking what you want to play over.
 
-## Contributing
+## Key & scale
+
+Pick a **key** (all 12 tonics, spelled correctly — e.g. B♭ rather than A♯) and a **scale**
+(minor pentatonic, major pentatonic, blues, and more). Changing either resets the fretboard and
+your chord progression to sensible defaults for the new key.
+
+## Positions
+
+The fretboard is broken into playable **positions** ("boxes") along the neck, generated
+algorithmically for whatever key/scale/tuning you've chosen — there are no fixed shape charts to
+memorize wrong notes from.
+
+- Scroll through the position cards and pick one to practice in.
+- Pick **two adjacent positions** to combine them into one wider diagram spanning both.
+- One position is marked **REC** (recommended) as a sensible starting point.
+
+## Reading the diagram
+
+- A filled dot in the accent color is a **chord target tone** for the chord you're currently
+  practicing over.
+- A ringed dot is another **chord tone**; a fainter ring is a plain **scale note**.
+- The **tonic** gets a thicker ring.
+- In blues scales, the added ♭5 **decoration note** gets a dashed ring.
+- A dashed halo marks the note a lick is about to **land** on.
+
+Note names are shown using correct spelling for the key (F minor shows B♭, not A♯).
+
+# Progressions & licks
+
+**Step 2** builds the chord progression you'll practice over; **step 3** turns it into licks.
+
+## Building a progression
+
+- Tap a **suggestion chip** (e.g. "+ Cm") to append a chord that fits your key — each comes with
+  its roman numeral (e.g. "iv") so you can see the harmony at a glance.
+- Use the **advanced adder** to build any chord: pick a root and a quality (major, minor, 7th,
+  and more).
+- Drag chips to **reorder** the progression, or remove one with its "×". "Reset to default" and
+  "Clear all" are always available.
+
+## Practice controls
+
+- **Level (1–5)** controls how busy a lick is: level 1 is a handful of on-beat quarter notes,
+  level 5 mixes syncopation, runs, and techniques. Higher levels aren't "more notes" for its own
+  sake — the rhythm, range, and physical difficulty all scale together.
+- **Target (Root / 3rd / 5th)** picks which chord tone each lick lands on for the changes.
+- **Land on next chord** makes each lick resolve onto the *following* chord's target tone instead
+  of its own — useful once you're comfortable landing on the current chord.
+- **↻ Regenerate** reshuffles every lick; each card also has its own ↻ to reroll just that one.
+
+## Reading a lick
+
+Every chord gets its own card: the fretboard diagram with that chord's tones highlighted, and a
+tab staff underneath.
+
+- Notes on the tab are placed **in time** — their horizontal position reflects when they fall in
+  the bar, with beat markers along the top.
+- Small glyphs under the tab show note duration; technique glyphs (`h` hammer-on, `p` pull-off,
+  `/` `\` slides, `b` bends) mark how one note connects to the next.
+- The last note of a lick always lands on the selected target tone at the bar line — that's the
+  note you're aiming to hit cleanly on the chord change.
+
+Licks are generated from a seed, so regenerating gives you a new lick, but the *same* seed always
+reproduces the same lick — nothing is lost on reload.
+
+# Playback
+
+Hit **play** to hear your practice licks instead of just reading tab — the app plays a metronome
+and each chord's lick in sequence, so you don't need a separate backing track running.
+
+- **Tempo** — set BPM to match the speed you want to practice at.
+- **Count-in** — one bar of clicks before playback starts, so you come in on time.
+- **Loop** — repeat the whole progression continuously.
+- **Bar length (×1/×2)** — give a chord more room by doubling its length to two bars.
+- Two gain sliders balance the click against the notes.
+
+While playing, the current card gets an accent border and the note being played is highlighted on
+its tab, so you can follow along visually as well as by ear.
+
+Playback starts only when you tap play — browsers require a user action before audio can start,
+so nothing plays automatically on page load.
+
+# Tunings & left-handed view
+
+## Tunings
+
+Switch tuning (e.g. standard or drop D) from the tuning picker. Every fretboard position and box
+is recalculated for the new tuning — nothing is a fixed diagram, so switching tunings never leaves
+you with wrong notes.
+
+## Left-handed view
+
+Toggle the mirror/left-handed view to flip the fretboard and tab diagrams for left-handed playing.
+It's purely a display change — the underlying scale, chords, and licks are unaffected.
+
+Both preferences are saved automatically and restored the next time you open the app.
+
+# Sharing & your data
+
+## Where your data lives
+
+Guitarmateur has no accounts and no server. Everything you set up — key, scale, positions,
+progression, practice settings — is saved to `localStorage` in your browser and restored
+automatically the next time you visit.
+
+## Sharing a setup
+
+Use the "copy link" action to get a URL that encodes your current setup. Sending that link to
+someone else (or opening it yourself on another device) reproduces your exact key, scale, and
+progression — no login needed.
+
+## Export & import
+
+You can export your saved setup to a JSON file and import it back later, which is useful for
+backing up your practice setups or moving them between devices/browsers.
+
+## Offline use
+
+Guitarmateur is installable as a Progressive Web App (PWA) — add it to your home screen or install
+it from your browser's install prompt. Once installed, it keeps working without a network
+connection.
+
+# Contributing
 
 Found a bug or have an idea for a feature? [Open an issue](https://github.com/nguyentamgm/guitarmateur/issues).
 

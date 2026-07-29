@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 /**
- * Layer dependency rule (see AGENTS.md / docs/dev/architecture.md):
+ * Layer dependency rule (see AGENTS.md / docs/architecture.md):
  *   ui → state → (lick → fretboard → music);  audio → lick/state
  * Lower layers must never import React or a higher layer. Enforced below with
  * per-directory `no-restricted-imports`. A violating import fails `npm run lint`.
