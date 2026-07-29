@@ -4,10 +4,9 @@ import type { Key } from './key';
 import type { Chord } from './chord';
 
 /**
- * Default starting progression for a key, one row per scale registry entry (see
- * docs/plans/06-state-and-persistence.md): minorPentatonic i–♭VII–♭VI–♭VII, majorPentatonic
- * I–V–vi–IV, blues I7–IV7–I7–V7. Qualities are chosen so `romanNumeral` reproduces these numerals
- * exactly (verified in harmony.test.ts).
+ * Default starting progression for a key, one row per scale registry entry: minorPentatonic
+ * i–♭VII–♭VI–♭VII, majorPentatonic I–V–vi–IV, blues I7–IV7–I7–V7. Qualities are chosen so
+ * `romanNumeral` reproduces these numerals exactly (verified in harmony.test.ts).
  */
 export function defaultProgression(key: Key): Chord[] {
   const t = key.tonic;

@@ -1,20 +1,20 @@
-# Plan 10 — Roadmap & Task Discipline
+# Roadmap & Task Discipline
 
-The forward plan and *how we size work*. Plans 01–08 say **how each layer is designed**; this doc
-says **what to do next and in what increments**. [09-progress.md](09-progress.md) says **where we
-are**. Start here when picking up new work.
+The forward plan and *how we size work*. [`architecture.md`](architecture.md) says **how each
+layer is designed**; this doc says **what to do next and in what increments**.
+[`progress.md`](progress.md) says **where we are**. Start here when picking up new work.
 
 ## Why this doc exists
 
-The original milestone model (M1–M5 in [00-overview.md](00-overview.md)) sized each milestone as
-"ship a whole subsystem." That worked while the app was small but broke down at **M5 (audio)**: one
-milestone bundled a schema migration + a 4-module audio engine + lick-engine changes + a UI controls
-bar + highlighting + tests + docs. Built in one pass it was hard to review, hard to verify, and hit
-avoidable snags (a build-breaking tooling constraint discovered late; a schema bump that quietly
-broke existing tests). None of that was necessary — the work is naturally 4–5 independent slices.
+The original milestone model (M1–M5) sized each milestone as "ship a whole subsystem." That
+worked while the app was small but broke down at **M5 (audio)**: one milestone bundled a schema
+migration + a 4-module audio engine + lick-engine changes + a UI controls bar + highlighting +
+tests + docs. Built in one pass it was hard to review, hard to verify, and hit avoidable snags (a
+build-breaking tooling constraint discovered late; a schema bump that quietly broke existing
+tests). None of that was necessary — the work is naturally 4–5 independent slices.
 
-**The fix is not more detail. It's smaller units.** Layer specs stay as reference; execution happens
-in right-sized tasks defined below.
+**The fix is not more detail. It's smaller units.** `architecture.md` stays as reference; execution
+happens in right-sized tasks defined below.
 
 ## What a right-sized task is
 
@@ -53,7 +53,7 @@ Each numbered step is a separate PR. Steps 2–5 each keep CI green on their own
 | 2 | `src/audio/` pure core: `compile` + `scheduler`/`drainDue` + `voices` pitch math + tests | `npm test` proves timing/loop/delay math |
 | 3 | Metronome-only playback: engine + transport + a play button that clicks | you *hear* a count at the set tempo |
 | 4 | Lick + progression playback + card/tab highlighting | notes play; current note lights up |
-| 5 | Loop + count-in + mix sliders + multi-bar (`bars×4`) generation | full plan-07 feature set |
+| 5 | Loop + count-in + mix sliders + multi-bar (`bars×4`) generation | full audio feature set |
 
 Slices 3–5 are each independently mergeable. (M5 shipped as one PR (#7); future milestones follow
 this table's shape instead.)
@@ -67,7 +67,7 @@ milestones needed slicing.
 ### Finish M5
 - [ ] **T0 — Manual audio verification.** Run the app in Chrome + Firefox + one mobile browser: no
   drift over 2 min of looping, no console autoplay warnings, UI stays responsive while playing. Then
-  check the two open boxes in [09-progress.md](09-progress.md) plan-07 section, or file bugs as
+  check the two open boxes in [`progress.md`](progress.md)'s audio section, or file bugs as
   follow-up tasks. *Out of scope:* new features. *Exit:* both boxes resolved.
 
 ### 7-note scales & modes (engine already supports them)
