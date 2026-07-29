@@ -1,51 +1,24 @@
 # Guitarmateur
 
 A free, fully-static **pentatonic & blues fretboard trainer** — visualize scales, target the chord
-tones under your progression, and generate simple licks to solo over any backing track. No accounts,
-no backend; everything persists in `localStorage`.
+tones under your progression, and generate simple licks to solo over any backing track.
 
 🌐 [guitarmateur.com](https://guitarmateur.com)
 
-## Tech stack
+Practice pentatonic and blues scales directly on an interactive fretboard, see which notes fit the
+chords in your progression, and generate licks to jam over your own backing tracks. No accounts, no
+sign-up, no backend — everything runs in your browser and your progress is saved locally on your
+device.
 
-React 19 · TypeScript 6 (strict) · Vite 8 · Vitest 4 · ESLint 10 (flat config) · Prettier.
-Runtime dependencies are `react` + `react-dom` only. Hosted on Vercel (Hobby), auto-deployed on
-merge to `main`.
+## Learn more
 
-## Getting started
+See the [guide](docs/guide/index.md) for how to use each part of the app: scales & the fretboard,
+progressions & licks, playback, tunings & left-handed view, and sharing your setup.
 
-```bash
-npm install
-npm run dev        # start the dev server
-```
+## Contributing
 
-## Scripts
+Found a bug or have an idea for a feature? [Open an issue](https://github.com/nguyentamgm/guitarmateur/issues).
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Vite dev server |
-| `npm run build` | Type-check + production build to `dist/` |
-| `npm run preview` | Serve the production build locally |
-| `npm test` | Run unit tests (Vitest) |
-| `npm run test:watch` | Vitest in watch mode |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run format` | Prettier |
+Want to fix it yourself? Fork the repo, make your change, and [open a pull request](https://github.com/nguyentamgm/guitarmateur/pulls).
 
-CI runs `lint → typecheck → test → build` on every PR and gates merges.
-
-## Architecture
-
-Pure, unit-tested TypeScript engines under the UI, with a strictly one-directional dependency rule:
-
-```
-ui → state → (lick → fretboard → music)      audio → lick/state
-```
-
-Lower layers never import React or a higher layer (enforced by an ESLint rule). See
-[`AGENTS.md`](AGENTS.md) for conventions and [`docs/plans/`](docs/plans/) for the full design.
-
-## Progress
-
-Current milestone status and per-plan acceptance criteria live in
-[`docs/plans/09-progress.md`](docs/plans/09-progress.md).
+See [`AGENTS.md`](AGENTS.md) for local development setup and conventions.

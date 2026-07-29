@@ -17,7 +17,7 @@ const mod = (n: number, m: number): number => ((n % m) + m) % m;
 /**
  * Generate the N playable positions of a scale, one per starting degree, algorithmically — no
  * shape tables. For decorated scales (blues) the boxes come from the base scale and the added
- * tones fill inside them. See docs/plans/03-fretboard-engine.md for the walk.
+ * tones fill inside them.
  */
 export function positions(tuning: Tuning, key: Key): Position[] {
   const def = SCALES[key.scaleId];

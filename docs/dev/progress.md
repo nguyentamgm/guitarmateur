@@ -1,10 +1,10 @@
-# Plan 09 — Progress Tracker
+# Progress Tracker
 
 Living status doc for this project. **Update this file in the same PR that finishes a milestone
 or checks off an acceptance-criteria item.** This is the single place to look to answer "where are
-we right now" — don't rely on AGENTS.md or 00-overview.md for current status, they describe the
-plan, not the state. For **what to build next, sliced into right-sized tasks**, see
-[10-roadmap.md](10-roadmap.md).
+we right now" — don't rely on `AGENTS.md` or [`architecture.md`](architecture.md) for current
+status, they describe the design, not the state. For **what to build next, sliced into
+right-sized tasks**, see [`roadmap.md`](roadmap.md).
 
 Last updated: 2026-07-28 (nightly improve: path.test.ts +28, contour.test.ts +18, harmony.test.ts +23; 69 new tests across 3 PRs)
 
@@ -31,19 +31,20 @@ is wrong.
 
 > **M5 caveat — needs a manual browser pass.** The audio *logic* (`compileProgression`, the
 > lookahead `Scheduler`/`drainDue`, Karplus-Strong pitch math, schema-v3 migration) is unit-tested,
-> but audible playback — no drift over 2 min of looping, no autoplay warnings, Chrome/Firefox/mobile
-> — can't be asserted headlessly. Those two plan-07 boxes stay unchecked until someone runs it in a
-> real browser (see checklist in plan 07).
+> but audible playback can't be asserted headlessly. Those two boxes stay unchecked until someone
+> runs the manual checklist in a real browser: no drift over 2 minutes of looping (compare against
+> a phone metronome); playback works on Chrome + Firefox + one mobile Safari/Chrome; no console
+> autoplay warnings; UI never blocks while playing.
 
 ## Milestone status
 
 | # | Milestone | Status | Shipped in |
 |---|-----------|--------|------------|
-| M1 | Walking skeleton (plans 01, 08) | ✅ Done | PR #1 `ffee9c5` |
-| M2 | Scale explorer (plans 02, 03 + Step-1 UI) | ✅ Done | PR #4 `36a0ea9` |
-| M3 | MVP practice loop / v1 launch (plan 04 lv.1–3, Steps 2–3 UI, plan 06) | ✅ Done | PR #5 `3a9286a` |
-| M4 | Musicality (plan 04 lv.4–5, technique decoration) | ✅ Done | PR #6 `afeac56` |
-| M5 | Audio — metronome, lick playback, loop, tempo (plan 07) | 🟡 Code complete — needs manual browser verification | PR #7 `93f13c8` |
+| M1 | Walking skeleton | ✅ Done | PR #1 `ffee9c5` |
+| M2 | Scale explorer | ✅ Done | PR #4 `36a0ea9` |
+| M3 | MVP practice loop / v1 launch | ✅ Done | PR #5 `3a9286a` |
+| M4 | Musicality (technique decoration) | ✅ Done | PR #6 `afeac56` |
+| M5 | Audio — metronome, lick playback, loop, tempo | 🟡 Code complete — needs manual browser verification | PR #7 `93f13c8` |
 | — | URL sharing (T5+T6) | ✅ Done | PR #17 `8d871f7` |
 | — | PWA / offline (T7+T8) | ✅ Done | PR #18 `a9fd35a` |
 | — | Tuning picker (T3) | ✅ Done | PR #19 `2c006da` |
@@ -56,64 +57,63 @@ is wrong.
 | — | Later/unscheduled (alt-tunings beyond drop-D) | ⬜ Not started | — |
 
 **M5 is implemented (PR #7) and passes all four CI gates. Next task is T0 in
-[10-roadmap.md](10-roadmap.md): a manual audio pass in a real browser to resolve the two open
-plan-07 boxes and mark M5 ✅ Done. The task-decomposed backlog after that lives in plan 10.**
+[`roadmap.md`](roadmap.md): a manual audio pass in a real browser to resolve the two open boxes
+above and mark M5 ✅ Done. The task-decomposed backlog after that lives in `roadmap.md`.**
 
-M5 implementation notes (deviations from plan 07, all deliberate):
+M5 implementation notes (deviations from the original audio design, all deliberate):
 - **2-bar licks reuse the 1-bar rhythm library** (tiled two bars deep in `lick/rhythm.ts`
   `buildRhythm`) instead of authoring a separate 2-bar pattern table — simpler and keeps it a
-  data-assembly step, per the "data addition, no engine change" intent. `LickParams.bars` is
-  optional (defaults to 1), so the persisted shape and public API are unchanged.
+  data-assembly step. `LickParams.bars` is optional (defaults to 1), so the persisted shape and
+  public API are unchanged.
 - **Count-in, loop, and the click/note gain sliders are ephemeral UI state** in
-  `PlaybackControls`, not persisted. Only `tempoBpm` is persisted (schema v3), matching the plan's
-  "new state" list.
+  `PlaybackControls`, not persisted. Only `tempoBpm` is persisted (schema v3).
 - The `AudioContext` is created lazily inside the play button's handler (`useTransport` →
   `createEngine`), never at module load — the autoplay gate.
 
-## Per-plan acceptance criteria
+## Per-area acceptance criteria
 
-Checked = verified against the current codebase, not just "assumed done." When you finish a plan
-item, verify it yourself before checking the box.
+Checked = verified against the current codebase, not just "assumed done." When you finish an item,
+verify it yourself before checking the box.
 
-### Plan 01 — Tech stack & scaffolding
+### Tech stack & scaffolding
 - [x] `npm run dev` shows the dark-themed header; `build`, `test`, `lint`, `typecheck` pass on a clean checkout.
 - [x] Layer-boundary lint rule fails the build on a bad cross-layer import (`no-restricted-imports` in `eslint.config.js`).
 - [x] No runtime deps beyond `react`/`react-dom` (verified in `package.json`).
-- [x] Ready for plan 08's M1 deploy (static `dist/`).
+- [x] Ready for M1 deploy (static `dist/`).
 
-### Plan 02 — Music core (`src/music/`)
+### Music core (`src/music/`)
 - [x] No imports outside the package; fully deterministic.
 - [x] Adding a scale/chord quality = one registry entry, zero engine edits.
 - [x] All 12 offered tonics spell correctly in all v1 scales (tested).
 - [x] Public API via `src/music/index.ts`.
 
-### Plan 03 — Fretboard engine (`src/fretboard/`)
+### Fretboard engine (`src/fretboard/`)
 - [x] Zero shape tables in the codebase.
 - [x] Golden-shape tests pass.
 - [x] Invariant loops pass for both tunings.
 - [x] Public API via `src/fretboard/index.ts`.
 
-### Plan 04 — Lick engine (`src/lick/`)
+### Lick engine (`src/lick/`)
 - [x] `generateLick` is pure & deterministic; no `Math.random` (lint-enforced).
 - [x] M3 shipped levels 1–3; M4 added stage 4 (technique decoration) + levels 4–5 without breaking
       the public API or persisted `LickParams` shape.
 - [x] Invariant/statistical tests pass in CI.
 - [x] Tab renderer can render every `LickNote` field (rhythm + technique glyphs).
 
-### Plan 05 — UI (`src/ui/`)
+### UI (`src/ui/`)
 - [x] No theory/fretboard/lick logic in `src/ui/` (layer lint enforces imports).
 - [x] Visual match with the mockup's style.
 - [x] Registry-driven pickers.
 - [x] Milestone checklists pass; no console errors; clean `npm run build`.
 
-### Plan 06 — State & persistence (`src/state/`)
+### State & persistence (`src/state/`)
 - [x] No lick note arrays in localStorage — only seeds.
 - [x] Reload reproduces identical licks.
 - [x] Reducer & persistence importable/testable without React.
 - [x] Migration path exercised by a real schema bump — v2→v3 (tempo + per-entry bars) is covered by
       `persistence.test.ts` ("migrates a v2 payload to v3 with default tempo and per-entry bars").
 
-### Plan 07 — Audio (phase 2, `src/audio/`) — M5, code complete / manual pass pending
+### Audio (`src/audio/`) — M5, code complete / manual pass pending
 - [ ] Metronome + lick playback + progression loop work at 40–200 BPM without drift or glitches.
       *(Logic unit-tested — beat→sec compile, seamless loop wrap, lookahead scheduler — but audible
       drift/glitch behavior needs a real browser; unchecked until that manual pass.)*
@@ -124,7 +124,7 @@ item, verify it yourself before checking the box.
 - [x] Still zero runtime deps and zero network requests for audio assets — `package.json` unchanged
       (react/react-dom only); no `fetch`/URL in `src/audio` (verified by grep); pure synthesis.
 
-### Plan 08 — CI & deployment
+### CI & deployment
 - [x] M1: skeleton live on guitarmateur.com; merge-to-`main` → production, zero manual steps.
 - [x] CI blocks broken PRs (lint/type/test/build) — `.github/workflows/ci.yml`.
 - [ ] Domain, redirects, HTTPS all re-verified per the checklist since M4 (spot-check periodically, not just at M1).
@@ -143,11 +143,8 @@ item, verify it yourself before checking the box.
 
 ## How to keep this file honest
 
-- When you finish a plan's acceptance criteria, check the box **only after verifying it** (run
-  the tests/build yourself, don't just trust the plan doc's intent).
-- When a milestone finishes, update the milestone table (status + PR/commit) and move the
-  "Current HEAD" line.
-- If a plan changes scope (e.g. M4 pulled a stage from M3), leave a one-line note under that
-  plan's section rather than silently editing 00-overview.md's milestone description.
+- When you finish an item, check the box **only after verifying it** (run the tests/build
+  yourself, don't just trust intent).
+- When a milestone finishes, update the milestone table (status + PR/commit).
 - `AGENTS.md`'s "Current status" line should always point at this file rather than restate it, so
   there's exactly one place to update per release.
