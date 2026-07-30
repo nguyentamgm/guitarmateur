@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c0e0d"/>
+      <stop offset="100%" stop-color="#151917"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c3f04b"/>
+      <stop offset="100%" stop-color="#a8d63a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" rx="0"/>
+  <!-- Horizontal string lines -->
+  <line x1="60" y1="180" x2="600" y2="180" stroke="#3a413c" stroke-width="2.5"/>
+  <line x1="60" y1="230" x2="600" y2="230" stroke="#3a413c" stroke-width="2.5"/>
+  <line x1="60" y1="280" x2="600" y2="280" stroke="#3a413c" stroke-width="2.5"/>
+  <line x1="60" y1="330" x2="600" y2="330" stroke="#3a413c" stroke-width="2.5"/>
+  <line x1="60" y1="380" x2="600" y2="380" stroke="#3a413c" stroke-width="2.5"/>
+  <line x1="60" y1="430" x2="600" y2="430" stroke="#3a413c" stroke-width="2.5"/>
+  <!-- Fret lines -->
+  <line x1="60" y1="180" x2="60" y2="430" stroke="#e8ece9" stroke-width="4"/>
+  <line x1="140" y1="180" x2="140" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <line x1="220" y1="180" x2="220" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <line x1="300" y1="180" x2="300" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <line x1="380" y1="180" x2="380" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <line x1="460" y1="180" x2="460" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <line x1="540" y1="180" x2="540" y2="430" stroke="#2a302c" stroke-width="2"/>
+  <!-- Fret marker dots -->
+  <circle cx="220" cy="305" r="6" fill="#4a514c" opacity="0.5"/>
+  <circle cx="300" cy="305" r="6" fill="#4a514c" opacity="0.5"/>
+  <!-- Note dots -->
+  <circle cx="100" cy="205" r="14" fill="#c3f04b"/>
+  <circle cx="180" cy="255" r="14" fill="none" stroke="#c3f04b" stroke-width="2"/>
+  <circle cx="260" cy="305" r="14" fill="none" stroke="#c3f04b" stroke-width="2"/>
+  <circle cx="340" cy="355" r="14" fill="none" stroke="#c3f04b" stroke-width="2"/>
+  <circle cx="420" cy="305" r="14" fill="#c3f04b" opacity="0.22" stroke="#c3f04b" stroke-width="2"/>
+  <circle cx="500" cy="405" r="14" fill="none" stroke="#c3f04b" stroke-width="2"/>
+  <!-- Title -->
+  <text x="720" y="220" font-family="'JetBrains Mono', system-ui, sans-serif" font-size="42" font-weight="700" fill="#e8ece9">
+    Guitarmateur
+  </text>
+  <text x="720" y="270" font-family="system-ui, sans-serif" font-size="22" fill="#7e857f">
+    Pentatonic &amp; Blues
+  </text>
+  <text x="720" y="300" font-family="system-ui, sans-serif" font-size="22" fill="#7e857f">
+    Fretboard Trainer
+  </text>
+  <line x1="720" y1="330" x2="950" y2="330" stroke="#2a302c" stroke-width="1"/>
+  <!-- Features -->
+  <text x="720" y="370" font-family="system-ui, sans-serif" font-size="16" fill="#575d58">✦ Visualize any scale position</text>
+  <text x="720" y="400" font-family="system-ui, sans-serif" font-size="16" fill="#575d58">✦ Build chord progressions</text>
+  <text x="720" y="430" font-family="system-ui, sans-serif" font-size="16" fill="#575d58">✦ Generate practice licks</text>
+  <text x="720" y="460" font-family="system-ui, sans-serif" font-size="16" fill="#575d58">✦ Play along in the browser</text>
+  <!-- Tag -->
+  <rect x="720" y="500" width="200" height="36" rx="18" fill="#c3f04b"/>
+  <text x="820" y="523" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="600" fill="#0c0e0d" text-anchor="middle">
+    guitarmateur.com
+  </text>
+</svg>
