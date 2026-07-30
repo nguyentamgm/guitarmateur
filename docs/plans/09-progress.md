@@ -4,7 +4,7 @@
 
 ## Current status: Core engine complete, polish ongoing
 
-**Last updated:** 2025-07-29
+**Last updated:** 2025-07-30
 
 ### What's shipping
 
@@ -35,9 +35,9 @@ All core layers are built, tested, and deployed:
 - [x] PWA support: service worker (cache-first assets), manifest, install prompt
 - [x] Error boundary with retry
 - [x] CI pipeline: lint → typecheck → test → build (all pass)
+- [x] Social sharing: OG meta tags and OG image (PR #58)
+- [x] Progress/roadmap docs available (PR #57)
 
 ### Known issues
 
-- `isValidTargetRole` in persistence.ts didn't include `'7'` (fixed in PR #56)
 - No mobile-responsive optimization beyond basic wrapping
-- No OG image / social preview meta tags
