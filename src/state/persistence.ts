@@ -37,8 +37,8 @@ function isValidLevel(x: unknown): x is 1 | 2 | 3 | 4 | 5 {
   return typeof x === 'number' && [1, 2, 3, 4, 5].includes(x);
 }
 
-function isValidTargetRole(x: unknown): x is 'R' | '3' | '5' {
-  return x === 'R' || x === '3' || x === '5';
+function isValidTargetRole(x: unknown): x is 'R' | '3' | '5' | '7' {
+  return x === 'R' || x === '3' || x === '5' || x === '7';
 }
 
 /** `bars` was added in schema v3; older (v2) entries lack it and default to 1. */
