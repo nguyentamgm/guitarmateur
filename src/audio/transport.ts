@@ -1,7 +1,7 @@
 import type { Lick } from '../lick';
 import { compileProgression, type AudioEvent, type CompileOptions } from './compile';
 import { Scheduler, drainDue } from './scheduler';
-import { click, pluck } from './voices';
+import { click, pluck, type Voice } from './voices';
 import type { AudioEngine } from './engine';
 
 export interface Position {
@@ -24,6 +24,19 @@ export interface PlayOptions extends CompileOptions {
 const START_LEAD_SEC = 0.12;
 
 /**
+ * How fast the note already ringing on a string is damped when the next note lands on it.
+ *
+ * A string sounds one note at a time, so this is not an effect — it is the physical fact that makes
+ * a hammer-on audible *as* a hammer-on. Legato is the faster of the two: the string never stops
+ * moving, its energy just transfers to the new fretted length, so the old pitch has to be gone
+ * almost at once. A re-pick is a hair slower — the pick has to reach the string.
+ */
+const LEGATO_DAMP_SEC = 0.025;
+const REPICK_DAMP_SEC = 0.055;
+
+const LEGATO: ReadonlySet<string> = new Set(['hammer', 'pull', 'slide']);
+
+/**
  * Play/stop state machine. Compiles licks to events (see `compile.ts`), shifts them onto the
  * AudioContext clock, and pumps them through the lookahead `Scheduler` into `voices`. Looping
  * appends further passes just ahead of the schedule window so it never runs dry. Not unit-tested
@@ -39,6 +52,8 @@ export class Transport {
   private opts: CompileOptions = { tempoBpm: 90 };
   private nextPassStartSec = 0;
   private positionTimers = new Set<ReturnType<typeof setTimeout>>();
+  /** The note currently ringing on each string, so the next note there can damp it. */
+  private ringing = new Map<number, Voice>();
   private readonly engine: AudioEngine;
   private readonly cb: TransportCallbacks;
 
@@ -82,6 +97,8 @@ export class Transport {
     this.positionTimers.clear();
     this.events = [];
     this.cursor = 0;
+    // Notes already scheduled ring out on their own; just stop tracking them.
+    this.ringing.clear();
     if (this.playing) {
       this.playing = false;
       this.cb.onPosition?.(null);
@@ -129,10 +146,25 @@ export class Transport {
       click(this.engine.ctx, this.engine.clickBus, event.timeSec, event.accented);
       return;
     }
-    pluck(this.engine.ctx, this.engine.noteBus, event.timeSec, event.midi, event.durationSec, {
-      technique: event.technique,
-      fromMidi: event.fromMidi,
-    });
+    // Fret the string: whatever was ringing on it stops as this note starts. Techniques are always
+    // same-string continuations, so without this the note being hammered onto has to fight the note
+    // it came from — which is exactly the one that would mask it.
+    const previous = this.ringing.get(event.string);
+    if (previous) {
+      previous.release(
+        event.timeSec,
+        event.technique && LEGATO.has(event.technique) ? LEGATO_DAMP_SEC : REPICK_DAMP_SEC,
+      );
+    }
+    const voice = pluck(
+      this.engine.ctx,
+      this.engine.noteBus,
+      event.timeSec,
+      event.midi,
+      event.durationSec,
+      { technique: event.technique, fromMidi: event.fromMidi },
+    );
+    this.ringing.set(event.string, voice);
     if (this.cb.onPosition) {
       const delayMs = Math.max(0, (event.timeSec - this.engine.ctx.currentTime) * 1000);
       const timer = setTimeout(() => {
