@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { format, romanNumeral, chordLabel, type Chord } from '../../music';
+import { romanNumeral, chordLabel, type Chord } from '../../music';
 import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
@@ -11,6 +11,7 @@ import { TabStaff } from './TabStaff';
 import { PlaybackControls } from './PlaybackControls';
 import { useTransport } from '../useTransport';
 import { KeyboardShortcuts } from '../KeyboardShortcuts';
+import { roleLabel, targetBadgeText } from '../labels';
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
@@ -43,7 +44,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     return m;
   }, [stateProgression]);
 
-  const targetLabel = state.targetRole === 'R' ? 'Root' : state.targetRole === '3' ? '3rd' : state.targetRole === '5' ? '5th' : '7th';
+  const targetLabel = roleLabel(state.targetRole);
 
   const levelDescriptions: Record<number, string> = {
     1: 'Quarter notes + half notes (easy)',
@@ -86,7 +87,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
             <div style={{ display: 'flex', gap: 6 }}>
               {(['R', '3', '5', '7'] as const).map((r) => (
                 <PillButton key={r} selected={state.targetRole === r} onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
-                  {r === 'R' ? 'Root' : r === '3' ? '3rd' : r === '5' ? '5th' : '7th'}
+                  {roleLabel(r)}
                 </PillButton>
               ))}
             </div>
@@ -177,9 +178,6 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
 
                 // Find landing note (last note of the lick)
                 const lastNote = lick.notes.length > 0 ? lick.notes[lick.notes.length - 1] : undefined;
-                const actualRoleLabel = lastNote?.role
-                  ? (lastNote.role === 'R' ? 'Root' : lastNote.role === '3' ? '3rd' : lastNote.role === '5' ? '5th' : '7th')
-                  : undefined;
 
                 return (
                   <div
@@ -211,7 +209,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                         marginBottom: 10,
                       }}
                     >
-                      target · {targetLabel}{actualRoleLabel && actualRoleLabel !== targetLabel ? ` → ${actualRoleLabel}` : ''} ({format(chord.tonic)})
+                      {targetBadgeText(state.targetRole, lastNote, chord.tonic)}
                     </div>
 
                     {/* Fretboard with chord highlighting + landing */}
