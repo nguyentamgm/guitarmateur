@@ -12,6 +12,9 @@ export type AudioEvent =
       kind: 'pluck';
       midi: number;
       durationSec: number;
+      /** Which string it is fretted on. A string sounds one note at a time, so the transport uses
+       *  this to release the note already ringing there — see `Voice.release`. */
+      string: number;
       /** Which progression entry / note this pluck belongs to — used for UI highlighting. */
       entryIndex: number;
       noteIndex: number;
@@ -84,6 +87,7 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
           kind: 'pluck',
           midi: midi(note.pitch),
           durationSec: note.durationBeats * secPerBeat,
+          string: note.string,
           entryIndex,
           noteIndex,
           technique: note.technique,

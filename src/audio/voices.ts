@@ -17,28 +17,57 @@ import type { Technique } from '../lick';
  * Voice tuning. Read fresh on every note, so changes take effect from the next note on — that is
  * what lets the dev console tune it live while a loop plays (see `devTools.ts`).
  *
+ * If notes sound SHORT — each one a blip that dies before the next lands, so the line reads as a
+ * sequence of clicks rather than a guitar — the note's body is decaying too fast. In order of
+ * impact: raise `sustainLevel`, raise `bodyHalfLifeSec`, raise `ringSec`, raise `filterRestMult`.
+ *
  * If notes sound like an ORGAN — steady, no attack, no decay — the amplitude envelope is being
- * flattened. In order of impact: lower `drive` (engine.ts), lower `sustainLevel`, raise
- * `pickLevel`, shorten `ringSec`. If notes sound THIN or CLICKY, go the other way and raise
- * `filterRestMult`.
+ * flattened. Go the other way, and check `drive` (engine.ts) and `pickLevel` first: a strong pick
+ * transient is what lets the body sustain without the result sounding held.
+ *
+ * If TECHNIQUES are inaudible — a hammer-on indistinguishable from a picked note, a bend that just
+ * arrives at a new pitch — raise `slapLevel` first (the fretting-hand noise is the only cue that a
+ * note was not picked), then `legatoLevel`, then `bendTimeSec` / `slideTimePerSemitoneSec` to give
+ * the pitch move time to be heard. Note that the transport damps the previous note on the same
+ * string as each note lands, which is what clears room for any of this to be audible at all.
  */
 export interface VoiceTuning {
   /** Cents between the two oscillators. 0..12. Higher = thicker, but chorus-y and pad-like. */
   detuneCents: number;
   /** Peak level of one voice into the amp bus. 0.15..0.45. Raise together with engine PRE_GAIN. */
   peakLevel: number;
-  /** Level right after the pluck, as a fraction of peak. 0.05..0.4.
-   *  THE organ dial: lower = percussive and string-like, higher = sustained and organ-like. */
+  /** Level the string settles to right after the pluck, as a fraction of peak. 0.2..0.6.
+   *  THE organ dial: lower = percussive and short, higher = the note carries to the next one.
+   *  Too low and every note is a click with nothing behind it. */
   sustainLevel: number;
   /** How fast the string settles from peak to `sustainLevel`, seconds. 0.02..0.15. */
   pluckDecaySec: number;
-  /** How long a note rings past its notated length, seconds (scaled by pitch). 0.1..1.0.
-   *  Higher = notes bleed into each other like a real guitar; too high = muddy soup. */
+  /** How long the *body* of a note takes to halve in level, seconds (scaled by pitch). 0.4..4.
+   *  This is what keeps a note alive until the next one: a quarter note barely fades over its
+   *  own length, a whole note visibly dies away. Lower = notes drop out between onsets. */
+  bodyHalfLifeSec: number;
+  /** How long the release tail runs past the note's notated length, seconds (scaled by pitch).
+   *  0.3..2.0. Higher = notes bleed into each other like a real guitar; too high = muddy soup. */
   ringSec: number;
   /** Pick-attack noise level. 0..0.6. Higher = more percussive bite, the main anti-organ cue. */
   pickLevel: number;
-  /** Pick noise band centre, Hz. 1200..3500. Higher = brighter, more "scrape". */
+  /** Fretting-hand noise level: the fret slap of a hammer-on, the flick of a pull-off, the scrape
+   *  of a slide. 0..1.2. THE dial for hearing techniques — it is the only cue that says a note was
+   *  hammered rather than picked, since the pick never strikes. */
+  slapLevel: number;
+  /** Pick noise band centre, Hz. 1200..3500. Higher = brighter, more "scrape".
+   *  Fretting-hand noises are placed relative to this, so it colours all of them. */
   pickBandHz: number;
+  /** Level of an un-picked (hammer/pull/slide) note, as a fraction of a picked one. 0.5..1.
+   *  A fretting hand really is weaker than a pick, but not by much — too low and legato runs
+   *  disappear under the note they came from. */
+  legatoLevel: number;
+  /** How long a full-tone bend takes to reach pitch, seconds. 0.1..0.5. A blues bend leans into
+   *  the note; rushing it reads as a synth portamento. Capped by the note's own length. */
+  bendTimeSec: number;
+  /** How long a slide takes, per semitone travelled, seconds. 0.02..0.12. Scaling by distance is
+   *  what makes a slide read as a hand moving rather than a pitch jump. */
+  slideTimePerSemitoneSec: number;
   /** Cutoff at the attack = freq × this, capped by `filterOpenCapHz`. 6..16. */
   filterOpenMult: number;
   filterOpenCapHz: number;
@@ -46,7 +75,8 @@ export interface VoiceTuning {
   filterRestMult: number;
   /** How long the cutoff takes to fall, seconds. 0.1..0.5. Longer = more audible movement. */
   filterFallSec: number;
-  /** Vibrato needs a held note; below this it just sounds unstable. Seconds. */
+  /** Vibrato needs a held note; below this it just sounds unstable. Seconds.
+   *  Bends ignore this — a bend held without vibrato is the one that sounds synthetic. */
   vibratoMinSec: number;
   /** Vibrato rate, Hz. 4..7 is the human hand range. */
   vibratoRateHz: number;
@@ -63,15 +93,20 @@ export interface VoiceTuning {
 
 export const VOICE_DEFAULTS: Readonly<VoiceTuning> = Object.freeze({
   detuneCents: 5,
-  peakLevel: 0.3,
-  sustainLevel: 0.12,
+  peakLevel: 0.26,
+  sustainLevel: 0.5,
   pluckDecaySec: 0.05,
-  ringSec: 2,
+  bodyHalfLifeSec: 1.6,
+  ringSec: 1.2,
   pickLevel: 1,
+  slapLevel: 0.75,
   pickBandHz: 2200,
+  legatoLevel: 0.85,
+  bendTimeSec: 0.22,
+  slideTimePerSemitoneSec: 0.045,
   filterOpenMult: 10,
   filterOpenCapHz: 9000,
-  filterRestMult: 1.8,
+  filterRestMult: 2.4,
   filterFallSec: 1,
   vibratoMinSec: 1,
   vibratoRateHz: 10,
@@ -125,38 +160,158 @@ export function decayScaleForMidi(m: number): number {
   return Math.min(1.6, Math.max(0.4, Math.pow(2, (52 - m) / 36)));
 }
 
+/**
+ * The noise burst at the front of a note. Every way of starting a note makes a *different* sound
+ * before the pitch arrives, and that noise is most of how you tell them apart: a pick is a bright
+ * click, a hammer-on is a dull thump of fingertip on wood, a pull-off is a soft flick sideways off
+ * the string, a slide is a long scrape across the fret wire. Giving un-picked notes no transient at
+ * all — the obvious reading of "the pick doesn't strike" — is what makes legato inaudible.
+ *
+ * Levels and bands are *relative* to the `pickLevel` / `slapLevel` / `pickBandHz` dials so the two
+ * families stay in proportion when either is retuned.
+ */
+export interface Transient {
+  /** Which level dial this noise is scaled from: the pick, or the fretting hand. */
+  source: 'pick' | 'slap';
+  levelScale: number;
+  /** Band centre relative to `pickBandHz`. Below 1 = duller and woodier, above = more scrape. */
+  bandScale: number;
+  /** Filter width. Low Q = broad thump, high Q = narrow chirp. */
+  q: number;
+  /** How long the burst lasts, seconds. */
+  decaySec: number;
+}
+
+const PICK: Transient = { source: 'pick', levelScale: 1, bandScale: 1, q: 0.8, decaySec: 0.03 };
+/** Fingertip landing on the fretboard: low, woody, and slower than a pick click. */
+const SLAP: Transient = { source: 'slap', levelScale: 1, bandScale: 0.32, q: 0.7, decaySec: 0.05 };
+/** The finger flicks the string sideways as it leaves — a soft pluck, brighter than a slap. */
+const FLICK: Transient = { source: 'slap', levelScale: 0.9, bandScale: 0.65, q: 1, decaySec: 0.035 };
+/** Wound string dragged over fret wire: quieter but far longer, running under the whole glide. */
+const SCRAPE: Transient = { source: 'slap', levelScale: 0.5, bandScale: 1.3, q: 1.6, decaySec: 0.11 };
+
 /** How a note is articulated *into* from the one before it. */
 export interface Articulation {
-  /** Whether the pick strikes again — hammer-ons and pull-offs are fretting-hand only. */
-  repick: boolean;
+  /** The noise at the front of the note. Never null — every way of starting a note makes one. */
+  transient: Transient;
   attackSec: number;
   /** Scales the note's peak level; un-picked notes are naturally weaker. */
   velocityScale: number;
   /** Seconds to glide from the previous pitch. 0 = jump straight to this note. */
   glideSec: number;
+  /** Whether the glide eases in and out (a hand bending a string) or runs at a constant rate
+   *  (a hand sliding along the neck). */
+  glideEase: boolean;
+  /** Bends get vibrato at the top of the push regardless of `vibratoMinSec` — that shimmer is
+   *  what says "a hand is holding this string bent" rather than "the pitch moved". */
+  vibratoAtPitch: boolean;
 }
 
-const PLAIN: Articulation = { repick: true, attackSec: 0.003, velocityScale: 1, glideSec: 0 };
+const PLAIN: Articulation = {
+  transient: PICK,
+  attackSec: 0.003,
+  velocityScale: 1,
+  glideSec: 0,
+  glideEase: false,
+  vibratoAtPitch: false,
+};
 
 /**
- * Map a lick technique onto how the voice should sound it. Bend times are deliberately slow — a
- * blues bend leans into pitch over a good fraction of a beat, and rushing it reads as a synth
- * portamento rather than a string being pushed.
+ * Map a lick technique onto how the voice should sound it.
+ *
+ * `semitones` is the interval being travelled into this note; it only matters for slides, where a
+ * hand crossing five frets plainly takes longer than one crossing two. Bend times are deliberately
+ * slow — a blues bend leans into pitch over a good fraction of a beat, and rushing it reads as a
+ * synth portamento rather than a string being pushed. `pluck` caps both against the note's own
+ * length, so a fast lick still lands on pitch in time.
  */
-export function articulationFor(technique?: Technique): Articulation {
+export function articulationFor(technique?: Technique, semitones = 0): Articulation {
+  const legato = voiceTuning.legatoLevel;
   switch (technique) {
     case 'hammer':
-      return { repick: false, attackSec: 0.012, velocityScale: 0.6, glideSec: 0 };
+      return { ...PLAIN, transient: SLAP, attackSec: 0.012, velocityScale: legato };
     case 'pull':
-      return { repick: false, attackSec: 0.01, velocityScale: 0.55, glideSec: 0 };
+      return { ...PLAIN, transient: FLICK, attackSec: 0.01, velocityScale: legato * 0.96 };
     case 'slide':
-      return { repick: false, attackSec: 0.01, velocityScale: 0.7, glideSec: 0.06 };
+      return {
+        ...PLAIN,
+        transient: SCRAPE,
+        attackSec: 0.01,
+        velocityScale: legato * 1.05,
+        glideSec: Math.max(0.05, Math.abs(semitones) * voiceTuning.slideTimePerSemitoneSec),
+      };
     case 'bendHalf':
-      return { repick: true, attackSec: 0.003, velocityScale: 1, glideSec: 0.11 };
+      return { ...PLAIN, glideSec: voiceTuning.bendTimeSec * 0.75, glideEase: true, vibratoAtPitch: true };
     case 'bendFull':
-      return { repick: true, attackSec: 0.003, velocityScale: 1, glideSec: 0.14 };
+      return { ...PLAIN, glideSec: voiceTuning.bendTimeSec, glideEase: true, vibratoAtPitch: true };
     default:
       return PLAIN;
+  }
+}
+
+/**
+ * Sampled pitch path from one note to another, as frequencies for `setValueCurveAtTime`.
+ *
+ * Interpolation runs in *semitones*, not Hz: pitch is logarithmic, so a straight line in Hz sweeps
+ * fast at the bottom and crawls at the top, which is audibly not what a hand does. `ease` adds a
+ * smoothstep — a bent string starts slow while the hand takes up tension, moves through the middle,
+ * and settles onto the target rather than arriving at full speed. A slide stays linear: the hand
+ * travels the neck at a roughly constant rate.
+ */
+export function glideCurve(
+  fromMidi: number,
+  toMidi: number,
+  ease: boolean,
+  points = 64,
+): Float32Array<ArrayBuffer> {
+  const curve = new Float32Array(points);
+  for (let i = 0; i < points; i++) {
+    const p = i / (points - 1);
+    const shaped = ease ? p * p * (3 - 2 * p) : p;
+    curve[i] = midiToFrequency(fromMidi + (toMidi - fromMidi) * shaped);
+  }
+  return curve;
+}
+
+/** One breakpoint of a gain envelope, and the shape of the ramp *into* it from the previous one. */
+export interface EnvelopePoint {
+  t: number;
+  v: number;
+  curve: 'lin' | 'exp';
+}
+
+/**
+ * The level an envelope has reached at time `t`, tracing the same ramps the Web Audio scheduler
+ * does. Needed because a voice may be cut short partway through — see `Voice.release`, which has to
+ * know where the gain currently is to fade from it without a click, and cannot ask the param
+ * (`AudioParam.value` reports the *current* time, not a future one).
+ */
+export function envelopeLevelAt(points: readonly EnvelopePoint[], t: number): number {
+  const first = points[0];
+  if (!first) return 0;
+  if (t <= first.t) return first.v;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]!;
+    const b = points[i]!;
+    if (t > b.t) continue;
+    const span = b.t - a.t;
+    if (span <= 0) return b.v;
+    const p = (t - a.t) / span;
+    // Exponential ramps are geometric between the endpoints — the same curve `pow` traces.
+    return b.curve === 'exp' && a.v > 0 && b.v > 0
+      ? a.v * Math.pow(b.v / a.v, p)
+      : a.v + (b.v - a.v) * p;
+  }
+  return points[points.length - 1]!.v;
+}
+
+/** Schedule an envelope onto a gain param, using each point's own ramp shape. */
+function applyEnvelope(param: AudioParam, points: readonly EnvelopePoint[]): void {
+  param.setValueAtTime(points[0]!.v, points[0]!.t);
+  for (let i = 1; i < points.length; i++) {
+    const p = points[i]!;
+    if (p.curve === 'exp') param.exponentialRampToValueAtTime(p.v, p.t);
+    else param.linearRampToValueAtTime(p.v, p.t);
   }
 }
 
@@ -182,18 +337,24 @@ export function click(ctx: AudioContext, dest: AudioNode, when: number, accented
   };
 }
 
-/** One decaying white-noise burst per context, reused for every pick attack. */
+/**
+ * One white-noise burst per context, reused for every attack transient. Long enough to cover a
+ * slide's scrape (the longest of them); each transient's own gain envelope decides how much of it
+ * is actually heard, so the buffer itself only fades gently.
+ */
 const noiseCache = new WeakMap<BaseAudioContext, AudioBuffer>();
+
+const NOISE_BUFFER_SEC = 0.2;
 
 function pickNoise(ctx: AudioContext): AudioBuffer {
   const cached = noiseCache.get(ctx);
   if (cached) return cached;
-  const length = Math.max(1, Math.floor(ctx.sampleRate * 0.05));
+  const length = Math.max(1, Math.floor(ctx.sampleRate * NOISE_BUFFER_SEC));
   const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < length; i++) {
-    // Fade across the burst so it reads as a pick scraping the string, not a click.
-    data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+    // Fade across the burst so it reads as something dragging on the string, not a click.
+    data[i] = (Math.random() * 2 - 1) * (1 - 0.6 * (i / length));
   }
   noiseCache.set(ctx, buffer);
   return buffer;
@@ -209,9 +370,22 @@ export interface PluckOptions {
 }
 
 /**
- * Sound one note. `durationSec` is the *notated* length — the voice deliberately rings past it
- * (see `decayScaleForMidi`) so notes bleed into each other the way a real guitar does rather than
- * being cut cleanly at the next onset.
+ * A sounding note, still under the caller's control after it has been scheduled.
+ *
+ * This exists for one reason: a guitar string can only sound one note at a time. Every technique in
+ * a lick — hammer, pull, slide, bend — happens on the *same string* as the note before it, so the
+ * previous note has to get out of the way or it masks the very thing the technique is meant to
+ * make audible. `transport.ts` holds one of these per string and releases it as the next note lands.
+ */
+export interface Voice {
+  /** Fade this note out from `at`, over `fadeSec`, replacing whatever was scheduled after it. */
+  release(at: number, fadeSec: number): void;
+}
+
+/**
+ * Sound one note. `durationSec` is the *notated* length: the note stays at full body for all of it
+ * — a real string is still ringing when the next one is picked — and then releases past it (see
+ * `decayScaleForMidi`) so notes bleed into each other rather than being cut at the next onset.
  */
 export function pluck(
   ctx: AudioContext,
@@ -220,15 +394,16 @@ export function pluck(
   m: number,
   durationSec: number,
   opts: PluckOptions = {},
-): void {
+): Voice {
   const { velocity = 1, technique, fromMidi } = opts;
-  const art = articulationFor(technique);
+  const semitones = fromMidi === undefined ? 0 : m - fromMidi;
+  const art = articulationFor(technique, semitones);
   const freq = midiToFrequency(m);
   const decay = decayScaleForMidi(m);
 
   const noteEnd = when + Math.max(durationSec, 0.1);
   const ringEnd = noteEnd + voiceTuning.ringSec * decay;
-  const stopTime = ringEnd + 0.05;
+  let stopTime = ringEnd + 0.05;
 
   // Two saws a few cents apart: a single oscillator sounds static, the beating between two reads
   // as string thickness. The second also fattens what the overdrive downstream has to chew on.
@@ -238,11 +413,15 @@ export function pluck(
   oscB.type = 'sawtooth';
   oscB.detune.value = voiceTuning.detuneCents;
 
-  const glideFrom = art.glideSec > 0 && fromMidi !== undefined ? midiToFrequency(fromMidi) : null;
+  // Never spend more than half the note getting to pitch — otherwise a bend on a fast eighth note
+  // is still travelling when the next note lands, and the target pitch is never actually heard.
+  const glideSec =
+    art.glideSec > 0 && fromMidi !== undefined && fromMidi !== m
+      ? Math.min(art.glideSec, Math.max(0.03, (noteEnd - when) * 0.5))
+      : 0;
   for (const osc of [oscA, oscB]) {
-    if (glideFrom !== null) {
-      osc.frequency.setValueAtTime(glideFrom, when);
-      osc.frequency.linearRampToValueAtTime(freq, when + art.glideSec);
+    if (glideSec > 0) {
+      osc.frequency.setValueCurveAtTime(glideCurve(fromMidi!, m, art.glideEase), when, glideSec);
     } else {
       osc.frequency.setValueAtTime(freq, when);
     }
@@ -260,32 +439,54 @@ export function pluck(
 
   const amp = ctx.createGain();
   const peak = voiceTuning.peakLevel * art.velocityScale * Math.min(1, Math.max(0, velocity));
-  amp.gain.setValueAtTime(0.0001, when);
-  amp.gain.linearRampToValueAtTime(peak, when + art.attackSec);
-  // The string settles fast right after the pluck, then rings out gently. The drop to
-  // sustainLevel is what makes a note read as plucked rather than held.
-  amp.gain.exponentialRampToValueAtTime(
-    peak * voiceTuning.sustainLevel,
+  // Four stages: pick attack, the fast settle right after it, the *body* that carries the note to
+  // the next onset, then the release tail. Only the settle is fast — a real string does not lose
+  // most of its energy in the first 50 ms, and an envelope that does makes every note read as a
+  // blip. Held pitch through the body is what a guitar sounds like; the attack transient (peak,
+  // pick noise, open filter) is what keeps it from sounding like an organ.
+  const sustain = Math.max(0.0002, peak * voiceTuning.sustainLevel);
+  // Keep the body a real span even for a very short note or a slow-settling tuning.
+  const bodyStart = Math.min(
     when + art.attackSec + voiceTuning.pluckDecaySec,
+    noteEnd - 0.01,
   );
-  amp.gain.exponentialRampToValueAtTime(0.0001, ringEnd);
+  // The body decays at a constant *rate*, not to a fixed level — so a quarter note holds nearly
+  // flat until the next note lands while a whole note audibly dies away, exactly as a string does.
+  // `exponentialRampToValueAtTime` between two breakpoints is exponential, so this half-life is
+  // literally what the ramp traces.
+  const halfLife = Math.max(0.05, voiceTuning.bodyHalfLifeSec * decay);
+  const bodyEndLevel = Math.max(0.0002, sustain * Math.pow(0.5, (noteEnd - bodyStart) / halfLife));
+
+  const envelope: EnvelopePoint[] = [
+    { t: when, v: 0.0001, curve: 'lin' },
+    { t: when + art.attackSec, v: peak, curve: 'lin' },
+    { t: bodyStart, v: sustain, curve: 'exp' },
+    { t: noteEnd, v: bodyEndLevel, curve: 'exp' },
+    { t: ringEnd, v: 0.0001, curve: 'exp' },
+  ];
+  applyEnvelope(amp.gain, envelope);
 
   oscA.connect(filter);
   oscB.connect(filter);
   filter.connect(amp);
   amp.connect(dest);
 
-  // Held notes get a hand vibrato, easing in the way a player's does — never from the first instant.
+  // Vibrato, easing in the way a player's hand does — never from the first instant. A long held
+  // note earns it; so does *any* bend, regardless of length, because a bend held dead still is the
+  // one that gives the synthesiser away. On a bend it starts as the push arrives at pitch.
   let lfo: OscillatorNode | null = null;
   let lfoDepth: GainNode | null = null;
-  if (ringEnd - when > voiceTuning.vibratoMinSec) {
+  const vibratoDelay = art.vibratoAtPitch
+    ? glideSec + 0.05
+    : voiceTuning.vibratoDelaySec;
+  if (art.vibratoAtPitch ? ringEnd - when > glideSec + 0.2 : ringEnd - when > voiceTuning.vibratoMinSec) {
     lfo = ctx.createOscillator();
     lfo.type = 'sine';
     lfo.frequency.value = voiceTuning.vibratoRateHz;
     lfoDepth = ctx.createGain();
     lfoDepth.gain.setValueAtTime(0, when);
-    lfoDepth.gain.setValueAtTime(0, when + voiceTuning.vibratoDelaySec);
-    lfoDepth.gain.linearRampToValueAtTime(voiceTuning.vibratoDepthCents, when + voiceTuning.vibratoDelaySec + 0.3);
+    lfoDepth.gain.setValueAtTime(0, when + vibratoDelay);
+    lfoDepth.gain.linearRampToValueAtTime(voiceTuning.vibratoDepthCents, when + vibratoDelay + 0.3);
     lfo.connect(lfoDepth);
     lfoDepth.connect(oscA.detune);
     lfoDepth.connect(oscB.detune);
@@ -293,32 +494,37 @@ export function pluck(
     lfo.stop(stopTime);
   }
 
-  let noise: AudioBufferSourceNode | null = null;
-  let noiseGain: GainNode | null = null;
-  let noiseFilter: BiquadFilterNode | null = null;
-  if (art.repick) {
-    noise = ctx.createBufferSource();
-    noise.buffer = pickNoise(ctx);
-    noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = voiceTuning.pickBandHz;
-    noiseFilter.Q.value = 0.8;
-    noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(voiceTuning.pickLevel * Math.min(1, Math.max(0, velocity)), when);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, when + 0.03);
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(dest);
-    noise.start(when);
-    noise.stop(when + 0.05);
-  }
+  // The attack transient. Always present — how a note *starts* is how you tell a hammer-on from a
+  // pull-off from a pick, and the pitch alone carries none of that.
+  const transient = art.transient;
+  const noise = ctx.createBufferSource();
+  noise.buffer = pickNoise(ctx);
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.value = Math.min(nyquist, voiceTuning.pickBandHz * transient.bandScale);
+  noiseFilter.Q.value = transient.q;
+  const noiseGain = ctx.createGain();
+  const base = transient.source === 'pick' ? voiceTuning.pickLevel : voiceTuning.slapLevel;
+  const noiseLevel = Math.max(
+    0.0001,
+    base * transient.levelScale * Math.min(1, Math.max(0, velocity)),
+  );
+  noiseGain.gain.setValueAtTime(noiseLevel, when);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, when + transient.decaySec);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(dest);
+  noise.start(when);
+  noise.stop(when + Math.min(NOISE_BUFFER_SEC, transient.decaySec + 0.02));
 
   oscA.start(when);
   oscB.start(when);
   oscA.stop(stopTime);
   oscB.stop(stopTime);
 
-  // Tear down nodes once done, so they don't accumulate over a long loop.
+  // Tear down nodes once done, so they don't accumulate over a long loop. Scheduled from the
+  // original stop time; an early `release` only ever brings the real end forward, and disconnecting
+  // an already-stopped node is harmless.
   const cleanupDelay = Math.max(0, (stopTime + 0.1 - ctx.currentTime) * 1000);
   setTimeout(() => {
     oscA.disconnect();
@@ -327,10 +533,37 @@ export function pluck(
     amp.disconnect();
     lfo?.disconnect();
     lfoDepth?.disconnect();
-    noise?.disconnect();
-    noiseFilter?.disconnect();
-    noiseGain?.disconnect();
+    noise.disconnect();
+    noiseFilter.disconnect();
+    noiseGain.disconnect();
   }, cleanupDelay);
+
+  let released = false;
+  return {
+    release(at: number, fadeSec: number): void {
+      // Only ever shortens a note, and only once — a voice already fading must not be re-armed.
+      if (released || at >= ringEnd) return;
+      released = true;
+      const end = at + Math.max(0.005, fadeSec);
+      // The gain has to be pinned at whatever the envelope had reached by `at` before the rest of
+      // the automation is dropped — a bare `cancelScheduledValues` rewinds the param to the last
+      // breakpoint that already passed, which reads as the note swelling and then ducking.
+      // `cancelAndHoldAtTime` does exactly this and keeps the ramp so far intact; where it is
+      // missing, compute the same level from the envelope we scheduled.
+      const gain = amp.gain as AudioParam & { cancelAndHoldAtTime?: (t: number) => void };
+      if (typeof gain.cancelAndHoldAtTime === 'function') {
+        gain.cancelAndHoldAtTime(at);
+      } else {
+        gain.cancelScheduledValues(at);
+        gain.setValueAtTime(Math.max(0.0002, envelopeLevelAt(envelope, at)), at);
+      }
+      gain.exponentialRampToValueAtTime(0.0001, end);
+      stopTime = end + 0.02;
+      oscA.stop(stopTime);
+      oscB.stop(stopTime);
+      lfo?.stop(stopTime);
+    },
+  };
 }
 
 // Dev only — see the matching note in engine.ts. The live `Transport` was constructed from the

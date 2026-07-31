@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { articulationFor, decayScaleForMidi, makeDriveCurve, midiToFrequency } from './voices';
+import {
+  articulationFor,
+  decayScaleForMidi,
+  envelopeLevelAt,
+  glideCurve,
+  makeDriveCurve,
+  midiToFrequency,
+} from './voices';
 
 describe('voice pitch math', () => {
   it('midiToFrequency: A4 (69) = 440 Hz, one octave up doubles', () => {
@@ -95,10 +102,12 @@ describe('decayScaleForMidi', () => {
   });
 });
 
+const ALL_TECHNIQUES = [undefined, 'hammer', 'pull', 'slide', 'bendHalf', 'bendFull'] as const;
+
 describe('articulationFor', () => {
   it('defaults to a plainly picked note', () => {
     const plain = articulationFor(undefined);
-    expect(plain.repick).toBe(true);
+    expect(plain.transient.source).toBe('pick');
     expect(plain.glideSec).toBe(0);
     expect(plain.velocityScale).toBe(1);
   });
@@ -106,28 +115,127 @@ describe('articulationFor', () => {
   it('hammer-ons and pull-offs are fretting-hand only — no new pick, and quieter', () => {
     for (const t of ['hammer', 'pull'] as const) {
       const art = articulationFor(t);
-      expect(art.repick).toBe(false);
+      expect(art.transient.source).toBe('slap');
       expect(art.velocityScale).toBeLessThan(1);
       expect(art.glideSec).toBe(0);
     }
   });
 
-  it('slides and bends glide from the previous pitch', () => {
-    for (const t of ['slide', 'bendHalf', 'bendFull'] as const) {
-      expect(articulationFor(t).glideSec).toBeGreaterThan(0);
+  it('every technique still makes a noise at the front, or you cannot hear which one it was', () => {
+    for (const t of ALL_TECHNIQUES) {
+      const { transient } = articulationFor(t, 3);
+      expect(transient.levelScale).toBeGreaterThan(0);
+      expect(transient.decaySec).toBeGreaterThan(0);
     }
   });
 
-  it('a full bend leans in slower than a half bend, and both slower than a slide', () => {
+  it('gives each fretting-hand technique its own colour — a slap is duller than a scrape', () => {
+    const hammer = articulationFor('hammer').transient;
+    const pull = articulationFor('pull').transient;
+    const slide = articulationFor('slide', 2).transient;
+    expect(hammer.bandScale).toBeLessThan(pull.bandScale);
+    expect(pull.bandScale).toBeLessThan(slide.bandScale);
+    // ...and a scrape runs long enough to cover the glide it belongs to.
+    expect(slide.decaySec).toBeGreaterThan(hammer.decaySec);
+  });
+
+  it('slides and bends glide from the previous pitch', () => {
+    for (const t of ['slide', 'bendHalf', 'bendFull'] as const) {
+      expect(articulationFor(t, 2).glideSec).toBeGreaterThan(0);
+    }
+  });
+
+  it('a longer slide takes longer — a hand crossing five frets is not a pitch jump', () => {
+    expect(articulationFor('slide', 5).glideSec).toBeGreaterThan(
+      articulationFor('slide', 2).glideSec,
+    );
+    // Direction does not change how far the hand travels.
+    expect(articulationFor('slide', -4).glideSec).toBeCloseTo(articulationFor('slide', 4).glideSec);
+  });
+
+  it('a full bend leans in slower than a half bend', () => {
     expect(articulationFor('bendFull').glideSec).toBeGreaterThan(
       articulationFor('bendHalf').glideSec,
     );
-    expect(articulationFor('bendHalf').glideSec).toBeGreaterThan(articulationFor('slide').glideSec);
+  });
+
+  it('only bends ease into pitch and shimmer once there — a slide runs at a constant rate', () => {
+    for (const t of ['bendHalf', 'bendFull'] as const) {
+      expect(articulationFor(t).glideEase).toBe(true);
+      expect(articulationFor(t).vibratoAtPitch).toBe(true);
+    }
+    expect(articulationFor('slide', 3).glideEase).toBe(false);
+    expect(articulationFor('slide', 3).vibratoAtPitch).toBe(false);
   });
 
   it('every articulation has a non-zero attack so nothing clicks', () => {
-    for (const t of [undefined, 'hammer', 'pull', 'slide', 'bendHalf', 'bendFull'] as const) {
+    for (const t of ALL_TECHNIQUES) {
       expect(articulationFor(t).attackSec).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('glideCurve', () => {
+  it('starts on the old pitch and lands exactly on the new one', () => {
+    const curve = glideCurve(60, 64, false, 32);
+    expect(curve[0]!).toBeCloseTo(midiToFrequency(60), 4);
+    expect(curve[31]!).toBeCloseTo(midiToFrequency(64), 4);
+  });
+
+  it('moves monotonically in both directions', () => {
+    const up = glideCurve(55, 62, true, 48);
+    for (let i = 1; i < up.length; i++) expect(up[i]!).toBeGreaterThanOrEqual(up[i - 1]!);
+    const down = glideCurve(62, 55, false, 48);
+    for (let i = 1; i < down.length; i++) expect(down[i]!).toBeLessThanOrEqual(down[i - 1]!);
+  });
+
+  it('interpolates in semitones, not Hz — the midpoint is the musical midpoint', () => {
+    // Linear-in-Hz would put the midpoint of an octave at 1.5x, a fifth sharp of the true one.
+    const curve = glideCurve(60, 72, false, 65);
+    expect(curve[32]!).toBeCloseTo(midiToFrequency(66), 4);
+  });
+
+  it('easing holds near the start pitch before committing, the way a bent string does', () => {
+    const eased = glideCurve(60, 62, true, 65);
+    const linear = glideCurve(60, 62, false, 65);
+    expect(eased[8]!).toBeLessThan(linear[8]!);
+    // ...and settles onto the target rather than arriving at full speed.
+    expect(eased[56]!).toBeGreaterThan(linear[56]!);
+  });
+});
+
+describe('envelopeLevelAt', () => {
+  const env = [
+    { t: 0, v: 0.0001, curve: 'lin' as const },
+    { t: 0.01, v: 1, curve: 'lin' as const },
+    { t: 0.1, v: 0.5, curve: 'exp' as const },
+    { t: 1, v: 0.25, curve: 'exp' as const },
+  ];
+
+  it('reads the breakpoints back exactly', () => {
+    for (const p of env) expect(envelopeLevelAt(env, p.t)).toBeCloseTo(p.v, 6);
+  });
+
+  it('clamps outside the envelope rather than extrapolating', () => {
+    expect(envelopeLevelAt(env, -5)).toBeCloseTo(0.0001, 6);
+    expect(envelopeLevelAt(env, 99)).toBeCloseTo(0.25, 6);
+  });
+
+  it('traces an exponential segment geometrically, matching what Web Audio schedules', () => {
+    // Halving from 0.5 to 0.25 over 0.9s: the midpoint is 0.5/sqrt(2), not 0.375.
+    expect(envelopeLevelAt(env, 0.55)).toBeCloseTo(0.5 / Math.SQRT2, 6);
+  });
+
+  it('traces a linear segment linearly', () => {
+    expect(envelopeLevelAt(env, 0.005)).toBeCloseTo(0.5, 3);
+  });
+
+  it('is monotonic across the decay, so a release never jumps up', () => {
+    let last = Infinity;
+    for (let t = 0.1; t <= 1; t += 0.02) {
+      const v = envelopeLevelAt(env, t);
+      expect(v).toBeLessThanOrEqual(last + 1e-9);
+      last = v;
     }
   });
 });
