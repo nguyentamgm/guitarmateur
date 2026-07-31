@@ -3,7 +3,7 @@ import type { Box } from '../fretboard';
 import { mulberry32 } from './rng';
 import { activeSlots, buildRhythm, patternLengthBeats } from './rhythm';
 import { pickChordTone, pickContour, pickFirstNote } from './contour';
-import { fillPath } from './path';
+import { countSameFretStringJumps, fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
 import { decorateTechniques } from './techniques';
 import type { Lick, LickNote, LickParams } from './model';
@@ -21,7 +21,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const targetChord = params.resolveToNext && next ? next : chord;
   const bars = params.bars ?? 1;
 
-  let best: { notes: LickNote[]; lengthBeats: number; score: number } | null = null;
+  let best: { notes: LickNote[]; lengthBeats: number; score: number; jumps: number } | null = null;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const rng = mulberry32(params.seed + attempt);
@@ -54,12 +54,22 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
       isDecoration: fretNote.isDecoration,
     }));
     const score = scoreLick(scorable, lengthBeats);
+    // `fillPath` steers away from same-fret string jumps, but `first` and `last` are chosen before
+    // it runs, so a short lick can still be handed one it never got to vote on. Re-seeding is the
+    // only fix left at that point — and an unplayable lick is worse than an off-target one, so it
+    // outranks the score both here and in the fallback.
+    const jumps = countSameFretStringJumps(path);
 
-    if (Math.abs(score - params.level) <= SCORE_TOLERANCE) {
+    if (jumps === 0 && Math.abs(score - params.level) <= SCORE_TOLERANCE) {
       return { notes, lengthBeats, difficulty: score };
     }
-    if (!best || Math.abs(score - params.level) < Math.abs(best.score - params.level)) {
-      best = { notes, lengthBeats, score };
+    const better =
+      !best ||
+      jumps < best.jumps ||
+      (jumps === best.jumps &&
+        Math.abs(score - params.level) < Math.abs(best.score - params.level));
+    if (better) {
+      best = { notes, lengthBeats, score, jumps };
     }
   }
 

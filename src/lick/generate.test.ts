@@ -3,6 +3,7 @@ import { TONICS, midi } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import type { Box } from '../fretboard';
 import { generateLick, type LickParams, type Lick } from './index';
+import { countSameFretStringJumps } from './path';
 
 // Build a known box: A minor pentatonic, standard tuning, position 1 (frets 0-3)
 const tonicA = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
@@ -212,5 +213,35 @@ describe('generateLick — integration', () => {
     }
     // Voice-led first notes should on average be closer to the anchor pitch
     expect(sumWithVL / seeds.length).toBeLessThan(sumWithout / seeds.length);
+  });
+});
+
+describe('generateLick — fretting-hand ergonomics', () => {
+  /** Position 4 puts a note at fret 5 on all six strings, so same-fret pairs are everywhere. */
+  const denseBox = mergedBox(pos, [pos.length - 1]);
+
+  it('never places two adjacent notes on the same fret across a skipped string', () => {
+    for (const b of [box, denseBox]) {
+      for (const level of [1, 2, 3, 4, 5] as LickParams['level'][]) {
+        for (let seed = 0; seed < 40; seed++) {
+          const lick = generateLick(b, chord, nextChord, { level, targetRole: 'R', resolveToNext: false, seed });
+          const jumps = countSameFretStringJumps(lick.notes);
+          expect(
+            jumps,
+            `level ${level} seed ${seed}: ${lick.notes.map((n) => `${n.string}/${n.fret}`).join(' ')}`,
+          ).toBe(0);
+        }
+      }
+    }
+  });
+
+  it('still generates licks at the requested difficulty — the rule does not starve the walk', () => {
+    for (const level of [1, 3, 5] as LickParams['level'][]) {
+      for (let seed = 0; seed < 20; seed++) {
+        const lick = generateLick(denseBox, chord, nextChord, { level, targetRole: 'R', resolveToNext: false, seed });
+        expect(lick.notes.length).toBeGreaterThan(0);
+        expect(allNotesInBox(lick, denseBox)).toBe(true);
+      }
+    }
   });
 });

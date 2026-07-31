@@ -23,6 +23,39 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
+/** Anything with a fretboard cell — `FretNote`, `LickNote`, or a bare position. */
+export interface FretCell {
+  string: number;
+  fret: number;
+}
+
+/**
+ * Whether stepping between these two cells needs one finger to hop across a skipped string and
+ * land back on the *same* fret — 3rd string fret 10 straight to 1st string fret 10, say.
+ *
+ * The finger has to leave the fretboard and come down again within one note, and the alternative
+ * (barre all three strings, mute the one in the middle) is harder still. It is an ergonomic dead
+ * end rather than a musical choice: the same pitch is almost always reachable elsewhere in the box.
+ *
+ * Deliberately limited to *skipped* strings. The same fret on **adjacent** strings is the exact
+ * opposite — the finger does not move at all, it rolls, which is fundamental guitar technique and
+ * unavoidable here anyway: in A minor pentatonic position 4, fret 5 carries a note on all six
+ * strings, so banning that shape would leave the box almost unplayable. Open strings are exempt
+ * for the same reason as the roll: no finger is involved, so there is nothing to move.
+ */
+export function isSameFretStringJump(a: FretCell, b: FretCell): boolean {
+  return a.fret === b.fret && a.fret > 0 && Math.abs(a.string - b.string) >= 2;
+}
+
+/** How many consecutive pairs along a path are same-fret string jumps. */
+export function countSameFretStringJumps(path: readonly FretCell[]): number {
+  let n = 0;
+  for (let i = 1; i < path.length; i++) {
+    if (isSameFretStringJump(path[i - 1]!, path[i]!)) n++;
+  }
+  return n;
+}
+
 /** How many positions before the immediate previous note count as "recently visited". */
 const RECENCY_WINDOW = 2;
 /** Weight subtracted per recent-window hit on a (string, fret) pair, suppressing A-B-A bounce. */
@@ -74,14 +107,24 @@ export function fillPath(
 
   for (let i = 1; i < count - 1; i++) {
     const progress = i / (count - 1);
-    const strict = box.notes.filter((cand) => {
+    // Ergonomics first: rule out same-fret string jumps before anything else weighs in. The last
+    // interior note is also checked against `last`, which is fixed and gets appended unexamined —
+    // otherwise the one transition nothing chooses is the one left free to be unplayable.
+    const isTail = i === count - 2;
+    const playable = box.notes.filter(
+      (cand) =>
+        !isSameFretStringJump(prev, cand) && !(isTail && isSameFretStringJump(cand, last)),
+    );
+    const strict = playable.filter((cand) => {
       if (!cap.allowSkips && Math.abs(cand.string - prev.string) > 1) return false;
       if (cand.isDecoration && level < 2) return false;
       const newMin = Math.min(usedMin, cand.fret);
       const newMax = Math.max(usedMax, cand.fret);
       return newMax - newMin <= cap.maxSpan;
     });
-    const pool = strict.length ? strict : box.notes;
+    // Relax the level caps before the ergonomic rule — a lick that overruns its fret span is still
+    // practisable, one that demands an impossible finger hop is not.
+    const pool = strict.length ? strict : playable.length ? playable : box.notes;
     const expected = expectedMidi(contour, firstMidi, lastMidi, progress);
     // Positions visited before `prev` (which the `repeat` factor already penalizes on its own).
     const recent = out.slice(-1 - RECENCY_WINDOW, -1);

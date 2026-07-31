@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fillPath } from './path';
+import { countSameFretStringJumps, fillPath, isSameFretStringJump } from './path';
 import { mulberry32 } from './rng';
 import { pitch, midi } from '../music';
 import type { Box, FretNote } from '../fretboard';
@@ -316,3 +316,108 @@ describe('fillPath', () => {
 function mulberry42(seed: number): ReturnType<typeof mulberry32> {
   return mulberry32(((seed * 2654435761) >>> 0) ^ 0xdeadbeef);
 }
+
+describe('isSameFretStringJump', () => {
+  it('flags the same fret across a skipped string — one finger cannot be in two places', () => {
+    // The 3rd string at fret 10 straight to the 1st string at fret 10.
+    expect(isSameFretStringJump(fn(3, 10), fn(5, 10))).toBe(true);
+    expect(isSameFretStringJump(fn(5, 10), fn(3, 10))).toBe(true);
+    expect(isSameFretStringJump(fn(0, 7), fn(4, 7))).toBe(true);
+  });
+
+  it('allows the same fret on adjacent strings — that is a finger roll, not a jump', () => {
+    expect(isSameFretStringJump(fn(2, 5), fn(3, 5))).toBe(false);
+    expect(isSameFretStringJump(fn(5, 12), fn(4, 12))).toBe(false);
+  });
+
+  it('allows open strings — there is no finger to move', () => {
+    expect(isSameFretStringJump(fn(0, 0), fn(5, 0))).toBe(false);
+  });
+
+  it('allows different frets, however far the hand travels', () => {
+    expect(isSameFretStringJump(fn(0, 5), fn(5, 7))).toBe(false);
+    expect(isSameFretStringJump(fn(3, 10), fn(3, 10))).toBe(false);
+  });
+});
+
+describe('countSameFretStringJumps', () => {
+  it('counts consecutive pairs only', () => {
+    expect(countSameFretStringJumps([fn(0, 5), fn(3, 5), fn(0, 5)])).toBe(2);
+    // Same fret at both ends but a different fret in between — no pair is a jump.
+    expect(countSameFretStringJumps([fn(0, 5), fn(1, 7), fn(3, 5)])).toBe(0);
+    expect(countSameFretStringJumps([])).toBe(0);
+    expect(countSameFretStringJumps([fn(0, 5)])).toBe(0);
+  });
+});
+
+describe('fillPath — fretting-hand ergonomics', () => {
+  /** Every note sits at fret 5 or fret 8, so same-fret pairs are the norm rather than a rarity. */
+  const sameFretBox: Box = {
+    notes: [
+      fn(0, 5, { pitch: fretPitch(0, 5) }),
+      fn(1, 5, { pitch: fretPitch(1, 5) }),
+      fn(2, 5, { pitch: fretPitch(2, 5) }),
+      fn(3, 5, { pitch: fretPitch(3, 5) }),
+      fn(4, 5, { pitch: fretPitch(4, 5) }),
+      fn(5, 5, { pitch: fretPitch(5, 5) }),
+      fn(0, 8, { pitch: fretPitch(0, 8) }),
+      fn(3, 8, { pitch: fretPitch(3, 8) }),
+      fn(5, 8, { pitch: fretPitch(5, 8) }),
+    ],
+    minFret: 5,
+    maxFret: 8,
+  };
+
+  it('never emits a same-fret string jump, even in a box built almost entirely from one fret', () => {
+    for (const level of [1, 2, 3, 4, 5] as const) {
+      for (let seed = 0; seed < 60; seed++) {
+        const path = fillPath(
+          sameFretBox,
+          fn(0, 5, { pitch: fretPitch(0, 5) }),
+          fn(5, 5, { pitch: fretPitch(5, 5) }),
+          6,
+          'ascend',
+          level,
+          mulberry42(seed),
+        );
+        expect(countSameFretStringJumps(path)).toBe(0);
+      }
+    }
+  });
+
+  it('guards the handover to `last`, which is fixed and never chosen by the walk', () => {
+    // `last` is 1st string fret 5; the note before it must not be fret 5 on a skipped string.
+    for (let seed = 0; seed < 60; seed++) {
+      const path = fillPath(
+        sameFretBox,
+        fn(0, 8, { pitch: fretPitch(0, 8) }),
+        fn(5, 5, { pitch: fretPitch(5, 5) }),
+        4,
+        'ascend',
+        5,
+        mulberry42(seed),
+      );
+      const penultimate = path[path.length - 2]!;
+      expect(isSameFretStringJump(penultimate, path[path.length - 1]!)).toBe(false);
+    }
+  });
+
+  it('still allows the adjacent-string roll it is not meant to prevent', () => {
+    let rolls = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const path = fillPath(
+        sameFretBox,
+        fn(0, 5, { pitch: fretPitch(0, 5) }),
+        fn(5, 5, { pitch: fretPitch(5, 5) }),
+        6,
+        'ascend',
+        5,
+        mulberry42(seed),
+      );
+      for (let i = 1; i < path.length; i++) {
+        if (path[i]!.fret === path[i - 1]!.fret && Math.abs(path[i]!.string - path[i - 1]!.string) === 1) rolls++;
+      }
+    }
+    expect(rolls).toBeGreaterThan(0);
+  });
+});
