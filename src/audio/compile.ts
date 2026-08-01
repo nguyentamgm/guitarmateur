@@ -76,7 +76,9 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
     licks.forEach((lick, entryIndex) => {
       lick.notes.forEach((note, noteIndex) => {
         let adjustedBeat = entryStartBeat + note.startBeat;
-        if (swing > 0 && Math.abs((note.startBeat % 1) - 0.5) < 0.01) {
+        // Swing only applies to off-beat 8th notes (durationBeats >= 0.5). 16ths keep their
+        // notated timing — swung-16th feels are already encoded as long-short durations in rhythm.ts.
+        if (swing > 0 && note.durationBeats >= 0.5 && Math.abs((note.startBeat % 1) - 0.5) < 0.01) {
           adjustedBeat += swing * (1 / 6);
         }
         // A technique articulates *into* a note, so it needs where the previous note was. Licks
