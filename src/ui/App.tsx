@@ -7,6 +7,28 @@ import { PracticeSection } from './components/PracticeSection';
 import { InstallPrompt } from './components/InstallPrompt';
 import { ErrorBoundary } from './ErrorBoundary';
 
+function legacyCopy(url: string, onCopied: () => void): void {
+  const ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  ta.readOnly = true;
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch {
+    // execCommand is deprecated; ignore errors
+  }
+  document.body.removeChild(ta);
+  if (ok) {
+    onCopied();
+  } else {
+    window.prompt('Copy this link:', url);
+  }
+}
+
 /**
  * App shell: header + the three practice steps. State is provided by `useAppState` and threaded
  * down to sections — each section is presentational apart from reading its slice of state.
@@ -20,10 +42,15 @@ export function App() {
   function handleShare() {
     const encoded = encodeState(state);
     const url = `${window.location.origin}${window.location.pathname}?s=${encodeURIComponent(encoded)}`;
-    navigator.clipboard.writeText(url).then(() => {
+    const onCopied = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(onCopied).catch(() => legacyCopy(url, onCopied));
+    } else {
+      legacyCopy(url, onCopied);
+    }
   }
 
   function handleExport() {
