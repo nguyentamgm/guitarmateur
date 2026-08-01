@@ -171,6 +171,30 @@ describe("swing feel", () => {
     for (const e of firstOfEachLick) expect(e.fromMidi).toBeUndefined();
   });
 
+  it('swing does not delay off-beat 16th notes', () => {
+    const l: Lick = {
+      lengthBeats: 4,
+      difficulty: 1,
+      notes: [
+        note(0.5, 0.25),
+        note(0.75, 0.25),
+        note(1.5, 0.25),
+        note(1.75, 0.25),
+      ],
+    };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 }).events);
+    expect(p[0]!.timeSec).toBeCloseTo(0.5);
+    expect(p[1]!.timeSec).toBeCloseTo(0.75);
+    expect(p[2]!.timeSec).toBeCloseTo(1.5);
+    expect(p[3]!.timeSec).toBeCloseTo(1.75);
+  });
+
+  it('swing still delays an off-beat 8th', () => {
+    const l: Lick = { lengthBeats: 4, difficulty: 1, notes: [note(0.5, 0.5)] };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 }).events);
+    expect(p[0]!.timeSec).toBeCloseTo(2 / 3);
+  });
+
   it('repeats restate fromMidi identically on every pass', () => {
     const l = lick(4, [0, 1]);
     const p = plucks(
