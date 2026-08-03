@@ -26,6 +26,91 @@ describe('App', () => {
     document.body.removeChild(container);
   });
 
+  describe('Export button download', () => {
+    let originalCreateObjectURL: PropertyDescriptor | undefined;
+    let originalRevokeObjectURL: PropertyDescriptor | undefined;
+    let revokeSpy: ReturnType<typeof vi.fn>;
+    let clickSpy: ReturnType<typeof vi.spyOn>;
+    let container: HTMLDivElement;
+    let root: ReturnType<typeof createRoot>;
+
+    beforeEach(() => {
+      originalCreateObjectURL = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+      originalRevokeObjectURL = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
+      revokeSpy = vi.fn();
+      Object.defineProperty(URL, 'createObjectURL', {
+        value: vi.fn(() => 'blob:fake-url'),
+        writable: true,
+        configurable: true,
+      });
+      Object.defineProperty(URL, 'revokeObjectURL', {
+        value: revokeSpy,
+        writable: true,
+        configurable: true,
+      });
+      clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click');
+    });
+
+    afterEach(async () => {
+      if (originalCreateObjectURL) {
+        Object.defineProperty(URL, 'createObjectURL', originalCreateObjectURL);
+      }
+      if (originalRevokeObjectURL) {
+        Object.defineProperty(URL, 'revokeObjectURL', originalRevokeObjectURL);
+      }
+      vi.restoreAllMocks();
+      await act(async () => {
+        root.unmount();
+      });
+      document.body.removeChild(container);
+    });
+
+    it('appends anchor, clicks, detaches, defers revokeObjectURL', async () => {
+      const { App } = await import('./App');
+      container = document.createElement('div');
+      document.body.appendChild(container);
+      root = createRoot(container);
+
+      await act(async () => {
+        root.render(createElement(StrictMode, null, createElement(App)));
+      });
+
+      const exportBtn = [...container.querySelectorAll('button')].find(
+        b => b.textContent?.trim() === 'Export',
+      )!;
+
+      let anchorWasInBody = false;
+      let anchorDownload = '';
+      clickSpy.mockImplementation(function (this: HTMLAnchorElement) {
+        anchorWasInBody = document.body.contains(this);
+        anchorDownload = this.download;
+      });
+
+      // Capture synchronous revoke state right after click, before any await yields
+      let revokeCalledSynchronously = false;
+      await act(async () => {
+        exportBtn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        revokeCalledSynchronously = revokeSpy.mock.calls.length > 0;
+      });
+
+      expect(clickSpy).toHaveBeenCalledOnce();
+      expect(anchorWasInBody).toBe(true);
+      expect(anchorDownload).toBe('guitarmateur-practice.json');
+
+      // Revoke must NOT have been called synchronously after the click dispatch
+      expect(revokeCalledSynchronously).toBe(false);
+
+      // After the next macrotask, revoke fires exactly once with the blob URL
+      await new Promise(r => setTimeout(r, 15));
+      expect(revokeSpy).toHaveBeenCalledOnce();
+      expect(revokeSpy).toHaveBeenCalledWith('blob:fake-url');
+
+      // Anchor was detached after click
+      const anchors = document.body.querySelectorAll('a[download="guitarmateur-practice.json"]');
+      expect(anchors.length).toBe(0);
+    });
+  });
+
   describe('Share button clipboard fallback', () => {
     let originalExecCommand: Document['execCommand'] | undefined;
 
