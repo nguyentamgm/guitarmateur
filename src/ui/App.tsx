@@ -60,8 +60,13 @@ export function App() {
     const a = document.createElement('a');
     a.href = url;
     a.download = 'guitarmateur-practice.json';
+    // Firefox ignores downloads on anchors that are not in the document, and revoking the
+    // object URL synchronously after click() can abort the download before it starts.
+    // Append, click, detach, then revoke on the next macrotask.
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   function handleImportClick() {
