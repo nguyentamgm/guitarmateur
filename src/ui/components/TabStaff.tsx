@@ -53,13 +53,16 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
   const y = (row: number) => padTop + row * rowGap;
   const x = (beat: number) => padL + (beat / beats) * stageW;
   const rowOf = (string: number) => numStrings - 1 - string;
+  /** Un-mirror a text glyph around its own x so the left-handed flip keeps it readable. */
+  const unmirror = (x: number): string | undefined =>
+    leftHanded ? `translate(${x} 0) scale(-1 1) translate(${-x} 0)` : undefined;
 
   if (lick.notes.length === 0) {
     return (
       <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? 'empty lick'}>
           {title && <title>{title}</title>}
-          <text x={W / 2} y={H / 2} fontSize={18} fill={theme.subtle} textAnchor="middle" dominantBaseline="middle">
+          <text x={W / 2} y={H / 2} fontSize={18} fill={theme.subtle} textAnchor="middle" dominantBaseline="middle" transform={unmirror(W / 2)}>
             —
           </text>
         </svg>
@@ -72,7 +75,7 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
   for (let row = 0; row < numStrings; row++) {
     els.push(<line key={`s${row}`} x1={padL} y1={y(row)} x2={padL + stageW} y2={y(row)} stroke={theme.line} strokeWidth={1} />);
     els.push(
-      <text key={`sl${row}`} x={padL - 8} y={y(row) + 3.5} fontSize={10} fill={theme.muted} textAnchor="end" fontFamily={font.mono}>
+      <text key={`sl${row}`} x={padL - 8} y={y(row) + 3.5} fontSize={10} fill={theme.muted} textAnchor="end" fontFamily={font.mono} transform={unmirror(padL - 8)}>
         {labels[numStrings - 1 - row]}
       </text>,
     );
@@ -84,7 +87,7 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
       <line key={`bt${b}`} x1={bx} y1={padTop - 6} x2={bx} y2={y(numStrings - 1)} stroke={theme.line} strokeWidth={0.5} strokeDasharray="1 3" />,
     );
     els.push(
-      <text key={`bn${b}`} x={bx} y={padTop - 10} fontSize={9} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono}>
+      <text key={`bn${b}`} x={bx} y={padTop - 10} fontSize={9} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono} transform={unmirror(bx)}>
         {b + 1}
       </text>,
     );
@@ -117,15 +120,16 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
             fill={theme.muted}
             textAnchor="end"
             fontFamily={font.mono}
+            transform={unmirror(cx - 6)}
           >
             {TECHNIQUE_GLYPHS[n.technique]}
           </text>
         )}
-        <text x={cx} y={cy + 4} fontSize={10.5} fill={active ? theme.accentText : theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600}>
+        <text x={cx} y={cy + 4} fontSize={10.5} fill={active ? theme.accentText : theme.text} textAnchor="middle" fontFamily={font.mono} fontWeight={600} transform={unmirror(cx)}>
           {n.fret}
         </text>
         {n.role && (
-          <text x={cx} y={cy + 11} fontSize={7} fill={theme.muted} textAnchor="middle" fontFamily={font.mono}>
+          <text x={cx} y={cy + 11} fontSize={7} fill={theme.muted} textAnchor="middle" fontFamily={font.mono} transform={unmirror(cx)}>
             {n.role}
           </text>
         )}
@@ -137,7 +141,7 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
   sorted.forEach((n, i) => {
     const cx = x(n.startBeat);
     els.push(
-      <text key={`d${i}`} x={cx} y={durY} fontSize={11} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono}>
+      <text key={`d${i}`} x={cx} y={durY} fontSize={11} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono} transform={unmirror(cx)}>
         {durationGlyph(n.durationBeats)}
       </text>,
     );

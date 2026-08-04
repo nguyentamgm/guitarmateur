@@ -55,6 +55,9 @@ export function FretboardDiagram({
   const bx = (fret: number) => padL + (fret - box.minFret + 0.5) * colW;
   /** Visual row for a string index (0 = lowest). Low string renders at the bottom. */
   const rowOf = (string: number) => numStrings - 1 - string;
+  /** Un-mirror a text glyph around its own x so the left-handed flip keeps it readable. */
+  const unmirror = (x: number): string | undefined =>
+    leftHanded ? `translate(${x} 0) scale(-1 1) translate(${-x} 0)` : undefined;
 
   const els: React.ReactNode[] = [];
 
@@ -79,7 +82,7 @@ export function FretboardDiagram({
     );
     if (!mini) {
       els.push(
-        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} fill={theme.muted} textAnchor="end" fontFamily="'JetBrains Mono', monospace">
+        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} fill={theme.muted} textAnchor="end" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL - 9)}>
           {stringLabels[numStrings - 1 - row]}
         </text>,
       );
@@ -97,7 +100,7 @@ export function FretboardDiagram({
   if (!mini) {
     for (let i = 0; i < count; i++) {
       els.push(
-        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} fill={theme.muted} textAnchor="middle" fontFamily="'JetBrains Mono', monospace">
+        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} fill={theme.muted} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL + (i + 0.5) * colW)}>
           {box.minFret + i}
         </text>,
       );
@@ -173,7 +176,7 @@ export function FretboardDiagram({
     }
     if (!mini && labels === 'names') {
       els.push(
-        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} fill={txt} textAnchor="middle" fontFamily={font.sans} fontWeight={n.isTonic || role ? 700 : 500}>
+        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} fill={txt} textAnchor="middle" fontFamily={font.sans} fontWeight={n.isTonic || role ? 700 : 500} transform={unmirror(bx(n.fret))}>
           {format(n.pitch)}
         </text>,
       );
@@ -188,6 +191,7 @@ export function FretboardDiagram({
             textAnchor="middle"
             fontFamily={font.mono}
             fontWeight={700}
+            transform={unmirror(bx(n.fret) + r - 1)}
           >
             {role}
           </text>,
