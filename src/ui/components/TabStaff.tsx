@@ -1,17 +1,9 @@
 import type { Lick } from '../../lick';
 import type { Technique } from '../../lick';
 import { font, theme } from '../theme';
+import { durationGlyph } from '../labels';
 
 const STRING_LABELS = ['E', 'A', 'D', 'G', 'B', 'E'];
-
-/**
- * Duration glyphs as compact beat-fraction text (1 = quarter, ½ = eighth, 2 = half, ¼ = sixteenth)
- * rather than musical noteheads — legible at 11px across platforms/fonts.
- */
-function durationGlyph(beats: number): string {
-  const table: Record<string, string> = { '2': '2', '1.5': '1½', '1': '1', '0.5': '½', '0.25': '¼' };
-  return table[String(beats)] ?? String(beats);
-}
 
 /** Standard tab articulation glyphs, prefixed before the fret number (e.g. "h7"). */
 const TECHNIQUE_GLYPHS: Record<Technique, string> = {

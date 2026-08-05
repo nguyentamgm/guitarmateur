@@ -6,6 +6,16 @@
 
 import { format, type NoteName, type Pitch, type ToneRole } from '../music';
 
+/**
+ * Duration glyphs as compact beat-fraction text (1 = quarter, ½ = eighth, 2 = half, ¼ = sixteenth)
+ * rather than musical noteheads — legible at 11px across platforms/fonts. Covers every duration the
+ * rhythm engine can emit (q/h/e/s/de/dq in `src/lick/rhythm.ts`).
+ */
+export function durationGlyph(beats: number): string {
+  const table: Record<string, string> = { '2': '2', '1.5': '1½', '1': '1', '0.75': '¾', '0.5': '½', '0.25': '¼' };
+  return table[String(beats)] ?? String(beats);
+}
+
 /** Human-readable name for a chord-tone role. */
 export function roleLabel(role: ToneRole): string {
   switch (role) {
