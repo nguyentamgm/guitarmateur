@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { defaultProgression } from './harmony';
-import { note } from './pitch';
+import { note, pc } from './pitch';
 import type { Key } from './key';
+import { chordNotes } from './chord';
 import type { Chord } from './chord';
+import { scalePcs } from './scales';
 import type { ScaleId } from './scales';
 
 /** Build a minimal Key from a tonic like 'C', 'Bb', or 'F#'. */
@@ -116,12 +118,12 @@ describe('defaultProgression', () => {
     expectChord(chords[3]!, 'G', 0, 'dom7');
   });
 
-  it('natural-minor: im7 - bIIImaj7 - bVIImaj7 - vm7', () => {
+  it('natural-minor: im7 - bIIImaj7 - bVII7 - vm7', () => {
     const chords = defaultProgression(key('A', 'natural-minor'));
     expect(chords).toHaveLength(4);
     expectChord(chords[0]!, 'A', 0, 'm7');
     expectChord(chords[1]!, 'C', 0, 'M7');
-    expectChord(chords[2]!, 'G', 0, 'M7');
+    expectChord(chords[2]!, 'G', 0, 'dom7');
     expectChord(chords[3]!, 'E', 0, 'm7');
   });
 
@@ -198,6 +200,21 @@ describe('defaultProgression', () => {
       const chords = defaultProgression(key('E', scaleId));
       expect(chords[0]!.tonic.letter).toBe('E');
       expect(chords[0]!.tonic.alter).toBe(0);
+    }
+  });
+
+  it('diatonic 7-note scales keep every chord tone inside the scale', () => {
+    const diatonic = ['major', 'dorian', 'mixolydian', 'natural-minor'] as const;
+    for (const scaleId of diatonic) {
+      for (const tonicTxt of ['A', 'C', 'G', 'D']) {
+        const k = key(tonicTxt, scaleId);
+        const scale = scalePcs(k);
+        for (const c of defaultProgression(k)) {
+          for (const n of chordNotes(c)) {
+            expect(scale.has(pc(n)), `${scaleId} ${tonicTxt}: ${n.letter}${n.alter} of ${c.quality} out of scale`).toBe(true);
+          }
+        }
+      }
     }
   });
 });

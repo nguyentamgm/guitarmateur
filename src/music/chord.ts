@@ -95,7 +95,7 @@ export function suggestedChords(key: Key): { chord: Chord; label: string; roman:
     return [
       make(t,                   'm7',  'i'),
       make(transpose(t, IV.m3), 'M7',  '♭III'),
-      make(transpose(t, IV.m7), 'M7',  '♭VII'),
+      make(transpose(t, IV.m7), 'dom7',  '♭VII'),
       make(transpose(t, IV.P5), 'm7',  'v'),
     ];
   }
