@@ -60,7 +60,7 @@ export function defaultProgression(key: Key): Chord[] {
     return [
       { tonic: t, quality: 'm7' },
       { tonic: transpose(t, IV.m3), quality: 'M7' },
-      { tonic: transpose(t, IV.m7), quality: 'M7' },
+      { tonic: transpose(t, IV.m7), quality: 'dom7' },
       { tonic: transpose(t, IV.P5), quality: 'm7' },
     ];
   }
