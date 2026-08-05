@@ -73,7 +73,7 @@ export function PlaybackControls({
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0 });
+      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0, clickGain, noteGain });
     }
   };
 

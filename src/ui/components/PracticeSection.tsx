@@ -64,6 +64,8 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
         countIn={countIn}
         loop={loop}
         swingEnabled={state.swingEnabled}
+        clickGain={state.clickGain}
+        noteGain={state.noteGain}
       />
       <SectionKicker style={{ marginBottom: 12 }}>Step 3 · Practice Licks</SectionKicker>
       <Panel>
