@@ -18,6 +18,9 @@ export interface TransportCallbacks {
 export interface PlayOptions extends CompileOptions {
   /** Repeat the progression indefinitely until stopped. */
   loop?: boolean;
+  /** Apply these mix gains to the live engine (the engine is created lazily on first play). */
+  clickGain?: number;
+  noteGain?: number;
 }
 
 /** Small lead so the first events are scheduled slightly in the future, never in the past. */
@@ -87,6 +90,9 @@ export class Transport {
     this.nextPassStartSec = startTime + first.totalDurationSec;
     this.cursor = 0;
     this.playing = true;
+
+    if (opts.clickGain !== undefined) this.setClickGain(opts.clickGain);
+    if (opts.noteGain !== undefined) this.setNoteGain(opts.noteGain);
 
     this.scheduler.start((windowEnd) => this.pump(windowEnd));
   }
