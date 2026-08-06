@@ -22,7 +22,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
 
   return (
     <section style={{ marginBottom: 34 }}>
-      <SectionKicker style={{ marginBottom: 12 }}>Step 1 · Scale &amp; Position</SectionKicker>
+      <SectionKicker style={{ marginBottom: 12 }}>Step 1 · Scale &amp; Box</SectionKicker>
       <Panel>
         {/* Tuning picker */}
         <Label style={{ marginTop: 0 }}>Tuning</Label>
@@ -55,12 +55,12 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
         </Row>
 
         {/* Position cards */}
-        <Label style={{ marginTop: 18 }}>Positions</Label>
+        <Label style={{ marginTop: 18 }}>Boxes</Label>
         <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6 }}>
-          {pos.map((p) => (
+          {pos.map((p, i) => (
             <PositionCard
               key={p.index}
-              index={p.index}
+              displayNumber={i + 1}
               range={`frets ${p.minFret}–${p.maxFret}`}
               recommended={p.index === rec}
               selected={state.positions.includes(p.index)}
@@ -100,14 +100,14 @@ function Row({ children }: { children: React.ReactNode }) {
 }
 
 function PositionCard({
-  index,
+  displayNumber,
   range,
   recommended,
   selected,
   onClick,
   box,
 }: {
-  index: number;
+  displayNumber: number;
   range: string;
   recommended: boolean;
   selected: boolean;
@@ -135,12 +135,12 @@ function PositionCard({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: theme.text }}>Position {index + 1}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: theme.text }}>Box {displayNumber}</span>
         {recommended && (
           <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', color: theme.accent, fontFamily: font.mono }}>REC</span>
         )}
       </div>
-      <FretboardDiagram box={box} mini title={`Position ${index + 1}, ${range}`} />
+      <FretboardDiagram box={box} mini title={`Box ${displayNumber}, ${range}`} />
       <div style={{ fontSize: 11, color: theme.muted, marginTop: 6, fontFamily: font.mono }}>{range}</div>
     </button>
   );
