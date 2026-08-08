@@ -78,11 +78,14 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
     els.push(
       <line key={`bt${b}`} x1={bx} y1={padTop - 6} x2={bx} y2={y(numStrings - 1)} stroke={theme.line} strokeWidth={0.5} strokeDasharray="1 3" />,
     );
-    els.push(
-      <text key={`bn${b}`} x={bx} y={padTop - 10} fontSize={9} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono} transform={unmirror(bx)}>
-        {b + 1}
-      </text>,
-    );
+    // The final tick (b === beats) is the closing barline, not a beat start, so it must not be numbered.
+    if (b < Math.floor(beats)) {
+      els.push(
+        <text key={`bn${b}`} x={bx} y={padTop - 10} fontSize={9} fill={theme.subtle} textAnchor="middle" fontFamily={font.mono} transform={unmirror(bx)}>
+          {b + 1}
+        </text>,
+      );
+    }
   }
 
   // Note order matches `lick.notes` (already ascending by startBeat), so the index lines up with
