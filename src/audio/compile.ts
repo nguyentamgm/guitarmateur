@@ -76,14 +76,33 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
     licks.forEach((lick, entryIndex) => {
       lick.notes.forEach((note, noteIndex) => {
         let adjustedBeat = entryStartBeat + note.startBeat;
-        // Swing only applies to off-beat 8th notes (durationBeats >= 0.5). 16ths keep their
-        // notated timing — swung-16th feels are already encoded as long-short durations in rhythm.ts.
-        if (swing > 0 && note.durationBeats >= 0.5 && Math.abs((note.startBeat % 1) - 0.5) < 0.01) {
+        // A technique articulates *into* a note, so it needs where the previous note was. Licks
+        // never articulate across a chord change, hence the lookup stays inside this lick. We also
+        // consult `prev` in the swing block below to spot the closing 8th of a notated shuffle unit.
+        const prev = noteIndex > 0 ? lick.notes[noteIndex - 1] : undefined;
+        // The app has two independent swing mechanisms and this note can sit at the seam of both.
+        // (1) The Swing toggle delays off-beat 8th notes (durationBeats >= 0.5) by swing * (1/6) beat.
+        // (2) rhythm.ts also notates a shuffle feel directly, as the dotted-quarter + 8th `shuffleUnit`
+        //     (a 1.5-beat long half followed by a 0.5-beat 8th on the "and") — the long-short pair
+        //     already encodes the 3:1 boogie by its durations.
+        // If both fire on that closing 8th, the notated 3:1 (gaps 1.5, 0.5) collapses into a 5:1 lurch
+        // (gaps 1.667, 0.333). So skip the swing offset when this note closes a shuffle unit: it must
+        // keep its notated time. We detect that via the previous note being the dotted quarter
+        // (durationBeats === 1.5, which occurs only as shuffleUnit's long half) exactly 1.5 beats
+        // earlier. This mirrors the 16th-grid fix from commit e22c559 (PR #67). 16ths keep their
+        // notated timing too — swung-16th feels are already encoded as long-short durations.
+        const closesShuffleUnit =
+          prev !== undefined &&
+          prev.durationBeats === 1.5 &&
+          Math.abs(note.startBeat - prev.startBeat - 1.5) < 1e-9;
+        if (
+          swing > 0 &&
+          note.durationBeats >= 0.5 &&
+          Math.abs((note.startBeat % 1) - 0.5) < 0.01 &&
+          !closesShuffleUnit
+        ) {
           adjustedBeat += swing * (1 / 6);
         }
-        // A technique articulates *into* a note, so it needs where the previous note was. Licks
-        // never articulate across a chord change, hence the lookup stays inside this lick.
-        const prev = noteIndex > 0 ? lick.notes[noteIndex - 1] : undefined;
         events.push({
           timeSec: adjustedBeat * secPerBeat,
           kind: 'pluck',
