@@ -195,6 +195,41 @@ describe("swing feel", () => {
     expect(p[0]!.timeSec).toBeCloseTo(2 / 3);
   });
 
+  it('does not re-swing the 8th that closes a notated shuffle unit', () => {
+    // Two dotted-quarter + 8th shuffle units (rhythm.ts shuffleUnit): the 3:1 long-short boogie
+    // is already notated, so the closing 8ths at 1.5 and 3.5 must keep their notated time even
+    // with the Swing toggle on — otherwise the 3:1 feel would collapse into a 5:1 lurch.
+    const l: Lick = {
+      lengthBeats: 4,
+      difficulty: 3,
+      notes: [note(0, 1.5), note(1.5, 0.5), note(2, 1.5), note(3.5, 0.5)],
+    };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 }).events);
+    expect(p.map((e) => e.timeSec)).toEqual([0, 1.5, 2, 3.5]);
+  });
+
+  it('keeps shuffle-unit 8ths notated per-note across a 2-bar lick', () => {
+    // The guard is per-note, so a second-bar shuffle unit's closing 8th at 5.5 stays notated too.
+    const l: Lick = {
+      lengthBeats: 8,
+      difficulty: 3,
+      notes: [
+        note(0, 1.5), note(1.5, 0.5), note(2, 1.5), note(3.5, 0.5),
+        note(4, 1.5), note(5.5, 0.5), note(6, 1.5), note(7.5, 0.5),
+      ],
+    };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 }).events);
+    expect(p.map((e) => e.timeSec)).toEqual([0, 1.5, 2, 3.5, 4, 5.5, 6, 7.5]);
+  });
+
+  it('still swings an off-beat 8th that does not close a shuffle unit', () => {
+    // The previous note is a dotted quarter but is NOT 1.5 beats before this 8th (gap is 2.5),
+    // so this is not a shuffle unit and the swing offset must still apply.
+    const l: Lick = { lengthBeats: 4, difficulty: 1, notes: [note(0, 1.5), note(2.5, 0.5)] };
+    const p = plucks(compileProgression([l], { tempoBpm: 60, metronome: false, swing: 1 }).events);
+    expect(p[1]!.timeSec).toBeCloseTo(2.5 + 1 / 6);
+  });
+
   it('repeats restate fromMidi identically on every pass', () => {
     const l = lick(4, [0, 1]);
     const p = plucks(
