@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { note, pc, scalePcs, SCALE_IDS, SCALES, type Key, type ScaleId } from '../music';
 import { TUNINGS } from './tuning';
 import { positions } from './positions';
+import { scaleNotesOnNeck } from './neck';
 import { areAdjacent, mergedBox } from './merge';
 import { recommendedPosition } from './recommend';
 
@@ -103,6 +104,41 @@ describe('decoration — blues fills the minor-pentatonic boxes', () => {
         expect(pc(d.pitch)).toBe(3); // ♭5 of A
         expect(d.fret).toBeGreaterThanOrEqual(b.minFret);
         expect(d.fret).toBeLessThanOrEqual(b.maxFret);
+      }
+    }
+  });
+
+  it('degrees index the full blues list: ♭5 is 4, P5 is 5, no collisions', () => {
+    for (const b of blues) {
+      // ♭5 decorations (E♭ = pc 3) are the 4th interval of the full blues list.
+      for (const d of b.notes.filter((n) => n.isDecoration)) {
+        expect(d.degree).toBe(4);
+      }
+      // The base P5 (E = pc 4) is degree 5, never 4.
+      for (const n of b.notes.filter((n) => !n.isDecoration && pc(n.pitch) === 4)) {
+        expect(n.degree).toBe(5);
+        expect(n.degree).not.toBe(4);
+      }
+      // No two notes with different pitch classes share a degree.
+      const byDegree = new Map<number, number>();
+      for (const n of b.notes) {
+        const seen = byDegree.get(n.degree);
+        if (seen !== undefined) expect(pc(n.pitch)).toBe(seen);
+        else byDegree.set(n.degree, pc(n.pitch));
+      }
+    }
+  });
+
+  it('positions() and scaleNotesOnNeck() agree on degree for every shared cell', () => {
+    const key: Key = { tonic: note('A'), scaleId: 'blues' };
+    const neckByCell = new Map<string, number>();
+    for (const n of scaleNotesOnNeck(TUNINGS.standard, key)) {
+      neckByCell.set(`${n.string}:${n.fret}`, n.degree);
+    }
+    for (const p of positions(TUNINGS.standard, key)) {
+      for (const n of p.notes) {
+        const neckDegree = neckByCell.get(`${n.string}:${n.fret}`);
+        expect(neckDegree).toBe(n.degree);
       }
     }
   });
