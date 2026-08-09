@@ -29,6 +29,9 @@ export function positions(tuning: Tuning, key: Key): Position[] {
   const numStrings = tuning.strings.length;
 
   const spelling = scaleSpelling(baseKey);
+  // Degrees are indexed into the FULL scale's interval list (see FretNote.degree);
+  // for decorated scales that differs from the base scale the box shape comes from.
+  const degreeSpelling = def.decoration ? scaleSpelling(key) : spelling;
   const openMidi = (s: number) => midi(tuning.strings[s]!);
   const startPc = (di: number) => pc(transpose(key.tonic, baseDef.intervals[mod(di, N)]!));
 
@@ -42,7 +45,7 @@ export function positions(tuning: Tuning, key: Key): Position[] {
       string: s,
       fret,
       pitch: pitchAt(entry.name, m),
-      degree: entry.degree,
+      degree: degreeSpelling.get(mod(m, 12))!.degree,
       isTonic: entry.degree === 1,
       isDecoration: false,
     };
