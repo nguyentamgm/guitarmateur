@@ -1,3 +1,6 @@
+// The version suffix is stamped at build time (see vite.config.ts) so each deploy creates a
+// fresh cache and the activate handler prunes the previous deploy's. Keep the placeholder
+// string exactly 'guitarmateur-v1'.
 const CACHE_NAME = 'guitarmateur-v1';
 
 // On install, cache the shell document and nothing else — assets are cached on first fetch.
