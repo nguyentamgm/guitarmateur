@@ -25,15 +25,18 @@ export const CHORD_QUALITIES: Record<QualityId, { name: string; intervals: Inter
 
 const ROLE_ORDER: ToneRole[] = ['R', '3', '5', '7'];
 
+const mod = (n: number, m: number): number => ((n % m) + m) % m;
+
 export function chordNotes(chord: Chord): NoteName[] {
   return CHORD_QUALITIES[chord.quality].intervals.map((iv) => transpose(chord.tonic, iv));
 }
 
 export function toneRole(note: NoteName, chord: Chord): ToneRole | null {
   const notePc = pc(note);
+  const tonicPc = pc(chord.tonic);
   const { intervals } = CHORD_QUALITIES[chord.quality];
   for (let i = 0; i < intervals.length; i++) {
-    if (pc(transpose(chord.tonic, intervals[i]!)) === notePc) {
+    if (mod(tonicPc + intervals[i]!.semitones, 12) === notePc) {
       return ROLE_ORDER[i] ?? null;
     }
   }

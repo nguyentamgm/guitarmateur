@@ -14,6 +14,17 @@ describe('chordNotes / toneRole', () => {
     expect(toneRole(note('C', 0), chord)).toBeNull();
   });
 
+  it('toneRole does not throw on theoretical-key (double-flat) chord tonics', () => {
+    // F𝄫 (F double-flat, pc 3) — transpose(F𝄫, m7) requires alter -3 and used to throw RangeError.
+    // dom7 chord-tone pitch classes above pc 3: R=3, 3=7, 5=10, 7=1.
+    const chord: Chord = { tonic: note('F', -2), quality: 'dom7' };
+    expect(toneRole(note('F', -2), chord)).toBe('R'); // pc 3
+    expect(toneRole(note('G', 0), chord)).toBe('3'); // pc 7
+    expect(toneRole(note('C', -2), chord)).toBe('5'); // pc 10 (C𝄫)
+    expect(toneRole(note('D', -1), chord)).toBe('7'); // pc 1
+    expect(toneRole(note('A', 0), chord)).toBeNull(); // pc 9, not a chord tone
+  });
+
   it('E7 (dominant) tones', () => {
     const chord: Chord = { tonic: note('E'), quality: 'dom7' };
     expect(chordNotes(chord).map((n) => n.letter)).toEqual(['E', 'G', 'B', 'D']);
