@@ -6,6 +6,7 @@ import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker } from './primitives';
 import { FretboardDiagram } from './FretboardDiagram';
 import { Legend } from './Legend';
+import { decorationLegendEntries } from '../labels';
 
 const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
@@ -77,7 +78,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
             items={[
               { type: 'tonic', label: 'root' },
               { type: 'scaleNote', label: 'scale note' },
-              ...(key.scaleId === 'blues' ? [{ type: 'decoration' as const, label: '♭5 (blue note)' }] : []),
+              ...decorationLegendEntries(key.scaleId),
             ]}
           />
           <div style={{ overflowX: 'auto', marginTop: 12 }}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { note, pitch, type ToneRole } from '../music';
-import { durationGlyph, roleLabel, targetBadgeText } from './labels';
+import { note, pitch, IV, SCALES, type ToneRole } from '../music';
+import { durationGlyph, intervalLabel, roleLabel, targetBadgeText } from './labels';
 
 describe('durationGlyph', () => {
   it('maps every rhythm-engine duration to a compact fraction glyph', () => {
@@ -11,6 +11,31 @@ describe('durationGlyph', () => {
     expect(durationGlyph(0.75)).toBe('¾');
     expect(durationGlyph(0.5)).toBe('½');
     expect(durationGlyph(0.25)).toBe('¼');
+  });
+});
+
+describe('intervalLabel', () => {
+  it('names every registry interval with the correct accidental against the major scale', () => {
+    expect(intervalLabel(IV.P1)).toBe('1');
+    expect(intervalLabel(IV.m2)).toBe('♭2');
+    expect(intervalLabel(IV.M2)).toBe('2');
+    expect(intervalLabel(IV.m3)).toBe('♭3');
+    expect(intervalLabel(IV.M3)).toBe('3');
+    expect(intervalLabel(IV.P4)).toBe('4');
+    expect(intervalLabel(IV.d5)).toBe('♭5');
+    expect(intervalLabel(IV.P5)).toBe('5');
+    expect(intervalLabel(IV.m6)).toBe('♭6');
+    expect(intervalLabel(IV.M6)).toBe('6');
+    expect(intervalLabel(IV.m7)).toBe('♭7');
+    expect(intervalLabel(IV.M7)).toBe('7');
+    expect(intervalLabel(IV.P8)).toBe('8');
+  });
+
+  it('names the added tone of every decorated scale', () => {
+    expect(SCALES.blues.decoration).toBeDefined();
+    expect(SCALES['major-blues'].decoration).toBeDefined();
+    expect(intervalLabel(SCALES.blues.decoration!.addedIntervals[0]!)).toBe('♭5');
+    expect(intervalLabel(SCALES['major-blues'].decoration!.addedIntervals[0]!)).toBe('♭3');
   });
 });
 
