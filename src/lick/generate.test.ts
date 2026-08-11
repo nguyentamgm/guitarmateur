@@ -44,7 +44,9 @@ function lastNoteSustainsToBar(lick: Lick): boolean {
 
 describe('generateLick — integration', () => {
   const levels: LickParams['level'][] = [1, 2, 3, 4, 5];
-  const roles: LickParams['targetRole'][] = ['R', '3', '5'];
+  // '7' is offered by the UI (PracticeSection renders all four roles). Over Am there is no 7th in
+  // the box, so it exercises the whole fallback chain (7 → 3 → 5 → R → chord tone → any note).
+  const roles: LickParams['targetRole'][] = ['R', '3', '5', '7'];
 
   it('is deterministic: same inputs => identical lick', () => {
     const params: LickParams = { level: 2, targetRole: 'R', resolveToNext: false, seed: 42 };
