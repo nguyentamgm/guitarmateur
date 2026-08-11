@@ -4,7 +4,34 @@
  * the wrong note is exactly the kind of bug a smoke test never catches.
  */
 
-import { format, type NoteName, type Pitch, type ToneRole } from '../music';
+import { format, SCALES, type Interval, type NoteName, type Pitch, type ScaleId, type ToneRole } from '../music';
+
+/** Diatonic (major-scale) semitone count for each letter degree, octave included. */
+const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11, 12];
+
+/**
+ * Diatonic interval name for an interval, with accidentals relative to the major scale: P1 → '1',
+ * m3 → '♭3', d5 → '♭5', M7 → '7', P8 → '8'. Used for labels like the legend's blue-note entry,
+ * which must name the actual added tone of whichever decorated scale is selected (blues ♭5,
+ * major blues ♭3) rather than a hardcoded one.
+ */
+export function intervalLabel(iv: Interval): string {
+  const major = DIATONIC_SEMITONES[iv.degrees] ?? iv.semitones;
+  const diff = iv.semitones - major;
+  const acc = diff > 0 ? '♯'.repeat(diff) : diff < 0 ? '♭'.repeat(-diff) : '';
+  return `${acc}${iv.degrees + 1}`;
+}
+
+/**
+ * Legend entries for a scale's added ("blue note") tones. Registry-driven so every decorated scale
+ * is explained — the blues ♭5 and the major-blues ♭3 both render with the dashed decoration ring,
+ * and each must be named by its own interval, not a hardcoded one.
+ */
+export function decorationLegendEntries(scaleId: ScaleId): { type: 'decoration'; label: string }[] {
+  const dec = SCALES[scaleId].decoration;
+  if (!dec) return [];
+  return dec.addedIntervals.map((iv) => ({ type: 'decoration' as const, label: `${intervalLabel(iv)} (blue note)` }));
+}
 
 /**
  * Duration glyphs as compact beat-fraction text (1 = quarter, ½ = eighth, 2 = half, ¼ = sixteenth)

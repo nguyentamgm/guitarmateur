@@ -11,7 +11,7 @@ import { TabStaff } from './TabStaff';
 import { PlaybackControls } from './PlaybackControls';
 import { useTransport } from '../useTransport';
 import { KeyboardShortcuts } from '../KeyboardShortcuts';
-import { roleLabel, targetBadgeText } from '../labels';
+import { roleLabel, targetBadgeText, decorationLegendEntries } from '../labels';
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
@@ -165,6 +165,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                   { type: 'chordTone', label: 'chord tone' },
                   { type: 'target', label: `target · ${targetLabel}` },
                   { type: 'landing', label: 'landing note' },
+                  ...decorationLegendEntries(state.key.scaleId),
                 ]}
               />
             </div>
