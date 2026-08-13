@@ -41,7 +41,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
       pitch: fretNote.pitch,
       startBeat: slots[i]!.startBeat,
       durationBeats: slots[i]!.durationBeats,
-      role: toneRole(fretNote.pitch, chord) ?? undefined,
+      role: toneRole(fretNote.pitch, i === path.length - 1 ? targetChord : chord) ?? undefined,
     }));
 
     const notes = decorateTechniques(rawNotes, params.level, mulberry32(params.seed + attempt + 1000));

@@ -197,6 +197,24 @@ describe('generateLick — integration', () => {
     }
   });
 
+  it('resolveToNext: landing note role is relative to the NEXT chord, not the current one', () => {
+    // Am → C major, target the root: the lick lands on C (root of the next chord),
+    // so its stored role must be 'R', not '3' (C is the ♭3 of Am).
+    const tonicC = TONICS.find((t) => t.letter === 'C' && t.alter === 0)!;
+    for (let seed = 0; seed < 50; seed++) {
+      const lick = generateLick(box, chord, { tonic: tonicC, quality: 'M' }, {
+        level: 2, targetRole: 'R', resolveToNext: true, seed, bars: 1,
+      });
+      const last = lick.notes[lick.notes.length - 1]!;
+      const nextPcs = [0, 4, 7]; // C major: C, E, G
+      const pcs = (p: typeof last.pitch) => midi(p) % 12;
+      if (nextPcs.includes(pcs(last.pitch)) && pcs(last.pitch) === 0) {
+        // Landed on C — the root of the next chord — so role must be R, never 3.
+        expect(last.role).toBe('R');
+      }
+    }
+  });
+
   it('voice leading: second lick first note is biased toward previous lick last note', () => {
     const params: LickParams = { level: 3, targetRole: 'R', resolveToNext: false, seed: 7 };
     const lick1 = generateLick(box, chord, null, params);
