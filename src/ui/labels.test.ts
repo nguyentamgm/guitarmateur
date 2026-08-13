@@ -81,4 +81,10 @@ describe('targetBadgeText', () => {
   it('falls back to the chord root only when there is no lick to land anywhere', () => {
     expect(targetBadgeText('5', undefined, bFlatTonic)).toBe('target · 5th (B♭)');
   });
+
+  it('resolveToNext: badge shows the target role with no fallback arrow when the landing note is the next chord root', () => {
+    // C (root of the next chord) landing on Am→C with target Root: role 'R', no arrow.
+    const landing = { pitch: pitch('C', 0, 4), role: 'R' as const };
+    expect(targetBadgeText('R', landing, note('A'))).toBe('target · Root (C)');
+  });
 });
