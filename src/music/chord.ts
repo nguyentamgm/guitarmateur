@@ -10,11 +10,6 @@ export interface Chord {
   quality: QualityId;
 }
 
-export interface ChordEntry {
-  chord: Chord;
-  roman?: string;
-}
-
 export const CHORD_QUALITIES: Record<QualityId, { name: string; intervals: Interval[] }> = {
   m:    { name: 'minor', intervals: [IV.P1, IV.m3, IV.P5] },
   M:    { name: 'major', intervals: [IV.P1, IV.M3, IV.P5] },
