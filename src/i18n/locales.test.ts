@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CHORD_QUALITIES } from '../music/chord';
 import { SCALES } from '../music/scales';
 import { TUNINGS } from '../fretboard/tuning';
-import { LOCALES, MESSAGES } from './index';
+import { LOCALES, MESSAGES, isLocaleId } from './index';
 import { validateLocale } from './validate';
 import type { LocaleId } from './types';
 
@@ -33,5 +33,15 @@ describe('locale catalogs', () => {
     for (const id of Object.keys(TUNINGS)) {
       expect(reference[`tuning.${id}` as keyof typeof reference]).toBe(TUNINGS[id as keyof typeof TUNINGS]!.name);
     }
+  });
+
+  it('isLocaleId accepts every shipped locale and rejects garbage', () => {
+    for (const id of Object.keys(LOCALES)) {
+      expect(isLocaleId(id)).toBe(true);
+    }
+    expect(isLocaleId('fr')).toBe(false);
+    expect(isLocaleId('')).toBe(false);
+    expect(isLocaleId(undefined)).toBe(false);
+    expect(isLocaleId(42)).toBe(false);
   });
 });

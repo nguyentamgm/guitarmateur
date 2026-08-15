@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TONICS } from '../music';
+import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
 import { encodeState, decodeState, exportStateToJson, importStateFromJson } from './share';
 
@@ -12,7 +13,7 @@ describe('share: encode/decode', () => {
     const decoded = decodeState(encoded);
 
     expect(decoded).not.toBeNull();
-    expect(decoded!.schemaVersion).toBe(6);
+    expect(decoded!.schemaVersion).toBe(7);
     expect(decoded!.key.tonic).toEqual(state.key.tonic);
     expect(decoded!.key.scaleId).toBe(state.key.scaleId);
     expect(decoded!.tuningId).toBe(state.tuningId);
@@ -79,7 +80,7 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     const imported = importStateFromJson(json);
 
     expect(imported).not.toBeNull();
-    expect(imported!.schemaVersion).toBe(6);
+    expect(imported!.schemaVersion).toBe(7);
     expect(imported!.key.tonic).toEqual(state.key.tonic);
     expect(imported!.key.scaleId).toBe(state.key.scaleId);
     expect(imported!.tuningId).toBe(state.tuningId);
@@ -95,7 +96,7 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     const state = defaultState(() => 1);
     const json = exportStateToJson(state);
     const obj = JSON.parse(json) as Record<string, unknown>;
-    expect(obj.v).toBe(6);
+    expect(obj.v).toBe(7);
     expect(obj.state).toBeTruthy();
   });
 
@@ -104,6 +105,29 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     const json = exportStateToJson(state);
     const obj = JSON.parse(json) as { state: Record<string, unknown> };
     expect(obj.state.ui).toBeUndefined();
+  });
+
+  it('excludes language from share links and exports (device preference, not practice state)', () => {
+    const state = defaultState(() => 1);
+
+    const encoded = encodeState(state);
+    const rawEncoded = JSON.parse(decodeURIComponent(atob(encoded.slice('v1:'.length))));
+    expect(rawEncoded).not.toHaveProperty('language');
+
+    const json = exportStateToJson(state);
+    const obj = JSON.parse(json) as { state: Record<string, unknown> };
+    expect(obj.state).not.toHaveProperty('language');
+  });
+
+  it('decodeState/importStateFromJson keep the caller-supplied language when payload has none', () => {
+    const state = defaultState(() => 1);
+    const encoded = encodeState(state);
+    const decoded = decodeState(encoded, 'vi' as LocaleId);
+    expect(decoded!.language).toBe('vi');
+
+    const json = exportStateToJson(state);
+    const imported = importStateFromJson(json, 'vi' as LocaleId);
+    expect(imported!.language).toBe('vi');
   });
 
   it('returns null for non-JSON input', () => {

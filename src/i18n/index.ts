@@ -9,4 +9,4 @@ export { detectLocale, DEFAULT_LOCALE } from './detect';
 export type { LocaleReport } from './validate';
 export { validateLocale } from './validate';
 
-export { LOCALES, MESSAGES } from './locales';
+export { LOCALES, MESSAGES, isLocaleId } from './locales';
