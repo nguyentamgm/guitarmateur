@@ -42,29 +42,34 @@ export default tseslint.config(
   // --- Layer-boundary enforcement ---
   {
     files: ['src/music/**/*.ts'],
-    ...forbid([...noReact, '**/fretboard/**', '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
+    ...forbid([...noReact, '**/fretboard/**', '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'],
       'src/music may not import React or a higher layer (music is the lowest layer).'),
   },
   {
     files: ['src/fretboard/**/*.ts'],
-    ...forbid([...noReact, '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
+    ...forbid([...noReact, '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'],
       'src/fretboard may only import from src/music.'),
   },
   {
     files: ['src/lick/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**'], message: 'src/lick may only import from src/fretboard and src/music.' }] }],
+      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'], message: 'src/lick may only import from src/fretboard and src/music.' }] }],
       'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from ./rng instead of Math.random.' }],
     },
   },
   {
     files: ['src/state/**/*.ts'],
     ...forbid([...noReact, '**/audio/**', '**/ui/**'],
-      'src/state may only import from src/lick, src/fretboard, src/music.'),
+      'src/state may only import from src/lick, src/fretboard, src/music, and src/i18n (types + validator only).'),
   },
   {
     files: ['src/audio/**/*.ts'],
-    ...forbid([...noReact, '**/ui/**'],
-      'src/audio may only import from src/lick and src/state (no React, no UI).'),
+    ...forbid([...noReact, '**/ui/**', '**/i18n/**'],
+      'src/audio may only import from src/lick and src/state (no React, no UI, no i18n).'),
+  },
+  {
+    files: ['src/i18n/**/*.ts'],
+    ...forbid([...noReact, '**/music/**', '**/fretboard/**', '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
+      'src/i18n is a leaf layer: pure TypeScript with zero app coupling — it may not import React or any other layer.'),
   },
 );
