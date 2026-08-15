@@ -11,14 +11,14 @@ export interface LocaleMeta {
   contributors?: string[];
 }
 
-/**
- * Flat key → string catalog. Widened to a typed key union bound to `en.json` in T2
- * (`Messages = Record<TranslationKey, string>`); a generic string-keyed shape for now.
- */
-export type Messages = Record<string, string>;
+/** The `en` catalog is the schema: every other locale must supply exactly these keys. */
+export type TranslationKey = keyof typeof import('./locales/en.json');
+
+/** Flat key → string catalog, keyed by every key `en.json` defines. */
+export type Messages = Record<TranslationKey, string>;
 
 export type ParamValue = string | number;
 export type Params = Readonly<Record<string, ParamValue>>;
 
 /** Bound to one locale; never throws, never renders a raw key when the fallback catalog has it. */
-export type Translate = (key: string, params?: Params) => string;
+export type Translate = (key: TranslationKey, params?: Params) => string;

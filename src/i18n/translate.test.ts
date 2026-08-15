@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { Messages } from './types';
 import { createTranslator } from './translate';
 
-const en: Messages = {
+/** Fixture catalog — standalone so `K` is inferred from these exact keys, not from `en.json`. */
+const en: Record<string, string> = {
   'app.greeting': 'Hello, {name}!',
   'app.reordered': '{second} then {first}',
   'app.repeated': '{name} and {name} again',
@@ -34,7 +34,7 @@ describe('createTranslator — fallback chain', () => {
   });
 
   it('returns the raw key when neither catalog has it', () => {
-    const t = createTranslator('en', {}, {});
+    const t = createTranslator('en', {} as Record<string, string>, {} as Record<string, string>);
     expect(t('does.not.exist')).toBe('does.not.exist');
   });
 });
@@ -62,7 +62,7 @@ describe('createTranslator — DEV warnings', () => {
 
   it('warns once for a key missing from both catalogs', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const t = createTranslator('en', {}, {});
+    const t = createTranslator('en', {} as Record<string, string>, {} as Record<string, string>);
     t('does.not.exist');
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('does.not.exist'));
   });

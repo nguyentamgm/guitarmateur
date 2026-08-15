@@ -1,5 +1,3 @@
-import type { Messages } from './types';
-
 export interface LocaleReport {
   /** Keys present in `reference`, absent from `candidate`. */
   missing: string[];
@@ -35,8 +33,14 @@ function pluralBaseKey(key: string): string | undefined {
 /**
  * Diff `candidate` (a community locale) against `reference` (always `en`). `tag` is the BCP-47
  * tag whose `Intl.PluralRules` categories `candidate` is expected to supply for every plural key.
+ * Both sides are plain string maps so a fixture catalog (tests) or a community JSON (runtime)
+ * validates identically; the key union is only enforced by `Messages` at the `t()` call site.
  */
-export function validateLocale(tag: string, candidate: Record<string, string>, reference: Messages): LocaleReport {
+export function validateLocale(
+  tag: string,
+  candidate: Record<string, string>,
+  reference: Record<string, string>,
+): LocaleReport {
   const missing: string[] = [];
   const unknown: string[] = [];
   const placeholderMismatch: LocaleReport['placeholderMismatch'] = [];
