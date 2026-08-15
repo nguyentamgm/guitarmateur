@@ -34,6 +34,7 @@ everything the user does persists in `localStorage`.
 │  ├─ lick/                     # lick data model (rhythm + techniques), generation, difficulty
 │  ├─ state/                    # versioned app state, reducer, localStorage persistence + migrations
 │  ├─ audio/                    # metronome + lick playback via Web Audio synthesis
+│  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ package.json
 ├─ tsconfig.json
@@ -54,12 +55,19 @@ Dependency rule (strictly one-directional):
 
 ```
 ui → state → (lick → fretboard → music)      audio → lick/state
+ui, state → i18n                              i18n imports nothing
 ```
 
 Lower layers **never** import from higher ones. `music`, `fretboard`, `lick`, and `state` must
 never import `react`, `state`, or `ui`. This is enforced by an ESLint `no-restricted-imports` rule
 (`eslint.config.js`) — a violating import fails the build. If lint blocks an import, the fix is
 almost always to move logic down a layer, not to relax the rule.
+
+`i18n/` is a separate leaf layer, sibling to `music/`: pure TypeScript that imports nothing from
+the rest of the app (not even `music`) and is never imported by `music`, `fretboard`, `lick`, or
+`audio` — those engines stay locale-free and return ids/notation, never translated strings. `ui`
+and `state` may both import `i18n` (`state` only for the `LocaleId` type and validation, since it
+persists the preference but never renders).
 
 ## Tech stack
 
