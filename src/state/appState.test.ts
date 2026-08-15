@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TONICS } from '../music';
+import type { LocaleId } from '../i18n';
 import { defaultState, reducer, type AppState } from './appState';
 
 /** Deterministic nextSeed for tests so assertions are repeatable. */
@@ -200,10 +201,26 @@ describe('reducer', () => {
     expect(back.leftHanded).toBe(false);
   });
 
-  it('defaultState has leftHanded = false and schemaVersion = 6', () => {
+  it('defaultState has leftHanded = false and schemaVersion = 7', () => {
     const s = fresh();
     expect(s.leftHanded).toBe(false);
-    expect(s.schemaVersion).toBe(6);
+    expect(s.schemaVersion).toBe(7);
+    expect(s.language).toBe('en');
+  });
+
+  it('setLanguage updates the language', () => {
+    const s = fresh();
+    const next = reducer(s, { type: 'setLanguage', language: 'vi' as LocaleId }, testNextSeed);
+    expect(next.language).toBe('vi');
+  });
+
+  it('SET_STATE preserves the current language (importing a payload must not switch UI language)', () => {
+    const s = fresh();
+    const vi = reducer(s, { type: 'setLanguage', language: 'vi' as LocaleId }, testNextSeed);
+    const imported = { ...defaultState(() => 1), key: { tonic: s.key.tonic, scaleId: 'blues' as const } };
+    const next = reducer(vi, { type: 'SET_STATE', payload: imported }, testNextSeed);
+    expect(next.key.scaleId).toBe('blues'); // payload applied
+    expect(next.language).toBe('vi'); // device preference preserved
   });
 
   it('setAdvQuality updates advQuality', () => {

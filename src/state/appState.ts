@@ -9,6 +9,7 @@ import {
   type ToneRole,
 } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
+import { DEFAULT_LOCALE, type LocaleId } from '../i18n';
 
 /** Bars a chord spans (× 4 beats). v1 audio supports 1- or 2-bar licks. */
 export type Bars = 1 | 2;
@@ -27,7 +28,7 @@ export const MAX_BPM = 200;
 export const DEFAULT_BPM = 90;
 
 export interface AppState {
-  schemaVersion: 6;
+  schemaVersion: 7;
   tuningId: TuningId;
   key: Key;
   /** 1–2 selected position indices. */
@@ -46,6 +47,9 @@ export interface AppState {
   noteGain: number;
   /** Mirror fretboard and tab for left-handed players, added in schema v6. */
   leftHanded: boolean;
+  /** UI language, added in schema v7. A device preference, not practice state — excluded from
+   *  share/export payloads (see share.ts). */
+  language: LocaleId;
   /** Not persisted. */
   ui: {
     advancedOpen: boolean;
@@ -73,6 +77,7 @@ export type Action =
   | { type: 'setClickGain'; gain: number }
   | { type: 'setNoteGain'; gain: number }
   | { type: 'setLeftHanded'; value: boolean }
+  | { type: 'setLanguage'; language: LocaleId }
   | { type: 'rerollLick'; id: string }
   | { type: 'setTuning'; tuningId: TuningId }
   | { type: 'rerollAll' }
@@ -118,14 +123,14 @@ export function clampBpm(bpm: number): number {
   return Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(bpm)));
 }
 
-export function defaultState(nextSeed: () => number = defaultNextSeed): AppState {
+export function defaultState(nextSeed: () => number = defaultNextSeed, language: LocaleId = DEFAULT_LOCALE): AppState {
   const key: Key = { tonic: TONICS[0]!, scaleId: 'minorPentatonic' };
   const tuningId: TuningId = 'standard';
   const pos = positions(TUNINGS[tuningId], key);
   const rec = recommendedPosition(pos);
 
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     tuningId,
     key,
     positions: [rec],
@@ -138,6 +143,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed): AppState
     clickGain: 0.6,
     noteGain: 0.9,
     leftHanded: false,
+    language,
     ui: {
       advancedOpen: false,
       advRoot: TONICS[0]!,
@@ -217,6 +223,8 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       return { ...state, noteGain: action.gain };
     case 'setLeftHanded':
       return { ...state, leftHanded: action.value };
+    case 'setLanguage':
+      return { ...state, language: action.language };
     case 'rerollLick':
       return {
         ...state,
@@ -234,7 +242,9 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
     case 'rerollAll':
       return { ...state, progression: state.progression.map((e) => ({ ...e, lickSeed: nextSeed() })) };
     case 'SET_STATE':
-      return action.payload;
+      // A shared link or a JSON import carries practice state, not a device preference — importing
+      // someone else's payload must not silently switch the current user's UI language.
+      return { ...action.payload, language: state.language };
     case 'toggleAdvanced':
       return { ...state, ui: { ...state.ui, advancedOpen: !state.ui.advancedOpen } };
     case 'setAdvRoot':

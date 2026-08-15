@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TONICS } from '../music';
+import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
 import { migrate, saveState, loadState } from './persistence';
 
@@ -19,7 +20,7 @@ describe('persistence', () => {
     const state = defaultState(() => 42);
     saveState(state);
     const loaded = loadState()!;
-    expect(loaded.schemaVersion).toBe(6);
+    expect(loaded.schemaVersion).toBe(7);
     expect(loaded.key.tonic).toEqual(state.key.tonic);
     expect(loaded.positions).toEqual(state.positions);
     expect(loaded.level).toBe(state.level);
@@ -49,7 +50,7 @@ describe('persistence', () => {
   it('migrate handles missing fields with defaults', () => {
     const loaded = migrate({});
     const fallback = defaultState();
-    expect(loaded.schemaVersion).toBe(6);
+    expect(loaded.schemaVersion).toBe(7);
     expect(loaded.key.tonic).toEqual(fallback.key.tonic);
     expect(loaded.level).toBe(fallback.level);
     expect(loaded.targetRole).toBe(fallback.targetRole);
@@ -71,7 +72,7 @@ describe('persistence', () => {
       resolveToNext: true,
     };
     const loaded = migrate(v2);
-    expect(loaded.schemaVersion).toBe(6);
+    expect(loaded.schemaVersion).toBe(7);
     // Existing user choices survive the migration...
     expect(loaded.level).toBe(3);
     expect(loaded.targetRole).toBe('3');
@@ -99,7 +100,7 @@ describe('persistence', () => {
       // v3 payloads have no `swingEnabled` field
     };
     const loaded = migrate(v3);
-    expect(loaded.schemaVersion).toBe(6);
+    expect(loaded.schemaVersion).toBe(7);
     expect(loaded.tempoBpm).toBe(120);
     expect(loaded.swingEnabled).toBe(false);
     expect(loaded.clickGain).toBe(0.6);
@@ -121,7 +122,7 @@ describe('persistence', () => {
       // v4 payloads have no clickGain / noteGain fields
     };
     const loaded = migrate(v4);
-    expect(loaded.schemaVersion).toBe(6);
+    expect(loaded.schemaVersion).toBe(7);
     expect(loaded.swingEnabled).toBe(true);
     expect(loaded.tempoBpm).toBe(100);
     expect(loaded.clickGain).toBe(0.6);
@@ -192,10 +193,36 @@ describe('persistence', () => {
     const state = defaultState(() => 0);
     saveState(state);
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
-    expect(raw.schemaVersion).toBe(6);
+    expect(raw.schemaVersion).toBe(7);
     expect(raw.tempoBpm).toBe(90);
     expect(raw.swingEnabled).toBe(false);
     expect(raw.clickGain).toBe(0.6);
     expect(raw.noteGain).toBe(0.9);
+  });
+
+  it('persists the language preference', () => {
+    const state = defaultState(() => 0);
+    saveState(state);
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(raw.language).toBe('en');
+    expect(loadState()!.language).toBe('en');
+  });
+
+  it('migrate keeps a persisted valid language', () => {
+    const loaded = migrate({ schemaVersion: 7, language: 'en' });
+    expect(loaded.language).toBe('en');
+  });
+
+  it('migrate falls back to the caller-supplied language when the payload has none', () => {
+    // v6 payload (pre-language) with detection resolving to a locale (vi lands in T10)
+    const loaded = migrate({ schemaVersion: 6 }, 'vi' as LocaleId);
+    expect(loaded.language).toBe('vi');
+    // no payload language, no caller language → default
+    expect(migrate({ schemaVersion: 6 }).language).toBe('en');
+  });
+
+  it('migrate rejects a garbage language value', () => {
+    const loaded = migrate({ schemaVersion: 7, language: 'klingon' }, 'vi' as LocaleId);
+    expect(loaded.language).toBe('vi');
   });
 });

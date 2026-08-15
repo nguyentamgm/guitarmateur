@@ -1,5 +1,6 @@
 import { CHORD_QUALITIES, SCALE_IDS, TONICS, type Chord, type Key, type NoteName, type QualityId, type ScaleId } from '../music';
 import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } from '../fretboard';
+import { DEFAULT_LOCALE, detectLocale, isLocaleId, type LocaleId } from '../i18n';
 import { clampBpm, defaultState, type AppState, type Bars, type ProgressionEntry } from './appState';
 import { decodeState } from './share';
 
@@ -59,9 +60,11 @@ function readValidProgression(x: unknown): ProgressionEntry[] | null {
 }
 
 /** Parse a raw persisted payload into a full `AppState`, falling back to per-field defaults for
- *  anything missing, malformed, or referencing a registry entry that no longer exists. */
-export function migrate(raw: unknown): AppState {
-  const fallback = defaultState();
+ *  anything missing, malformed, or referencing a registry entry that no longer exists. `language`
+ *  is the detected/persisted locale to use when the payload itself doesn't carry one; `migrate`
+ *  stays pure — callers do the `navigator`/`localStorage` reads. */
+export function migrate(raw: unknown, language?: LocaleId): AppState {
+  const fallback = defaultState(undefined, language ?? DEFAULT_LOCALE);
   if (!raw || typeof raw !== 'object') return fallback;
   const r = raw as Record<string, unknown>;
 
@@ -98,9 +101,12 @@ export function migrate(raw: unknown): AppState {
   const noteGain = typeof r.noteGain === 'number' && isFinite(r.noteGain) ? Math.max(0, Math.min(1, r.noteGain)) : fallback.noteGain;
   // Added in schema v6; absent in v5 (and earlier) payloads → falls back to false.
   const leftHanded = typeof r.leftHanded === 'boolean' ? r.leftHanded : fallback.leftHanded;
+  // Added in schema v7; absent in v6 (and earlier) payloads → falls back to the detected/persisted
+  // locale the caller passed in, or DEFAULT_LOCALE. A garbage value falls back the same way.
+  const resolvedLanguage: LocaleId = isLocaleId(r.language) ? r.language : (language ?? DEFAULT_LOCALE);
 
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     tuningId,
     key,
     positions: positionsField,
@@ -113,13 +119,14 @@ export function migrate(raw: unknown): AppState {
     clickGain,
     noteGain,
     leftHanded,
+    language: resolvedLanguage,
     ui: fallback.ui,
   };
 }
 
 /** Persists everything but `ui`. Quota errors / private-mode `setItem` failures are a silent no-op. */
 export function saveState(state: AppState): void {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded, language } = state;
   const persisted = {
     schemaVersion,
     tuningId,
@@ -134,6 +141,7 @@ export function saveState(state: AppState): void {
     clickGain,
     noteGain,
     leftHanded,
+    language,
   };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
@@ -142,17 +150,37 @@ export function saveState(state: AppState): void {
   }
 }
 
-export function loadFromUrl(): AppState | null {
+export function loadFromUrl(language?: LocaleId): AppState | null {
   try {
     const raw = new URLSearchParams(window.location.search).get('s');
-    return raw ? decodeState(raw) : null;
+    return raw ? decodeState(raw, language) : null;
   } catch {
     return null;
   }
 }
 
+/**
+ * Browser boundary: resolve the UI language once — a persisted preference wins, otherwise the
+ * browser's languages are detected — then thread it through both the URL and the localStorage
+ * paths so a payload without a `language` field (share links, exports, v1–v6 states) never
+ * silently resets the user's locale.
+ */
 export function loadState(): AppState | null {
-  const fromUrl = loadFromUrl();
+  const language: LocaleId = (() => {
+    try {
+      const item = localStorage.getItem(STORAGE_KEY);
+      if (item) {
+        const parsed: unknown = JSON.parse(item);
+        const persisted = (parsed as Record<string, unknown> | null)?.language;
+        if (isLocaleId(persisted)) return persisted;
+      }
+    } catch {
+      // fall through to detection
+    }
+    return detectLocale(navigator.languages ?? [navigator.language]);
+  })();
+
+  const fromUrl = loadFromUrl(language);
   if (fromUrl) {
     history.replaceState(null, '', window.location.pathname);
     return fromUrl;
@@ -165,5 +193,5 @@ export function loadState(): AppState | null {
   } catch {
     return null;
   }
-  return migrate(raw);
+  return migrate(raw, language);
 }
