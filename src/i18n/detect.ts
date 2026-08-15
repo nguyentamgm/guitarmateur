@@ -1,8 +1,6 @@
 import type { LocaleId } from './types';
-import { SCALES } from '../music';
 
 export const DEFAULT_LOCALE: LocaleId = 'en';
-console.log(SCALES);
 
 /** Locales this build ships. Widened alongside the `LocaleId` union as community locales land. */
 const SUPPORTED: readonly LocaleId[] = ['en'];

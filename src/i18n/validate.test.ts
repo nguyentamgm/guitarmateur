@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { Messages } from './types';
 import { validateLocale } from './validate';
 
-const en: Messages = {
+const en: Record<string, string> = {
   'common.share': 'Share',
   'app.greeting': 'Hello, {name}!',
   'progression.bars.one': '{count} bar',

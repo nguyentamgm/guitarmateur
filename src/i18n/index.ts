@@ -1,4 +1,4 @@
-export type { LocaleId, LocaleMeta, Messages, ParamValue, Params, Translate } from './types';
+export type { LocaleId, LocaleMeta, Messages, ParamValue, Params, Translate, TranslationKey } from './types';
 
 export { createTranslator } from './translate';
 
@@ -8,3 +8,5 @@ export { detectLocale, DEFAULT_LOCALE } from './detect';
 
 export type { LocaleReport } from './validate';
 export { validateLocale } from './validate';
+
+export { LOCALES, MESSAGES } from './locales';
