@@ -20,10 +20,15 @@ export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countI
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as Element;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Buttons and links handle Space/Enter natively — hijacking those keys would
+      // break keyboard activation of the focused control (WCAG 2.1.1).
       if (
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT'
+        target.tagName === 'SELECT' ||
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A'
       ) {
         return;
       }
