@@ -1,7 +1,11 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import type { Params, TranslationKey } from '../i18n';
 
 interface Props {
   children: ReactNode;
+  /** Translator from `App`. Optional: the boundary must still render if it is mounted without one
+   *  (tests, or a future caller outside the app shell), so every string has an English fallback. */
+  t?: (key: TranslationKey, params?: Params) => string;
 }
 
 interface State {
@@ -24,6 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override render() {
     if (this.state.hasError) {
+      const { t } = this.props;
       return (
         <div
           style={{
@@ -39,11 +44,12 @@ export class ErrorBoundary extends Component<Props, State> {
           }}
         >
           <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 10px', color: '#e8ece9' }}>
-            Something went wrong
+            {t ? t('error.title') : 'Something went wrong'}
           </h2>
           <p style={{ color: '#7e857f', fontSize: 15, maxWidth: 480, lineHeight: 1.6, margin: '0 0 24px' }}>
-            The app encountered an error. Your practice state is saved in localStorage and will
-            persist.
+            {t
+              ? t('error.message')
+              : 'The app encountered an error. Your practice state is saved in localStorage and will persist.'}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -59,7 +65,7 @@ export class ErrorBoundary extends Component<Props, State> {
               letterSpacing: '.04em',
             }}
           >
-            Reload
+            {t ? t('error.reload') : 'Reload'}
           </button>
         </div>
       );

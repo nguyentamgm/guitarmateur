@@ -2,11 +2,13 @@ import { CHORD_QUALITIES, TONICS, chordLabel, format, romanNumeral, suggestedCho
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker, TextButton } from './primitives';
+import { useT } from '../useT';
 
 const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
 /** Step 2 — build the chord progression licks are generated against. */
 export function ProgressionSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
+  const t = useT(state.language);
   const suggestions = suggestedChords(state.key);
   const { advancedOpen, advRoot, advQuality } = state.ui;
   const previewChord = { tonic: advRoot, quality: advQuality };
@@ -28,9 +30,9 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
 
   return (
     <section style={{ marginBottom: 34 }}>
-      <SectionKicker style={{ marginBottom: 12 }}>Step 2 · Chord Progression</SectionKicker>
+      <SectionKicker style={{ marginBottom: 12 }}>{t('progression.stepKicker')}</SectionKicker>
       <Panel>
-        <Label>Suggestions</Label>
+        <Label>{t('progression.suggestions')}</Label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {suggestions.map((s, i) => (
             <button
@@ -51,34 +53,34 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 fontFamily: 'inherit',
               }}
             >
-              <span style={{ fontSize: 13, fontWeight: 600 }}>+ {s.label}</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{t('progression.suggestionLabel', { chord: s.label })}</span>
               <span style={{ fontSize: 10, color: theme.muted, fontFamily: font.mono }}>{s.roman}</span>
             </button>
           ))}
         </div>
 
         <div style={{ marginTop: 14 }}>
-          <TextButton onClick={() => dispatch({ type: 'toggleAdvanced' })} ariaLabel="Toggle advanced chord adder">
-            {advancedOpen ? 'Hide advanced adder' : 'Advanced: pick any chord'}
+          <TextButton onClick={() => dispatch({ type: 'toggleAdvanced' })} ariaLabel={t('progression.advancedToggleAria')}>
+            {advancedOpen ? t('progression.advancedHide') : t('progression.advancedShow')}
           </TextButton>
         </div>
 
         {advancedOpen && (
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${theme.border}` }}>
-            <Label>Root</Label>
+            <Label>{t('progression.root')}</Label>
             <Row>
-              {TONICS.map((t) => (
-                <PillButton key={format(t)} selected={sameNote(t, advRoot)} onClick={() => dispatch({ type: 'setAdvRoot', tonic: t })}>
-                  {format(t)}
+              {TONICS.map((tonic) => (
+                <PillButton key={format(tonic)} selected={sameNote(tonic, advRoot)} onClick={() => dispatch({ type: 'setAdvRoot', tonic })}>
+                  {format(tonic)}
                 </PillButton>
               ))}
             </Row>
 
-            <Label style={{ marginTop: 14 }}>Quality</Label>
+            <Label style={{ marginTop: 14 }}>{t('progression.quality')}</Label>
             <Row>
-              {(Object.entries(CHORD_QUALITIES) as [QualityId, { name: string }][]).map(([id, q]) => (
+              {(Object.keys(CHORD_QUALITIES) as QualityId[]).map((id) => (
                 <PillButton key={id} selected={id === advQuality} wide onClick={() => dispatch({ type: 'setAdvQuality', quality: id })}>
-                  {q.name}
+                  {t(`quality.${id}`)}
                 </PillButton>
               ))}
             </Row>
@@ -99,16 +101,16 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 fontFamily: 'inherit',
               }}
             >
-              Add {chordLabel(previewChord)}
+              {t('progression.addChord', { chord: chordLabel(previewChord) })}
             </button>
           </div>
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, marginBottom: 10 }}>
-          <Label style={{ marginBottom: 0 }}>Progression</Label>
+          <Label style={{ marginBottom: 0 }}>{t('progression.progression')}</Label>
           <div style={{ display: 'flex', gap: 14 }}>
-            <TextButton onClick={() => dispatch({ type: 'resetProgression' })}>Reset to default</TextButton>
-            <TextButton onClick={() => dispatch({ type: 'clearProgression' })}>Clear all</TextButton>
+            <TextButton onClick={() => dispatch({ type: 'resetProgression' })}>{t('progression.resetDefault')}</TextButton>
+            <TextButton onClick={() => dispatch({ type: 'clearProgression' })}>{t('progression.clearAll')}</TextButton>
           </div>
         </div>
 
@@ -123,7 +125,7 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
               fontSize: 13,
             }}
           >
-            No chords yet — tap a suggestion above to build your progression.
+            {t('progression.empty')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -154,8 +156,11 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 </div>
                 <button
                   type="button"
-                  aria-label={`${chordLabel(entry.chord)} spans ${entry.bars} bar${entry.bars > 1 ? 's' : ''} — click to toggle`}
-                  title={`${entry.bars} bar${entry.bars > 1 ? 's' : ''}`}
+                  aria-label={t('progression.barsToggle', {
+                    chord: chordLabel(entry.chord),
+                    bars: t('progression.bars', { count: entry.bars }),
+                  })}
+                  title={t('progression.bars', { count: entry.bars })}
                   onClick={() => dispatch({ type: 'setBars', id: entry.id, bars: entry.bars === 1 ? 2 : 1 })}
                   style={{
                     background: entry.bars === 2 ? theme.accentTint : 'transparent',
@@ -173,7 +178,7 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 </button>
                 <button
                   type="button"
-                  aria-label={`Remove ${chordLabel(entry.chord)}`}
+                  aria-label={t('progression.removeChord', { chord: chordLabel(entry.chord) })}
                   onClick={() => dispatch({ type: 'removeChord', id: entry.id })}
                   style={{
                     background: 'none',

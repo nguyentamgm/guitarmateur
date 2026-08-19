@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
+import type { LocaleId } from '../../i18n';
 import { theme, font } from '../theme';
+import { useT } from '../useT';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export function InstallPrompt() {
+export function InstallPrompt({ language }: { language: LocaleId }) {
+  const t = useT(language);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
@@ -50,7 +53,7 @@ export function InstallPrompt() {
       }}
     >
       <span style={{ fontSize: 13, color: theme.text, whiteSpace: 'nowrap' }}>
-        Install Guitarmateur
+        {t('install.title')}
       </span>
       <button
         onClick={handleInstall}
@@ -68,11 +71,11 @@ export function InstallPrompt() {
           whiteSpace: 'nowrap',
         }}
       >
-        Install
+        {t('install.button')}
       </button>
       <button
         onClick={() => setDismissed(true)}
-        aria-label="Dismiss"
+        aria-label={t('install.dismissAria')}
         style={{
           background: 'none',
           border: 'none',
