@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { romanNumeral, chordLabel, type Chord } from '../../music';
+import { chordLabel, romanNumeral, SCALES, type Chord } from '../../music';
 import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
@@ -11,10 +11,12 @@ import { TabStaff } from './TabStaff';
 import { PlaybackControls } from './PlaybackControls';
 import { useTransport } from '../useTransport';
 import { KeyboardShortcuts } from '../KeyboardShortcuts';
-import { roleLabel, targetBadgeText, decorationLegendEntries } from '../labels';
+import { intervalLabel, targetBadgeText } from '../labels';
+import { useT } from '../useT';
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
+  const t = useT(state.language);
   const licks = useMemo(() => licksForState(state), [state]);
   const transport = useTransport();
   const [countIn, setCountIn] = useState(true);
@@ -44,15 +46,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     return m;
   }, [stateProgression]);
 
-  const targetLabel = roleLabel(state.targetRole);
-
-  const levelDescriptions: Record<number, string> = {
-    1: 'Quarter notes + half notes (easy)',
-    2: 'Quarters + paired 8ths',
-    3: 'Straight 8ths + shuffle feel',
-    4: 'Syncopation with rests',
-    5: '16th runs + advanced techniques',
-  };
+  const targetLabel = t(`role.${state.targetRole}`);
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -67,29 +61,29 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
         clickGain={state.clickGain}
         noteGain={state.noteGain}
       />
-      <SectionKicker style={{ marginBottom: 12 }}>Step 3 · Practice Licks</SectionKicker>
+      <SectionKicker style={{ marginBottom: 12 }}>{t('practice.stepKicker')}</SectionKicker>
       <Panel>
         {/* Controls */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'flex-end', marginBottom: 18 }}>
           <div>
-            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>Level</div>
+            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>{t('practice.level')}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {([1, 2, 3, 4, 5] as const).map((l) => (
-                <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={`Level ${l}`}>
+                <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={t('practice.levelAria', { n: l })}>
                   {l}
                 </PillButton>
               ))}
             </div>
             <div style={{ fontSize: 10, color: theme.muted, fontFamily: font.mono, marginTop: 4 }}>
-              {levelDescriptions[state.level]}
+              {t(`practice.level.${state.level}`)}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>Target</div>
+            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>{t('practice.target')}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['R', '3', '5', '7'] as const).map((r) => (
                 <PillButton key={r} selected={state.targetRole === r} onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
-                  {roleLabel(r)}
+                  {t(`role.${r}`)}
                 </PillButton>
               ))}
             </div>
@@ -99,8 +93,8 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
             <Toggle
               checked={state.resolveToNext}
               onChange={(value) => dispatch({ type: 'setResolveToNext', value })}
-              label="Land on next chord"
-              ariaLabel="Land on next chord"
+              label={t('practice.landOnNextChord')}
+              ariaLabel={t('practice.landOnNextChord')}
             />
           </div>
           <button
@@ -117,7 +111,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               fontFamily: 'inherit',
             }}
           >
-            ↻ Regenerate
+            {t('practice.regenerate')}
           </button>
         </div>
 
@@ -134,7 +128,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               lineHeight: 1.6,
             }}
           >
-            Add some chords in Step 2 to generate practice licks.
+            {t('practice.empty')}
           </div>
         ) : (
           <>
@@ -154,18 +148,22 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
               noteGain={state.noteGain}
               onClickGainChange={(gain) => dispatch({ type: 'setClickGain', gain })}
               onNoteGainChange={(gain) => dispatch({ type: 'setNoteGain', gain })}
+              language={state.language}
             />
 
             {/* Legend */}
             <div style={{ marginBottom: 14 }}>
               <Legend
                 items={[
-                  { type: 'scaleNote', label: 'scale note' },
-                  { type: 'tonic', label: 'root' },
-                  { type: 'chordTone', label: 'chord tone' },
-                  { type: 'target', label: `target · ${targetLabel}` },
-                  { type: 'landing', label: 'landing note' },
-                  ...decorationLegendEntries(state.key.scaleId),
+                  { type: 'scaleNote', label: t('legend.scaleNote') },
+                  { type: 'tonic', label: t('legend.root') },
+                  { type: 'chordTone', label: t('legend.chordTone') },
+                  { type: 'target', label: t('legend.target', { role: targetLabel }) },
+                  { type: 'landing', label: t('legend.landingNote') },
+                  ...(SCALES[state.key.scaleId].decoration?.addedIntervals.map((iv) => ({
+                    type: 'decoration' as const,
+                    label: t('legend.blueNote', { interval: intervalLabel(iv) }),
+                  })) ?? []),
                 ]}
               />
             </div>
@@ -212,7 +210,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                         marginBottom: 10,
                       }}
                     >
-                      {targetBadgeText(state.targetRole, lastNote, chord.tonic)}
+                      {targetBadgeText(t, state.targetRole, lastNote, chord.tonic)}
                     </div>
 
                     {/* Fretboard with chord highlighting + landing */}
@@ -220,7 +218,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                       box={box}
                       highlight={{ chord, targetRole: state.targetRole }}
                       landing={lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined}
-                      title={`${targetTone} — ${targetLabel} highlighting`}
+                      title={t('practice.diagramTitle', { chord: targetTone, role: targetLabel })}
                       stringLabels={stringLabels}
                       leftHanded={state.leftHanded}
                     />
@@ -236,13 +234,14 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                         margin: '14px 0 6px',
                       }}
                     >
-                      Lick
+                      {t('practice.lickHeader')}
                     </div>
 
                     {/* Tab staff */}
                     <TabStaff
                       lick={lick}
-                      title={`Lick for ${targetTone}`}
+                      title={t('practice.lickTitle', { chord: targetTone })}
+                      emptyLabel={t('tab.emptyLick')}
                       activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
                       stringLabels={stringLabels}
                       leftHanded={state.leftHanded}
@@ -252,7 +251,7 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
                     <div style={{ marginTop: 10, textAlign: 'right' }}>
                       <button
                         type="button"
-                        aria-label={`Regenerate lick for ${targetTone}`}
+                        aria-label={t('practice.rerollAria', { chord: targetTone })}
                         onClick={() => dispatch({ type: 'rerollLick', id: entryId })}
                         style={{
                           background: 'none',

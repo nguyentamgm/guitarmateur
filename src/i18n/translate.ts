@@ -45,13 +45,15 @@ function interpolate(template: string, key: string, params: Params | undefined):
  * (the last resort should never trigger once `en` — the fallback — has every key, per T2).
  * `params.count` routes lookup through `pluralCategory` before the plain key is tried.
  *
- * `K` is inferred from the catalogs: production call sites pass the typed `en` catalog (so
- * `K` = `TranslationKey` and every key is checked), while tests can pass a fixture catalog.
+ * Production call sites instantiate `K` as `TranslationKey`, so every key is checked against the
+ * schema; tests can pass a fixture catalog and let `K` be inferred. Both catalogs are `Partial`
+ * because `K` includes plural base keys, which are addressable but never stored — that `en`
+ * carries every *stored* key is enforced by the locale parity test, not by this signature.
  */
 export function createTranslator<K extends string>(
   locale: LocaleId,
   messages: Readonly<Partial<Record<K, string>>>,
-  fallback: Readonly<Record<K, string>>,
+  fallback: Readonly<Partial<Record<K, string>>>,
 ): (key: K, params?: Params) => string {
   return (key, params) => {
     const template =

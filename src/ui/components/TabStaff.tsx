@@ -24,11 +24,13 @@ export interface TabStaffProps {
   stringLabels?: string[];
   /** Mirror the tab horizontally for left-handed players. */
   leftHanded?: boolean;
+  /** Accessible name for a lick with no notes, used when `title` is absent. */
+  emptyLabel?: string;
 }
 
 /** SVG tab notation for a lick: fret numbers on string lines, positioned proportional to
  *  `startBeat`, with beat ticks along the top and duration glyphs underneath. */
-export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp, leftHanded = false }: TabStaffProps) {
+export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp, leftHanded = false, emptyLabel }: TabStaffProps) {
   const labels = stringLabelsProp ?? STRING_LABELS;
   const numStrings = labels.length;
   const rowGap = 20;
@@ -52,7 +54,7 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
   if (lick.notes.length === 0) {
     return (
       <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? 'empty lick'}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? emptyLabel}>
           {title && <title>{title}</title>}
           <text x={W / 2} y={H / 2} fontSize={18} fill={theme.subtle} textAnchor="middle" dominantBaseline="middle" transform={unmirror(W / 2)}>
             —

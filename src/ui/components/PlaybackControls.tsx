@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import type { Lick } from '../../lick';
+import type { LocaleId } from '../../i18n';
 import { MIN_BPM, MAX_BPM } from '../../state';
 import { font, theme } from '../theme';
 import { PillButton } from './primitives';
+import { useT } from '../useT';
 import type { UseTransport } from '../useTransport';
 
 /** Playback controls bar: transport, tempo, count-in / loop toggles, and click / note mix. */
@@ -21,6 +23,7 @@ export function PlaybackControls({
   noteGain,
   onClickGainChange,
   onNoteGainChange,
+  language,
 }: {
   licks: Lick[];
   tempoBpm: number;
@@ -36,7 +39,9 @@ export function PlaybackControls({
   noteGain: number;
   onClickGainChange: (gain: number) => void;
   onNoteGainChange: (gain: number) => void;
+  language: LocaleId;
 }) {
+  const t = useT(language);
 
   const tapTimes = useRef<number[]>([]);
   const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,7 +67,7 @@ export function PlaybackControls({
   if (!transport.supported) {
     return (
       <div style={{ fontSize: 12.5, color: theme.subtle, marginBottom: 16 }}>
-        Audio isn’t available in this browser — the tab and fretboard still work.
+        {t('playback.audioUnavailable')}
       </div>
     );
   }
@@ -96,7 +101,7 @@ export function PlaybackControls({
         type="button"
         onClick={togglePlay}
         disabled={!canPlay}
-        aria-label={transport.isPlaying ? 'Stop playback' : 'Play progression'}
+        aria-label={transport.isPlaying ? t('playback.stop') : t('playback.play')}
         style={{
           width: 44,
           height: 44,
@@ -115,14 +120,14 @@ export function PlaybackControls({
 
       {/* Tempo */}
       <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>Tempo</span>
+        <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{t('playback.tempo')}</span>
         <input
           type="range"
           min={MIN_BPM}
           max={MAX_BPM}
           value={tempoBpm}
           onChange={(e) => onTempoChange(Number(e.target.value))}
-          aria-label="Tempo (BPM)"
+          aria-label={t('playback.tempoBpmAria')}
           style={{ accentColor: theme.accent, width: 120 }}
         />
         <input
@@ -131,7 +136,7 @@ export function PlaybackControls({
           max={MAX_BPM}
           value={tempoBpm}
           onChange={(e) => onTempoChange(Number(e.target.value))}
-          aria-label="Tempo BPM value"
+          aria-label={t('playback.tempoBpmValueAria')}
           style={{
             width: 52,
             padding: '4px 6px',
@@ -143,29 +148,39 @@ export function PlaybackControls({
             fontFamily: font.mono,
           }}
         />
-        <span style={{ fontSize: 11, color: theme.subtle, fontFamily: font.mono }}>BPM</span>
+        <span style={{ fontSize: 11, color: theme.subtle, fontFamily: font.mono }}>{t('playback.bpm')}</span>
       </label>
 
       {/* Count-in / loop */}
       <div style={{ display: 'flex', gap: 6 }}>
-        <PillButton selected={countIn} onClick={() => onCountInChange(!countIn)} wide ariaLabel="Toggle count-in">
-          Count-in
+        <PillButton selected={countIn} onClick={() => onCountInChange(!countIn)} wide ariaLabel={t('playback.countInAria')}>
+          {t('playback.countIn')}
         </PillButton>
-        <PillButton selected={swingEnabled} onClick={() => onSwingChange(!swingEnabled)} wide ariaLabel="Toggle swing">
-          Swing
+        <PillButton selected={swingEnabled} onClick={() => onSwingChange(!swingEnabled)} wide ariaLabel={t('playback.swingAria')}>
+          {t('playback.swing')}
         </PillButton>
-        <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel="Toggle loop">
-          Loop
+        <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel={t('playback.loopAria')}>
+          {t('playback.loop')}
         </PillButton>
-        <PillButton selected={false} onClick={handleTap} wide ariaLabel="Tap tempo">
-          Tap
+        <PillButton selected={false} onClick={handleTap} wide ariaLabel={t('playback.tapAria')}>
+          {t('playback.tap')}
         </PillButton>
       </div>
 
       {/* Mix */}
       <div style={{ display: 'flex', gap: 14 }}>
-        <MixSlider label="Click" value={clickGain} onChange={(v) => { transport.setClickGain(v); onClickGainChange(v); }} />
-        <MixSlider label="Notes" value={noteGain} onChange={(v) => { transport.setNoteGain(v); onNoteGainChange(v); }} />
+        <MixSlider
+          label={t('playback.click')}
+          ariaLabel={t('playback.mixVolumeAria', { label: t('playback.click') })}
+          value={clickGain}
+          onChange={(v) => { transport.setClickGain(v); onClickGainChange(v); }}
+        />
+        <MixSlider
+          label={t('playback.notes')}
+          ariaLabel={t('playback.mixVolumeAria', { label: t('playback.notes') })}
+          value={noteGain}
+          onChange={(v) => { transport.setNoteGain(v); onNoteGainChange(v); }}
+        />
       </div>
     </div>
   );
@@ -173,10 +188,12 @@ export function PlaybackControls({
 
 function MixSlider({
   label,
+  ariaLabel,
   value,
   onChange,
 }: {
   label: string;
+  ariaLabel: string;
   value: number;
   onChange: (value: number) => void;
 }) {
@@ -190,7 +207,7 @@ function MixSlider({
         step={0.05}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        aria-label={`${label} volume`}
+        aria-label={ariaLabel}
         style={{ accentColor: theme.accent, width: 70 }}
       />
     </label>
