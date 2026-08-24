@@ -67,7 +67,8 @@ almost always to move logic down a layer, not to relax the rule.
 the rest of the app (not even `music`) and is never imported by `music`, `fretboard`, `lick`, or
 `audio` — those engines stay locale-free and return ids/notation, never translated strings. `ui`
 and `state` may both import `i18n` (`state` only for the `LocaleId` type and validation, since it
-persists the preference but never renders).
+persists the preference but never renders). See [`docs/i18n.md`](i18n.md) for the contributor-facing
+guide to adding a new language.
 
 ## Tech stack
 

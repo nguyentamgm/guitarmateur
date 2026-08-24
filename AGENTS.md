@@ -40,3 +40,4 @@ merges. Match that order locally before pushing.
   random-walk licks) that the real engines exist to avoid. Port pixels, not algorithms.
 - `support.js` is the mockup's throwaway preview runtime. **Never shipped, never imported, never edited.**
 - Keep new code stylistically consistent with the layer it lives in; colocate its `*.test.ts`.
+- **Adding a language?** Follow [`docs/i18n.md`](docs/i18n.md) — a non-developer guide for shipping a new locale.
