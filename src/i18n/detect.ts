@@ -3,7 +3,7 @@ import type { LocaleId } from './types';
 export const DEFAULT_LOCALE: LocaleId = 'en';
 
 /** Locales this build ships. Widened alongside the `LocaleId` union as community locales land. */
-const SUPPORTED: readonly LocaleId[] = ['en'];
+const SUPPORTED: readonly LocaleId[] = ['en', 'vi'];
 
 const primarySubtag = (tag: string): string => tag.toLowerCase().split('-')[0]!;
 

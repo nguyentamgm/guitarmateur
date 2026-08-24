@@ -1,5 +1,5 @@
 /** Supported UI locales. Widened by each community locale PR (e.g. adding 'vi' in T10). */
-export type LocaleId = 'en';
+export type LocaleId = 'en' | 'vi';
 
 export interface LocaleMeta {
   id: LocaleId;
