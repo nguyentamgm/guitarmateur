@@ -27,3 +27,6 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Scratch
+.tmp/
