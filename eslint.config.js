@@ -82,4 +82,24 @@ export default tseslint.config(
     ...forbid([...noReact, '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
       'src/i18n tests may only import engine registries (music, fretboard) for drift checks — never React or higher layers.'),
   },
+
+  // --- Hard-coded UI copy guard (T13): every user-facing string must flow through t(). ---
+  {
+    files: ['src/ui/**/*.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXText[value=/\\p{L}/u]',
+          message:
+            "Hard-coded UI copy: use t('key') from src/i18n instead of literal JSX text. Notation glyphs (▶ ■ ↻ × · — – →) and digits are exempt.",
+        },
+        {
+          selector: "JSXAttribute[name.name=/^(aria-label|title|placeholder)$/] > Literal",
+          message:
+            "Hard-coded UI copy: aria-label/title/placeholder must use t('key') from src/i18n, not a string literal.",
+        },
+      ],
+    },
+  },
 );
