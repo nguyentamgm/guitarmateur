@@ -128,4 +128,35 @@ describe('KeyboardShortcuts', () => {
 
     expect(dispatch).not.toHaveBeenCalled();
   });
+
+  describe('OS key repeat', () => {
+    it('a held Space does not toggle playback again', async () => {
+      await mount();
+
+      await press(document.body, { code: 'Space' });
+      expect(transport.play).toHaveBeenCalledOnce();
+
+      await press(document.body, { code: 'Space', repeat: true });
+
+      expect(transport.play).toHaveBeenCalledOnce();
+      expect(transport.stop).not.toHaveBeenCalled();
+    });
+
+    it('a held r does not reroll again', async () => {
+      await mount();
+
+      await press(document.body, { key: 'r' });
+      expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: 'rerollAll' });
+
+      await press(document.body, { key: 'r', repeat: true });
+
+      expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: 'rerollAll' });
+    });
+
+    it('a held 3 does not set the level', async () => {
+      await mount();
+      await press(document.body, { key: '3', repeat: true });
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
 });
