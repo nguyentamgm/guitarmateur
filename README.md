@@ -145,3 +145,9 @@ Found a bug or have an idea for a feature? [Open an issue](https://github.com/ng
 Want to fix it yourself? Fork the repo, make your change, and [open a pull request](https://github.com/nguyentamgm/guitarmateur/pulls).
 
 See [`AGENTS.md`](AGENTS.md) for local development setup and conventions.
+
+## Contributing a language
+
+Guitarmateur ships in English and Vietnamese, and welcomes community-contributed languages —
+no coding experience required, just a text editor and a translation. See
+[`docs/i18n.md`](docs/i18n.md) for the step-by-step guide.
