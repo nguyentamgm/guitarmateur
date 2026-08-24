@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppState, encodeState, exportStateToJson, importStateFromJson } from '../state';
+import { LOCALES, type LocaleId } from '../i18n';
 import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
@@ -40,6 +41,11 @@ export function App() {
   const [copied, setCopied] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    document.documentElement.lang = LOCALES[state.language].tag;
+    document.title = t('app.title');
+  }, [state.language, t]);
 
   function handleShare() {
     const encoded = encodeState(state);
@@ -163,6 +169,18 @@ export function App() {
           >
             {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
           </button>
+          <select
+            aria-label={t('common.language')}
+            value={state.language}
+            onChange={(e) => dispatch({ type: 'setLanguage', language: e.target.value as LocaleId })}
+            style={btnStyle}
+          >
+            {Object.values(LOCALES).map((locale) => (
+              <option key={locale.id} value={locale.id}>
+                {locale.endonym}
+              </option>
+            ))}
+          </select>
           <input
             ref={fileInputRef}
             type="file"
