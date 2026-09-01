@@ -15,6 +15,7 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
 
   const handleDragStart = (index: number) => (e: React.DragEvent) => {
     dispatch({ type: 'dragStart', index });
+    e.dataTransfer.setData('text/plain', String(index));
     e.dataTransfer.effectAllowed = 'move';
   };
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
