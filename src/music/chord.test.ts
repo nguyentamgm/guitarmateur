@@ -60,7 +60,7 @@ describe('romanNumeral matches suggestedChords for every offered tonic', () => {
     note('E', -1), note('E'), note('F'), note('F', 1), note('G'), note('G', 1),
   ];
   it.each(tonics)('%o', (tonic) => {
-    for (const scaleId of ['minorPentatonic', 'majorPentatonic', 'blues'] as const) {
+    for (const scaleId of ['minorPentatonic', 'majorPentatonic', 'blues', 'major', 'dorian', 'mixolydian', 'natural-minor', 'major-blues'] as const) {
       const key: Key = { tonic, scaleId };
       for (const s of suggestedChords(key)) {
         expect(romanNumeral(key, s.chord)).toBe(s.roman);

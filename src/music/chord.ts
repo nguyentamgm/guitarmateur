@@ -64,37 +64,37 @@ export function suggestedChords(key: Key): { chord: Chord; label: string; roman:
 
   if (key.scaleId === 'major') {
     return [
-      make(t,                   'M7',    'I'),
-      make(transpose(t, IV.M2), 'm7',    'ii'),
-      make(transpose(t, IV.M3), 'm7',    'iii'),
-      make(transpose(t, IV.P4), 'M7',    'IV'),
-      make(transpose(t, IV.P5), 'dom7',  'V'),
-      make(transpose(t, IV.M6), 'm7',    'vi'),
+      make(t,                   'M7',    'I7'),
+      make(transpose(t, IV.M2), 'm7',    'ii7'),
+      make(transpose(t, IV.M3), 'm7',    'iii7'),
+      make(transpose(t, IV.P4), 'M7',    'IV7'),
+      make(transpose(t, IV.P5), 'dom7',  'V7'),
+      make(transpose(t, IV.M6), 'm7',    'vi7'),
     ];
   }
 
   if (key.scaleId === 'dorian') {
     return [
-      make(t,                   'm7',   'i'),
-      make(transpose(t, IV.P4), 'dom7', 'IV'),
-      make(transpose(t, IV.m7), 'M7',   '♭VII'),
+      make(t,                   'm7',   'i7'),
+      make(transpose(t, IV.P4), 'dom7', 'IV7'),
+      make(transpose(t, IV.m7), 'M7',   '♭VII7'),
     ];
   }
 
   if (key.scaleId === 'mixolydian') {
     return [
-      make(t,                   'dom7', 'I'),
-      make(transpose(t, IV.m7), 'M7',   '♭VII'),
-      make(transpose(t, IV.m3), 'M7',   '♭III'),
+      make(t,                   'dom7', 'I7'),
+      make(transpose(t, IV.m7), 'M7',   '♭VII7'),
+      make(transpose(t, IV.m3), 'M7',   '♭III7'),
     ];
   }
 
   if (key.scaleId === 'natural-minor') {
     return [
-      make(t,                   'm7',  'i'),
-      make(transpose(t, IV.m3), 'M7',  '♭III'),
-      make(transpose(t, IV.m7), 'dom7',  '♭VII'),
-      make(transpose(t, IV.P5), 'm7',  'v'),
+      make(t,                   'm7',  'i7'),
+      make(transpose(t, IV.m3), 'M7',  '♭III7'),
+      make(transpose(t, IV.m7), 'dom7',  '♭VII7'),
+      make(transpose(t, IV.P5), 'm7',  'v7'),
     ];
   }
 
