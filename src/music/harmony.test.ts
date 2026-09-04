@@ -166,6 +166,23 @@ describe('defaultProgression', () => {
     }
   });
 
+  it('works for all 12 practical tonics with every scale type', () => {
+    const tonics = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#'];
+    for (const scaleId of SCALE_IDS) {
+      for (const t of tonics) {
+        // Every key/scale pair the pickers can offer must derive a progression whose first chord
+        // is the tonic. `transpose` throws on spellings outside double-flat..double-sharp, and a
+        // throw here crashes the app on every key/scale change (`resetForKey` runs
+        // `defaultProgression` on each dispatch) — the class of bug fixed in #78. The scale-wise
+        // tests above only exercise blues/major/dorian/mixolydian/natural-minor/major-blues on
+        // single golden tonics, so 72 of these 96 pairs were previously untested.
+        const chords = defaultProgression(key(t, scaleId));
+        expect(chords.length).toBeGreaterThan(0);
+        expectTonic(chords[0]!, t);
+      }
+    }
+  });
+
   // ── Correct spelling invariants ─────────────────────────
 
   it('spells chords correctly — C minorPentatonic uses Bb not A#', () => {
@@ -193,14 +210,6 @@ describe('defaultProgression', () => {
     expectChord(chords[1]!, 'F', 0, 'dom7');
     expectChord(chords[2]!, 'C', 0, 'dom7');
     expectChord(chords[3]!, 'G', 0, 'dom7');
-  });
-
-  it('first chord tonic matches key tonic for all scale types', () => {
-    for (const scaleId of SCALE_IDS) {
-      const chords = defaultProgression(key('E', scaleId));
-      expect(chords[0]!.tonic.letter).toBe('E');
-      expect(chords[0]!.tonic.alter).toBe(0);
-    }
   });
 
   it('diatonic 7-note scales keep every chord tone inside the scale', () => {
