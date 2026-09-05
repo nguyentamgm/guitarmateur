@@ -63,13 +63,19 @@ function readBars(x: unknown): Bars {
   return x === 2 ? 2 : 1;
 }
 
+/** Entry `id`s must be unique: `removeChord` filters by id (a duplicate would delete both cards)
+ *  and `reorderChord` looks one up with `findIndex`. UI-generated ids come from the uuid generator,
+ *  but an imported payload can repeat one — keep the first occurrence and drop later duplicates. */
 function readValidProgression(x: unknown): ProgressionEntry[] | null {
   if (!Array.isArray(x)) return null;
   const out: ProgressionEntry[] = [];
+  const seen = new Set<string>();
   for (const e of x) {
     if (!e || typeof e !== 'object') continue;
     const entry = e as Record<string, unknown>;
     if (typeof entry.id !== 'string' || typeof entry.lickSeed !== 'number' || !isValidChord(entry.chord)) continue;
+    if (seen.has(entry.id)) continue;
+    seen.add(entry.id);
     out.push({ id: entry.id, chord: entry.chord, lickSeed: entry.lickSeed, bars: readBars(entry.bars) });
   }
   return out;
