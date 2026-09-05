@@ -282,4 +282,48 @@ describe('persistence', () => {
       expect(loaded.progression[0]!.chord.quality).toBe(quality);
     }
   });
+
+  /** The same payload shape as `withChord`, but carrying a whole progression. */
+  const withProgression = (progression: unknown[]) => ({ ...withChord({ tonic: A, quality: 'm' }), progression });
+
+  const C = TONICS.find((t) => t.letter === 'C' && t.alter === 0)!;
+
+  it('migrate keeps only the first of two entries sharing an id', () => {
+    // Duplicate ids break React keys, make removeChord delete both cards, and make reorderChord
+    // move the first one. The UI cannot produce them; an import or share link can.
+    const loaded = migrate(
+      withProgression([
+        { id: 'x', chord: { tonic: A, quality: 'm' }, lickSeed: 7, bars: 1 },
+        { id: 'x', chord: { tonic: C, quality: 'M' }, lickSeed: 9, bars: 1 },
+      ]),
+    );
+    expect(loaded.progression.length).toBe(1);
+    expect(loaded.progression[0]!.id).toBe('x');
+    expect(loaded.progression[0]!.chord).toEqual({ tonic: A, quality: 'm' });
+    expect(loaded.progression[0]!.lickSeed).toBe(7);
+  });
+
+  it('migrate keeps both entries when their ids differ', () => {
+    const loaded = migrate(
+      withProgression([
+        { id: 'x', chord: { tonic: A, quality: 'm' }, lickSeed: 7, bars: 1 },
+        { id: 'y', chord: { tonic: C, quality: 'M' }, lickSeed: 9, bars: 1 },
+      ]),
+    );
+    expect(loaded.progression.length).toBe(2);
+    expect(loaded.progression.map((e) => e.id)).toEqual(['x', 'y']);
+  });
+
+  it('migrate drops a non-adjacent duplicate id and keeps the order of the rest', () => {
+    const loaded = migrate(
+      withProgression([
+        { id: 'x', chord: { tonic: A, quality: 'm' }, lickSeed: 7, bars: 1 },
+        { id: 'y', chord: { tonic: C, quality: 'M' }, lickSeed: 9, bars: 1 },
+        { id: 'x', chord: { tonic: C, quality: 'm7' }, lickSeed: 11, bars: 2 },
+      ]),
+    );
+    expect(loaded.progression.length).toBe(2);
+    expect(loaded.progression.map((e) => e.id)).toEqual(['x', 'y']);
+    expect(loaded.progression[0]!.lickSeed).toBe(7);
+  });
 });
