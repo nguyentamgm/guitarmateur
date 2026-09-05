@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { TONICS } from '../music';
+import { TONICS, romanNumeral } from '../music';
 import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
 import { migrate, saveState, loadState } from './persistence';
@@ -224,5 +224,62 @@ describe('persistence', () => {
   it('migrate rejects a garbage language value', () => {
     const loaded = migrate({ schemaVersion: 7, language: 'klingon' }, 'vi' as LocaleId);
     expect(loaded.language).toBe('vi');
+  });
+
+  /** A payload carrying one progression entry with the given chord — the shape an import or a
+   *  share link hands to `migrate`. */
+  const withChord = (chord: unknown) => ({
+    schemaVersion: 7,
+    tuningId: 'standard',
+    key: { tonic: A, scaleId: 'minorPentatonic' },
+    positions: [],
+    progression: [{ id: 'x', chord, lickSeed: 7, bars: 1 }],
+    level: 2,
+    targetRole: 'R',
+    resolveToNext: false,
+  });
+
+  it('migrate drops a chord whose tonic letter is not a note letter', () => {
+    const loaded = migrate(withChord({ tonic: { letter: 'Z', alter: 0 }, quality: 'm' }));
+    expect(loaded.progression).toEqual([]);
+  });
+
+  it('migrate drops chords with out-of-range or non-integer alters and bogus letters', () => {
+    // Each of these renders as NaN / an Infinity-length accidental string if it reaches the UI.
+    const bad = [
+      { letter: 'A', alter: 1e20 },
+      { letter: 'A', alter: 3 },
+      { letter: 'A', alter: 0.5 },
+      { letter: 'H', alter: 0 },
+    ];
+    for (const tonic of bad) {
+      const loaded = migrate(withChord({ tonic, quality: 'm' }));
+      expect(loaded.progression).toEqual([]);
+    }
+  });
+
+  it('migrate keeps valid spellings outside the 12 offered TONICS', () => {
+    // G♭ and D♯ are legitimate chord tonics (transpose can produce them) but are not TONICS.
+    for (const tonic of [{ letter: 'G', alter: -1 }, { letter: 'D', alter: 1 }]) {
+      const loaded = migrate(withChord({ tonic, quality: 'M7' }));
+      expect(loaded.progression.length).toBe(1);
+      expect(loaded.progression[0]!.chord.tonic).toEqual(tonic);
+      expect(() => romanNumeral(loaded.key, loaded.progression[0]!.chord)).not.toThrow();
+    }
+  });
+
+  it('migrate drops chords whose quality is an inherited object key', () => {
+    for (const quality of ['toString', '__proto__', 'constructor', 'hasOwnProperty']) {
+      const loaded = migrate(withChord({ tonic: A, quality }));
+      expect(loaded.progression).toEqual([]);
+    }
+  });
+
+  it('migrate keeps every registered chord quality', () => {
+    for (const quality of ['m', 'M', 'dom7', 'm7', 'M7']) {
+      const loaded = migrate(withChord({ tonic: A, quality }));
+      expect(loaded.progression.length).toBe(1);
+      expect(loaded.progression[0]!.chord.quality).toBe(quality);
+    }
   });
 });

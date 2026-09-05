@@ -6,10 +6,24 @@ import { decodeState } from './share';
 
 const STORAGE_KEY = 'guitarmateur-state';
 
+/** pitch.ts keeps its `LETTERS` list private, so the spelling guard carries its own copy. */
+const NOTE_LETTERS: readonly string[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+/** A note must be a *spelled* note: a real letter with an accidental in the ±2 range `transpose`
+ *  can produce. Anything looser (letter 'Z', alter 1e20 or 0.5) survives into render and blows up
+ *  in `pc`/`format`/`romanNumeral`. Chord tonics stay free to use all 12 pitch classes and
+ *  spellings the 12 UI-offered TONICS don't include (G♭, D♯, …). */
 function isNoteName(x: unknown): x is NoteName {
   if (!x || typeof x !== 'object') return false;
   const n = x as Record<string, unknown>;
-  return typeof n.letter === 'string' && typeof n.alter === 'number';
+  return (
+    typeof n.letter === 'string' &&
+    NOTE_LETTERS.includes(n.letter) &&
+    typeof n.alter === 'number' &&
+    Number.isInteger(n.alter) &&
+    n.alter >= -2 &&
+    n.alter <= 2
+  );
 }
 
 function isValidTonic(x: unknown): x is NoteName {
@@ -20,8 +34,10 @@ function isValidScaleId(x: unknown): x is ScaleId {
   return typeof x === 'string' && (SCALE_IDS as readonly string[]).includes(x);
 }
 
+/** Own keys only — `in` would also admit inherited names like 'toString' or '__proto__', which
+ *  then throw when `chordNotes` reads `.intervals` off them. */
 function isValidQuality(x: unknown): x is QualityId {
-  return typeof x === 'string' && x in CHORD_QUALITIES;
+  return typeof x === 'string' && Object.prototype.hasOwnProperty.call(CHORD_QUALITIES, x);
 }
 
 function isValidTuningId(x: unknown): x is TuningId {
