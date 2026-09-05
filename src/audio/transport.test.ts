@@ -271,6 +271,16 @@ describe('Transport', () => {
     expect(getStopCount()).toBe(1);
   });
 
+  it('rejects a repeats option on play() at compile time', () => {
+    const { transport } = setup();
+    const lick = makeLick([{ string: 1, fret: 5, startBeat: 0, durationBeats: 1 }]);
+
+    // @ts-expect-error -- Transport plays a single pass or loops; repeats is compile-only
+    transport.play([lick], { tempoBpm: 90, repeats: 2 });
+
+    transport.stop();
+  });
+
   it('setClickGain/setNoteGain clamp to 0..1', () => {
     const { transport, engine } = setup();
 

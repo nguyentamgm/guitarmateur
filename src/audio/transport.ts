@@ -15,7 +15,10 @@ export interface TransportCallbacks {
   onStop?: () => void;
 }
 
-export interface PlayOptions extends CompileOptions {
+/** PlayOptions deliberately omits CompileOptions' `repeats`: the transport streams passes itself —
+ *  a single pass when `loop` is false, indefinite passes when it is true — and never honors a
+ *  finite repeat count. */
+export interface PlayOptions extends Omit<CompileOptions, 'repeats'> {
   /** Repeat the progression indefinitely until stopped. */
   loop?: boolean;
   /** Apply these mix gains to the live engine (the engine is created lazily on first play). */
