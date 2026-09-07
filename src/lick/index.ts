@@ -1,4 +1,4 @@
-export type { Technique, LickNote, Lick, LickParams, GenerateLick } from './model';
+export type { Technique, LickNote, Lick, LickParams } from './model';
 export { mulberry32, choice, weightedChoice, int, type Rng } from './rng';
 export type { RhythmSlot, RhythmPattern } from './rhythm';
 export { pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
