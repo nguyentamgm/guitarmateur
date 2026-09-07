@@ -1,6 +1,5 @@
-import type { Chord, ToneRole } from '../music';
+import type { ToneRole } from '../music';
 import type { Pitch } from '../music';
-import type { Box } from '../fretboard';
 
 export type Technique = 'hammer' | 'pull' | 'slide' | 'bendHalf' | 'bendFull';
 
@@ -35,5 +34,3 @@ export interface LickParams {
   /** Bars the lick spans (× 4 beats); optional for back-compat, defaults to 1 (M5). */
   bars?: 1 | 2;
 }
-
-export type GenerateLick = (box: Box, chord: Chord, next: Chord | null, params: LickParams) => Lick;
