@@ -2,7 +2,7 @@ export type { Interval } from './interval';
 export { IV } from './interval';
 
 export type { Letter, Alter, NoteName, Pitch, PitchClass } from './pitch';
-export { note, pitch, pc, midi, format, transpose, transposePitch, pitchAt } from './pitch';
+export { note, pitch, pc, midi, format, transpose, pitchAt } from './pitch';
 
 export type { Key } from './key';
 export { TONICS } from './key';
