@@ -6,7 +6,4 @@ export { pluralCategory } from './plural';
 
 export { detectLocale, DEFAULT_LOCALE } from './detect';
 
-export type { LocaleReport } from './validate';
-export { validateLocale } from './validate';
-
 export { LOCALES, MESSAGES, isLocaleId } from './locales';
