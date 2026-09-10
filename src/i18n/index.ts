@@ -1,8 +1,6 @@
-export type { LocaleId, LocaleMeta, Messages, ParamValue, Params, Translate, TranslationKey } from './types';
+export type { LocaleId, Translate, TranslationKey, Params } from './types';
 
 export { createTranslator } from './translate';
-
-export { pluralCategory } from './plural';
 
 export { detectLocale, DEFAULT_LOCALE } from './detect';
 
