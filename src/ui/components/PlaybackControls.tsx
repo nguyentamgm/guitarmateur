@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Lick } from '../../lick';
 import type { LocaleId } from '../../i18n';
 import { MIN_BPM, MAX_BPM } from '../../state';
@@ -130,23 +130,10 @@ export function PlaybackControls({
           aria-label={t('playback.tempoBpmAria')}
           style={{ accentColor: theme.accent, width: 120 }}
         />
-        <input
-          type="number"
-          min={MIN_BPM}
-          max={MAX_BPM}
+        <TempoField
           value={tempoBpm}
-          onChange={(e) => onTempoChange(Number(e.target.value))}
-          aria-label={t('playback.tempoBpmValueAria')}
-          style={{
-            width: 52,
-            padding: '4px 6px',
-            borderRadius: 6,
-            border: `1px solid ${theme.border}`,
-            background: theme.panel,
-            color: theme.text,
-            fontSize: 12,
-            fontFamily: font.mono,
-          }}
+          onCommit={onTempoChange}
+          ariaLabel={t('playback.tempoBpmValueAria')}
         />
         <span style={{ fontSize: 11, color: theme.subtle, fontFamily: font.mono }}>{t('playback.bpm')}</span>
       </label>
@@ -183,6 +170,52 @@ export function PlaybackControls({
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * Tempo entry box. Keeps a local draft string while the user types and only commits values that
+ * are already inside [MIN_BPM, MAX_BPM] — committing every keystroke would let `setTempo`'s clamp
+ * rewrite partial entries ("1" → 40), making a value like 150 impossible to type.
+ */
+function TempoField({
+  value,
+  onCommit,
+  ariaLabel,
+}: {
+  value: number;
+  onCommit: (bpm: number) => void;
+  ariaLabel: string;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  // Re-sync when the tempo changes elsewhere: slider, tap tempo, or an imported state.
+  useEffect(() => { setDraft(String(value)); }, [value]);
+
+  return (
+    <input
+      type="number"
+      min={MIN_BPM}
+      max={MAX_BPM}
+      value={draft}
+      onChange={(e) => {
+        const text = e.target.value;
+        setDraft(text);
+        const n = Number(text);
+        if (text.trim() !== '' && Number.isFinite(n) && n >= MIN_BPM && n <= MAX_BPM) onCommit(n);
+      }}
+      onBlur={() => setDraft(String(value))}
+      aria-label={ariaLabel}
+      style={{
+        width: 52,
+        padding: '4px 6px',
+        borderRadius: 6,
+        border: `1px solid ${theme.border}`,
+        background: theme.panel,
+        color: theme.text,
+        fontSize: 12,
+        fontFamily: font.mono,
+      }}
+    />
   );
 }
 
