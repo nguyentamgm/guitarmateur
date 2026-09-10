@@ -1,10 +1,8 @@
-export type { Tuning, TuningId } from './tuning';
+export type { TuningId } from './tuning';
 export { TUNINGS } from './tuning';
 
 export type { FretNote } from './neck';
-export { scaleSpelling, decorationPcs } from './neck';
 
-export type { Position } from './positions';
 export { positions } from './positions';
 
 export type { Box } from './merge';
