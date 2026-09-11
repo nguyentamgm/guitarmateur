@@ -40,8 +40,10 @@ function isValidQuality(x: unknown): x is QualityId {
   return typeof x === 'string' && Object.prototype.hasOwnProperty.call(CHORD_QUALITIES, x);
 }
 
+/** Own keys only — `in` would also admit inherited names like 'toString' or '__proto__', which
+ *  then throw when `positions` reads `.strings` off them. */
 function isValidTuningId(x: unknown): x is TuningId {
-  return typeof x === 'string' && x in TUNINGS;
+  return typeof x === 'string' && Object.prototype.hasOwnProperty.call(TUNINGS, x);
 }
 
 function isValidChord(x: unknown): x is Chord {

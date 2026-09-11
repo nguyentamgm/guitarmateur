@@ -43,5 +43,12 @@ describe('locale catalogs', () => {
     expect(isLocaleId('')).toBe(false);
     expect(isLocaleId(undefined)).toBe(false);
     expect(isLocaleId(42)).toBe(false);
+    // `in` would match these as if LOCALES had an entry for them.
+    expect(isLocaleId('toString')).toBe(false);
+    expect(isLocaleId('constructor')).toBe(false);
+    expect(isLocaleId('__proto__')).toBe(false);
+    expect(isLocaleId('hasOwnProperty')).toBe(false);
+    expect(isLocaleId('vi')).toBe(true);
+    expect(isLocaleId('en')).toBe(true);
   });
 });

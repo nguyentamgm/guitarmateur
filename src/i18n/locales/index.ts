@@ -10,7 +10,9 @@ export const LOCALES: Readonly<Record<LocaleId, LocaleMeta>> = {
   vi: { id: 'vi', endonym: 'Tiếng Việt', tag: 'vi' },
 };
 
-/** Type guard for a shipped locale id, e.g. validating a persisted or user-supplied value. */
+/** Type guard for a shipped locale id, e.g. validating a persisted or user-supplied value. Own
+ *  keys only — `in` would also admit inherited names like 'toString' or '__proto__', which then
+ *  surface as a bogus `document.documentElement.lang` and missing messages. */
 export function isLocaleId(x: unknown): x is LocaleId {
-  return typeof x === 'string' && x in LOCALES;
+  return typeof x === 'string' && Object.prototype.hasOwnProperty.call(LOCALES, x);
 }
