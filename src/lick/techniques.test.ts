@@ -3,6 +3,9 @@ import { mulberry32 } from './rng';
 import { decorateTechniques } from './techniques';
 import type { LickNote, Technique } from './model';
 import type { ToneRole } from '../music';
+import { TONICS } from '../music';
+import { TUNINGS, positions, mergedBox } from '../fretboard';
+import { generateLick } from './index';
 
 /** Build a minimal LickNote for testing. */
 function note(opts: Pick<LickNote, 'string' | 'fret' | 'startBeat'> & { technique?: Technique; role?: ToneRole }): LickNote {
@@ -54,8 +57,8 @@ describe('decorateTechniques', () => {
 
   it('same string 2-fret move → slide', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 2, startBeat: 1 }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 8, startBeat: 1 }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(5));
     expect(result[1]!.technique).toBe('slide');
@@ -63,8 +66,8 @@ describe('decorateTechniques', () => {
 
   it('same string 3-fret move → slide', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 3, startBeat: 1 }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 9, startBeat: 1 }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
     expect(result[1]!.technique).toBe('slide');
@@ -101,8 +104,8 @@ describe('decorateTechniques', () => {
 
     // slides also work at dFret=3 on same string at level 3 (with role to allow landing note)
     const notesSlide: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 3, startBeat: 1, role: 'R' }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 9, startBeat: 1, role: 'R' }),
     ];
     const slideResult = decorateTechniques(notesSlide, 5, mulberry32(42));
     expect(slideResult[1]!.technique).toBe('slide');
@@ -119,8 +122,8 @@ describe('decorateTechniques', () => {
 
   it('level 5: slide on 2-fret step up to chord tone', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 2, startBeat: 1, role: 'R' }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 8, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(5));
     expect(result[1]!.technique).toBe('slide');
@@ -128,25 +131,25 @@ describe('decorateTechniques', () => {
 
   it('generates bendHalf at level 5 for dFret=1 ascending pairs', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 1, startBeat: 1, role: 'R' }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 7, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
     expect(result[1]!.technique).toBe('bendHalf');
     // fret/pitch/string must be unchanged by the bend articulation
-    expect(result[1]!.fret).toBe(1);
+    expect(result[1]!.fret).toBe(7);
     expect(result[1]!.string).toBe(5);
   });
 
   it('generates bendFull at level 5 for dFret=2 ascending pairs', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 2, startBeat: 1, role: 'R' }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 8, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
     expect(result[1]!.technique).toBe('bendFull');
     // fret/pitch/string must be unchanged by the bend articulation
-    expect(result[1]!.fret).toBe(2);
+    expect(result[1]!.fret).toBe(8);
     expect(result[1]!.string).toBe(5);
   });
 
@@ -182,8 +185,8 @@ describe('decorateTechniques', () => {
 
   it('level 5: slide on 3-fret step up to chord tone', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 0, startBeat: 0 }),
-      note({ string: 5, fret: 3, startBeat: 1, role: 'R' }),
+      note({ string: 5, fret: 6, startBeat: 0 }),
+      note({ string: 5, fret: 9, startBeat: 1, role: 'R' }),
     ];
     const result = decorateTechniques(notes, 5, mulberry32(42));
     expect(result[1]!.technique).toBe('slide');
@@ -247,5 +250,83 @@ describe('decorateTechniques', () => {
         expect(count).toBeLessThanOrEqual(1);
       }
     }
+  });
+
+  it('open-string origin: never bends or slides — only hammer or nothing, at levels 4 and 5', () => {
+    const pairs: Array<[number, number]> = [[0, 1], [0, 2], [0, 3]];
+    for (const level of [4, 5] as const) {
+      for (const [fromFret, toFret] of pairs) {
+        for (let seed = 0; seed < 100; seed++) {
+          const notes: LickNote[] = [
+            note({ string: 5, fret: fromFret, startBeat: 0 }),
+            note({ string: 5, fret: toFret, startBeat: 1, role: 'R' }),
+          ];
+          const result = decorateTechniques(notes, level, mulberry32(seed));
+          const t = result[1]!.technique;
+          expect(['slide', 'bendHalf', 'bendFull']).not.toContain(t);
+          if (fromFret === 0 && toFret === 1) {
+            expect(t === 'hammer' || t === undefined).toBe(true);
+          } else {
+            expect(t).toBeUndefined();
+          }
+        }
+      }
+    }
+  });
+
+  it('descending slide into the open string stays allowed', () => {
+    for (let seed = 0; seed < 100; seed++) {
+      const notes: LickNote[] = [
+        note({ string: 5, fret: 2, startBeat: 0 }),
+        note({ string: 5, fret: 0, startBeat: 1, role: 'R' }),
+      ];
+      const result = decorateTechniques(notes, 5, mulberry32(seed));
+      const t = result[1]!.technique;
+      expect(t === 'slide' || t === undefined).toBe(true);
+      expect(t).not.toBe('bendHalf');
+      expect(t).not.toBe('bendFull');
+    }
+  });
+
+  it('property sweep over real generated licks: no bend/slide originates from an open string', () => {
+    const tuning = TUNINGS.standard;
+    const tonics = ['A', 'E', 'D', 'G'];
+    const scaleIds = ['minorPentatonic', 'blues'] as const;
+
+    let bendOrSlideCount = 0;
+
+    for (const letter of tonics) {
+      const tonic = TONICS.find((t) => t.letter === letter && t.alter === 0)!;
+      for (const scaleId of scaleIds) {
+        const key = { tonic, scaleId };
+        const pos = positions(tuning, key);
+        const box = mergedBox(pos, [0]);
+        const chord = { tonic, quality: 'm' as const };
+
+        for (let seed = 0; seed < 20; seed++) {
+          const lick = generateLick(box, chord, null, {
+            level: 5,
+            targetRole: 'R',
+            resolveToNext: false,
+            seed,
+          });
+
+          for (let i = 1; i < lick.notes.length; i++) {
+            const prev = lick.notes[i - 1]!;
+            const cur = lick.notes[i]!;
+            if (cur.technique === 'slide' || cur.technique === 'bendHalf' || cur.technique === 'bendFull') {
+              bendOrSlideCount++;
+              expect(
+                prev.fret,
+                `seed ${seed} ${letter} ${scaleId}: note #${i} has ${cur.technique} from fret ${prev.fret}`,
+              ).toBeGreaterThan(0);
+            }
+          }
+        }
+      }
+    }
+
+    // Guard against a vacuous pass: the sweep must actually exercise slides/bends.
+    expect(bendOrSlideCount).toBeGreaterThan(0);
   });
 });
