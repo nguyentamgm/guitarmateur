@@ -189,6 +189,20 @@ describe('persistence', () => {
     expect(loaded.targetRole).toBe('R'); // default
   });
 
+  it('migrate rejects a tuningId that only exists on Object.prototype', () => {
+    // `in` would match these as if TUNINGS had an entry for them, and positions() then throws
+    // trying to read .strings off undefined.
+    for (const tuningId of ['toString', 'constructor', '__proto__', 'hasOwnProperty']) {
+      expect(() => migrate({ tuningId })).not.toThrow();
+      expect(migrate({ tuningId }).tuningId).toBe('standard');
+    }
+  });
+
+  it('migrate keeps a valid non-default tuningId', () => {
+    const loaded = migrate({ tuningId: 'dropD' });
+    expect(loaded.tuningId).toBe('dropD');
+  });
+
   it('saveState writes schemaVersion in the payload', () => {
     const state = defaultState(() => 0);
     saveState(state);
