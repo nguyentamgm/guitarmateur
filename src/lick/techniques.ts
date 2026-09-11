@@ -12,10 +12,15 @@ const LEVEL_PROB: Record<LickParams['level'], number> = {
 /**
  * Decorate eligible adjacent note pairs with techniques.
  *
- * - Same-string ascending step (dFret === 1) ⇒ `hammer` (or `bendHalf` at level 5, 50/50)
+ * - Same-string ascending step (dFret === 1) ⇒ `hammer` (or `bendHalf` at level 5, 50/50,
+ *   only when the origin note is fretted)
  * - Same-string descending step (dFret === -1) ⇒ `pull`
- * - Same-string dFret === 2 ⇒ `slide` (or `bendFull` at level 5, 50/50)
- * - Same-string |dFret| > 2 ⇒ `slide`
+ * - Same-string dFret === 2 ⇒ `slide` (or `bendFull` at level 5, 50/50) when the origin note
+ *   is fretted; no technique when the origin is an open string
+ * - Same-string |dFret| > 2 ⇒ `slide`, only when the origin note is fretted
+ *
+ * Bends and slides require a fretted origin note: an open string cannot be bent, and there is
+ * nothing to slide from. Hammer-ons and pull-offs remain valid from/to an open string.
  *
  * Constraints:
  * - ≤ 1 technique per `startBeat`
@@ -60,13 +65,17 @@ export function decorateTechniques(
       } else if (usedBeats.has(cur.startBeat)) {
         // skip — already one technique on this beat
       } else if (dFret === 1) {
-        technique = level === 5 && rng() < 0.5 ? 'bendHalf' : 'hammer';
+        technique = level === 5 && prev.fret > 0 && rng() < 0.5 ? 'bendHalf' : 'hammer';
       } else if (dFret === -1) {
         technique = 'pull';
       } else if (dFret === 2) {
-        technique = level === 5 && rng() < 0.5 ? 'bendFull' : 'slide';
+        if (prev.fret > 0) {
+          technique = level === 5 && rng() < 0.5 ? 'bendFull' : 'slide';
+        }
       } else if (Math.abs(dFret) > 1) {
-        technique = 'slide';
+        if (prev.fret > 0) {
+          technique = 'slide';
+        }
       }
     }
 
