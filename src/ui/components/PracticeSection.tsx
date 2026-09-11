@@ -32,6 +32,13 @@ export function PracticeSection({ state, dispatch }: { state: AppState; dispatch
     }
   }, [active?.entryIndex]);
 
+  const { stop } = transport;
+  useEffect(() => {
+    if (state.progression.length === 0) {
+      stop();
+    }
+  }, [state.progression.length, stop]);
+
   const { key: stateKey, progression: stateProgression } = state;
   const box = useMemo(() => {
     const pos = positions(TUNINGS[state.tuningId], stateKey);
