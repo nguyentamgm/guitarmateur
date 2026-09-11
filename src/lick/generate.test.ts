@@ -3,7 +3,7 @@ import { TONICS, midi } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import type { Box } from '../fretboard';
 import { generateLick, type LickParams, type Lick } from './index';
-import { countSameFretStringJumps } from './path';
+import { countSameFretStringJumps, countUnplayableMoves } from './path';
 
 // Build a known box: A minor pentatonic, standard tuning, position 1 (frets 0-3)
 const tonicA = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
@@ -263,5 +263,41 @@ describe('generateLick — fretting-hand ergonomics', () => {
         expect(allNotesInBox(lick, denseBox)).toBe(true);
       }
     }
+  });
+});
+
+describe('generateLick — levels 1-2 never skip a string', () => {
+  /** Position 4 puts a note at fret 5 on all six strings — same dense box as the ergonomics suite. */
+  const denseBox = mergedBox(pos, [pos.length - 1]);
+
+  it('never places two adjacent notes on non-adjacent strings, even when first/last land far apart', () => {
+    for (const b of [box, denseBox]) {
+      for (const level of [1, 2] as LickParams['level'][]) {
+        for (let seed = 0; seed < 150; seed++) {
+          const lick = generateLick(b, chord, nextChord, { level, targetRole: 'R', resolveToNext: false, seed });
+          for (let i = 1; i < lick.notes.length; i++) {
+            const dString = Math.abs(lick.notes[i]!.string - lick.notes[i - 1]!.string);
+            expect(
+              dString,
+              `level ${level} seed ${seed}: ${lick.notes.map((n) => `${n.string}/${n.fret}`).join(' ')}`,
+            ).toBeLessThanOrEqual(1);
+          }
+          expect(countUnplayableMoves(lick.notes, level)).toBe(0);
+        }
+      }
+    }
+  });
+
+  it('levels 3-5 keep allowing string skips (behavior unchanged)', () => {
+    let skips = 0;
+    for (const level of [3, 4, 5] as LickParams['level'][]) {
+      for (let seed = 0; seed < 40; seed++) {
+        const lick = generateLick(denseBox, chord, nextChord, { level, targetRole: 'R', resolveToNext: false, seed });
+        for (let i = 1; i < lick.notes.length; i++) {
+          if (Math.abs(lick.notes[i]!.string - lick.notes[i - 1]!.string) > 1) skips++;
+        }
+      }
+    }
+    expect(skips).toBeGreaterThan(0);
   });
 });

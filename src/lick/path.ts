@@ -56,6 +56,29 @@ export function countSameFretStringJumps(path: readonly FretCell[]): number {
   return n;
 }
 
+/** Whether stepping between these two cells crosses a non-adjacent string. */
+export function isStringSkip(a: FretCell, b: FretCell): boolean {
+  return Math.abs(a.string - b.string) > 1;
+}
+
+/**
+ * How many consecutive pairs along a path are unplayable for `level`: same-fret string jumps
+ * (banned at every level) plus, for levels that forbid it (`allowSkips: false`), moves to a
+ * non-adjacent string. Used both to steer `fillPath` and, in `generateLick`, to decide whether a
+ * whole attempt — including its fixed `first`/`last` endpoints — must be re-seeded.
+ */
+export function countUnplayableMoves(path: readonly FretCell[], level: LickParams['level']): number {
+  const forbidSkips = !LEVEL_CAPS[level].allowSkips;
+  let n = 0;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1]!;
+    const b = path[i]!;
+    if (isSameFretStringJump(a, b)) n++;
+    else if (forbidSkips && isStringSkip(a, b)) n++;
+  }
+  return n;
+}
+
 /** How many positions before the immediate previous note count as "recently visited". */
 const RECENCY_WINDOW = 2;
 /** Weight subtracted per recent-window hit on a (string, fret) pair, suppressing A-B-A bounce. */
@@ -107,16 +130,49 @@ export function fillPath(
 
   for (let i = 1; i < count - 1; i++) {
     const progress = i / (count - 1);
-    // Ergonomics first: rule out same-fret string jumps before anything else weighs in. The last
-    // interior note is also checked against `last`, which is fixed and gets appended unexamined —
-    // otherwise the one transition nothing chooses is the one left free to be unplayable.
+    // Ergonomics first: rule out same-fret string jumps and, for levels that forbid it, string
+    // skips — before anything else weighs in. The last interior note is also checked against
+    // `last`, which is fixed and gets appended unexamined — otherwise the one transition nothing
+    // chooses is the one left free to be unplayable. This never relaxes, unlike the level caps
+    // below: `first`/`last` are chosen before `fillPath` runs, so if even this can't be satisfied,
+    // `generateLick`'s re-seed loop (`countUnplayableMoves`) is the only remedy left.
     const isTail = i === count - 2;
-    const playable = box.notes.filter(
+    const sameFretSafe = box.notes.filter(
       (cand) =>
         !isSameFretStringJump(prev, cand) && !(isTail && isSameFretStringJump(cand, last)),
     );
-    const strict = playable.filter((cand) => {
-      if (!cap.allowSkips && Math.abs(cand.string - prev.string) > 1) return false;
+    const skipFree = cap.allowSkips
+      ? sameFretSafe
+      : sameFretSafe.filter(
+          (cand) => !isStringSkip(prev, cand) && (!isTail || !isStringSkip(cand, last)),
+        );
+    // If nothing is adjacent to both `prev` and the fixed `last` at once, that can only happen at
+    // the tail slot, and only when `first`/`last` are already farther apart in string than `count`
+    // leaves room to bridge one step at a time — not something this note's choice can fix. Drop the
+    // `last` side of the check rather than the `prev` side: it keeps every step up to here skip-free
+    // and confines the one unavoidable skip to the final, unexamined handover.
+    const skipFreeFromPrev = cap.allowSkips
+      ? sameFretSafe
+      : sameFretSafe.filter((cand) => !isStringSkip(prev, cand));
+    const playable = skipFree.length ? skipFree : skipFreeFromPrev.length ? skipFreeFromPrev : sameFretSafe;
+    // One step of lookahead at the slot right before the tail: a candidate can look locally fine
+    // (adjacent to `prev`) and still strand the walk, if nothing adjacent to *it* is also adjacent
+    // to the fixed `last`. Prefer candidates that leave at least one legal way into `last`, so the
+    // tail step above only ever has to bridge a skip that the endpoints themselves made impossible.
+    const isPreTail = !cap.allowSkips && i === count - 3;
+    const withEscapeToLast = isPreTail
+      ? playable.filter((cand) =>
+          box.notes.some(
+            (t) =>
+              !isSameFretStringJump(cand, t) &&
+              !isSameFretStringJump(t, last) &&
+              !isStringSkip(cand, t) &&
+              !isStringSkip(t, last),
+          ),
+        )
+      : playable;
+    const lookaheadPlayable = withEscapeToLast.length ? withEscapeToLast : playable;
+    const strict = lookaheadPlayable.filter((cand) => {
       if (cand.isDecoration && level < 2) return false;
       const newMin = Math.min(usedMin, cand.fret);
       const newMax = Math.max(usedMax, cand.fret);
@@ -124,7 +180,7 @@ export function fillPath(
     });
     // Relax the level caps before the ergonomic rule — a lick that overruns its fret span is still
     // practisable, one that demands an impossible finger hop is not.
-    const pool = strict.length ? strict : playable.length ? playable : box.notes;
+    const pool = strict.length ? strict : lookaheadPlayable.length ? lookaheadPlayable : box.notes;
     const expected = expectedMidi(contour, firstMidi, lastMidi, progress);
     // Positions visited before `prev` (which the `repeat` factor already penalizes on its own).
     const recent = out.slice(-1 - RECENCY_WINDOW, -1);

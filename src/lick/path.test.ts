@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { countSameFretStringJumps, fillPath, isSameFretStringJump } from './path';
+import { countSameFretStringJumps, countUnplayableMoves, fillPath, isSameFretStringJump, isStringSkip } from './path';
 import { mulberry32 } from './rng';
-import { pitch, midi } from '../music';
+import { pitch, midi, TONICS } from '../music';
+import { TUNINGS, positions, mergedBox } from '../fretboard';
 import type { Box, FretNote } from '../fretboard';
 import type { Contour } from './contour';
 
@@ -419,5 +420,148 @@ describe('fillPath — fretting-hand ergonomics', () => {
       }
     }
     expect(rolls).toBeGreaterThan(0);
+  });
+});
+
+describe('isStringSkip', () => {
+  it('flags moves to a non-adjacent string', () => {
+    expect(isStringSkip(fn(0, 5), fn(2, 5))).toBe(true);
+    expect(isStringSkip(fn(5, 3), fn(0, 3))).toBe(true);
+  });
+
+  it('allows same-string and adjacent-string moves', () => {
+    expect(isStringSkip(fn(2, 5), fn(2, 7))).toBe(false);
+    expect(isStringSkip(fn(2, 5), fn(3, 5))).toBe(false);
+    expect(isStringSkip(fn(3, 5), fn(2, 5))).toBe(false);
+  });
+});
+
+describe('countUnplayableMoves', () => {
+  it('counts string skips for levels that forbid them (1-2)', () => {
+    // Distinct frets throughout so no pair is also a same-fret jump — isolates the skip count.
+    expect(countUnplayableMoves([fn(0, 5), fn(3, 7), fn(5, 2)], 1)).toBe(2);
+    expect(countUnplayableMoves([fn(0, 5), fn(1, 7), fn(2, 2)], 1)).toBe(0);
+  });
+
+  it('does not count string skips for levels that allow them (3-5)', () => {
+    expect(countUnplayableMoves([fn(0, 5), fn(3, 7), fn(5, 2)], 3)).toBe(0);
+  });
+
+  it('still counts same-fret string jumps at every level, skips or not', () => {
+    // fret 5 on string 0 straight to fret 5 on string 3 — banned everywhere, not just levels 1-2.
+    expect(countUnplayableMoves([fn(0, 5), fn(3, 5)], 5)).toBe(1);
+  });
+});
+
+describe('fillPath — levels 1-2 forbid string skips', () => {
+  /** Three adjacent strings, several frets each — a fully adjacent-string path always exists. */
+  const threeStringBox: Box = {
+    notes: [
+      fn(0, 0, { pitch: fretPitch(0, 0) }),
+      fn(0, 2, { pitch: fretPitch(0, 2) }),
+      fn(0, 4, { pitch: fretPitch(0, 4) }),
+      fn(1, 0, { pitch: fretPitch(1, 0) }),
+      fn(1, 2, { pitch: fretPitch(1, 2) }),
+      fn(1, 4, { pitch: fretPitch(1, 4) }),
+      fn(2, 0, { pitch: fretPitch(2, 0) }),
+      fn(2, 2, { pitch: fretPitch(2, 2) }),
+      fn(2, 4, { pitch: fretPitch(2, 4) }),
+    ],
+    minFret: 0,
+    maxFret: 4,
+  };
+
+  it('never steps to a non-adjacent string when a valid path exists', () => {
+    const first = fn(0, 0, { pitch: fretPitch(0, 0) });
+    const last = fn(2, 0, { pitch: fretPitch(2, 0) });
+    for (const level of [1, 2] as const) {
+      for (const count of [3, 4, 5, 6]) {
+        for (let seed = 0; seed < 100; seed++) {
+          const path = fillPath(threeStringBox, first, last, count, 'ascend', level, mulberry42(seed));
+          for (let i = 1; i < path.length; i++) {
+            expect(
+              isStringSkip(path[i - 1]!, path[i]!),
+              `level ${level} count ${count} seed ${seed}: ${path.map((p) => `${p.string}/${p.fret}`).join(' ')}`,
+            ).toBe(false);
+          }
+        }
+      }
+    }
+  });
+
+  it('guards the handover to `last` against a skip, not just against a same-fret jump', () => {
+    // `last` sits on string 2; nothing prevents the walk from wandering off to string 0 for the
+    // penultimate note unless the tail candidate is also checked against `last` for skips.
+    const first = fn(0, 0, { pitch: fretPitch(0, 0) });
+    const last = fn(2, 0, { pitch: fretPitch(2, 0) });
+    for (let seed = 0; seed < 100; seed++) {
+      const path = fillPath(threeStringBox, first, last, 4, 'ascend', 1, mulberry42(seed));
+      const penultimate = path[path.length - 2]!;
+      expect(isStringSkip(penultimate, last)).toBe(false);
+    }
+  });
+
+  it('level 3+ may still skip strings in the same box (behavior unchanged)', () => {
+    const first = fn(0, 0, { pitch: fretPitch(0, 0) });
+    const last = fn(2, 0, { pitch: fretPitch(2, 0) });
+    let skips = 0;
+    for (let seed = 0; seed < 100; seed++) {
+      const path = fillPath(threeStringBox, first, last, 4, 'ascend', 3, mulberry42(seed));
+      for (let i = 1; i < path.length; i++) {
+        if (isStringSkip(path[i - 1]!, path[i]!)) skips++;
+      }
+    }
+    expect(skips).toBeGreaterThan(0);
+  });
+});
+
+describe('fillPath — real box (A minor pentatonic, position 1)', () => {
+  // Same box construction as the `generateLick` ergonomics suite, so this exercises the actual
+  // shape production code walks: 6 strings, 2 frets each, spanning the full width of the neck.
+  const tonicA = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
+  const key = { tonic: tonicA, scaleId: 'minorPentatonic' as const };
+  const pos = positions(TUNINGS.standard, key);
+  const box = mergedBox(pos, [pos[0]!.index]);
+  const COUNT = 5;
+
+  function skipKind(path: readonly FretNote[]): { interior: number; tail: number } {
+    let interior = 0;
+    let tail = 0;
+    for (let i = 1; i < path.length; i++) {
+      if (Math.abs(path[i]!.string - path[i - 1]!.string) <= 1) continue;
+      if (i === path.length - 1) tail++;
+      else interior++;
+    }
+    return { interior, tail };
+  }
+
+  it('interior is never a skip, and the path is entirely skip-free whenever the endpoints allow it', () => {
+    for (const level of [1, 2] as const) {
+      for (let seed = 0; seed < 300; seed++) {
+        const first = box.notes[seed % box.notes.length]!;
+        const last = box.notes[(seed * 7 + 3) % box.notes.length]!;
+        const path = fillPath(box, first, last, COUNT, 'ascend', level, mulberry32(seed));
+        const { interior, tail } = skipKind(path);
+        expect(interior, `level ${level} seed ${seed}: ${path.map((p) => `${p.string}/${p.fret}`).join(' ')}`).toBe(0);
+        // A walk one string at a time needs |delta string| transitions; the path only has COUNT - 1.
+        if (Math.abs(first.string - last.string) <= COUNT - 1) {
+          expect(tail, `level ${level} seed ${seed}: ${path.map((p) => `${p.string}/${p.fret}`).join(' ')}`).toBe(0);
+        }
+      }
+    }
+  });
+
+  it('when the endpoints make an all-adjacent walk impossible, the one unavoidable skip lands only on the handover to `last`', () => {
+    for (const level of [1, 2] as const) {
+      for (let seed = 0; seed < 300; seed++) {
+        const first = box.notes[seed % box.notes.length]!;
+        const last = box.notes[(seed * 7 + 3) % box.notes.length]!;
+        if (Math.abs(first.string - last.string) <= COUNT - 1) continue;
+        const path = fillPath(box, first, last, COUNT, 'ascend', level, mulberry32(seed));
+        const { interior, tail } = skipKind(path);
+        expect(interior).toBe(0);
+        expect(tail).toBe(1);
+      }
+    }
   });
 });
