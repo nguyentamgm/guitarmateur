@@ -9,6 +9,10 @@ import { countUnplayableMoves } from './path';
  * a representative set of tonic spellings, every box and adjacent box pair, every level/role/
  * resolveToNext/bars combination, over the first two entries of the key's default progression.
  * Nothing here is hand-crafted — boxes and chords are built the same way the UI builds them.
+ *
+ * Violations are accumulated and asserted once per case (25 shown) rather than asserted inline:
+ * a few million `expect` calls turn a ~10s sweep into a ~35s one, and the context-tagged messages
+ * keep the diagnostics just as readable.
  */
 
 /** Chase order `pickChordTone` (contour.ts) uses when the requested role has no box candidates. */
@@ -60,6 +64,11 @@ describe('generateLick — property sweep across the UI parameter space', () => 
         const label = `${scaleId} ${tonicLabel} box[${selection.join(',')}]`;
 
         it(label, { timeout: 60000 }, () => {
+          const violations: string[] = [];
+          const check = (ok: boolean, msg: string) => {
+            if (!ok) violations.push(msg);
+          };
+
           for (let e = 0; e < progression.length; e++) {
             const chord = progression[e]!;
             const next = progression[(e + 1) % progression.length]!;
@@ -74,20 +83,20 @@ describe('generateLick — property sweep across the UI parameter space', () => 
                     const notes = lick.notes;
                     const ctx = `${label} e${e} lvl${level} role${role} rtn${resolveToNext} bars${bars}`;
 
-                    expect(notes.length, ctx).toBeGreaterThan(0);
-                    expect(lick.lengthBeats, ctx).toBe(bars * 4);
+                    check(notes.length > 0, `${ctx}: empty lick`);
+                    check(lick.lengthBeats === bars * 4, `${ctx}: lengthBeats ${lick.lengthBeats}`);
 
                     let prevEnd = -Infinity;
                     for (let i = 0; i < notes.length; i++) {
                       const n = notes[i]!;
-                      expect(cells.has(`${n.string}:${n.fret}`), ctx).toBe(true);
-                      expect(n.durationBeats, ctx).toBeGreaterThan(0);
-                      expect(n.startBeat, ctx).toBeGreaterThanOrEqual(prevEnd - 1e-9);
+                      check(cells.has(`${n.string}:${n.fret}`), `${ctx}: note ${i} outside the box (${n.string}:${n.fret})`);
+                      check(n.durationBeats > 0, `${ctx}: note ${i} duration ${n.durationBeats}`);
+                      check(n.startBeat >= prevEnd - 1e-9, `${ctx}: note ${i} starts at ${n.startBeat}, overlapping the previous note's end ${prevEnd}`);
                       prevEnd = n.startBeat + n.durationBeats;
 
                       const isLast = i === notes.length - 1;
                       const expectedRole = toneRole(n.pitch, isLast ? targetChord : chord) ?? null;
-                      expect(n.role ?? null, ctx).toBe(expectedRole);
+                      check((n.role ?? null) === expectedRole, `${ctx}: note ${i} role ${String(n.role)} but toneRole says ${String(expectedRole)}`);
 
                       if (i > 0) {
                         const prev = notes[i - 1]!;
@@ -95,23 +104,32 @@ describe('generateLick — property sweep across the UI parameter space', () => 
                         // Hardcoded independently of path.ts's LEVEL_CAPS table, so a regression that
                         // relaxes those caps still gets caught here.
                         const sameFretJump = n.fret === prev.fret && n.fret > 0 && dString >= 2;
-                        expect(sameFretJump, ctx).toBe(false);
+                        check(!sameFretJump, `${ctx}: note ${i} is a same-fret string jump (${prev.string}:${prev.fret} -> ${n.string}:${n.fret})`);
                         if (level === 1 || level === 2) {
-                          expect(dString, ctx).toBeLessThanOrEqual(1);
+                          check(dString <= 1, `${ctx}: level ${level} moves across ${dString} strings (${prev.string}:${prev.fret} -> ${n.string}:${n.fret})`);
                         }
                       }
                     }
 
                     const last = notes[notes.length - 1]!;
-                    expect(Math.abs(last.startBeat + last.durationBeats - lick.lengthBeats), ctx).toBeLessThan(0.001);
-                    expect(last.role, ctx).toBe(landingFallbackRole(box, targetChord, role));
-
-                    expect(countUnplayableMoves(notes, level), ctx).toBe(0);
+                    check(
+                      Math.abs(last.startBeat + last.durationBeats - lick.lengthBeats) < 0.001,
+                      `${ctx}: lick ends at ${last.startBeat + last.durationBeats}, expected ${lick.lengthBeats}`,
+                    );
+                    const expectedLanding = landingFallbackRole(box, targetChord, role);
+                    check(
+                      last.role === expectedLanding,
+                      `${ctx}: landing role ${String(last.role)} but the fallback chain expects ${expectedLanding}`,
+                    );
+                    const badMoves = countUnplayableMoves(notes, level);
+                    check(badMoves === 0, `${ctx}: countUnplayableMoves = ${badMoves}`);
                   }
                 }
               }
             }
           }
+
+          expect(violations.slice(0, 25)).toEqual([]);
         });
       }
     }
