@@ -162,6 +162,38 @@ describe('merge & adjacency', () => {
   });
 });
 
+describe('7-note diatonic scale boxes never nest — 12 tonics × 4 scales × both tunings', () => {
+  const tonics = [
+    note('A'), note('B', -1), note('B'), note('C'), note('C', 1), note('D'),
+    note('E', -1), note('E'), note('F'), note('F', 1), note('G'), note('G', 1),
+  ];
+  const scaleIds: ScaleId[] = ['major', 'dorian', 'mixolydian', 'natural-minor'];
+
+  it('no box is a subset of another, and no two boxes share a [minFret, maxFret] range', () => {
+    for (const tuning of [TUNINGS.standard, TUNINGS.dropD]) {
+      for (const tonic of tonics) {
+        for (const scaleId of scaleIds) {
+          const key: Key = { tonic, scaleId };
+          const pos = positions(tuning, key);
+
+          const ranges = pos.map((p) => `${p.minFret}:${p.maxFret}`);
+          expect(new Set(ranges).size).toBe(ranges.length);
+
+          for (const a of pos) {
+            const aCells = new Set(cells(a.notes));
+            for (const b of pos) {
+              if (a === b) continue;
+              const bCells = cells(b.notes);
+              const isSubset = bCells.every((c) => aCells.has(c));
+              expect(isSubset).toBe(false);
+            }
+          }
+        }
+      }
+    }
+  });
+});
+
 describe('drop D differs from standard on the low string', () => {
   it('low-E-string frets shift down 2 for the same scale note', () => {
     const std = positions(TUNINGS.standard, A_MINOR);

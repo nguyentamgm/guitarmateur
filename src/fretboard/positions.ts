@@ -51,24 +51,48 @@ export function positions(tuning: Tuning, key: Key): Position[] {
     };
   };
 
-  const result: Position[] = [];
-  for (let startIdx = 0; startIdx < N; startIdx++) {
-    const anchor = anchorFret(startIdx);
-    // A position is the scale notes inside a fret window [anchor-1, anchor+span] across all
-    // strings. The window width (span+1) makes the fret-span invariant hold by construction, and
-    // the tuning's per-string offsets (incl. the B string) fall out because we scan actual frets.
-    const lo = Math.max(0, anchor - 1);
-    const hi = anchor + span;
+  const notesInWindow = (lo: number, hi: number): FretNote[] => {
     const notes: FretNote[] = [];
     for (let s = 0; s < numStrings; s++) {
       for (let fret = lo; fret <= hi; fret++) {
         if (spelling.has(mod(openMidi(s) + fret, 12))) notes.push(makeNote(s, fret));
       }
     }
+    return notes;
+  };
 
-    const frets = notes.map((n) => n.fret);
-    const minFret = Math.min(...frets);
-    const maxFret = Math.max(...frets);
+  // Process degrees in ascending-anchor order so each box's real fret range can be kept past the
+  // previous one's. Two anchors are often only 1-2 frets apart, and sparse note occupancy (e.g.
+  // near the nut, or a fret with no scale note on any string) can erode a box's actual min/max
+  // inward until it ties or nests inside its neighbour even though their nominal windows differ.
+  const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => anchorFret(a) - anchorFret(b));
+
+  const result: Position[] = [];
+  let prevMinFret = -Infinity;
+  let prevMaxFret = -Infinity;
+  for (const startIdx of order) {
+    const anchor = anchorFret(startIdx);
+    // A position is the scale notes inside a fret window [lo, anchor+span] across all strings.
+    // The window normally starts 1 fret below the anchor; lo only climbs past that when needed to
+    // clear the previous box's actual range. The window width (span+1) makes the fret-span
+    // invariant hold by construction, and the tuning's per-string offsets (incl. the B string)
+    // fall out because we scan actual frets.
+    const hi = anchor + span;
+    let lo = Math.max(0, anchor - 1);
+    let notes = notesInWindow(lo, hi);
+    let frets = notes.map((n) => n.fret);
+    let minFret = Math.min(...frets);
+    let maxFret = Math.max(...frets);
+    while ((minFret <= prevMinFret || maxFret <= prevMaxFret) && lo < hi) {
+      lo++;
+      notes = notesInWindow(lo, hi);
+      frets = notes.map((n) => n.fret);
+      minFret = Math.min(...frets);
+      maxFret = Math.max(...frets);
+    }
+
+    prevMinFret = minFret;
+    prevMaxFret = maxFret;
     result.push({ index: startIdx, notes, minFret, maxFret });
   }
 
