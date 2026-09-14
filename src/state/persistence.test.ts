@@ -3,6 +3,7 @@ import { TONICS, romanNumeral } from '../music';
 import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
 import { migrate, saveState, loadState } from './persistence';
+import { encodeState } from './share';
 
 const STORAGE_KEY = 'guitarmateur-state';
 
@@ -339,5 +340,30 @@ describe('persistence', () => {
     expect(loaded.progression.length).toBe(2);
     expect(loaded.progression.map((e) => e.id)).toEqual(['x', 'y']);
     expect(loaded.progression[0]!.lickSeed).toBe(7);
+  });
+
+  describe('loadState when history.replaceState throws', () => {
+    const originalLocation = window.location;
+    const originalReplaceState = window.history.replaceState;
+
+    afterEach(() => {
+      Object.defineProperty(window, 'location', { value: originalLocation, writable: true, configurable: true });
+      window.history.replaceState = originalReplaceState;
+    });
+
+    it('still returns the decoded share-link state even if replaceState throws', () => {
+      const encoded = encodeState({ ...defaultState(() => 42), tempoBpm: 111 });
+      Object.defineProperty(window, 'location', {
+        value: { ...originalLocation, search: `?s=${encodeURIComponent(encoded)}` },
+        writable: true,
+        configurable: true,
+      });
+      window.history.replaceState = () => {
+        throw new DOMException('Blocked in sandboxed iframe', 'SecurityError');
+      };
+
+      const loaded = loadState();
+      expect(loaded?.tempoBpm).toBe(111);
+    });
   });
 });
