@@ -11,6 +11,16 @@ const en: Record<string, string> = {
   'progression.bars.other': '{count} bars',
 };
 
+/**
+ * Active-locale fixture. `vi` has no plural inflection of its own — `pluralCategory('vi', n)` is
+ * always `'other'` — so its `.one` entry is unreachable through `t()`. It exists here so a lookup
+ * that wrongly uses the fallback catalog's language (English) for the active locale picks it up.
+ */
+const viCatalog: Record<string, string> = {
+  'progression.bars.one': '{count} thanh (dạng số ít)',
+  'progression.bars.other': '{count} thanh',
+};
+
 describe('createTranslator — interpolation', () => {
   const t = createTranslator('en', en, en);
 
@@ -52,6 +62,30 @@ describe('createTranslator — plural routing', () => {
 
   it('resolves the plural category for count = 0', () => {
     expect(t('progression.bars', { count: 0 })).toBe('0 bars');
+  });
+
+  it("uses the fallback catalog's own plural rule when the active locale has no such key", () => {
+    // `vi` has no `progression.bars` key at all: the English fallback catalog answers, and English
+    // is the language whose rule must pick the category — `.other` here would render "1 bars".
+    const t = createTranslator('vi', {}, en);
+    expect(t('progression.bars', { count: 1 })).toBe('1 bar');
+    expect(t('progression.bars', { count: 2 })).toBe('2 bars');
+  });
+
+  it("uses the active locale's own plural rule for a key its own catalog carries", () => {
+    // Guards the opposite over-correction: routing the ACTIVE locale through the fallback's language
+    // would pick `vi.one` for count = 1, which Vietnamese never uses.
+    const t = createTranslator('vi', viCatalog, en);
+    expect(t('progression.bars', { count: 1 })).toBe('1 thanh');
+    expect(t('progression.bars', { count: 2 })).toBe('2 thanh');
+  });
+
+  it('resolves the active locale\'s own ".other" form when its language has no plural distinction', () => {
+    // Only `.other` is translated. Vietnamese routes every count there, so count = 1 must render the
+    // Vietnamese `.other` text rather than reaching past it for English's singular.
+    const t = createTranslator('vi', { 'progression.bars.other': '{count} thanh' }, en);
+    expect(t('progression.bars', { count: 1 })).toBe('1 thanh');
+    expect(t('progression.bars', { count: 2 })).toBe('2 thanh');
   });
 });
 
