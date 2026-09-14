@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defaultProgression } from './harmony';
+import { romanNumeral } from './roman';
 import { note, pc } from './pitch';
 import type { Key } from './key';
 import { chordNotes } from './chord';
@@ -214,8 +215,9 @@ describe('defaultProgression', () => {
 
   it('diatonic 7-note scales keep every chord tone inside the scale', () => {
     const diatonic = ['major', 'dorian', 'mixolydian', 'natural-minor'] as const;
+    const tonics = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#'];
     for (const scaleId of diatonic) {
-      for (const tonicTxt of ['A', 'C', 'G', 'D']) {
+      for (const tonicTxt of tonics) {
         const k = key(tonicTxt, scaleId);
         const scale = scalePcs(k);
         for (const c of defaultProgression(k)) {
@@ -223,6 +225,29 @@ describe('defaultProgression', () => {
             expect(scale.has(pc(n)), `${scaleId} ${tonicTxt}: ${n.letter}${n.alter} of ${c.quality} out of scale`).toBe(true);
           }
         }
+      }
+    }
+  });
+
+  // Roman numerals claimed by the doc comment atop harmony.ts for each scale's defaultProgression.
+  const EXPECTED_ROMAN_NUMERALS: Record<ScaleId, string[]> = {
+    minorPentatonic: ['i', '♭VII', '♭VI', '♭VII'],
+    majorPentatonic: ['I', 'V', 'vi', 'IV'],
+    blues: ['I7', 'IV7', 'I7', 'V7'],
+    major: ['I7', 'IV7', 'V7', 'vi7'],
+    dorian: ['i7', 'IV7', 'i7', '♭VII7'],
+    mixolydian: ['I7', '♭VII7', 'IV7', 'I7'],
+    'natural-minor': ['i7', '♭III7', '♭VII7', 'v7'],
+    'major-blues': ['I7', 'IV7', 'I7', 'V7', 'IV7', 'I7'],
+  };
+
+  it('romanNumeral reproduces the numerals documented in harmony.ts for every scale × tonic', () => {
+    const tonics = ['A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#'];
+    for (const scaleId of SCALE_IDS) {
+      for (const t of tonics) {
+        const k = key(t, scaleId);
+        const actual = defaultProgression(k).map((c) => romanNumeral(k, c));
+        expect(actual, `${scaleId} ${t}`).toEqual(EXPECTED_ROMAN_NUMERALS[scaleId]);
       }
     }
   });

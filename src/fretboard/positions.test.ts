@@ -81,6 +81,19 @@ describe('invariants — all 12 tonics × 3 scales × both tunings', () => {
       }
     }
   });
+
+  it('minFret values are unique within a scale/tonic/tuning', () => {
+    for (const tuning of [TUNINGS.standard, TUNINGS.dropD]) {
+      for (const tonic of tonics) {
+        for (const scaleId of SCALE_IDS) {
+          const key: Key = { tonic, scaleId };
+          const pos = positions(tuning, key);
+          const minFrets = pos.map((p) => p.minFret);
+          expect(new Set(minFrets).size, `${scaleId} ${tonic.letter}${tonic.alter} ${tuning.id}: minFrets ${minFrets.join(',')}`).toBe(minFrets.length);
+        }
+      }
+    }
+  });
 });
 
 describe('decoration — blues fills the minor-pentatonic boxes', () => {
@@ -131,7 +144,7 @@ describe('decoration — blues fills the minor-pentatonic boxes', () => {
 
 });
 
-describe('positions() and scaleNotesOnNeck() agree on degree — both decorated scales × all 12 tonics', () => {
+describe('positions() and scaleNotesOnNeck() agree on degree — both decorated scales × all 12 tonics × both tunings', () => {
   const mod = (n: number, m: number): number => ((n % m) + m) % m;
   const decoratedScaleIds: ScaleId[] = ['blues', 'major-blues'];
   const tonics = [
@@ -141,35 +154,37 @@ describe('positions() and scaleNotesOnNeck() agree on degree — both decorated 
 
   for (const scaleId of decoratedScaleIds) {
     for (const tonic of tonics) {
-      it(`${scaleId} ${tonic.letter}${tonic.alter}`, () => {
-        const key: Key = { tonic, scaleId };
-        const neckByCell = new Map<string, number>();
-        for (const n of scaleNotesOnNeck(TUNINGS.standard, key)) {
-          neckByCell.set(`${n.string}:${n.fret}`, n.degree);
-        }
-        const fullIntervals = SCALES[scaleId].intervals;
-        const tonicPc = pc(key.tonic);
+      for (const tuning of [TUNINGS.standard, TUNINGS.dropD]) {
+        it(`${scaleId} ${tonic.letter}${tonic.alter} ${tuning.id}`, () => {
+          const key: Key = { tonic, scaleId };
+          const neckByCell = new Map<string, number>();
+          for (const n of scaleNotesOnNeck(tuning, key)) {
+            neckByCell.set(`${n.string}:${n.fret}`, n.degree);
+          }
+          const fullIntervals = SCALES[scaleId].intervals;
+          const tonicPc = pc(key.tonic);
 
-        for (const p of positions(TUNINGS.standard, key)) {
-          const pcByDegree = new Map<number, number>();
-          for (const n of p.notes) {
-            // positions() and scaleNotesOnNeck() must agree on every shared cell's degree.
-            expect(neckByCell.get(`${n.string}:${n.fret}`)).toBe(n.degree);
+          for (const p of positions(tuning, key)) {
+            const pcByDegree = new Map<number, number>();
+            for (const n of p.notes) {
+              // positions() and scaleNotesOnNeck() must agree on every shared cell's degree.
+              expect(neckByCell.get(`${n.string}:${n.fret}`)).toBe(n.degree);
 
-            // no two distinct pitch classes share a degree inside one box
-            const notePc = pc(n.pitch);
-            const seenPc = pcByDegree.get(n.degree);
-            if (seenPc !== undefined) expect(notePc).toBe(seenPc);
-            else pcByDegree.set(n.degree, notePc);
+              // no two distinct pitch classes share a degree inside one box
+              const notePc = pc(n.pitch);
+              const seenPc = pcByDegree.get(n.degree);
+              if (seenPc !== undefined) expect(notePc).toBe(seenPc);
+              else pcByDegree.set(n.degree, notePc);
 
-            // each decoration note's degree is the index of its pitch class in the FULL scale
-            if (n.isDecoration) {
-              const expectedDegree = fullIntervals.findIndex((iv) => mod(tonicPc + iv.semitones, 12) === notePc) + 1;
-              expect(n.degree).toBe(expectedDegree);
+              // each decoration note's degree is the index of its pitch class in the FULL scale
+              if (n.isDecoration) {
+                const expectedDegree = fullIntervals.findIndex((iv) => mod(tonicPc + iv.semitones, 12) === notePc) + 1;
+                expect(n.degree).toBe(expectedDegree);
+              }
             }
           }
-        }
-      });
+        });
+      }
     }
   }
 });
@@ -192,12 +207,15 @@ describe('merge & adjacency', () => {
   });
 });
 
-describe('7-note diatonic scale boxes never nest — 12 tonics × 4 scales × both tunings', () => {
+describe('scale boxes never nest — 12 tonics × 8 scales × both tunings', () => {
   const tonics = [
     note('A'), note('B', -1), note('B'), note('C'), note('C', 1), note('D'),
     note('E', -1), note('E'), note('F'), note('F', 1), note('G'), note('G', 1),
   ];
-  const scaleIds: ScaleId[] = ['major', 'dorian', 'mixolydian', 'natural-minor'];
+  const scaleIds: ScaleId[] = [
+    'major', 'dorian', 'mixolydian', 'natural-minor',
+    'minorPentatonic', 'majorPentatonic', 'blues', 'major-blues',
+  ];
 
   it('no box is a subset of another, and no two boxes share a [minFret, maxFret] range', () => {
     for (const tuning of [TUNINGS.standard, TUNINGS.dropD]) {
@@ -217,6 +235,22 @@ describe('7-note diatonic scale boxes never nest — 12 tonics × 4 scales × bo
               const isSubset = bCells.every((c) => aCells.has(c));
               expect(isSubset).toBe(false);
             }
+          }
+        }
+      }
+    }
+  });
+
+  it('every box contains all its scale degrees somewhere in its fret window', () => {
+    for (const tuning of [TUNINGS.standard, TUNINGS.dropD]) {
+      for (const tonic of tonics) {
+        for (const scaleId of scaleIds) {
+          const key: Key = { tonic, scaleId };
+          const N = SCALES[scaleId].intervals.length;
+          const pos = positions(tuning, key);
+          for (const p of pos) {
+            const degrees = new Set(p.notes.map((n) => n.degree));
+            expect(degrees.size, `${scaleId} ${tonic.letter}${tonic.alter} ${tuning.id} box ${p.index} [${p.minFret}-${p.maxFret}]: degrees present ${[...degrees].sort().join(',')} of ${N}`).toBe(N);
           }
         }
       }
