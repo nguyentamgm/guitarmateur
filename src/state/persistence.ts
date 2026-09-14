@@ -206,7 +206,12 @@ export function loadState(): AppState | null {
 
   const fromUrl = loadFromUrl(language);
   if (fromUrl) {
-    history.replaceState(null, '', window.location.pathname);
+    try {
+      history.replaceState(null, '', window.location.pathname);
+    } catch {
+      // ignore — some embedding contexts (sandboxed iframes, certain WebViews) block
+      // history mutation; the decoded share state is still valid and must not be lost
+    }
     return fromUrl;
   }
   let raw: unknown;
