@@ -73,6 +73,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
               selected={state.positions.includes(p.index)}
               onClick={() => dispatch({ type: 'togglePosition', index: p.index })}
               box={{ notes: p.notes, minFret: p.minFret, maxFret: p.maxFret }}
+              leftHanded={state.leftHanded}
             />
           ))}
         </div>
@@ -117,6 +118,7 @@ function PositionCard({
   onClick,
   box,
   language,
+  leftHanded,
 }: {
   displayNumber: number;
   range: string;
@@ -125,6 +127,7 @@ function PositionCard({
   onClick: () => void;
   box: { notes: import('../../fretboard').FretNote[]; minFret: number; maxFret: number };
   language: LocaleId;
+  leftHanded?: boolean;
 }) {
   const t = useT(language);
   const count = box.maxFret - box.minFret + 1;
@@ -153,7 +156,7 @@ function PositionCard({
           <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', color: theme.accent, fontFamily: font.mono }}>{t('scalebox.recommended')}</span>
         )}
       </div>
-      <FretboardDiagram box={box} mini title={t('scalebox.boxTitle', { n: displayNumber, range })} />
+      <FretboardDiagram box={box} mini title={t('scalebox.boxTitle', { n: displayNumber, range })} leftHanded={leftHanded} />
       <div style={{ fontSize: 11, color: theme.muted, marginTop: 6, fontFamily: font.mono }}>{range}</div>
     </button>
   );

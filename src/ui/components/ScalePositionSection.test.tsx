@@ -11,17 +11,17 @@ import { defaultState, type AppState } from '../../state';
  * have mislabeled it as ♭5.
  */
 
-function stateForScale(scaleId: ScaleId): AppState {
-  return { ...defaultState(() => 1), key: { tonic: note('A'), scaleId } };
+function stateForScale(scaleId: ScaleId, leftHanded = false): AppState {
+  return { ...defaultState(() => 1), key: { tonic: note('A'), scaleId }, leftHanded };
 }
 
-async function mount(scaleId: ScaleId): Promise<{ container: HTMLDivElement; unmount: () => Promise<void> }> {
+async function mount(scaleId: ScaleId, leftHanded = false): Promise<{ container: HTMLDivElement; unmount: () => Promise<void> }> {
   const { ScalePositionSection } = await import('./ScalePositionSection');
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
   await act(async () => {
-    root.render(createElement(ScalePositionSection, { state: stateForScale(scaleId), dispatch: () => {} }));
+    root.render(createElement(ScalePositionSection, { state: stateForScale(scaleId, leftHanded), dispatch: () => {} }));
   });
   return {
     container,
@@ -51,6 +51,17 @@ describe('ScalePositionSection legend', () => {
   it('shows no blue-note entry for an undecorated scale', async () => {
     const { container, unmount } = await mount('minorPentatonic');
     expect(container.innerHTML).not.toContain('blue note');
+    await unmount();
+  });
+});
+
+describe('ScalePositionSection left-handed mode', () => {
+  it('mirrors every fretboard diagram, including the position cards', async () => {
+    const { container, unmount } = await mount('minorPentatonic', true);
+    const svgs = Array.from(container.querySelectorAll('svg')).filter((svg) => svg.querySelector('title'));
+    expect(svgs).toHaveLength(6);
+    const unmirrored = svgs.filter((svg) => !(svg.getAttribute('style') ?? '').includes('scaleX(-1)'));
+    expect(unmirrored).toHaveLength(0);
     await unmount();
   });
 });
