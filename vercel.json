@@ -1,5 +1,6 @@
 {
   "cleanUrls": true,
+  "rewrites": [{ "source": "/theory/(.*)", "destination": "/theory/index.html" }],
   "headers": [
     {
       "source": "/assets/(.*)",

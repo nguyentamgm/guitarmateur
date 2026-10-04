@@ -1,0 +1,35 @@
+import { LANGS } from '../i18n';
+import { useTheory } from './context';
+import { Link } from './Link';
+import { BASE } from './router';
+
+export function Header() {
+  const { ui, lang, setLang, soundOn, setSoundOn } = useTheory();
+  return (
+    <header className="topbar">
+      <Link href={BASE} className="brand">
+        {ui.appName}
+      </Link>
+      <div className="topbar-tools">
+        <button type="button" className="btn ghost" aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)}>
+          {soundOn ? ui.soundOn : ui.soundOff}
+        </button>
+        <div className="group" role="group" aria-label={ui.langLabel}>
+          {LANGS.map((l) => (
+            <button
+              key={l}
+              type="button"
+              className="chip"
+              lang={l}
+              aria-pressed={l === lang}
+              aria-label={ui.langName[l]}
+              onClick={() => setLang(l)}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+    </header>
+  );
+}

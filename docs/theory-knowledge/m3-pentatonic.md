@@ -1,6 +1,6 @@
 # M3 · Pentatonic
 
-Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bản demo [`docs/prototypes/ban-do-pentatonic.html`](../prototypes/ban-do-pentatonic.html) đã thể hiện K3.2, K3.3, K3.4 và K3.5. Bài đầy đủ mở rộng từ đó.
+Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bài **Bản đồ Pentatonic** (`/theory/pentatonic-map`, phiên 0.3, dựng từ bản demo [`docs/prototypes/ban-do-pentatonic.html`](../prototypes/ban-do-pentatonic.html)) đã dạy K3.1–K3.5 cùng K0.2, K0.4, K0.7. Bài đầy đủ (phiên 2.1) mở rộng từ đó. Các chỗ "bước N" dưới đây là bước của bài này.
 
 ---
 
@@ -18,7 +18,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 **Dữ liệu.** Bậc 1 b3 4 5 b7. Khoảng cách 3 2 2 3 2. Vị trí so với nhà: 0 3 5 7 10.
 
-**Dạy trong Theory.** Bước 2 của bản demo: phát công thức trên dây 6 từ nhà phím 5 (A), các cung hiện dần kèm tiếng.
+**Dạy trong Theory.** Bước 2 của Bản đồ Pentatonic: phát công thức trên dây 6 từ nhà phím 5 (A), các cung hiện dần kèm tiếng.
 
 **Cần trước:** K0.2. **Nguồn:** ch. 11.
 
@@ -28,7 +28,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 **Dữ liệu.** Nhà trưởng = nhà thứ + 3 nửa cung.
 
-**Dạy trong Theory.** Bước 5 của bản demo: bật trưởng/thứ, các chấm đứng yên, chỉ màu nhà đổi chỗ (xanh cho thứ, hổ phách cho trưởng).
+**Dạy trong Theory.** Bước 5 của Bản đồ Pentatonic: bật trưởng/thứ, các chấm đứng yên, chỉ màu nhà đổi chỗ (xanh cho thứ, hổ phách cho trưởng).
 
 **Cần trước:** K3.1, K3.2, K2.8. **Nguồn:** ch. 11.
 
@@ -41,7 +41,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 - Ví dụ La thứ: hộp 1 khoảng phím 5–8, hộp 2 khoảng 7–10, hộp 3 khoảng 9–13, hộp 4 khoảng 12–15, hộp 5 khoảng 2–5 (cũng là 14–17).
 - Lõi sinh hộp bằng thuật toán: lấy 12 nốt liên tiếp của âm giai từ điểm xuất phát, chia 2 nốt cho mỗi dây từ dây 6 lên dây 1. Không dùng bảng hình cứng. Mỗi hộp đều có chỗ lệch một phím ở dây B (K0.4); thuật toán tự xử lý vì nó tính theo cao độ.
 
-**Dạy trong Theory.** Bước 3 của bản demo: khung hộp trượt mượt từ hộp này sang hộp khác, các nốt ngoài hộp mờ đi. Nút "phát hộp" chạy lên rồi xuống.
+**Dạy trong Theory.** Bước 3 của Bản đồ Pentatonic: khung hộp trượt mượt từ hộp này sang hộp khác, các nốt ngoài hộp mờ đi. Nút "phát hộp" chạy lên rồi xuống.
 
 **Bẫy.** Đừng bắt học thuộc cả 5 hộp cùng lúc. Thuộc hộp 1 trước, rồi chỉ tập phần nối 1→2 (K3.5).
 
@@ -53,7 +53,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 **Dữ liệu.** Độ dời (phím) = vị trí nhà mới trên dây 6 − vị trí nhà cũ, lấy trong khoảng −6…+6 để đi quãng ngắn nhất.
 
-**Dạy trong Theory.** Bước 4 của bản demo: bảng tìm nhà và chế độ tự trượt qua các giọng. Bài nối hộp: chỉ hiện hai cột phím chung của hai hộp kề nhau.
+**Dạy trong Theory.** Bước 4 của Bản đồ Pentatonic: bảng tìm nhà và chế độ tự trượt qua các giọng. Bài nối hộp: chỉ hiện hai cột phím chung của hai hộp kề nhau.
 
 **Cần trước:** K0.7, K3.4. **Nguồn:** ch. 11.
 

@@ -29,9 +29,39 @@ function versionSwCache(): Plugin {
   };
 }
 
+/**
+ * The Theory app (theory/) is a second page with client-side routes under /theory. Dev and
+ * preview servers would answer /theory/<lesson> with the root index.html, so hand every
+ * extension-less /theory path to theory/index.html, as vercel.json does in production.
+ */
+function theoryRoutes(): Plugin {
+  const rewrite = (req: { url?: string }, _res: unknown, next: () => void) => {
+    const path = req.url?.split('?')[0] ?? '';
+    if (/^\/theory(\/[^.]*)?$/.test(path)) req.url = '/theory/index.html';
+    next();
+  };
+  return {
+    name: 'theory-routes',
+    configureServer(server) {
+      server.middlewares.use(rewrite);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(rewrite);
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), versionSwCache()],
+  plugins: [react(), versionSwCache(), theoryRoutes()],
+  build: {
+    rolldownOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        theory: resolve(import.meta.dirname, 'theory/index.html'),
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

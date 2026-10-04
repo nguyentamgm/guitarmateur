@@ -3,10 +3,28 @@
 // string exactly 'guitarmateur-v1'.
 const CACHE_NAME = 'guitarmateur-v1';
 
-// On install, cache the shell document and nothing else — assets are cached on first fetch.
+// Each app has its own shell document: the practice app at '/', the Theory app at '/theory'.
+const THEORY_SHELL = '/theory';
+const shellFor = (url) => {
+  const { pathname } = new URL(url);
+  return pathname === THEORY_SHELL || pathname.startsWith(THEORY_SHELL + '/') ? THEORY_SHELL : '/';
+};
+
+// A cached response that followed a redirect (e.g. '/theory' → '/theory/') cannot answer a
+// navigation; Chrome rejects it. Re-wrap it as a plain response.
+const servable = (res) =>
+  res && res.redirected
+    ? res.blob().then((body) => new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers }))
+    : res;
+
+// On install, cache both shell documents and nothing else — assets are cached on first fetch.
+// The Theory shell is optional: if it fails, the practice app must still install.
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add('/')).then(() => self.skipWaiting()),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.add('/').then(() => cache.add(THEORY_SHELL).catch(() => undefined)))
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -21,7 +39,8 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch strategy:
-//   - Navigation (HTML): network-first, fall back to cached '/' shell.
+//   - Navigation (HTML): network-first, fall back to the cached page, then to its app's shell
+//     ('/theory' for /theory/*, '/' otherwise).
 //   - Everything else (JS/CSS/images/fonts): cache-first, update cache in background.
 self.addEventListener('fetch', (event) => {
   const { request } = event;
@@ -37,7 +56,12 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return res;
         })
-        .catch(() => caches.match('/').then((r) => r ?? Response.error())),
+        .catch(() =>
+          caches
+            .match(request)
+            .then((r) => r ?? caches.match(shellFor(request.url)))
+            .then((r) => servable(r) ?? Response.error()),
+        ),
     );
     return;
   }

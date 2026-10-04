@@ -129,6 +129,33 @@ export default tseslint.config(
     ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('audio')],
       'theory/src/core/fretboard may only import from theory/src/core/music.'),
   },
+  {
+    files: ['theory/src/i18n/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('core'), ...dir('lessons'), ...dir('ui')],
+      'theory/src/i18n holds languages and UI strings only: no core, lessons, UI or React.'),
+  },
+  {
+    files: ['theory/src/lessons/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('ui')],
+      'theory/src/lessons is data: it may use core and i18n, never UI or React.'),
+  },
+  // Every user-facing string in Theory's UI comes from i18n or lesson copy, in both languages.
+  {
+    files: ['theory/src/ui/**/*.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXText[value=/\\p{L}/u]',
+          message: 'Hard-coded UI copy: take the text from theory/src/i18n or the lesson copy (vi + en).',
+        },
+        {
+          selector: "JSXAttribute[name.name=/^(aria-label|title|placeholder|alt)$/] > Literal",
+          message: 'Hard-coded UI copy: aria-label/title/placeholder/alt must come from i18n or lesson copy.',
+        },
+      ],
+    },
+  },
 
   // --- Hard-coded UI copy guard (T13): every user-facing string must flow through t(). ---
   {
