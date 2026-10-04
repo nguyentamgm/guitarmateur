@@ -34,7 +34,7 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Dữ liệu.** Ngón tay trái: 1 trỏ, 2 giữa, 3 áp út, 4 út, T ngón cái.
 
-**Dạy trong Theory.** Tab và cần đàn đặt cạnh nhau. Bấm vào một số trên tab thì chấm tương ứng trên cần sáng lên, và ngược lại. Theory dùng tab thay cho khuông nhạc trong toàn bộ app.
+**Dạy trong Theory.** Tab và cần đàn đặt cạnh nhau (`ui/Tab.tsx`). Đoạn tab ví dụ do code sinh từ lõi: dây A buông, sáu nốt đầu hộp 1 A thứ pentatonic, rồi nốt nhà và quãng 8 của nó chơi cùng lúc. Biểu đồ hợp âm chưa dạy, để sang M4. Bấm vào một số trên tab thì chấm tương ứng trên cần sáng lên, và ngược lại. Theory dùng tab thay cho khuông nhạc trong toàn bộ app.
 
 **Bẫy.** Tab không cho biết trường độ. Theory luôn đặt tab trên lưới thời gian (M1).
 
@@ -56,7 +56,7 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Dữ liệu.** Thứ tự 12 nửa cung từ C: C, C♯/D♭, D, D♯/E♭, E, F, F♯/G♭, G, G♯/A♭, A, A♯/B♭, B.
 
-**Dạy trong Theory.** Lớp nhãn "tên nốt" bật tắt được. Mặc định tắt trong M0, chỉ bật khi cần.
+**Dạy trong Theory.** Lớp nhãn "tên nốt" bật tắt được. Trong M0 chỉ bước nốt nhà (bài `/theory/fretboard`, bước 5) hiện tên, và chỉ tên 7 nốt tự nhiên; phím thăng/giáng để trống. Người học tắt tên để làm bài đố.
 
 **Bẫy.** Không dạy thuộc tên mọi nốt trên cần (sách dành 3 chương cho việc này). Chỉ cần K0.7.
 
@@ -89,6 +89,6 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Cốt lõi.** Ngón cái tay trái đặt sau cần, không vắt lên trên. Cổ tay thấp, có khoảng trống giữa lòng bàn tay và cần. Cầm phím giữa ngón cái và ngón trỏ. Luyện ngón: mỗi ngón một phím, chậm và đều, ưu tiên kiểm soát hơn tốc độ. Gảy xen kẽ xuống–lên.
 
-**Dạy trong Theory.** Một bài luyện ngón 1-2-3-4 có metronome (dùng M1), tab và cần đàn chạy theo. Không cần hình ảnh tay: văn bản ngắn và một danh sách kiểm tra.
+**Dạy trong Theory.** Một bài luyện ngón 1-2-3-4 có metronome (dùng M1), tab và cần đàn chạy theo. Không cần hình ảnh tay: văn bản ngắn và một danh sách kiểm tra. Bài `/theory/fretboard` (phiên 1.1) chưa dạy mục này; nó chuyển sang phiên 1.2 vì cần metronome.
 
 **Nguồn:** ch. 1.

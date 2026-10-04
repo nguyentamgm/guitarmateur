@@ -136,6 +136,30 @@ button { font: inherit; cursor: pointer; }
 .arc { transition: opacity 0.25s; }
 .arc.dim { opacity: 0.15; }
 
+/* The neck is a grid */
+.note { font-size: 0.92rem; padding-left: 10px; border-left: 3px solid var(--accent); }
+.homemap { display: grid; gap: 8px; }
+.homemap .finder > span { min-width: 4.5em; font-family: var(--f-mono); align-self: center; }
+.quiz { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.quiz .question { font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; }
+.caption.good { color: var(--accent); font-weight: 600; }
+.tab { font-family: var(--f-mono); }
+.tabline { stroke: var(--line); stroke-width: 1.5; }
+.tabname { fill: var(--muted); font-size: 12px; dominant-baseline: middle; }
+.tabcol { fill: var(--accent); fill-opacity: 0.12; }
+.tabnum { cursor: pointer; outline: none; }
+.tabnum rect { fill: var(--surface); stroke: none; }
+.tabnum text { fill: var(--ink); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.tabnum.on rect { fill: var(--accent); }
+.tabnum.on text { fill: var(--accent-ink); }
+.tabnum:hover rect, .tabnum:focus-visible rect { stroke: var(--accent); stroke-width: 1.5; }
+.olink line { stroke: var(--accent); stroke-width: 2; }
+.olink text { fill: var(--accent); font-family: var(--f-mono); font-size: 12px; font-weight: 600; text-anchor: middle; paint-order: stroke; stroke: var(--wood); stroke-width: 4px; }
+.olink.b line { stroke: var(--amber); }
+.olink.b text { fill: var(--amber); }
+.olink.outer line { stroke: var(--fret); stroke-dasharray: 4 4; stroke-width: 1.5; }
+.olink.outer text { fill: var(--string); font-size: 11px; font-weight: 400; }
+
 /* Not yet */
 .skip { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .skip div { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }

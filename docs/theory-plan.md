@@ -161,6 +161,9 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (0.2, 0.3) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập. File này chỉ bật cờ `act` của React nên test UI của Theory (0.3) dùng được. Chỉ tách khi Theory cần setup khác.
 - (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
+- (1.1) K0.8 (tư thế tay, luyện ngón 1-2-3-4) chưa có bài: phiên 1.2 dạy nó cùng metronome và đặt tab (`ui/Tab.tsx`) lên lưới phách.
+- (1.1) Bài đố nốt nhà không lưu kết quả và chỉ hỏi 7 nốt tự nhiên. Nốt thăng/giáng vào đố khi phiên 1.3 dạy cách chọn tên (K2.2). Chế độ ôn tập chung thuộc phiên 5.1.
+- (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
 - (0.3) Bài Bản đồ Pentatonic đã lên `/theory/pentatonic-map`. Phiên 2.1 (pentatonic đầy đủ) dùng slug riêng, ví dụ `/theory/pentatonic`, và dùng lại `Fretboard`, `scenes.ts`.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -210,8 +213,8 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 0.1 | Kho kiến thức `docs/theory-knowledge/`: 8 module, 57 khái niệm, bản đồ chương, thuật ngữ vi–en, đính chính | Cả sách | Xong |
 | 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test. Đưa `theory/` vào tsconfig, ESLint, Vitest (chuyển từ 0.3). Viết `docs/theory.md` | Ch. 7, 11 | Xong |
 | 0.3 | Khung app Theory: entry Vite riêng, `/theory`, mục lục, chọn ngôn ngữ (en mặc định), rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic `/theory/pentatonic-map` (en + vi) | Ch. 11 | Xong |
-| 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà | Ch. 1–4, 7 | Chưa làm |
-| 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt | Ch. 2–3, 9, 16 | Chưa làm |
+| 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà. Bài `/theory/fretboard` (en + vi), đứng đầu mục lục | Ch. 1–4, 7 | Xong |
+| 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt; bài luyện ngón 1-2-3-4 và tư thế tay (K0.8, chuyển từ 1.1) | Ch. 1–3, 9, 16 | Chưa làm |
 | 1.3 | Âm giai trưởng và quãng là hình trên cần | Ch. 7, 9 | Chưa làm |
 | 2.1 | Pentatonic bản đầy đủ: 5 hộp, mẫu bộ 3/bộ 4, nối hộp, trưởng/thứ song song | Ch. 11 | Chưa làm |
 | 2.2 | Blues: nốt b5, tiến trình 12 ô, nhéo dây, trượt | Ch. 13, 14 | Chưa làm |

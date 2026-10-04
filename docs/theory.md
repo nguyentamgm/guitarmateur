@@ -72,8 +72,10 @@ ui → lessons → core/fretboard → core/music
   `copy.vi.ts`, pure `scenes.ts` + test), add it to `LESSONS` in `lessons/index.ts`, and add a
   case to `ui/lessons/LessonScene.tsx`. Shared tests then check: unique slug, concept IDs exist in
   `docs/theory-knowledge`, same keys/lengths/placeholders in vi and en, no empty strings.
-- Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame). Positions come
-  from `scenes.ts`, never from the component.
+- Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
+  to a click) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
+  never from the component.
+- Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.
 
 - Each lesson lists the concept IDs it teaches (`K3.4`…). If teaching differs from the knowledge
   base, update the knowledge base in the same PR.
