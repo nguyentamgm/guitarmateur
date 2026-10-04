@@ -3,6 +3,7 @@
  * `pluck()`, which callers must invoke from a user gesture (a click), because browsers block
  * audio that starts on its own. Nothing is created at import time.
  */
+import { clickSamples } from './click';
 import { pluckSamples } from './pluck';
 
 /** The slice of the Web Audio API the player uses; lets tests pass a fake. */
@@ -25,8 +26,13 @@ export interface PlayerOptions {
 }
 
 export interface Player {
-  /** Play a MIDI note now, or `delaySec` from now. Silently does nothing when disabled or unsupported. */
-  pluck(midi: number, delaySec?: number): void;
+  /**
+   * Play a MIDI note now, or `delaySec` from now; with `lengthSec`, damp it after that long (a
+   * note's length, K1.2). Silently does nothing when disabled or unsupported.
+   */
+  pluck(midi: number, delaySec?: number, lengthSec?: number): void;
+  /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
+  click(accent?: boolean, delaySec?: number): void;
   setEnabled(on: boolean): void;
   readonly enabled: boolean;
 }
@@ -40,17 +46,43 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
   const make = opts.createContext ?? (() => new AudioContext() as unknown as MiniAudioContext);
   let ctx: MiniAudioContext | null = null;
   let enabled = true;
-  const cache = new Map<number, AudioBuffer>();
+  const cache = new Map<string, AudioBuffer>();
 
-  const bufferFor = (c: MiniAudioContext, midi: number): AudioBuffer => {
-    let buf = cache.get(midi);
+  const bufferFor = (c: MiniAudioContext, key: string, render: () => Float32Array): AudioBuffer => {
+    let buf = cache.get(key);
     if (!buf) {
-      const samples = pluckSamples({ midi, sampleRate: c.sampleRate });
+      const samples = render();
       buf = c.createBuffer(1, samples.length, c.sampleRate);
       buf.getChannelData(0).set(samples);
-      cache.set(midi, buf);
+      cache.set(key, buf);
     }
     return buf;
+  };
+
+  const play = (key: string, render: (sampleRate: number) => Float32Array, delaySec: number, lengthSec?: number) => {
+    if (!enabled) return;
+    try {
+      if (!ctx) {
+        if (!opts.createContext && !isAudioSupported()) return;
+        ctx = make();
+      }
+      const c = ctx;
+      if (c.state === 'suspended') void c.resume();
+      const src = c.createBufferSource();
+      src.buffer = bufferFor(c, key, () => render(c.sampleRate));
+      const g = c.createGain();
+      g.gain.value = gainLevel;
+      src.connect(g);
+      g.connect(c.destination);
+      const at = c.currentTime + Math.max(0, delaySec);
+      if (lengthSec !== undefined && typeof g.gain.setTargetAtTime === 'function') {
+        // A quick fade, not a cut, so the end of a note does not click.
+        g.gain.setTargetAtTime(0, at + lengthSec, 0.015);
+      }
+      src.start(at);
+    } catch {
+      // Audio is a nicety: a failure here must never break a lesson.
+    }
   };
 
   return {
@@ -60,24 +92,11 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     setEnabled(on) {
       enabled = on;
     },
-    pluck(midi, delaySec = 0) {
-      if (!enabled) return;
-      try {
-        if (!ctx) {
-          if (!opts.createContext && !isAudioSupported()) return;
-          ctx = make();
-        }
-        if (ctx.state === 'suspended') void ctx.resume();
-        const src = ctx.createBufferSource();
-        src.buffer = bufferFor(ctx, midi);
-        const g = ctx.createGain();
-        g.gain.value = gainLevel;
-        src.connect(g);
-        g.connect(ctx.destination);
-        src.start(ctx.currentTime + delaySec);
-      } catch {
-        // Audio is a nicety: a failure here must never break a lesson.
-      }
+    pluck(midi, delaySec = 0, lengthSec) {
+      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec);
+    },
+    click(accent = false, delaySec = 0) {
+      play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec);
     },
   };
 }

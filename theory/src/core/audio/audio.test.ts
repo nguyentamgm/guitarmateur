@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createPlayer, decayFactor, midiToFrequency, pluckSamples, seededRandom, type MiniAudioContext } from './index';
+import { clickSamples, createPlayer, decayFactor, midiToFrequency, pluckSamples, seededRandom, type MiniAudioContext } from './index';
 
 const rms = (xs: Float32Array, from: number, to: number) => {
   let s = 0;
@@ -105,5 +105,35 @@ describe('player', () => {
     p.pluck(60);
     expect(f.started).toEqual([]);
     expect(p.enabled).toBe(false);
+  });
+
+  it('clicks with its own buffers, accent apart, and damps a note after its length', () => {
+    const f = fakeContext();
+    const targets: number[] = [];
+    const ctx = {
+      ...f.ctx,
+      createGain: () =>
+        ({ connect: vi.fn(), gain: { value: 0, setTargetAtTime: (_v: number, t: number) => targets.push(t) } }) as unknown as GainNode,
+    };
+    const p = createPlayer({ createContext: () => ctx });
+    p.click(true);
+    p.click(false, 0.25);
+    p.click(true, 0.5);
+    expect(f.started).toEqual([1, 1.25, 1.5]);
+    expect(f.buffers).toHaveLength(2);
+    p.pluck(60, 0.5, 0.25);
+    expect(targets).toEqual([1.75]);
+  });
+});
+
+describe('click synthesis', () => {
+  it('is short, within −1…1, louder when accented, and fades out', () => {
+    const plain = clickSamples({ sampleRate: 8000 });
+    const accent = clickSamples({ sampleRate: 8000, accent: true });
+    expect(plain).toHaveLength(400);
+    const peak = (xs: Float32Array) => Math.max(...xs.map(Math.abs));
+    expect(peak(accent)).toBeLessThanOrEqual(1);
+    expect(peak(accent)).toBeGreaterThan(peak(plain));
+    expect(Math.abs(plain[plain.length - 1]!)).toBeLessThan(0.01);
   });
 });

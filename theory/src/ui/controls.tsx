@@ -1,3 +1,4 @@
+import { MAX_BPM, MIN_BPM, clampBpm } from '../core/rhythm';
 import type { ReactNode } from 'react';
 
 export function Chip({ pressed, onClick, children }: { pressed: boolean; onClick(): void; children: ReactNode }) {
@@ -37,5 +38,23 @@ export function Button({ onClick, children, ghost }: { onClick(): void; children
     <button type="button" className={ghost ? 'btn ghost' : 'btn'} onClick={onClick}>
       {children}
     </button>
+  );
+}
+
+/** A tempo slider, in whole BPM within the range the lessons offer. */
+export function Tempo({ label, text, bpm, onChange }: { label: string; text: string; bpm: number; onChange(bpm: number): void }) {
+  return (
+    <label className="tempo">
+      <span>{label}</span>
+      <input
+        type="range"
+        min={MIN_BPM}
+        max={MAX_BPM}
+        step={1}
+        value={bpm}
+        onChange={(e) => onChange(clampBpm(Number(e.target.value)))}
+      />
+      <output>{text}</output>
+    </label>
   );
 }

@@ -7,10 +7,14 @@ import { App } from './App';
 
 function fakePlayer() {
   const plucked: number[] = [];
+  const clicks: boolean[] = [];
   let enabled = true;
   const player: Player = {
     pluck: (midi) => {
       if (enabled) plucked.push(midi);
+    },
+    click: (accent = false) => {
+      if (enabled) clicks.push(accent);
     },
     setEnabled: (on) => {
       enabled = on;
@@ -19,7 +23,7 @@ function fakePlayer() {
       return enabled;
     },
   };
-  return { player, plucked };
+  return { player, plucked, clicks };
 }
 
 /** Fret of a natural note on string 6 or 5, computed independently of the lesson code. */
@@ -173,6 +177,89 @@ describe('Theory app', () => {
     click(dot(Number(next[1]) === 6 ? 5 : 6, 1));
     click(button('Next note'));
     expect(section.textContent).toContain('First try: 0 of 2');
+  });
+
+  describe('rhythm', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+
+    it('ticks four beats per bar with beat 1 accented, and stops', () => {
+      const { player, clicks } = fakePlayer();
+      render('/theory/rhythm', player);
+      const section = container.querySelector('section#beat')!;
+      click(button('Start'));
+      // 80 BPM = 750 ms a beat: one bar and a little more, so beat 1 of bar 2 is heard too.
+      advance(3000);
+      expect(clicks.slice(0, 5)).toEqual([true, false, false, false, true]);
+      expect(section.querySelector('.caption')!.textContent).toMatch(/^Beat [1-4] of 4$/);
+      click(button('Stop'));
+      const heard = clicks.length;
+      advance(3000);
+      expect(clicks.length).toBe(heard);
+      expect(section.querySelector('.caption')!.textContent).toBe(
+        'Press start and tap your foot on every beat. Beat 1 has the higher click.',
+      );
+    });
+
+    it('plays one clock at a time: starting a scene stops the one playing', () => {
+      render('/theory/rhythm');
+      const startIn = (id: string) => click(container.querySelector(`section#${id} button.btn`)!);
+      startIn('beat');
+      advance(100);
+      expect(container.querySelector('section#beat button.btn')!.textContent).toBe('Stop');
+      startIn('counting');
+      advance(100);
+      expect(container.querySelector('section#beat button.btn')!.textContent).toBe('Start');
+      expect(container.querySelector('section#counting button.btn')!.textContent).toBe('Stop');
+    });
+
+    it('names a leftover rest turned into a note by its own length', () => {
+      render('/theory/rhythm');
+      const section = container.querySelector('section#lengths')!;
+      click([...section.querySelectorAll('.chip')].find((b) => b.textContent === 'Dotted half')!);
+      const blocks = () => [...section.querySelectorAll('.block')];
+      click(blocks()[1]!);
+      expect(blocks().map((b) => b.getAttribute('aria-label'))).toEqual([
+        'Dotted half note (beats: 3)',
+        'Quarter note (beats: 1)',
+      ]);
+    });
+
+    it('turns a note into a rest, which then stays silent', () => {
+      const { player, plucked } = fakePlayer();
+      render('/theory/rhythm', player);
+      const section = container.querySelector('section#lengths')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('Quarter: beats per note 1 · notes per bar 4');
+      const blocks = () => [...section.querySelectorAll('.block')];
+      click(blocks()[1]!);
+      click(blocks()[3]!);
+      expect(blocks().map((b) => b.classList.contains('rest'))).toEqual([false, true, false, true]);
+      click(section.querySelector('button.btn')!);
+      // 80 BPM: one bar is 3 s. Two quarter notes sound in it.
+      advance(2900);
+      expect(plucked).toEqual([57, 57]);
+    });
+
+    it('labels the count under the grid in the chosen language', () => {
+      localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+      render('/theory/rhythm');
+      const words = [...container.querySelectorAll('section#counting .word')].map((w) => w.textContent);
+      expect(words).toEqual(['1', 'và', '2', 'và', '3', 'và', '4', 'và']);
+    });
+
+    it('makes a custom strum pattern by clicking cells', () => {
+      render('/theory/rhythm');
+      const section = container.querySelector('section#strum')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('Pattern: D-DU-UDU');
+      click(section.querySelectorAll('.block')[1]!);
+      expect(section.querySelector('.caption')!.textContent).toBe('Pattern: DUDU-UDU');
+      expect(section.querySelector('.chip[aria-pressed="true"]')!.textContent).toBe('Your own');
+    });
   });
 
   it('shows the contents with a notice for an unknown lesson', () => {

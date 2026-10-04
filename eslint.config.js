@@ -130,6 +130,11 @@ export default tseslint.config(
       'theory/src/core/fretboard may only import from theory/src/core/music.'),
   },
   {
+    files: ['theory/src/core/rhythm/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('music'), ...dir('fretboard'), ...dir('audio')],
+      'theory/src/core/rhythm is pure time arithmetic: it imports nothing else in Theory.'),
+  },
+  {
     files: ['theory/src/i18n/**/*.ts'],
     ...forbidTheory([...noReact, ...dir('core'), ...dir('lessons'), ...dir('ui')],
       'theory/src/i18n holds languages and UI strings only: no core, lessons, UI or React.'),

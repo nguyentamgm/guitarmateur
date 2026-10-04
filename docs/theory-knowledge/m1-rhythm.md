@@ -20,7 +20,7 @@ Mục tiêu: người học giữ được phách, đếm được, và chơi đ
 
 **Dữ liệu.** Tính theo phách trong 4/4: tròn 4, trắng 2, đen 1, móc đơn ½, móc kép ¼. Chấm dôi: trắng chấm 3, đen chấm 1½, tròn chấm 6. Lặng cùng tên có cùng độ dài.
 
-**Dạy trong Theory.** Lưới 16 ô cho một ô nhịp (mỗi ô một móc kép). Một nốt là một thanh dài theo số ô nó chiếm; khoảng lặng là ô trống. Người học bấm vào ô để bật tắt nốt và nghe ngay. Thay ký hiệu nốt bằng độ dài thanh.
+**Dạy trong Theory.** Lưới 16 ô cho một ô nhịp (mỗi ô một móc kép), vẽ bằng `ui/BeatGrid.tsx`. Bài `/theory/rhythm` lấp ô nhịp bằng một loại nốt; phần dư cuối ô (sau nốt trắng chấm dôi) thành một khoảng lặng. Một nốt là một thanh dài theo số ô nó chiếm; khoảng lặng là ô trống. Người học bấm vào ô để bật tắt nốt và nghe ngay. Thay ký hiệu nốt bằng độ dài thanh.
 
 **Bẫy.** Đừng dạy hình ký hiệu nốt (đầu tròn, đuôi, móc). Nếu cần, chỉ để ở dạng tra cứu.
 
@@ -42,7 +42,7 @@ Mục tiêu: người học giữ được phách, đếm được, và chơi đ
 
 **Dữ liệu.** Mẫu quạt mô tả bằng 8 ô (móc đơn) hoặc 16 ô (móc kép), mỗi ô là xuống (D), lên (U) hoặc trượt qua không chạm (–). Ví dụ phổ biến: D – D U – U D U.
 
-**Dạy trong Theory.** Mũi tên lên/xuống chạy theo lưới; mũi tên "ma" mờ cho lượt tay đi mà không chạm dây. Người học tự tạo mẫu quạt bằng cách bấm ô.
+**Dạy trong Theory.** Mũi tên lên/xuống chạy theo lưới; mũi tên "ma" mờ cho lượt tay đi mà không chạm dây. Người học tự tạo mẫu quạt bằng cách bấm ô. Bài `/theory/rhythm` quạt trên dây buông (quạt xuống cả 6 dây, quạt lên 3 dây mỏng) để chưa phải bấm hợp âm.
 
 **Cần trước:** K1.2. **Nguồn:** ch. 9, 16.
 
@@ -52,6 +52,6 @@ Mục tiêu: người học giữ được phách, đếm được, và chơi đ
 
 **Dữ liệu.** Swing chuẩn: nốt đầu chiếm ⅔ phách, nốt sau ⅓. Có thể dùng một hệ số swing liên tục (0 = thẳng, 1 = liên ba đầy đủ).
 
-**Dạy trong Theory.** Thanh trượt "thẳng ↔ swing" trên cùng một câu nhạc, lưới hiện vị trí nốt dịch chuyển khi kéo.
+**Dạy trong Theory.** Thanh trượt "thẳng ↔ swing" trên cùng một câu nhạc, lưới hiện vị trí nốt dịch chuyển khi kéo. Bài `/theory/rhythm` (phiên 1.2) chưa dạy mục này; nó đến cùng bài blues (phiên 2.2), nơi shuffle là cảm giác chính.
 
 **Cần trước:** K1.3. **Nguồn:** ch. 17 (liên ba), ch. 13 (shuffle blues).
