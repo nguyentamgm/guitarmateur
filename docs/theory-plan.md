@@ -164,7 +164,7 @@ Phần lớn token bị tốn vào ba việc: đọc lại nguồn, viết lại
 | --- | --- |
 | Sai kiến thức nhạc lý (tên nốt, bậc, công thức) | Mọi nốt đều do lõi Theory tính ra, không gõ tay. Lõi có test chính tả cho cả 12 giọng. Mỗi bài thêm test cho các cảnh của mình |
 | Bản tiếng Việt và tiếng Anh lệch nhau | Test so hai bản phải có cùng bước và cùng khóa. Thuật ngữ được thống nhất theo bảng trong `docs/theory-knowledge/README.md` |
-| Theory vô tình phụ thuộc app Luyện tập, hoặc code Theory không được CI kiểm tra | ESLint chặn import qua lại giữa `src/` và `theory/src/`. Phiên 0.3 đưa `theory/` vào typecheck, lint và test, rồi thử một import sai để chắc luật có tác dụng |
+| Theory vô tình phụ thuộc app Luyện tập, hoặc code Theory không được CI kiểm tra | ESLint chặn import qua lại giữa `src/` và `theory/src/`. Phiên 0.2 đã đưa `theory/` vào typecheck, lint và test, và thử import sai để chắc luật có tác dụng |
 | Tải lại `/theory/<bài>` bị lỗi 404, hoặc offline thì mở ra trang chủ | Ngay ở phiên 0.3: thêm rewrite trong `vercel.json`, sửa service worker, kiểm tra trên bản xem trước |
 | Sửa file dùng chung làm hỏng app Luyện tập | Chỉ có `vercel.json`, `vite.config.ts`, `tsconfig.json`, service worker và cấu hình ESLint là dùng chung. Kiểm tra trang chủ trên bản xem trước mỗi khi một trong các file này thay đổi |
 | Bản quyền của sách | PDF không vào repo. Kho kiến thức chỉ giữ công thức, quan hệ và thứ tự học, viết bằng lời của dự án; không trích câu, không chép bài tập, biểu đồ hay bản nhạc. Bài tập được tự sinh |
@@ -178,8 +178,8 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | Phiên | Bài học / đầu ra | Nguồn trong sách | Trạng thái |
 | --- | --- | --- | --- |
 | 0.1 | Kho kiến thức `docs/theory-knowledge/`: 8 module, 57 khái niệm, bản đồ chương, thuật ngữ vi–en, đính chính | Cả sách | Xong |
-| 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test. Viết `docs/theory.md` (quy ước code và bài học) | Ch. 7, 11 | Chưa làm |
-| 0.3 | Khung app Theory: entry Vite riêng, `/theory`, đưa `theory/` vào tsconfig, ESLint và Vitest, mục lục, chọn ngôn ngữ, rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic (vi + en) | Ch. 11 | Chưa làm |
+| 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test. Đưa `theory/` vào tsconfig, ESLint, Vitest (chuyển từ 0.3). Viết `docs/theory.md` | Ch. 7, 11 | Xong |
+| 0.3 | Khung app Theory: entry Vite riêng, `/theory`, mục lục, chọn ngôn ngữ, rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic (vi + en) | Ch. 11 | Chưa làm |
 | 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà | Ch. 1–4, 7 | Chưa làm |
 | 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt | Ch. 2–3, 9, 16 | Chưa làm |
 | 1.3 | Âm giai trưởng và quãng là hình trên cần | Ch. 7, 9 | Chưa làm |
