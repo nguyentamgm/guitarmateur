@@ -62,3 +62,7 @@ ui → lessons → core/fretboard → core/music
 
 Same as the rest of the repo: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`
 (CI order). `npx vitest run theory` runs only Theory tests.
+
+Ending a session (self-review, PR to `main`, self-merge once CI is green, check production): follow
+the checklist in [`theory-plan.md`](theory-plan.md#checklist-kết-thúc-phiên). Open follow-ups from
+earlier sessions live in its "Việc còn treo" section.

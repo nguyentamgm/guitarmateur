@@ -132,7 +132,33 @@ Quy trình trong một phiên:
 3. **Bạn duyệt dàn ý.** Sửa ở bước này chỉ tốn vài trao đổi. Sửa sau khi đã code xong tốn gấp nhiều lần.
 4. **Dựng bài trên một nhánh mới.** Claude viết dữ liệu bài, lời giảng tiếng Việt và tiếng Anh, dùng lõi có sẵn trong `theory/src/core/`. Nếu cần thành phần mới dùng lại được, thành phần đó được thêm vào lõi kèm test.
 5. **Kiểm tra như CI.** Chạy lint, typecheck, test, build theo đúng thứ tự. Sau đó xem trang một lần trên dev server, ở cả hai ngôn ngữ.
-6. **Mở PR và ghi sổ.** PR kèm link bản xem trước của Vercel. Bạn xem và merge, rồi đánh dấu xong trong bảng tiến độ.
+6. **Tự review, merge và ghi sổ.** Claude tự review thay đổi của mình, mở PR vào `main`, chờ CI xanh rồi tự merge. Merge vào `main` là Vercel đưa lên `guitarmateur.com` ngay, không có ai duyệt thêm. Đây là trang cá nhân nên chấp nhận rủi ro hỏng; nếu hỏng thì sửa bằng một PR mới hoặc rollback trên Vercel. Chi tiết ở checklist dưới đây.
+
+### Checklist kết thúc phiên
+
+Làm đủ từng bước, theo thứ tự. Bước nào không làm được thì dừng lại và báo, không merge.
+
+1. **Ghi sổ trong chính nhánh của phiên**, trước khi mở PR:
+   - đổi trạng thái của phiên trong bảng tiến độ thành "Xong";
+   - cập nhật mục "Việc còn treo": thêm việc phát hiện mà chưa làm, xóa việc đã làm xong;
+   - nếu bài dạy khác kho kiến thức, sửa file kiến thức (quy ước trong `docs/theory.md`).
+2. **Tự review.** Chạy `/code-review` trên nhánh của phiên. Sửa mọi lỗi về đúng sai, đặc biệt là kiến thức nhạc lý (tên nốt, bậc, công thức) và độ khớp giữa bản vi và en. Ghi những điểm cố ý không sửa vào PR.
+3. **Kiểm tra như CI:** `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, theo đúng thứ tự.
+4. **Mở PR vào `main`:** `gh pr create --base main`. Không chồng PR lên nhánh khác: CI sẽ fail nếu base không phải `main`. Phiên 0.2 từng mất code vì PR chồng được merge vào một nhánh đã merge rồi.
+5. **Chờ CI rồi merge:** `gh pr checks <số> --watch`, xanh thì chạy `gh pr merge <số> --squash --delete-branch`. Nếu `main` vừa có commit mới làm PR không merge được, chạy `gh pr update-branch <số>` rồi chờ CI lại.
+6. **Xác nhận đã lên web:**
+   - `git log origin/main` có commit của phiên;
+   - Vercel đã tạo bản Production cho commit đó: `gh api repos/{owner}/{repo}/deployments --jq '.[0]'`;
+   - trang của bài mở được trên `guitarmateur.com`.
+7. **Báo lại:** gửi link PR, link trang trên production và những điểm đã ghi vào "Việc còn treo".
+
+### Việc còn treo
+
+Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau đọc mục này thay vì đọc lại PR cũ. Ghi mỗi việc một dòng, kèm phiên phát hiện.
+
+- (0.2) Luật ESLint của app Luyện tập dạng `'**/fretboard/**'` bỏ sót import trỏ thẳng vào thư mục như `'../fretboard'` từ `src/music`. Luật của Theory đã dùng `dir()` để bắt cả hai dạng. Sửa bằng một PR riêng cho `src/`.
+- (0.2) `interval()` chấp nhận bậc 1–15, nhưng comment của `DegreeLabel` ghi 1–13. Chọn một phạm vi rồi sửa cho khớp.
+- (0.2) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập (cấu hình Vitest trong `vite.config.ts`). Từ phiên 0.3, khi có test UI cho Theory, cân nhắc cho Theory setup riêng.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
 
@@ -144,8 +170,9 @@ m6-blues-technique.md và m5-keys-progressions.md. Không đọc sách.
 Chỉ làm trong theory/; không import từ src/.
 Dùng lõi trong theory/src/core/; chỉ thêm vào lõi khi thiếu, kèm test.
 Gửi dàn ý trước, chờ tôi duyệt rồi mới code.
-Đầu ra: bài /theory/blues bằng tiếng Việt và tiếng Anh; chạy lint, typecheck,
-test, build; mở PR; cập nhật trạng thái phiên 2.2 trong docs/theory-plan.md.
+Đầu ra: bài /theory/blues bằng tiếng Việt và tiếng Anh. Kết thúc theo
+"Checklist kết thúc phiên" trong docs/theory-plan.md: ghi sổ, tự review, chạy CI,
+PR vào main, tự merge khi CI xanh, xác nhận đã lên guitarmateur.com.
 ```
 
 ## Tiết kiệm token và rủi ro
