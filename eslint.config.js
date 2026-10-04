@@ -11,9 +11,29 @@ import tseslint from 'typescript-eslint';
  * per-directory `no-restricted-imports`. A violating import fails `npm run lint`.
  */
 const noReact = ['react', 'react/*', 'react-dom', 'react-dom/*'];
+
+/**
+ * The Theory app (theory/) and the practice app (src/) share no code (docs/theory-plan.md).
+ * Every src/ block carries `fromTheory`, every theory/ block carries `fromSrc`, because a later
+ * block's `no-restricted-imports` replaces an earlier one's instead of merging with it.
+ */
+const fromTheory = {
+  group: ['**/theory/**'],
+  message: 'src/ (practice app) may not import from theory/ — the two apps share no code.',
+};
+const fromSrc = {
+  group: ['**/src/**'],
+  message: 'theory/ may not import from the practice app in src/ — the two apps share no code.',
+};
 const forbid = (group, why) => ({
   rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group, message: why }] }],
+    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromTheory] }],
+  },
+});
+const dir = (name) => [`**/${name}`, `**/${name}/**`];
+const forbidTheory = (group, why) => ({
+  rules: {
+    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromSrc] }],
   },
 });
 
@@ -40,6 +60,11 @@ export default tseslint.config(
   },
 
   // --- Layer-boundary enforcement ---
+  // Default for every src/ file; the per-layer blocks below re-state it alongside their own rule.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-imports': ['error', { patterns: [fromTheory] }] },
+  },
   {
     files: ['src/music/**/*.ts'],
     ...forbid([...noReact, '**/fretboard/**', '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'],
@@ -53,7 +78,7 @@ export default tseslint.config(
   {
     files: ['src/lick/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'], message: 'src/lick may only import from src/fretboard and src/music.' }] }],
+      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
       'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from ./rng instead of Math.random.' }],
     },
   },
@@ -81,6 +106,28 @@ export default tseslint.config(
     files: ['src/i18n/**/*.test.ts'],
     ...forbid([...noReact, '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
       'src/i18n tests may only import engine registries (music, fretboard) for drift checks — never React or higher layers.'),
+  },
+
+  // --- Theory app (theory/): separate app, own layers. See docs/theory.md. ---
+  // `dir('x')` matches both '../x' and '../x/file': a bare '**/x/**' misses the index import.
+  {
+    files: ['theory/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-imports': ['error', { patterns: [fromSrc] }] },
+  },
+  {
+    files: ['theory/src/core/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui')],
+      'theory/src/core is the lowest Theory layer: no React, no lessons, no UI.'),
+  },
+  {
+    files: ['theory/src/core/music/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('fretboard'), ...dir('audio')],
+      'theory/src/core/music is the lowest layer: it may not import fretboard, audio, lessons, UI or React.'),
+  },
+  {
+    files: ['theory/src/core/fretboard/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('audio')],
+      'theory/src/core/fretboard may only import from theory/src/core/music.'),
   },
 
   // --- Hard-coded UI copy guard (T13): every user-facing string must flow through t(). ---
