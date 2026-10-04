@@ -89,6 +89,6 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Cốt lõi.** Ngón cái tay trái đặt sau cần, không vắt lên trên. Cổ tay thấp, có khoảng trống giữa lòng bàn tay và cần. Cầm phím giữa ngón cái và ngón trỏ. Luyện ngón: mỗi ngón một phím, chậm và đều, ưu tiên kiểm soát hơn tốc độ. Gảy xen kẽ xuống–lên.
 
-**Dạy trong Theory.** Một bài luyện ngón 1-2-3-4 có metronome (dùng M1), tab và cần đàn chạy theo. Không cần hình ảnh tay: văn bản ngắn và một danh sách kiểm tra. Bài `/theory/fretboard` (phiên 1.1) chưa dạy mục này; nó chuyển sang phiên 1.2 vì cần metronome.
+**Dạy trong Theory.** Một bài luyện ngón 1-2-3-4 có metronome (dùng M1), tab và cần đàn chạy theo. Không cần hình ảnh tay: văn bản ngắn và một danh sách kiểm tra. Dạy ở bước cuối bài `/theory/rhythm` (phiên 1.2): bài luyện ngón từ phím 5 hoặc phím 1, 1 hoặc 2 nốt mỗi phách, kèm danh sách kiểm tra tư thế.
 
 **Nguồn:** ch. 1.

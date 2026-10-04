@@ -13,7 +13,8 @@ theory/
    ├─ core/              pure TypeScript, unit-tested
    │  ├─ music/          spelled pitches, intervals, scales, chords, keys, roman numerals
    │  ├─ fretboard/      neck grid, octave shapes, positions (boxes, 3-notes-per-string)
-   │  └─ audio/          plucked-string synth (pure) + Web Audio player
+   │  ├─ rhythm/         time as a grid: BPM, note lengths in cells, counting, strum patterns
+   │  └─ audio/          plucked-string and click synths (pure) + Web Audio player
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
@@ -32,6 +33,7 @@ site-wide service worker (`public/sw.js`) falls back to the cached `/theory` she
 ```
 ui → lessons → core/fretboard → core/music
  │      │      core/audio (→ core/music allowed)
+ │      │      core/rhythm (imports nothing in Theory)
  └──────┴────→ i18n (imports nothing in Theory)
 ```
 
@@ -57,8 +59,13 @@ ui → lessons → core/fretboard → core/music
 ## Audio
 
 - `pluckSamples()` is pure and deterministic (seeded noise); tune the sound there, with tests.
-- `createPlayer()` makes its `AudioContext` on the first `pluck()`. Call it only from a user
-  gesture. Audio failures are swallowed: a lesson must work silently.
+- `createPlayer()` makes its `AudioContext` on the first `pluck()` or `click()`. Call it only
+  from a user gesture. Audio failures are swallowed: a lesson must work silently.
+- `pluck(midi, delay, length)` damps the note after `length` seconds; `click(accent, delay)` is
+  the metronome (`clickSamples()` is pure, like `pluckSamples()`).
+- Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
+  time with its exact delay, so timer jitter moves only the cursor, never the sound. `useSequence`
+  stays for short demos where a few ms do not matter.
 
 ## Languages
 
@@ -72,6 +79,8 @@ ui → lessons → core/fretboard → core/music
   `copy.vi.ts`, pure `scenes.ts` + test), add it to `LESSONS` in `lessons/index.ts`, and add a
   case to `ui/lessons/LessonScene.tsx`. Shared tests then check: unique slug, concept IDs exist in
   `docs/theory-knowledge`, same keys/lengths/placeholders in vi and en, no empty strings.
+- Time is drawn on `ui/BeatGrid.tsx` (one bar as cells; a note is a block as long as it lasts,
+  a rest an empty outline, count words underneath).
 - Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
   to a click) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
   never from the component.

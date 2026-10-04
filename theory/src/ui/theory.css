@@ -160,6 +160,35 @@ button { font: inherit; cursor: pointer; }
 .olink.outer line { stroke: var(--fret); stroke-dasharray: 4 4; stroke-width: 1.5; }
 .olink.outer text { fill: var(--string); font-size: 11px; font-weight: 400; }
 
+/* Rhythm */
+.tempo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--f-mono); font-size: 0.82rem; }
+.tempo > span { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.tempo input { width: min(220px, 40vw); accent-color: var(--accent); }
+.tempo output { min-width: 5.5em; font-variant-numeric: tabular-nums; }
+.beatgrid .lane { fill: var(--bg); }
+.beatgrid .now { fill: var(--accent); fill-opacity: 0.16; }
+.beatgrid .cellline { stroke: var(--line); stroke-width: 1; }
+.beatgrid .beatline { stroke: var(--muted); stroke-width: 1.5; }
+.block rect { fill: var(--dot); stroke: var(--wood-edge); stroke-width: 1; transition: fill 0.12s; }
+.block text { fill: var(--dot-ink); font-family: var(--f-mono); font-size: 15px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.block.accent rect { fill: var(--amber); stroke: none; }
+.block.accent text { fill: var(--amber-ink); }
+.block.rest rect { fill: transparent; stroke: var(--muted); stroke-dasharray: 5 4; }
+.block.rest text { fill: var(--muted); }
+.block.ghost rect { fill: transparent; stroke: var(--line); }
+.block.ghost text { fill: var(--muted); opacity: 0.5; }
+.block.on:not(.rest):not(.ghost) rect { fill: var(--accent); }
+.block.on:not(.rest):not(.ghost) text { fill: var(--accent-ink); }
+.block.click { cursor: pointer; outline: none; }
+.block.click:hover rect, .block.click:focus-visible rect { stroke: var(--accent); stroke-width: 2; }
+.word { fill: var(--muted); font-family: var(--f-mono); font-size: 13px; text-anchor: middle; }
+.word.beat { fill: var(--ink); font-weight: 600; }
+.word.on { fill: var(--accent); font-weight: 700; }
+.swatch.note { background: var(--dot); border: 1px solid var(--line); border-radius: 3px; }
+.swatch.rest { border: 1px dashed var(--muted); border-radius: 3px; }
+.checklist { display: grid; gap: 6px; }
+.checklist ul { margin: 0; padding-left: 1.2em; display: grid; gap: 2px; font-size: 0.92rem; }
+
 /* Not yet */
 .skip { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .skip div { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
