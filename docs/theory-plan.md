@@ -42,6 +42,8 @@ Sách có 20 chương, khoảng 110 trang, lộ trình dự kiến hơn 45 tuầ
 
 Các track Jam Along trên CD không dùng lại được. Chúng sẽ được thay bằng vòng đệm tự sinh trong trình duyệt.
 
+Kiến thức của sách đã được viết lại bằng lời của dự án và sắp theo lộ trình Theory trong [`docs/theory-knowledge/`](theory-knowledge/README.md): 8 module, 57 khái niệm có mã (`K3.2`…), kèm bản đồ chương → khái niệm, bảng thuật ngữ Việt–Anh và danh sách chỗ sách in sai. Đây là nguồn kiến thức cho mọi phiên; không phiên nào cần đọc lại sách.
+
 ## Guitarmateur và app Theory
 
 Theory là một app riêng. Nó nằm trong cùng repo và cùng tên miền với Guitarmateur nhưng không dùng chung code. Hai app dành cho hai nhóm người khác nhau:
@@ -66,7 +68,7 @@ Sáu quyết định:
 3. **Âm thanh mới.** Lấy tiếng gảy trong `docs/prototypes/ban-do-pentatonic.html` làm điểm xuất phát, sau đó thêm chỉnh âm sắc, nhéo dây và trượt khi cần. Âm thanh chỉ phát sau khi người dùng thao tác.
 4. **Lõi nhạc lý riêng, có test.** Theo cùng nguyên tắc với `src/music/`: làm việc với tên nốt đã đánh vần đúng (âm giai F thứ có B♭, không có A♯), không dùng số thứ tự nốt thuần túy.
 5. **Đường dẫn `/theory/<bài>`.** Cần thêm rewrite trong `vercel.json`. Khi offline, service worker hiện tại (`public/sw.js`) trả về trang chủ cho mọi đường dẫn, nên phải sửa để `/theory` trả về trang của Theory.
-6. **Sách không vào repo.** File sách và bản tóm tắt được quản lý trên máy và nằm trong `.gitignore`.
+6. **Sách không vào repo, kiến thức thì có.** File PDF chỉ nằm trên máy bạn. Kiến thức của sách được viết lại trong `docs/theory-knowledge/`: không trích câu, không chép bài tập hay bản nhạc, chỉ giữ công thức, quan hệ và thứ tự học.
 
 Tiến độ học của người dùng được lưu trong localStorage của Theory, dùng khóa khác với app Luyện tập.
 
@@ -76,17 +78,16 @@ Theory nằm trong thư mục `theory/` của repo và có entry Vite riêng. M�
 
 ```mermaid
 flowchart LR
-  subgraph local["Ngoài repo (máy bạn, .gitignore)"]
-    pdf["Sách PDF<br/>trích một lần (0.1)"] --> sum["Bản tóm tắt sách<br/>đọc 1–2 chương/phiên"]
-  end
+  pdf["Sách PDF (chỉ trên máy)<br/>viết lại một lần (0.1)"] --> kb
   subgraph repo["Repo guitarmateur"]
     main["src/ · app Luyện tập<br/>không đụng tới"]
     docs["docs/theory*.md<br/>quy ước + kế hoạch"]
+    kb["docs/theory-knowledge/<br/>kho kiến thức, đọc 1 module/phiên"]
     core["theory/src/core/<br/>nhạc lý, cần đàn, âm thanh, test"]
     lessons["theory/src/lessons/ + ui/<br/>bài học vi + en"]
+    kb --> lessons
     core --> lessons
   end
-  sum --> lessons
   repo --> pr["Pull request<br/>CI: lint, test, build"] --> preview["Bản xem trước Vercel"] --> prod["guitarmateur.com/theory<br/>khi merge vào main"]
 ```
 
@@ -95,9 +96,9 @@ Phần việc của Theory gồm bốn phần:
 - `theory/src/core/`: nhạc lý, cần đàn, âm thanh, lưới nhịp, tất cả đều có test;
 - `theory/src/lessons/`: dữ liệu bài và kịch bản cảnh, mỗi bài kèm lời giảng `vi` và `en`;
 - `theory/src/ui/`: cần đàn có hình động, khung trang bài, mục lục, chọn ngôn ngữ;
-- `docs/theory.md` ghi quy ước của Theory, còn bản kế hoạch này nằm ở `docs/theory-plan.md`.
+- `docs/theory-knowledge/` là kho kiến thức; `docs/theory.md` (viết ở phiên 0.2) ghi quy ước code và bài học; bản kế hoạch này nằm ở `docs/theory-plan.md`.
 
-App Luyện tập trong `src/` không bị đụng tới, trừ các file dùng chung là `vercel.json`, `vite.config.ts`, `tsconfig.json`, service worker và cấu hình ESLint. Bản demo Bản đồ Pentatonic nằm ở `docs/prototypes/` để tham khảo, không được ship và không được import. Bản tóm tắt sách nằm ngoài repo.
+App Luyện tập trong `src/` không bị đụng tới, trừ các file dùng chung là `vercel.json`, `vite.config.ts`, `tsconfig.json`, service worker và cấu hình ESLint. Bản demo Bản đồ Pentatonic nằm ở `docs/prototypes/` để tham khảo, không được ship và không được import. File PDF của sách không nằm trong repo.
 
 ## Lộ trình theo giai đoạn
 
@@ -126,7 +127,7 @@ Mỗi phiên là một cuộc trò chuyện mới, làm đúng một bài học 
 
 Quy trình trong một phiên:
 
-1. **Nạp bối cảnh.** Claude đọc `AGENTS.md`, `docs/theory.md` và bản tóm tắt của chương cần dùng. Không đọc lại PDF.
+1. **Nạp bối cảnh.** Claude đọc `AGENTS.md`, `docs/theory.md`, `docs/theory-knowledge/README.md` và file module của bài. Không đọc sách.
 2. **Chọn ý.** Claude gửi một dàn ý ngắn gồm 3–5 bước. Mỗi bước có một câu kết luận và mô tả hình động. Dàn ý kèm danh sách những gì "tạm gác lại".
 3. **Bạn duyệt dàn ý.** Sửa ở bước này chỉ tốn vài trao đổi. Sửa sau khi đã code xong tốn gấp nhiều lần.
 4. **Dựng bài trên một nhánh mới.** Claude viết dữ liệu bài, lời giảng tiếng Việt và tiếng Anh, dùng lõi có sẵn trong `theory/src/core/`. Nếu cần thành phần mới dùng lại được, thành phần đó được thêm vào lõi kèm test.
@@ -138,8 +139,9 @@ Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chư
 ```
 Dự án Theory trong Guitarmateur, phiên 2.2 (Blues).
 Kế hoạch: docs/theory-plan.md. Repo: nguyentamgm/guitarmateur (cần quyền push).
-Đọc AGENTS.md, docs/theory.md, docs/theory-plan.md, và bản tóm tắt chương 13, 14 trên máy tôi.
-Không đọc PDF. Chỉ làm trong theory/; không import từ src/.
+Đọc AGENTS.md, docs/theory.md, docs/theory-plan.md, docs/theory-knowledge/README.md,
+m6-blues-technique.md và m5-keys-progressions.md. Không đọc sách.
+Chỉ làm trong theory/; không import từ src/.
 Dùng lõi trong theory/src/core/; chỉ thêm vào lõi khi thiếu, kèm test.
 Gửi dàn ý trước, chờ tôi duyệt rồi mới code.
 Đầu ra: bài /theory/blues bằng tiếng Việt và tiếng Anh; chạy lint, typecheck,
@@ -150,10 +152,10 @@ test, build; mở PR; cập nhật trạng thái phiên 2.2 trong docs/theory-pl
 
 Phần lớn token bị tốn vào ba việc: đọc lại nguồn, viết lại code đã có, và sửa một trang đã dựng xong. Kế hoạch này chặn cả ba.
 
-- **Trích sách một lần.** Ở phiên 0.1, toàn bộ PDF được chuyển thành các file tóm tắt theo chương, mỗi file vài KB, nằm ngoài repo. Các phiên sau chỉ đọc file của chương mình cần.
+- **Viết lại sách một lần.** Phiên 0.1 đã chuyển kiến thức của sách thành `docs/theory-knowledge/`, chia theo module, mỗi file vài nghìn token. Mỗi phiên chỉ đọc README của kho và một hai module mình cần.
 - **Lõi làm một lần.** Phiên 0.2 dựng nhạc lý, cần đàn và âm thanh cho Theory. Từ đó trở đi, một bài mới chủ yếu là dữ liệu và lời giảng.
 - **Duyệt dàn ý trước khi code.** Đây là cách rẻ nhất để đổi hướng.
-- **Mỗi phiên một cuộc trò chuyện mới.** `docs/theory.md` và `docs/theory-plan.md` thay cho lịch sử trò chuyện. Claude chỉ đọc phần code mình sắp sửa, không đọc cả repo.
+- **Mỗi phiên một cuộc trò chuyện mới.** `docs/theory.md`, `docs/theory-plan.md` và kho kiến thức thay cho lịch sử trò chuyện. Claude chỉ đọc phần code mình sắp sửa, không đọc cả repo.
 - **Không dùng agent phụ cho việc dựng bài.** Agent phụ bắt đầu từ con số 0 và phải nạp lại bối cảnh. Chỉ đáng dùng khi cần một người kiểm tra độc lập kiến thức nhạc lý của một bài quan trọng.
 
 Ước lượng thô: mỗi phiên bài học tốn khoảng 120–250 nghìn token, vì mỗi bài phải viết hai thứ tiếng và chạy CI. Cả dự án khoảng 2,5–3,5 triệu token. Phiên 0.2 và 0.3 tốn nhất vì phải dựng lõi và khung app. Sau phiên 1.1, hãy xem số thực tế rồi chỉnh lại ước lượng này.
@@ -161,11 +163,12 @@ Phần lớn token bị tốn vào ba việc: đọc lại nguồn, viết lại
 | Rủi ro | Cách xử lý |
 | --- | --- |
 | Sai kiến thức nhạc lý (tên nốt, bậc, công thức) | Mọi nốt đều do lõi Theory tính ra, không gõ tay. Lõi có test chính tả cho cả 12 giọng. Mỗi bài thêm test cho các cảnh của mình |
-| Bản tiếng Việt và tiếng Anh lệch nhau | Test so hai bản phải có cùng bước và cùng khóa. Thuật ngữ được thống nhất trong một bảng thuật ngữ ở `docs/theory.md` |
+| Bản tiếng Việt và tiếng Anh lệch nhau | Test so hai bản phải có cùng bước và cùng khóa. Thuật ngữ được thống nhất theo bảng trong `docs/theory-knowledge/README.md` |
 | Theory vô tình phụ thuộc app Luyện tập, hoặc code Theory không được CI kiểm tra | ESLint chặn import qua lại giữa `src/` và `theory/src/`. Phiên 0.3 đưa `theory/` vào typecheck, lint và test, rồi thử một import sai để chắc luật có tác dụng |
 | Tải lại `/theory/<bài>` bị lỗi 404, hoặc offline thì mở ra trang chủ | Ngay ở phiên 0.3: thêm rewrite trong `vercel.json`, sửa service worker, kiểm tra trên bản xem trước |
 | Sửa file dùng chung làm hỏng app Luyện tập | Chỉ có `vercel.json`, `vite.config.ts`, `tsconfig.json`, service worker và cấu hình ESLint là dùng chung. Kiểm tra trang chủ trên bản xem trước mỗi khi một trong các file này thay đổi |
-| Bản quyền của sách | Sách và bản tóm tắt nằm trong `.gitignore`. Không chép lời văn, bài tập hay bản nhạc có bản quyền. Bài tập được tự sinh |
+| Bản quyền của sách | PDF không vào repo. Kho kiến thức chỉ giữ công thức, quan hệ và thứ tự học, viết bằng lời của dự án; không trích câu, không chép bài tập, biểu đồ hay bản nhạc. Bài tập được tự sinh |
+| Kho kiến thức và app lệch nhau | Mỗi bài ghi các mã khái niệm nó dạy. Đổi cách dạy thì sửa file kiến thức trong cùng PR |
 | Đường cong nhéo dây và tiết tấu khó minh họa | Làm thử một demo nhỏ ở đầu phiên đó trước khi dựng cả bài |
 
 ## Theo dõi tiến độ
@@ -174,8 +177,8 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 
 | Phiên | Bài học / đầu ra | Nguồn trong sách | Trạng thái |
 | --- | --- | --- | --- |
-| 0.1 | Trích sách thành tóm tắt theo chương (ngoài repo, trong `.gitignore`). Viết `docs/theory.md` kèm bảng thuật ngữ vi–en | Cả sách | Chưa làm |
-| 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test | Ch. 7, 11 | Chưa làm |
+| 0.1 | Kho kiến thức `docs/theory-knowledge/`: 8 module, 57 khái niệm, bản đồ chương, thuật ngữ vi–en, đính chính | Cả sách | Xong |
+| 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test. Viết `docs/theory.md` (quy ước code và bài học) | Ch. 7, 11 | Chưa làm |
 | 0.3 | Khung app Theory: entry Vite riêng, `/theory`, đưa `theory/` vào tsconfig, ESLint và Vitest, mục lục, chọn ngôn ngữ, rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic (vi + en) | Ch. 11 | Chưa làm |
 | 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà | Ch. 1–4, 7 | Chưa làm |
 | 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt | Ch. 2–3, 9, 16 | Chưa làm |
