@@ -64,7 +64,7 @@ Việc nối hai app với nhau để sau. Khảo sát dựa trên commit `4dfdc
 Sáu quyết định:
 
 1. **App riêng trong cùng repo.** Thêm một entry Vite thứ hai là `theory/index.html`, code nằm trong `theory/src/`. ESLint chặn import qua lại giữa `src/` và `theory/src/`. Bản build ra `dist/theory/` và chạy ở `/theory`. Vì hiện `tsconfig.app.json` chỉ có `"include": ["src"]` và các luật ESLint chỉ nhắm vào `src/...`, phải thêm cấu hình cho `theory/` (ví dụ `tsconfig.theory.json` được tham chiếu từ `tsconfig.json`, glob ESLint cho `theory/**`, và kiểm tra Vitest chạy test trong `theory/`). Nếu không, CI sẽ bỏ qua typecheck và luật import của Theory.
-2. **Hai ngôn ngữ cùng lúc.** Mỗi bài có lời giảng `vi` và `en`, viết trong cùng một PR. Một test kiểm tra hai bản có cùng các bước và cùng khóa, để không bản nào bị thiếu.
+2. **Hai ngôn ngữ cùng lúc, tiếng Anh là chính.** Tiếng Anh là ngôn ngữ chính và luôn là mặc định; slug và code dùng tiếng Anh. Mỗi bài có lời giảng `en` và `vi`, viết trong cùng một PR. Một test kiểm tra hai bản có cùng các bước và cùng khóa, để không bản nào bị thiếu.
 3. **Âm thanh mới.** Lấy tiếng gảy trong `docs/prototypes/ban-do-pentatonic.html` làm điểm xuất phát, sau đó thêm chỉnh âm sắc, nhéo dây và trượt khi cần. Âm thanh chỉ phát sau khi người dùng thao tác.
 4. **Lõi nhạc lý riêng, có test.** Theo cùng nguyên tắc với `src/music/`: làm việc với tên nốt đã đánh vần đúng (âm giai F thứ có B♭, không có A♯), không dùng số thứ tự nốt thuần túy.
 5. **Đường dẫn `/theory/<bài>`.** Cần thêm rewrite trong `vercel.json`. Khi offline, service worker hiện tại (`public/sw.js`) trả về trang chủ cho mọi đường dẫn, nên phải sửa để `/theory` trả về trang của Theory.
@@ -158,7 +158,10 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 
 - (0.2) Luật ESLint của app Luyện tập dạng `'**/fretboard/**'` bỏ sót import trỏ thẳng vào thư mục như `'../fretboard'` từ `src/music`. Luật của Theory đã dùng `dir()` để bắt cả hai dạng. Sửa bằng một PR riêng cho `src/`.
 - (0.2) `interval()` chấp nhận bậc 1–15, nhưng comment của `DegreeLabel` ghi 1–13. Chọn một phạm vi rồi sửa cho khớp.
-- (0.2) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập (cấu hình Vitest trong `vite.config.ts`). Từ phiên 0.3, khi có test UI cho Theory, cân nhắc cho Theory setup riêng.
+- (0.2, 0.3) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập. File này chỉ bật cờ `act` của React nên test UI của Theory (0.3) dùng được. Chỉ tách khi Theory cần setup khác.
+- (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
+- (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
+- (0.3) Bài Bản đồ Pentatonic đã lên `/theory/pentatonic-map`. Phiên 2.1 (pentatonic đầy đủ) dùng slug riêng, ví dụ `/theory/pentatonic`, và dùng lại `Fretboard`, `scenes.ts`.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
 
@@ -206,7 +209,7 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | --- | --- | --- | --- |
 | 0.1 | Kho kiến thức `docs/theory-knowledge/`: 8 module, 57 khái niệm, bản đồ chương, thuật ngữ vi–en, đính chính | Cả sách | Xong |
 | 0.2 | Lõi Theory: nhạc lý đánh vần đúng, cần đàn, tiếng gảy mới (từ bản demo trong `docs/prototypes/`), tất cả có test. Đưa `theory/` vào tsconfig, ESLint, Vitest (chuyển từ 0.3). Viết `docs/theory.md` | Ch. 7, 11 | Xong |
-| 0.3 | Khung app Theory: entry Vite riêng, `/theory`, mục lục, chọn ngôn ngữ, rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic (vi + en) | Ch. 11 | Chưa làm |
+| 0.3 | Khung app Theory: entry Vite riêng, `/theory`, mục lục, chọn ngôn ngữ (en mặc định), rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic `/theory/pentatonic-map` (en + vi) | Ch. 11 | Xong |
 | 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà | Ch. 1–4, 7 | Chưa làm |
 | 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt | Ch. 2–3, 9, 16 | Chưa làm |
 | 1.3 | Âm giai trưởng và quãng là hình trên cần | Ch. 7, 9 | Chưa làm |

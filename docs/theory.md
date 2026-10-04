@@ -14,20 +14,32 @@ theory/
    │  ├─ music/          spelled pitches, intervals, scales, chords, keys, roman numerals
    │  ├─ fretboard/      neck grid, octave shapes, positions (boxes, 3-notes-per-string)
    │  └─ audio/          plucked-string synth (pure) + Web Audio player
-   ├─ lessons/           lesson data + vi/en copy            (from session 0.3)
-   └─ ui/                React components                     (from session 0.3)
+   ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
+   ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
+   │                     scenes.ts (pure scene data derived from core), registry in index.ts
+   ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx
+   └─ main.tsx           entry of theory/index.html
 ```
+
+Theory is a second Vite page: `theory/index.html` builds to `dist/theory/index.html`. Routes are
+`/theory` (contents) and `/theory/<slug>`; `vercel.json` (production) and the `theory-routes`
+plugin in `vite.config.ts` (dev, preview) serve the Theory page for every `/theory/*` path. The
+site-wide service worker (`public/sw.js`) falls back to the cached `/theory` shell offline.
 
 ## Import rules (enforced by ESLint)
 
 ```
 ui → lessons → core/fretboard → core/music
-               core/audio (→ core/music allowed)
+ │      │      core/audio (→ core/music allowed)
+ └──────┴────→ i18n (imports nothing in Theory)
 ```
 
 - `theory/` never imports from `src/`, and `src/` never imports from `theory/`.
 - `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music`.
 - `core/` never imports React, `lessons/` or `ui/`.
+- `lessons/` is data: core and i18n only, never React or `ui/`.
+- Every user-facing string in `ui/**/*.tsx` comes from `i18n` or lesson copy (ESLint rejects
+  literal JSX text and literal `aria-label`/`title`/`alt`).
 - `tsconfig.theory.json` typechecks `theory/src`; Vitest picks up `theory/**/*.test.ts`.
 
 ## Music invariants
@@ -47,7 +59,20 @@ ui → lessons → core/fretboard → core/music
 - `createPlayer()` makes its `AudioContext` on the first `pluck()`. Call it only from a user
   gesture. Audio failures are swallowed: a lesson must work silently.
 
-## Lessons (from session 0.3)
+## Languages
+
+- **English is the primary language and always the default.** Vietnamese is chosen with the
+  EN/VI switch and remembered in `localStorage` under `theory.lang` (never the practice app's key).
+- Slugs and code are English. Copy is written in English first, then Vietnamese.
+
+## Lessons
+
+- **Adding a lesson:** create `lessons/<slug>/` (steps with concept IDs, `copy.en.ts`,
+  `copy.vi.ts`, pure `scenes.ts` + test), add it to `LESSONS` in `lessons/index.ts`, and add a
+  case to `ui/lessons/LessonScene.tsx`. Shared tests then check: unique slug, concept IDs exist in
+  `docs/theory-knowledge`, same keys/lengths/placeholders in vi and en, no empty strings.
+- Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame). Positions come
+  from `scenes.ts`, never from the component.
 
 - Each lesson lists the concept IDs it teaches (`K3.4`…). If teaching differs from the knowledge
   base, update the knowledge base in the same PR.
