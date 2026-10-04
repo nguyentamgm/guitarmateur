@@ -1,0 +1,518 @@
+<!doctype html>
+<!-- Prototype "Bản đồ Pentatonic" (Claude artifact demo, 2026-10-03). Reference for the Theory app only: not shipped, not imported. See docs/theory-plan.md. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản đồ Pentatonic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: một cột đọc ~70ch, mỗi bước = chữ bên trên + một cần đàn rosewood tràn rộng bên dưới */
+:root{
+  --bg:#E9EDF0; --surface:#F6F8F9; --ink:#121A21; --muted:#54606B; --line:#C9D1D8;
+  --accent:#2F64F0; --accent-ink:#FFFFFF; --amber:#E0951A; --amber-ink:#1E1407;
+  --wood:#2B211B; --wood-edge:#1C1511; --fret:#AEB4BA; --nut:#E7E1D3; --string:#CFC8B8;
+  --inlay:#4A3B30; --dot:#ECE6D9; --dot-ink:#1A1511; --fretnum:#6B7680;
+  --f-display:"Bricolage Grotesque","Be Vietnam Pro",system-ui,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1317; --surface:#151C22; --ink:#E5EAEE; --muted:#94A1AC; --line:#26313A;
+  --accent:#5A8BFF; --accent-ink:#06102A; --amber:#F1B13C; --amber-ink:#1E1407;
+  --wood:#251C17; --wood-edge:#3A2E26; --fret:#8E959C; --nut:#CFC8B8; --string:#B8B1A2;
+  --inlay:#3E3229; --dot:#E3DCCD; --dot-ink:#17120E; --fretnum:#7D8994; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1317; --surface:#151C22; --ink:#E5EAEE; --muted:#94A1AC; --line:#26313A;
+  --accent:#5A8BFF; --accent-ink:#06102A; --amber:#F1B13C; --amber-ink:#1E1407;
+  --wood:#251C17; --wood-edge:#3A2E26; --fret:#8E959C; --nut:#CFC8B8; --string:#B8B1A2;
+  --inlay:#3E3229; --dot:#E3DCCD; --dot-ink:#17120E; --fretnum:#7D8994; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1000px;margin:0 auto}
+.prose{max-width:66ch}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.12;margin:0}
+h1{font-size:clamp(2.1rem,5.4vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.45rem,3vw,2rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+
+header.hero{display:grid;gap:20px;padding-block:48px 28px}
+.hero .lead{font-size:1.12rem;max-width:60ch}
+.hero-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.steps-index{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:8px 0 0;padding:0;list-style:none;counter-reset:s}
+.steps-index a{display:flex;gap:10px;align-items:baseline;padding:12px 14px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-size:.92rem;line-height:1.35;background:var(--surface);height:100%}
+.steps-index a:hover{border-color:var(--accent)}
+.steps-index b{font-family:var(--f-mono);color:var(--accent);font-weight:600}
+
+section.step{display:grid;gap:18px;padding-block:44px 8px;border-top:1px solid var(--line)}
+.step-head{display:grid;gap:8px}
+.step-head .num{font-family:var(--f-mono);font-size:.8rem;color:var(--accent);font-weight:600;letter-spacing:.06em}
+.text{display:grid;gap:12px}
+.aside{font-size:.92rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+
+.board{display:grid;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.group > span{font-size:.78rem;color:var(--muted);margin-right:2px;font-family:var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+button{font:inherit;cursor:pointer}
+.chip{font-family:var(--f-mono);font-size:.82rem;padding:5px 10px;min-width:34px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink)}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn{font-size:.88rem;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.07)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll svg{display:block;width:100%;height:auto}
+.caption{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.4em}
+.caption b{color:var(--ink);font-weight:600}
+
+/* SVG */
+.wood{fill:var(--wood);stroke:var(--wood-edge)}
+.fretline{stroke:var(--fret);stroke-width:2}
+.nutbar{fill:var(--nut)}
+.str{stroke:var(--string)}
+.inlay{fill:var(--inlay)}
+.fnum{fill:var(--fretnum);font-family:var(--f-mono);font-size:11px;text-anchor:middle}
+.sname{fill:var(--muted);font-family:var(--f-mono);font-size:11px;dominant-baseline:middle}
+.boxrect{fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-opacity:.7;stroke-width:1.5;transition:x .45s cubic-bezier(.3,.7,.2,1),width .45s cubic-bezier(.3,.7,.2,1),opacity .3s}
+.noanim .boxrect{transition:none}
+.dot{cursor:pointer;transition:opacity .3s}
+.dot circle{fill:var(--dot);stroke:var(--wood-edge);stroke-width:1;transform-box:fill-box;transform-origin:center;transition:transform .16s ease-out}
+.dot text{fill:var(--dot-ink);font-family:var(--f-mono);font-size:10.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.dot.home circle{fill:var(--accent);stroke:none}
+.dot.home text{fill:var(--accent-ink)}
+.dot.home.maj circle{fill:var(--amber)}
+.dot.home.maj text{fill:var(--amber-ink)}
+.dot.dim{opacity:.22}
+.dot.hit circle{transform:scale(1.4)}
+.dot:hover circle{stroke:var(--accent);stroke-width:2}
+
+/* Bước 1 */
+.pair path{fill:none;stroke:var(--fret);stroke-width:1.5;stroke-dasharray:4 4}
+.pair .lbl{font-family:var(--f-mono);font-size:13px;font-weight:600;fill:var(--muted);dominant-baseline:middle}
+.pair.odd .lbl{fill:var(--amber)}
+.pair.odd path{stroke:var(--amber)}
+.pair{transition:opacity .3s}
+.g1.running .pair{opacity:.25}
+.g1.running .pair.on{opacity:1}
+.pair.on path{stroke:var(--accent);stroke-dasharray:none;stroke-width:2}
+.pair.odd.on path{stroke:var(--amber)}
+.walker{fill:var(--accent);transition:cx .18s linear}
+.walker.odd{fill:var(--amber)}
+
+/* Bước 2 */
+.arc path{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:120;stroke-dashoffset:0;transition:stroke-dashoffset .45s ease-out,opacity .2s}
+.arc text{fill:var(--accent);font-family:var(--f-mono);font-size:13px;font-weight:600;text-anchor:middle}
+.strip .deg{fill:var(--muted);font-family:var(--f-mono);font-size:11px;text-anchor:middle}
+.strip.pre .arc path{stroke-dashoffset:120}
+.strip.pre .arc text,.strip.pre .sdot{opacity:0}
+.strip .arc text,.strip .sdot{transition:opacity .25s}
+.strip .arc.show path{stroke-dashoffset:0}
+.strip .arc.show text,.strip .sdot.show{opacity:1}
+
+.formula{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--f-mono);font-size:1.05rem}
+.formula span{padding:4px 10px;border-radius:6px;background:var(--surface);border:1px solid var(--line)}
+.formula .h{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+.finder{display:flex;flex-wrap:wrap;gap:6px}
+.finder button{font-family:var(--f-mono);font-size:.82rem;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:7px;padding:5px 9px;font-variant-numeric:tabular-nums}
+.finder button b{color:var(--accent)}
+.finder button:hover{border-color:var(--accent)}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+.skip{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.skip div{display:grid;gap:4px;padding:14px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.skip h3{text-decoration:line-through;text-decoration-color:var(--amber);text-decoration-thickness:2px}
+.skip p{font-size:.9rem;color:var(--muted)}
+.next{display:grid;gap:10px;margin:0;padding-left:1.2em}
+.next li{padding-left:4px}
+footer{padding-block:40px 0;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Bản demo · nhạc lý cho guitar điện</span>
+  <h1>Pentatonic, chỉ học<br>đúng thứ bạn cần</h1>
+  <p class="lead">Nhiều giáo trình bắt đầu bằng khuông nhạc, dấu hóa và vòng quãng năm. Trang này bỏ hết những thứ đó và đi thẳng tới cần đàn: năm ý, mỗi ý một hình động. Bấm vào bất kỳ nốt nào để nghe.</p>
+  <div class="hero-bar">
+    <button class="btn ghost" id="sound" aria-pressed="true">Âm thanh: bật</button>
+    <span class="muted" style="font-size:.88rem">Dây mỏng nhất nằm trên cùng, giống cách đọc tab.</span>
+  </div>
+  <ol class="steps-index">
+    <li><a href="#b1"><b>1</b> Cần đàn là một cái lưới</a></li>
+    <li><a href="#b2"><b>2</b> Công thức 3‑2‑2‑3‑2</a></li>
+    <li><a href="#b3"><b>3</b> Gấp vào tay: 5 hộp</a></li>
+    <li><a href="#b4"><b>4</b> Đổi giọng = trượt hình</a></li>
+    <li><a href="#b5"><b>5</b> Trưởng hay thứ: đổi nhà</a></li>
+  </ol>
+</header>
+
+<section class="step" id="b1">
+  <div class="step-head prose">
+    <span class="num">BƯỚC 1</span>
+    <h2>Cần đàn là một cái lưới, không phải bảng tên nốt</h2>
+  </div>
+  <div class="text prose">
+    <p>Mỗi phím là một bước, bước nhỏ nhất có thể. Bạn không cần biết tên nốt, chỉ cần đếm bước.</p>
+    <p>Bấm phím 5 trên một dây thì ra đúng cao độ của dây ngay trên nó để buông. Chỉ có một chỗ lệch: từ dây G sang dây B là 4 phím. Đây là lý do mọi hình trên cần đàn bị dịch một nấc khi qua dây B.</p>
+  </div>
+  <div class="board">
+    <div class="controls"><button class="btn" id="g1run">Chạy hình động</button></div>
+    <div class="scroll"><svg id="g1" class="g1" style="min-width:560px"></svg></div>
+    <div class="caption" id="g1cap">Đường nét đứt nối hai vị trí cùng cao độ. Bấm “Chạy” để nghe từng cặp.</div>
+  </div>
+</section>
+
+<section class="step" id="b2">
+  <div class="step-head prose">
+    <span class="num">BƯỚC 2</span>
+    <h2>Âm giai pentatonic thứ là một công thức khoảng cách</h2>
+  </div>
+  <div class="text prose">
+    <p>Chọn một nốt làm <b>nhà</b>. Từ đó đi lên 3 phím, rồi 2, 2, 3, 2 phím là về lại nhà, cao hơn một quãng tám. Toàn bộ công thức chỉ có vậy.</p>
+    <div class="formula" aria-label="Công thức"><span class="h">nhà</span>+3<span>·</span>+2<span>·</span>+2<span>·</span>+3<span>·</span>+2<span class="h">nhà</span></div>
+    <p class="aside">Các ký hiệu 1, b3, 4, 5, b7 dưới mỗi nốt chỉ là tên gọi cho khoảng cách so với nhà. Chưa cần thuộc. Sau này chúng giúp bạn chọn nốt để dừng: nốt 1 và 5 nghe chắc, nốt b3 nghe buồn.</p>
+  </div>
+  <div class="board">
+    <div class="controls"><button class="btn" id="g2run">Chạy công thức</button><span class="muted" style="font-size:.88rem">Ví dụ trên dây 6, nhà là phím 5 (nốt A)</span></div>
+    <div class="scroll"><svg id="g2" class="strip" style="min-width:640px"></svg></div>
+  </div>
+</section>
+
+<section class="step" id="b3">
+  <div class="step-head prose">
+    <span class="num">BƯỚC 3</span>
+    <h2>Gấp công thức vào bàn tay: 2 nốt mỗi dây</h2>
+  </div>
+  <div class="text prose">
+    <p>Chơi dọc một dây thì tay phải chạy rất xa. Thay vào đó, ta bẻ công thức qua 6 dây, mỗi dây đúng 2 nốt. Kết quả là một <b>hộp</b> gọn trong khoảng 4 phím. Đi tiếp công thức thì ra hộp kế tiếp. Năm hộp nối nhau như gạch lát, rồi lặp lại sau phím 12.</p>
+    <p class="aside">Mỗi hộp dùng chung một cạnh với hộp bên cạnh. Tập thuộc hộp 1 trước, sau đó chỉ tập riêng đoạn nối 1→2.</p>
+  </div>
+  <div class="board" id="boardA"></div>
+</section>
+
+<section class="step" id="b4">
+  <div class="step-head prose">
+    <span class="num">BƯỚC 4</span>
+    <h2>Đổi giọng = trượt nguyên hình, không học lại gì</h2>
+  </div>
+  <div class="text prose">
+    <p>Hình không bao giờ đổi. Thứ duy nhất thay đổi là vị trí nốt nhà trên dây 6. Muốn chơi giọng C? Tìm C trên dây 6 (phím 8) và đặt hộp 1 vào đó.</p>
+    <p>Bảng tìm nhà trên dây 6, đây là phần “học thuộc” duy nhất của trang:</p>
+    <div class="finder" id="finder"></div>
+  </div>
+  <div class="board" id="boardB"></div>
+</section>
+
+<section class="step" id="b5">
+  <div class="step-head prose">
+    <span class="num">BƯỚC 5</span>
+    <h2>Trưởng hay thứ? Cùng 5 nốt, chỉ đổi nhà</h2>
+  </div>
+  <div class="text prose">
+    <p>A thứ pentatonic và C trưởng pentatonic dùng cùng một bộ nốt. Khác nhau ở chỗ bạn coi nốt nào là nhà: nốt bạn bắt đầu, dừng lại và nhấn mạnh. Nhà trưởng nằm cao hơn nhà thứ 3 phím.</p>
+    <p>Bật qua lại và để ý: không một chấm nào di chuyển. Chỉ có màu nhà đổi chỗ.</p>
+    <div class="legend"><span><i style="background:var(--accent)"></i>nhà thứ</span><span><i style="background:var(--amber)"></i>nhà trưởng</span><span><i style="background:var(--dot);border:1px solid var(--line)"></i>các nốt còn lại</span></div>
+  </div>
+  <div class="board" id="boardC"></div>
+</section>
+
+<section class="step">
+  <div class="step-head prose">
+    <span class="eyebrow">Tạm gác lại</span>
+    <h2>Những thứ chưa cần để chơi pentatonic</h2>
+  </div>
+  <p class="prose muted">Không phải chúng vô dụng. Chỉ là học chúng trước sẽ chiếm hết sức tập trung của bạn.</p>
+  <div class="skip">
+    <div><h3>Đọc khuông nhạc</h3><p>Guitar điện sống bằng tab và hình. Khuông nhạc có thể học sau, nếu cần.</p></div>
+    <div><h3>Thuộc tên mọi nốt</h3><p>Chỉ cần biết nốt nhà trên dây 6. Các nốt khác tự đúng nhờ hình.</p></div>
+    <div><h3>Dấu hóa, hóa biểu</h3><p>Đổi giọng trên guitar là trượt tay, không phải đổi ký hiệu.</p></div>
+    <div><h3>Vòng quãng năm</h3><p>Hữu ích khi soạn hòa âm. Không cần để solo trên một backing track.</p></div>
+    <div><h3>7 điệu thức (modes)</h3><p>Là bước sau của pentatonic, khi bạn đã nối được 5 hộp.</p></div>
+    <div><h3>Cấu tạo hợp âm chi tiết</h3><p>Lúc đầu chỉ cần biết giọng của bài là gì để đặt nhà.</p></div>
+  </div>
+</section>
+
+<section class="step">
+  <div class="step-head prose">
+    <span class="eyebrow">Cho các bản sau</span>
+    <h2>Hướng mở rộng</h2>
+  </div>
+  <ol class="next prose">
+    <li><b>Chế độ đố:</b> chỉ hiện nốt nhà, người học bấm đúng các nốt còn lại của hộp; tính thời gian.</li>
+    <li><b>Đồng bộ backing track:</b> khi hợp âm đổi, các nốt “an toàn” (1, b3, 5 của hợp âm) sáng lên trên cần.</li>
+    <li><b>Đoạn nối giữa hai hộp:</b> chỉ hiện vùng chung và tập lướt qua lại, thay vì cả hộp.</li>
+    <li><b>Lick mẫu theo hộp:</b> mỗi hộp kèm 2–3 câu ngắn phát bằng hình động, chơi theo tốc độ chậm dần lên.</li>
+    <li><b>Lớp nhạc lý bật dần:</b> tên nốt, bậc, rồi blue note b5, chỉ mở khi người học đã vượt qua bước trước.</li>
+  </ol>
+</section>
+
+<footer>Bản demo định hướng. Âm thanh tổng hợp trực tiếp trong trình duyệt.</footer>
+</div>
+
+<script>
+(function(){
+const NS='http://www.w3.org/2000/svg';
+const STR=[{n:'e',m:64},{n:'B',m:59},{n:'G',m:55},{n:'D',m:50},{n:'A',m:45},{n:'E',m:40}];
+const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const MINOR=[0,3,5,7,10];
+const DEG_MIN={0:'1',3:'b3',5:'4',7:'5',10:'b7'};
+const DEG_MAJ={0:'1',2:'2',4:'3',7:'5',9:'6'};
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+function h(t,a,txt){const e=document.createElement(t);if(a)for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+
+/* ---------- âm thanh: Karplus-Strong ---------- */
+let ac=null,soundOn=true;const cache={};
+function pluck(m){
+  if(!soundOn)return;
+  try{
+    if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    let b=cache[m];
+    if(!b){
+      const sr=ac.sampleRate,f=440*Math.pow(2,(m-69)/12),N=Math.round(sr/f),len=Math.floor(sr*1.8);
+      b=ac.createBuffer(1,len,sr);const d=b.getChannelData(0);let prev=0;
+      for(let i=0;i<N;i++){const r=Math.random()*2-1;prev=prev*.45+r*.55;d[i]=prev;}
+      const k=m<52?.997:.995;
+      for(let i=N;i<len;i++)d[i]=k*.5*(d[i-N]+d[i-N+1]);
+      cache[m]=b;
+    }
+    const s=ac.createBufferSource();s.buffer=b;const g=ac.createGain();g.gain.value=.32;
+    s.connect(g);g.connect(ac.destination);s.start();
+  }catch(e){}
+}
+const sb=document.getElementById('sound');
+sb.addEventListener('click',()=>{soundOn=!soundOn;sb.setAttribute('aria-pressed',soundOn);sb.textContent='Âm thanh: '+(soundOn?'bật':'tắt');});
+
+/* ---------- lý thuyết ---------- */
+const rootFret=pc=>(pc-4+12)%12;
+const scale=pc=>MINOR.map(i=>(pc+i)%12);
+function boxNotes(pc,k){
+  const base=40+rootFret(pc),sp=[];
+  for(let p=base;sp.length<20;p++)if(MINOR.includes(((p-pc)%12+12)%12))sp.push(p);
+  const arr=sp.slice(k,k+12);let out=[];
+  for(let r=5;r>=0;r--){const i=(5-r)*2;[arr[i],arr[i+1]].forEach(m=>out.push({r,f:m-STR[r].m,m}));}
+  if(Math.min(...out.map(o=>o.f))>=12)out=out.map(o=>({r:o.r,f:o.f-12,m:o.m-12}));
+  return out;
+}
+
+/* ---------- vẽ cần đàn ---------- */
+function drawNeck(svg,G){
+  const W=G.nut+G.frets*G.fw+G.right, H=G.top+5*G.ss+G.bottom;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const sy=r=>G.top+r*G.ss;
+  el('rect',{class:'wood',x:G.nut,y:G.top-14,width:G.frets*G.fw,height:5*G.ss+28,rx:3},svg);
+  [3,5,7,9,15,17].filter(f=>f<=G.frets).forEach(f=>el('circle',{class:'inlay',cx:G.nut+(f-.5)*G.fw,cy:(sy(2)+sy(3))/2,r:6},svg));
+  if(G.frets>=12){el('circle',{class:'inlay',cx:G.nut+11.5*G.fw,cy:(sy(0)+sy(1))/2+G.ss*.5,r:6},svg);el('circle',{class:'inlay',cx:G.nut+11.5*G.fw,cy:(sy(3)+sy(4))/2+G.ss*.5,r:6},svg);}
+  for(let f=1;f<=G.frets;f++){
+    el('line',{class:'fretline',x1:G.nut+f*G.fw,x2:G.nut+f*G.fw,y1:G.top-14,y2:sy(5)+14},svg);
+    const t=el('text',{class:'fnum',x:G.nut+(f-.5)*G.fw,y:sy(5)+32},svg);t.textContent=f;
+  }
+  el('rect',{class:'nutbar',x:G.nut-5,y:G.top-14,width:6,height:5*G.ss+28},svg);
+  const w=[1,1.2,1.5,1.9,2.3,2.7];
+  for(let r=0;r<6;r++){
+    el('line',{class:'str',x1:G.nut-2,x2:G.nut+G.frets*G.fw,y1:sy(r),y2:sy(r),'stroke-width':w[r]},svg);
+    const t=el('text',{class:'sname',x:4,y:sy(r)},svg);t.textContent=STR[r].n;
+  }
+  return {W,H,sy,fx:f=>f===0?G.nut-17:G.nut+(f-.5)*G.fw};
+}
+function makeDot(parent,x,y,label,cls,key){
+  const g=el('g',{class:'dot '+(cls||''),'data-k':key},parent);
+  el('circle',{cx:x,cy:y,r:10.5},g);
+  const t=el('text',{x,y},g);t.textContent=label;return g;
+}
+
+/* ---------- Board ---------- */
+class Board{
+  constructor(host,o){
+    this.o=Object.assign({controls:[],caption:true},o);
+    this.s={key:o.key??9,box:o.box??1,labels:o.labels??'degree',mode:o.mode??'minor'};
+    this.G={nut:44,fw:54,top:26,ss:26,frets:15,right:12,bottom:40};
+    this.host=host;this.build();this.render();
+  }
+  build(){
+    const c=h('div',{class:'controls'});this.host.appendChild(c);this.btns={};
+    const group=(name,label,items,get,set)=>{
+      const g=h('div',{class:'group',role:'group','aria-label':label});g.appendChild(h('span',null,label));
+      this.btns[name]=items.map(([v,t])=>{const b=h('button',{class:'chip',type:'button'},t);b.dataset.v=v;b.addEventListener('click',()=>set(v));g.appendChild(b);return b;});
+      this.btns[name].get=get;c.appendChild(g);
+    };
+    for(const k of this.o.controls){
+      if(k==='box')group('box','Hộp',[[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5'],[0,'Tất cả']],()=>this.s.box,v=>{this.s.box=+v;this.render();});
+      if(k==='key')group('key','Giọng',[4,5,7,9,11,0,2].map(p=>[p,NOTES[p]]),()=>this.s.key,v=>this.setKey(+v));
+      if(k==='labels')group('labels','Nhãn',[['degree','Bậc'],['note','Tên nốt'],['none','Ẩn']],()=>this.s.labels,v=>{this.s.labels=v;this.render();});
+      if(k==='mode')group('mode','Nhà',[['minor','Thứ'],['major','Trưởng']],()=>this.s.mode,v=>{this.s.mode=v;this.render();});
+      if(k==='play'){this.playBtn=h('button',{class:'btn',type:'button'},'Phát hộp');this.playBtn.addEventListener('click',()=>this.play());c.appendChild(this.playBtn);}
+      if(k==='cycle'){this.cycBtn=h('button',{class:'btn ghost',type:'button'},'Tự trượt qua các giọng');this.cycBtn.addEventListener('click',()=>this.cycle());c.appendChild(this.cycBtn);}
+    }
+    const sc=h('div',{class:'scroll'});this.host.appendChild(sc);
+    this.svg=el('svg',{role:'img','aria-label':'Cần đàn'},sc);this.svg.style.minWidth='680px';
+    this.geo=drawNeck(this.svg,this.G);
+    const id='clip'+Math.random().toString(36).slice(2);
+    const cp=el('clipPath',{id},el('defs',{},this.svg));el('rect',{x:0,y:0,width:this.geo.W,height:this.geo.H},cp);
+    const outer=el('g',{'clip-path':`url(#${id})`},this.svg);
+    this.layer=el('g',{},outer);
+    this.rect=el('rect',{class:'boxrect',x:0,y:this.G.top-16,width:0,height:5*this.G.ss+32,rx:9},this.layer);
+    this.dots=el('g',{},this.layer);
+    this.svg.addEventListener('click',e=>{const d=e.target.closest('.dot');if(!d)return;const [r,f]=d.dataset.k.split('-').map(Number);this.hit(r,f);});
+    if(this.o.caption){this.cap=h('div',{class:'caption'});this.host.appendChild(this.cap);}
+  }
+  home(){return this.s.mode==='minor'?this.s.key:(this.s.key+3)%12;}
+  render(){
+    const {key,box,labels,mode}=this.s,home=this.home(),sc=scale(key),{fx,sy}=this.geo,fw=this.G.fw;
+    for(const n in this.btns)this.btns[n].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v)===String(this.btns[n].get())));
+    const inBox=box?boxNotes(key,box-1):[],set=new Set(inBox.map(n=>n.r+'-'+n.f));
+    this.dots.textContent='';
+    for(let r=0;r<6;r++)for(let f=0;f<=this.G.frets;f++){
+      const pc=(STR[r].m+f)%12;if(!sc.includes(pc))continue;
+      const iv=(pc-home+12)%12,isHome=pc===home;
+      const lab=labels==='degree'?(mode==='minor'?DEG_MIN:DEG_MAJ)[iv]:labels==='note'?NOTES[pc]:'';
+      let cls=isHome?'home'+(mode==='major'?' maj':''):'';
+      if(box&&!set.has(r+'-'+f))cls+=' dim';
+      makeDot(this.dots,fx(f),sy(r),lab,cls,r+'-'+f);
+    }
+    if(box){
+      const fs=inBox.map(n=>n.f),mn=Math.min(...fs),mx=Math.max(...fs);
+      const x1=mn===0?4:this.G.nut+(mn-1)*fw+3,x2=this.G.nut+mx*fw-3;
+      this.rect.setAttribute('x',x1);this.rect.setAttribute('width',x2-x1);this.rect.style.opacity=1;
+      this.range=[mn,mx];
+    }else{this.rect.style.opacity=0;}
+    if(this.cap){
+      const kn=NOTES[key];
+      let t=mode==='minor'?`<b>${kn} thứ</b> pentatonic`:`<b>${NOTES[home]} trưởng</b> pentatonic · cùng nốt với ${kn} thứ`;
+      t+=` · nhà trên dây 6: phím ${(rootFret(home))}`;
+      if(box)t+=` · <b>Hộp ${box}</b>, phím ${this.range[0]}–${this.range[1]}`;
+      this.cap.innerHTML=t;
+    }
+  }
+  setKey(nk){
+    if(nk===this.s.key)return;
+    const d=((rootFret(nk)-rootFret(this.s.key))+18)%12-6;
+    if(reduce){this.s.key=nk;this.render();return;}
+    clearTimeout(this.slideT);
+    this.layer.style.transition='transform .5s cubic-bezier(.3,.7,.2,1)';
+    this.layer.style.transform=`translateX(${d*this.G.fw}px)`;
+    this.s.key=nk;
+    for(const b of this.btns.key||[])b.setAttribute('aria-pressed',String(+b.dataset.v===nk));
+    this.slideT=setTimeout(()=>{
+      this.layer.classList.add('noanim');this.layer.style.transition='none';this.layer.style.transform='';
+      this.render();void this.layer.getBoundingClientRect();this.layer.classList.remove('noanim');
+    },520);
+  }
+  hit(r,f){
+    const d=this.dots.querySelector(`[data-k="${r}-${f}"]`);
+    if(d){d.classList.add('hit');setTimeout(()=>d.classList.remove('hit'),170);}
+    pluck(STR[r].m+f);
+  }
+  play(){
+    if(this.playing){this.stop();return;}
+    const ns=boxNotes(this.s.key,(this.s.box||1)-1).sort((a,b)=>a.m-b.m);
+    const seq=ns.concat(ns.slice(0,-1).reverse());let i=0;
+    this.playing=true;this.playBtn.textContent='Dừng';
+    const step=()=>{if(!this.playing)return;if(i>=seq.length){this.stop();return;}const n=seq[i++];this.hit(n.r,n.f);this.pt=setTimeout(step,240);};
+    step();
+  }
+  stop(){this.playing=false;clearTimeout(this.pt);if(this.playBtn)this.playBtn.textContent='Phát hộp';}
+  cycle(){
+    if(this.cyc){clearInterval(this.cyc);this.cyc=null;this.cycBtn.textContent='Tự trượt qua các giọng';return;}
+    const ks=[9,0,2,4,7];let i=(ks.indexOf(this.s.key)+1)%ks.length;
+    const go=()=>{const k=ks[i];i=(i+1)%ks.length;this.setKey(k);setTimeout(()=>pluck(40+rootFret(k)),reduce?0:520);};
+    go();this.cyc=setInterval(go,1700);this.cycBtn.textContent='Dừng trượt';
+  }
+}
+
+const A=new Board(document.getElementById('boardA'),{key:9,box:1,controls:['box','labels','play']});
+const B=new Board(document.getElementById('boardB'),{key:9,box:1,controls:['key','cycle','play']});
+new Board(document.getElementById('boardC'),{key:9,box:0,controls:['mode','labels']});
+
+/* bảng tìm nhà */
+const fd=document.getElementById('finder');
+[4,5,7,9,11,0,2].forEach(p=>{const b=h('button',{type:'button'});b.innerHTML=`<b>${NOTES[p]}</b> phím ${rootFret(p)}`;b.addEventListener('click',()=>{B.setKey(p);pluck(40+rootFret(p));});fd.appendChild(b);});
+
+/* ---------- Bước 1: lưới ---------- */
+(function(){
+  const svg=document.getElementById('g1');
+  const G={nut:44,fw:68,top:24,ss:30,frets:6,right:70,bottom:38};
+  const {sy,fx}=drawNeck(svg,G);
+  const pairs=[];
+  for(let i=0;i<5;i++){
+    const r=5-i,k=STR[r-1].m-STR[r].m,odd=k!==5;
+    const g=el('g',{class:'pair'+(odd?' odd':'')},svg);
+    const x1=fx(k),y1=sy(r),x2=fx(0),y2=sy(r-1);
+    el('path',{d:`M${x1} ${y1} C ${x1} ${y1-22}, ${x2+40} ${y2+6}, ${x2+11} ${y2}`},g);
+    makeDot(g,x1,y1,k,'','');makeDot(g,x2,y2,'0','','');
+    const t=el('text',{class:'lbl',x:G.nut+G.frets*G.fw+12,y:(y1+y2)/2},g);t.textContent=`+${k}`;
+    pairs.push({g,r,k,odd});
+  }
+  const walker=el('circle',{class:'walker',r:9,cx:fx(0),cy:sy(5),opacity:0},svg);
+  const cap=document.getElementById('g1cap'),btn=document.getElementById('g1run');
+  let run=0;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  btn.addEventListener('click',async()=>{
+    const my=++run;svg.classList.add('running');btn.textContent='Chạy lại';
+    for(const p of pairs){
+      if(my!==run)return;
+      pairs.forEach(q=>q.g.classList.toggle('on',q===p));
+      const lo=STR[p.r].n,up=STR[p.r-1].n;
+      walker.setAttribute('class','walker'+(p.odd?' odd':''));
+      walker.setAttribute('cy',sy(p.r));walker.style.transition='none';walker.setAttribute('cx',fx(0));walker.setAttribute('opacity',1);
+      void walker.getBoundingClientRect();walker.style.transition='';
+      for(let f=1;f<=p.k;f++){if(my!==run)return;await wait(200);walker.setAttribute('cx',fx(f));cap.innerHTML=`Dây <b>${lo}</b>: đếm ${f} phím`;}
+      await wait(250);if(my!==run)return;
+      pluck(STR[p.r].m+p.k);await wait(380);pluck(STR[p.r-1].m);
+      cap.innerHTML=`Dây <b>${lo}</b> phím ${p.k} = dây <b>${up}</b> buông. Cùng một nốt.`+(p.odd?' <b>Chỗ lệch duy nhất: chỉ 4 phím.</b>':'');
+      await wait(p.odd?1500:900);
+    }
+    if(my!==run)return;
+    walker.setAttribute('opacity',0);svg.classList.remove('running');pairs.forEach(q=>q.g.classList.remove('on'));
+    cap.innerHTML='Quy tắc: lên một dây = <b>5 phím</b>, trừ G→B = <b>4 phím</b>.';
+  });
+  svg.addEventListener('click',e=>{const p=pairs.find(q=>q.g.contains(e.target));if(p){pluck(STR[p.r].m+p.k);setTimeout(()=>pluck(STR[p.r-1].m),300);}});
+})();
+
+/* ---------- Bước 2: một dây ---------- */
+(function(){
+  const svg=document.getElementById('g2');
+  const nut=40,fw=46,frets=17,y=78,W=nut+frets*fw+14,H=140;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  el('rect',{class:'wood',x:nut,y:y-16,width:frets*fw,height:32,rx:3},svg);
+  for(let f=1;f<=frets;f++){el('line',{class:'fretline',x1:nut+f*fw,x2:nut+f*fw,y1:y-16,y2:y+16},svg);const t=el('text',{class:'fnum',x:nut+(f-.5)*fw,y:y+56},svg);t.textContent=f;}
+  el('rect',{class:'nutbar',x:nut-5,y:y-16,width:6,height:32},svg);
+  el('line',{class:'str',x1:nut,x2:nut+frets*fw,y1:y,y2:y,'stroke-width':2.7},svg);
+  const nt=el('text',{class:'sname',x:4,y},svg);nt.textContent='E';
+  const fr=[5,8,10,12,15,17],deg=['1','b3','4','5','b7','1'],xs=fr.map(f=>nut+(f-.5)*fw);
+  const arcs=[],dots=[];
+  for(let i=0;i<fr.length-1;i++){
+    const g=el('g',{class:'arc show'},svg),x1=xs[i]+8,x2=xs[i+1]-8,mx=(x1+x2)/2;
+    el('path',{d:`M${x1} ${y-12} Q ${mx} ${y-58} ${x2} ${y-12}`},g);
+    const t=el('text',{x:mx,y:y-40},g);t.textContent='+'+(fr[i+1]-fr[i]);arcs.push(g);
+  }
+  fr.forEach((f,i)=>{
+    const g=makeDot(svg,xs[i],y,deg[i],(i===0||i===5)?'home':'',`s${i}`);g.classList.add('sdot','show');dots.push(g);
+    const t=el('text',{class:'deg',x:xs[i],y:y+32},svg);t.textContent=NOTES[(40+f)%12];
+    g.addEventListener('click',()=>pluck(40+f));
+  });
+  const btn=document.getElementById('g2run');let run=0;
+  btn.addEventListener('click',()=>{
+    const my=++run;svg.classList.add('pre');arcs.concat(dots).forEach(e=>e.classList.remove('show'));
+    void svg.getBoundingClientRect();
+    fr.forEach((f,i)=>setTimeout(()=>{
+      if(my!==run)return;
+      if(i>0)arcs[i-1].classList.add('show');
+      setTimeout(()=>{if(my!==run)return;dots[i].classList.add('show');dots[i].classList.add('hit');setTimeout(()=>dots[i].classList.remove('hit'),170);pluck(40+f);},i?380:0);
+    },i*800));
+    setTimeout(()=>{if(my===run)svg.classList.remove('pre');},fr.length*800+400);
+  });
+})();
+})();
+</script>
