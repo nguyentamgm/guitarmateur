@@ -27,12 +27,14 @@ interface Props {
   readonly box?: { readonly minFret: number; readonly maxFret: number } | null;
   /** Dots to light up (e.g. the notes a sequence is playing). */
   readonly active?: readonly string[];
+  /** Called after a dot is played by click or keyboard. */
+  readonly onDot?: (dot: FretDot) => void;
   readonly children?: ReactNode;
 }
 
 const STRING_WIDTH: Record<StringNumber, number> = { 1: 1, 2: 1.2, 3: 1.5, 4: 1.9, 5: 2.3, 6: 2.7 };
 
-export function Fretboard({ geometry: g, dots, label, box, active, children }: Props) {
+export function Fretboard({ geometry: g, dots, label, box, active, onDot, children }: Props) {
   const { player } = useTheory();
   const [flash, setFlash] = useState<string | null>(null);
   useEffect(() => {
@@ -44,6 +46,7 @@ export function Fretboard({ geometry: g, dots, label, box, active, children }: P
   const play = (d: FretDot) => {
     player.pluck(d.midi);
     setFlash(d.key);
+    onDot?.(d);
   };
   const onKey = (e: KeyboardEvent, d: FretDot) => {
     if (e.key === 'Enter' || e.key === ' ') {
