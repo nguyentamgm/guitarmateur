@@ -22,7 +22,8 @@ theory/
 ```
 
 Theory is a second Vite page: `theory/index.html` builds to `dist/theory/index.html`. Routes are
-`/theory` (contents) and `/theory/<slug>`; `vercel.json` (production) and the `theory-routes`
+`/theory` (contents) and `/theory/<slug>`; `vercel.json` (production, rewrite destination `/theory`:
+with `cleanUrls`, a destination ending in `.html` is not served) and the `theory-routes`
 plugin in `vite.config.ts` (dev, preview) serve the Theory page for every `/theory/*` path. The
 site-wide service worker (`public/sw.js`) falls back to the cached `/theory` shell offline.
 
