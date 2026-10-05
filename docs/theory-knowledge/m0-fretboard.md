@@ -56,7 +56,7 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Dữ liệu.** Thứ tự 12 nửa cung từ C: C, C♯/D♭, D, D♯/E♭, E, F, F♯/G♭, G, G♯/A♭, A, A♯/B♭, B.
 
-**Dạy trong Theory.** Lớp nhãn "tên nốt" bật tắt được. Trong M0 chỉ bước nốt nhà (bài `/theory/fretboard`, bước 5) hiện tên, và chỉ tên 7 nốt tự nhiên; phím thăng/giáng để trống. Người học tắt tên để làm bài đố.
+**Dạy trong Theory.** Lớp nhãn "tên nốt" bật tắt được. Trong M0 chỉ bước nốt nhà (bài `/theory/fretboard`, bước 5) hiện tên, và chỉ tên 7 nốt tự nhiên; phím thăng/giáng để trống. Người học tắt tên để làm bài đố. Bài đố có công tắc "cả ♯/♭": hỏi thêm 12 tên giọng trưởng (`MAJOR_KEY_TONICS`: F♯, D♭, A♭, E♭, B♭…) trên dây 6 và dây 5. Cách chọn tên ♯ hay ♭ dạy ở `/theory/major-scale` (K2.2).
 
 **Bẫy.** Không dạy thuộc tên mọi nốt trên cần (sách dành 3 chương cho việc này). Chỉ cần K0.7.
 
@@ -81,7 +81,7 @@ Cấu trúc mỗi mục: **Cốt lõi** (điều phải hiểu), **Dữ liệu**
 
 **Dữ liệu.** Nốt tự nhiên trên dây 6: E 0, F 1, G 3, A 5, B 7, C 8, D 10, E 12. Trên dây 5: A 0, B 2, C 3, D 5, E 7, F 8, G 10, A 12. Nốt thăng/giáng nằm giữa.
 
-**Dạy trong Theory.** Bảng tìm nhà (như Bản đồ Pentatonic) và một bài đố nhanh: hiện tên nốt, người học bấm đúng phím trên dây 6 hoặc dây 5.
+**Dạy trong Theory.** Bảng tìm nhà (như Bản đồ Pentatonic) và một bài đố nhanh: hiện tên nốt, người học bấm đúng phím trên dây 6 hoặc dây 5. Mặc định hỏi 7 nốt tự nhiên; bật "cả ♯/♭" thì hỏi đủ 12 tên (K0.5).
 
 **Cần trước:** K0.5. **Nguồn:** ch. 7 (dây 6), ch. 8 (dây 5).
 

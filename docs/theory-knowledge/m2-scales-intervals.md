@@ -10,7 +10,7 @@ Mục tiêu: người học hiểu **âm giai trưởng là một công thức k
 
 **Dữ liệu.** Khoảng cách theo phím: 2 2 1 2 2 2 1. Vị trí so với nhà (nửa cung): 0 2 4 5 7 9 11 (12).
 
-**Dạy trong Theory.** Giống bước 2 của Bản đồ Pentatonic: phát công thức trên một dây, cung nối giữa hai nốt ghi "+2" hoặc "+1". Hai bước nửa cung có màu riêng: chúng tạo ra "vị" của âm giai.
+**Dạy trong Theory.** Giống bước 2 của Bản đồ Pentatonic: phát công thức trên một dây, cung nối giữa hai nốt ghi "+2" hoặc "+1". Hai bước nửa cung có màu riêng: chúng tạo ra "vị" của âm giai. Bài `/theory/major-scale` bước 1: chạy trên dây 5 từ nốt nhà người học chọn trong 12 giọng; bước 5: âm giai trong ô 5 phím quanh nốt nhà dây 6 (nốt nhà ở phím 0 dời lên phím 12), nhãn bậc 1–7, bấm một bậc thì nghe nốt nhà rồi bậc đó.
 
 **Cần trước:** K0.2. **Nguồn:** ch. 7.
 
@@ -24,6 +24,8 @@ Mục tiêu: người học hiểu **âm giai trưởng là một công thức k
 - C trưởng: không dấu.
 
 **Dạy trong Theory.** Người học không phải thuộc bảng này. Lõi nhạc lý dùng nó để **ghi tên nốt đúng**, và bật nhãn tên nốt cho thấy vì sao có B♭. Bảng dữ liệu trên cũng là test cho lõi.
+- Bài `/theory/major-scale` bước 2: dải 7 ô chữ cái; đổi bậc 4 sang tên dùng chữ cái của bậc 3 (F trưởng: A♯ thay B♭) thì một chữ bị dùng hai lần, một chữ bị bỏ trống.
+- Tên 12 giọng trưởng mà app dùng (`majorKeyTonic`, `MAJOR_KEY_TONICS`): không cần dấu kép, rồi ít dấu nhất; chỗ hòa F♯/G♭ (6 dấu mỗi bên) chọn F♯. Kết quả: C G D A E B F♯ D♭ A♭ E♭ B♭ F. C♯, G♭, C♭ vẫn đúng nhưng app không dùng làm tên mặc định.
 
 **Bẫy.** Mẹo đoán giọng qua hóa biểu trong sách thuộc phần tạm gác lại.
 
@@ -51,7 +53,7 @@ Mục tiêu: người học hiểu **âm giai trưởng là một công thức k
 | 7 trưởng | 7 | 11 |
 | Quãng 8 | 8 | 12 |
 
-**Dạy trong Theory.** Hai nốt trên cần, một sợi dây chun nối chúng ghi số nửa cung và tên quãng. Kéo nốt thứ hai để đổi quãng và nghe ngay.
+**Dạy trong Theory.** Hai nốt trên cần, một sợi dây chun nối chúng; chú thích ghi tên quãng và số nửa cung. Bài `/theory/major-scale` bước 3: nốt nhà C cố định trên dây 5, **bấm** (không kéo) nốt thứ hai trong phạm vi một quãng 8; nút hạ/nâng nửa cung giữ nguyên con số, đổi tính chất (trưởng ↔ thứ, đúng → giảm/tăng). Bấm vào phím cách 6 nửa cung thì hiện cả hai tên "4 tăng / 5 giảm". Lõi: `intervalName(label)` → `{ number, quality }`.
 
 **Bẫy.** b5 và #4 cùng cao độ nhưng khác tên. Tên do số chữ cái quyết định (K2.5).
 
@@ -78,7 +80,7 @@ Mục tiêu: người học hiểu **âm giai trưởng là một công thức k
 
 Khi hình đi qua dây G→B, phần nằm trên dây B dời thêm +1 phím.
 
-**Dạy trong Theory.** Chọn một quãng, hình của nó in như con dấu lên cần. Kéo con dấu đi nơi khác vẫn giữ hình. Khi kéo qua dây B, hình tự lệch một phím và có ghi chú.
+**Dạy trong Theory.** Chọn một quãng, hình của nó in như con dấu lên cần. **Bấm** một nốt gốc mới (không kéo) thì con dấu dời tới đó và vẫn giữ hình. Khi hình đi qua dây G→B, nốt phía trên tự lệch một phím và có ghi chú. Lõi: `shapeAt(pos, label, stringsUp)`.
 
 **Cần trước:** K0.4, K2.3. **Nguồn:** không có trong sách; Theory bổ sung.
 
