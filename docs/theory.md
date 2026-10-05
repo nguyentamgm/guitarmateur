@@ -107,7 +107,7 @@ ui → lessons → core/fretboard → core/music
 - Each lesson lists the concept IDs it teaches (`K3.4`…). If teaching differs from the knowledge
   base, update the knowledge base in the same PR.
 - Every lesson ships **vi and en together**; a test checks both have the same steps and keys.
-  Use the glossary in `theory-knowledge/README.md` (relative key = *giọng song song*).
+  Use the glossary in `theory-knowledge/README.md`: Vietnamese copy prefers the English term (root, box, bend…) unless the Vietnamese word is already plain.
 - Write copy in our own words. No quotes, exercises, diagrams or transcriptions from the book;
   exercises are generated.
 - Each step: one animated picture, one sentence of takeaway, one thing to try. List what is

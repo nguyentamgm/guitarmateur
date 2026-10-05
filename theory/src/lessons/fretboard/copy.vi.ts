@@ -2,9 +2,9 @@ import type { FretboardCopy } from './model';
 
 export const vi: FretboardCopy = {
   title: 'Cần đàn là một cái lưới',
-  summary: 'Đọc tab, đếm phím, và tìm ra mọi nốt chỉ từ một nốt nhà và hai hình quãng 8.',
+  summary: 'Đọc tab, đếm phím, và tìm ra mọi nốt chỉ từ các nốt trên hai dây và hai shape quãng 8.',
   lead:
-    'Bạn không cần thuộc tên mọi nốt trên cần đàn. Bạn cần biết đếm phím, đọc tab, nhớ hai hình quãng 8 và chỗ của nốt nhà trên hai dây dày nhất. Năm bước, mỗi bước là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được.',
+    'Bạn không cần thuộc tên mọi nốt trên cần đàn. Bạn cần biết đếm phím, đọc tab, nhớ hai shape quãng 8 và chỗ của các nốt tự nhiên trên hai dây dày nhất. Năm bước, mỗi bước là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được.',
   steps: {
     strings: {
       title: 'Dây 1 là dây mỏng nhất, và nằm trên cùng',
@@ -22,7 +22,7 @@ export const vi: FretboardCopy = {
         'Mười hai phím là một quãng 8: phím 12 cùng tên với dây buông, chỉ cao hơn. Vì vậy cần đàn lặp lại sau phím 12, và phím 12 có chấm đôi.',
       ],
       takeaway: '1 phím = nửa cung; 12 phím = một quãng 8, cùng tên, cao hơn.',
-      tryIt: 'Chọn một dây bất kỳ. Gảy buông, rồi bấm phím 12, để nghe cùng một nốt ở tầng cao hơn.',
+      tryIt: 'Chọn một dây bất kỳ. Gảy buông, rồi bấm phím 12, để nghe cùng một nốt, cao hơn một quãng 8.',
     },
     tab: {
       title: 'Tab: đường là dây, số là phím',
@@ -34,21 +34,21 @@ export const vi: FretboardCopy = {
       tryIt: 'Chơi chậm đoạn tab bên dưới. Sau đó bấm vào một số bất kỳ để xem ngón tay phải đặt ở đâu.',
     },
     octaves: {
-      title: 'Hai hình quãng 8 tìm ra mọi chỗ của một nốt',
+      title: 'Hai shape quãng 8 tìm ra mọi chỗ của một nốt',
       body: [
         'Cùng một nốt có mặt ở nhiều chỗ trên cần. Đi lên hai dây và sang phải hai phím là bạn gặp lại đúng nốt đó, cao hơn một quãng 8.',
-        'Khi bước nhảy rơi vào dây B hoặc dây E mỏng, đi ba phím thay vì hai. Phím thêm đó lại chính là chỗ lệch giữa dây G và dây B: cặp dây duy nhất cách nhau 4 phím thay vì 5. Còn dây 6 và dây 1 thì cùng tên ở mọi phím, cách nhau hai quãng 8.',
+        'Khi bước nhảy rơi vào dây B hoặc dây E mỏng, đi ba phím thay vì hai. Phím thêm đó là G–B shift: G và B là cặp dây duy nhất cách nhau 4 phím thay vì 5. Còn dây 6 và dây 1 thì cùng tên ở mọi phím, cách nhau hai quãng 8.',
       ],
       takeaway: 'Lên hai dây: +2 phím, hoặc +3 khi rơi vào dây 2 hay dây 1.',
-      tryIt: 'Tìm A ở phím 5 dây 6. Dùng hai hình để tới mọi nốt A khác đến phím 15 mà không nhìn màn hình.',
+      tryIt: 'Tìm A ở phím 5 dây 6. Dùng hai shape để tới mọi nốt A khác đến phím 15 mà không nhìn màn hình.',
     },
     home: {
-      title: 'Chỉ học thuộc nốt nhà trên dây 6 và dây 5',
+      title: 'Chỉ học thuộc các nốt trên dây 6 và dây 5',
       body: [
-        'Đây là bảng duy nhất đáng học thuộc. Mọi hộp âm giai và hợp âm chặn sau này đều neo vào một nốt trên dây 6 hoặc dây 5.',
+        'Đây là bảng duy nhất đáng học thuộc. Mọi box của scale và hợp âm chặn sau này đều neo vào một root trên dây 6 hoặc dây 5.',
         'Có bảy chữ cái, từ A tới G. Hai chữ cái liền nhau cách nhau một cung, trừ E–F và B–C chỉ cách nửa cung. Dấu thăng (♯) nâng nốt lên một phím, dấu giáng (♭) hạ xuống một phím, nên phím nằm giữa hai chữ cái có hai tên, ví dụ C♯ và D♭.',
       ],
-      takeaway: 'Nhớ chỗ của A tới G trên dây 6 và dây 5; hình quãng 8 lo phần còn lại.',
+      takeaway: 'Nhớ chỗ của A tới G trên dây 6 và dây 5; shape quãng 8 lo phần còn lại.',
       tryIt: 'Ẩn tên nốt rồi làm bài đố cho tới khi trả lời đúng mười câu liên tiếp. Sau đó bật cả 12 nốt: nốt ♯ nằm trên chữ cái của nó một phím, nốt ♭ nằm dưới một phím.',
     },
   },
@@ -102,16 +102,16 @@ export const vi: FretboardCopy = {
       score: 'Đúng ngay lần đầu: {right}/{total}',
     },
   },
-  notYetTitle: 'Những gì chưa cần học',
+  notYetTitle: 'Chưa cần học lúc này',
   notYetIntro:
     'Những thứ này đều có lúc cần. Gác chúng lại bây giờ để bạn tập trung vào chính cần đàn.',
   notYet: [
-    { title: 'Tên mọi nốt trên mọi dây', why: 'Nốt nhà trên dây 6, dây 5 và hai hình quãng 8 đủ để tìm bất kỳ nốt nào bạn cần.' },
-    { title: 'Đọc khuông nhạc', why: 'Tab và hình đã đủ cho guitar điện. Khuông nhạc để sau, khi nào cần hãy học.' },
+    { title: 'Tên mọi nốt trên mọi dây', why: 'Các nốt trên dây 6, dây 5 và hai shape quãng 8 đủ để tìm bất kỳ nốt nào bạn cần.' },
+    { title: 'Đọc khuông nhạc', why: 'Tab và shape đã đủ cho guitar điện. Khuông nhạc để sau, khi nào cần hãy học.' },
     { title: 'Biểu đồ hợp âm', why: 'Đọc giống tab xoay đứng. Chúng đến cùng các bài hợp âm.' },
     { title: 'Mỗi nốt dài bao lâu', why: 'Tab bỏ qua tiết tấu. Bài nhịp sẽ đặt tab lên lưới phách.' },
     { title: 'Bài luyện ngón và tư thế tay', why: 'Tập với metronome mới hiệu quả, nên chuyển sang bài nhịp.' },
-    { title: 'Chọn tên thăng hay giáng', why: 'Tên nào đúng tùy âm giai đang dùng. Phần này đến cùng âm giai trưởng.' },
+    { title: 'Chọn tên thăng hay giáng', why: 'Tên nào đúng tùy scale đang dùng. Phần này đến cùng major scale.' },
     { title: 'Lên dây bằng tai', why: 'Dùng đúng quy tắc phím 5 của bài này. Tạm thời dùng app lên dây là đủ.' },
   ],
 };
