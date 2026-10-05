@@ -4,6 +4,7 @@ import {
   CHORD_IDS,
   chordNotes,
   chordSymbol,
+  simplifyChord,
   chordToneDegree,
   degreeOf,
   diatonicChords,
@@ -342,5 +343,21 @@ describe('12-bar blues (K5.4)', () => {
     expect(inA).toEqual(['A7', 'D7', 'E7']);
     const inBb = (['I', 'IV', 'V'] as const).map((d) => chordSymbol(bluesChord(n('Bb'), d)));
     expect(inBb).toEqual(['B♭7', 'E♭7', 'F7']);
+  });
+});
+
+describe('simplifying chords (K4.8)', () => {
+  const ladder = (id: ChordId) => simplifyChord({ root: n('C'), id }).map(chordSymbol).join(' → ');
+  it('drops the highest colour note until a triad is left', () => {
+    expect(ladder('dom11')).toBe('C11 → C9 → C7 → C');
+    expect(ladder('m11')).toBe('Cm11 → Cm9 → Cm7 → Cm');
+    expect(ladder('maj9')).toBe('Cmaj9 → Cmaj7 → C');
+    expect(ladder('add2')).toBe('Cadd2 → C');
+    expect(ladder('m7b5')).toBe('Cm7♭5 → C°');
+    expect(ladder('dim7')).toBe('C°7 → C°');
+    expect(ladder('aug7')).toBe('C+7 → C+');
+  });
+  it('leaves triads, sus and power chords alone', () => {
+    for (const id of ['major', 'minor', 'sus4', 'sus2', 'power'] as const) expect(simplifyChord({ root: n('C'), id })).toHaveLength(1);
   });
 });

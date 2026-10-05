@@ -52,7 +52,7 @@ Mọi tên nốt trong hợp âm do lõi tính từ công thức (K2.5), không 
 
 Sách in nhầm vài dòng của bảng này (xem Đính chính trong README).
 
-**Dạy trong Theory.** Bảng công thức tương tác: chọn nốt nhà và loại hợp âm, cần đàn hiện mọi vị trí của các nốt, các bậc tô màu theo vai trò (1, 3, 5, 7).
+**Dạy trong Theory.** Bài `/theory/chord-table`. Bước 1: sáu hợp âm 7 chồng bốn nốt trên dây 5–2 (lõi `stackShape()`), ghi ba quãng 3 chồng lên nhau. Bước 2: bảng công thức tương tác: chọn nốt gốc và loại hợp âm, cần đàn hiện mọi vị trí của các nốt, tô màu theo vai trò (gốc, 3, 5, 7, nốt màu). Bước 3: hợp âm 7 và m11 dây buông, so với hợp âm ba bên dưới, và hình m11 di động (hình A, Dm11 = x55565).
 
 **Cần trước:** K4.1, K2.5. **Nguồn:** ch. 17, 20.
 
@@ -73,6 +73,8 @@ Sách in nhầm vài dòng của bảng này (xem Đính chính trong README).
 
 Khi bấm trên guitar, thường bỏ bớt nốt (hay bỏ bậc 5, với 11 át thường bỏ bậc 3). Sách gọi một số hợp âm là "hợp âm 2" (C2): bậc 2 được thêm vào, tùy thế bấm có còn bậc 3 hay không. Theory gọi rõ là add2 nếu còn bậc 3, sus2 nếu không.
 
+**Dạy trong Theory.** Bài `/theory/chord-table` bước 2 (nhóm "9, 11, add") và bước 5 (rút gọn). Nốt màu được ghi đúng bậc trong công thức (11 chứ không phải 4), qua `chordToneDegree()`.
+
 **Cần trước:** K4.3, K2.6. **Nguồn:** ch. 12, 18, 20.
 
 ## K4.5 Hợp âm dây buông
@@ -83,7 +85,7 @@ Khi bấm trên guitar, thường bỏ bớt nốt (hay bỏ bậc 5, với 11 �
 
 **Dạy trong Theory.** Bài `/theory/chords` bước 4: C A G E D, Am Em Dm, Asus4 Dsus4 Esus4, Asus2 Dsus2 với lớp nhãn bậc/tên nốt; đổi giữa E và Em, A và Am, D và Dm thì chỉ bậc 3 đổi chỗ.
 
-**Dữ liệu (cách sinh thế bấm).** Không gõ tay thế bấm. Lõi `openVoicing()` dùng một quy tắc: nốt gốc làm bass, trên dây thấp nhất có nốt gốc trong phím 0–3; mỗi dây cao hơn lấy phím thấp nhất (0–3) là nốt của hợp âm; tối đa bốn nốt bấm. Hợp âm sus là hình trưởng với bậc 3 dời lên bậc 4 (+1 phím) hoặc xuống bậc 2 (−2 phím). Quy tắc cho đúng các thế quen thuộc (C x32010, G 320003, D xx0232…); hợp âm thiếu nốt (C7) hoặc cần năm ngón (F) thì không có thế dây buông. Quy tắc cũng sinh ra vài thế lạ (Cm x31013) nên bài chỉ hiện danh sách hợp âm chọn sẵn.
+**Dữ liệu (cách sinh thế bấm).** Không gõ tay thế bấm. Lõi `openVoicing()`: nốt bass (nốt gốc, hoặc nốt khác cho thế đảo) nằm trên dây thấp nhất có nó trong phím 0–3; mỗi dây cao hơn chơi một nốt của hợp âm trong phím 0–3; trong mọi cách chọn, lấy cách có đủ các nốt thiết yếu với ít nốt bấm nhất (rồi phím thấp nhất); tối đa bốn nốt bấm. Nốt thiết yếu: cả hợp âm ba; với hợp âm lớn hơn là gốc, bậc 3, bậc 7 và nốt màu trên cùng (bậc 5 và nốt màu ở giữa có thể bỏ). Phiên 3.3 thay quy tắc "phím thấp nhất" của 3.1 bằng phép tìm này; mọi thế cũ không đổi, thêm C7 x32310, G7 320001, B7 x21202, Cmaj7 x32000, Am11 x00010, Em11 000000, C/E 032010, G/B x20003. Hợp âm sus là hình trưởng với bậc 3 dời lên bậc 4 (+1 phím) hoặc xuống bậc 2 (−2 phím). Quy tắc cho đúng các thế quen thuộc (C x32010, G 320003, D xx0232…); hợp âm thiếu nốt (C7) hoặc cần năm ngón (F) thì không có thế dây buông. Quy tắc cũng sinh ra vài thế lạ (Cm x31013) nên bài chỉ hiện danh sách hợp âm chọn sẵn.
 
 **Cần trước:** K4.1, K0.3. **Nguồn:** ch. 5, 6, 12.
 
@@ -107,13 +109,15 @@ Khi bấm trên guitar, thường bỏ bớt nốt (hay bỏ bậc 5, với 11 �
 
 **Dữ liệu.** Đảo 1: bậc 3 ở bass. Đảo 2: bậc 5 ở bass. Đảo 3 (hợp âm 7): bậc 7 ở bass.
 
+**Dạy trong Theory.** Bài `/theory/chord-table` bước 4: chọn hợp âm và nốt bass (1, 3, 5, hoặc 7), nốt bass sáng màu riêng; ví dụ đi bass C → G/B → Am → G. Thế bấm do `openVoicing(chord, { bass })` sinh. Hợp âm có bass ngoài hợp âm (F/G) chưa dạy.
+
 **Cần trước:** K4.1. **Nguồn:** ch. 20.
 
 ## K4.8 Thay thế đơn giản và gặp hợp âm lạ
 
 **Cốt lõi.** Có thể làm hợp âm "đậm" hơn mà vẫn đúng: thay hợp âm trưởng bằng add2, thay hợp âm thứ bằng m11. Khi gặp một hợp âm chưa biết, có ba cách: dựng nó từ công thức, tra cứu, hoặc rút gọn về hợp âm ba hay hợp âm 7 bằng cách bỏ các nốt màu.
 
-**Dạy trong Theory.** Nút "rút gọn" trong bảng công thức: một hợp âm như C13 được rút dần về C7 rồi C, kèm tiếng.
+**Dạy trong Theory.** Bài `/theory/chord-table` bước 5: bậc thang rút gọn (lõi `simplifyChord()`: bỏ nốt màu cao nhất, mỗi bậc phải là một hợp âm trong bảng): G11 → G9 → G7 → G, Cm11 → Cm9 → Cm7 → Cm, Fmaj9 → Fmaj7 → F, Bm7♭5 → B°, Eadd2 → E. Chưa có hợp âm 13 trong bảng.
 
 **Cần trước:** K4.3, K4.4. **Nguồn:** ch. 12, 20.
 

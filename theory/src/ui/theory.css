@@ -264,3 +264,9 @@ button { font: inherit; cursor: pointer; }
 .chordpath { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; font-family: var(--f-mono); font-size: 0.9rem; }
 .chordpath li { padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
 .chordpath li.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* Chord formula table */
+.dot.soft circle { fill: var(--string); opacity: 0.75; }
+.swatch.soft { background: var(--string); opacity: 0.75; }
+.formula-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--f-mono); }
+.formula-row span { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); }

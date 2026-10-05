@@ -92,3 +92,25 @@ function simple(label: DegreeLabel): DegreeLabel {
   const n = Number(m[2]);
   return `${m[1]}${n > 7 ? n - 7 : n}`;
 }
+
+/** Interval number of a degree label: 'b7' → 7, '#11' → 11. */
+const degreeNumber = (label: DegreeLabel): number => Number(/(\d+)$/.exec(label)![1]);
+
+/**
+ * Simplify a chord step by step (K4.8): drop its highest colour note (any degree that is not a
+ * 1, 3 or 5) until a triad is left. Each step must still be a chord in the registry: C11 → C9 →
+ * C7 → C, Cadd2 → C. A triad, sus or power chord is already as simple as it gets.
+ */
+export function simplifyChord(chord: Chord): Chord[] {
+  const ladder: Chord[] = [chord];
+  for (;;) {
+    const formula = CHORDS[ladder.at(-1)!.id].formula;
+    const colour = formula.filter((d) => ![1, 3, 5].includes(degreeNumber(d)));
+    if (formula.length <= 3 || colour.length === 0) return ladder;
+    const drop = colour.reduce((a, b) => (degreeNumber(b) > degreeNumber(a) ? b : a));
+    const rest = formula.filter((d) => d !== drop).join(',');
+    const next = CHORD_IDS.find((id) => CHORDS[id].formula.join(',') === rest);
+    if (!next) return ladder;
+    ladder.push({ root: chord.root, id: next });
+  }
+}

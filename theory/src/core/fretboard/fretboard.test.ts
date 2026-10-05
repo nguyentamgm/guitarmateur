@@ -16,6 +16,8 @@ import {
   doubleStops,
   openVoicing,
   triadShape,
+  stackShape,
+  essentialDegrees,
   barreVoicing,
   nearestBarre,
   type Voicing,
@@ -281,9 +283,52 @@ describe('voicings (K4.1, K4.5)', () => {
     }
   });
 
-  it('gives no open voicing when a tone is missing (C7) or it takes five fingers (F)', () => {
-    expect(openVoicing({ root: n('C'), id: 'dom7' })).toBeNull();
+  it('gives no open voicing when it takes five fingers (F)', () => {
     expect(openVoicing({ root: n('F'), id: 'major' })).toBeNull();
+  });
+
+  /** 7th, m11 and inversion shapes from the same search (K4.3, K4.7). */
+  const MORE: [string, ChordId, string, string?][] = [
+    ['C', 'dom7', 'x32310'],
+    ['G', 'dom7', '320001'],
+    ['D', 'dom7', 'xx0212'],
+    ['A', 'dom7', 'x02020'],
+    ['E', 'dom7', '020100'],
+    ['B', 'dom7', 'x21202'],
+    ['A', 'm7', 'x02010'],
+    ['D', 'm7', 'xx0211'],
+    ['E', 'm7', '020000'],
+    ['C', 'maj7', 'x32000'],
+    ['G', 'maj7', '320002'],
+    ['D', 'maj7', 'xx0222'],
+    ['A', 'maj7', 'x02120'],
+    ['A', 'm11', 'x00010'],
+    ['E', 'm11', '000000'],
+    ['C', 'major', '032010', 'E'],
+    ['G', 'major', 'x20003', 'B'],
+    ['D', 'major', '200232', 'F#'],
+    ['A', 'minor', 'x32210', 'C'],
+  ];
+  it.each(MORE)('%s %s (bass %s) comes out as %s', (r, id, shape, bass) => {
+    const v = openVoicing({ root: n(r), id }, bass ? { bass: n(bass) } : {})!;
+    expect(tab(v)).toBe(shape);
+    if (bass) expect(pc(pitchAtPos(v.notes[0]!))).toBe(pc(n(bass)));
+  });
+
+  it('may leave out the 5th and middle colour notes, never the 3rd, 7th or top note', () => {
+    expect(essentialDegrees({ root: n('C'), id: 'major' })).toEqual(['1', '3', '5']);
+    expect(essentialDegrees({ root: n('C'), id: 'dim' })).toEqual(['1', 'b3', 'b5']);
+    expect(essentialDegrees({ root: n('C'), id: 'dom7' })).toEqual(['1', '3', 'b7']);
+    expect(essentialDegrees({ root: n('C'), id: 'm7b5' })).toEqual(['1', 'b3', 'b5', 'b7']);
+    expect(essentialDegrees({ root: n('C'), id: 'm11' })).toEqual(['1', 'b3', 'b7', '11']);
+    expect(essentialDegrees({ root: n('C'), id: 'add2' })).toEqual(['1', '2', '3']);
+  });
+
+  it('stacks a 7th chord one note per string: Cmaj7 from string 5 is C E G B', () => {
+    const shape = stackShape({ string: 5, fret: 8 }, { root: n('C'), id: 'maj7' })!;
+    expect(shape.map((p) => p.string)).toEqual([5, 4, 3, 2]);
+    expect(shape.map(midiAt).map((m) => m - midiAt(shape[0]!))).toEqual([0, 4, 7, 11]);
+    expect(stackShape({ string: 5, fret: 1 }, { root: n('Bb'), id: 'dim7' })).toBeNull();
   });
 
   it('stacks a triad on three strings: C on string 5 is C E G, the 5th crossing G→B when rooted on 4', () => {
