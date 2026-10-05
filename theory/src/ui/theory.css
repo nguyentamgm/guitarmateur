@@ -227,3 +227,26 @@ button { font: inherit; cursor: pointer; }
 .kink line { stroke: var(--amber); stroke-width: 2; }
 .swatch.kinkghost { border: 1.5px dashed var(--amber); }
 .shared { fill: var(--amber); fill-opacity: 0.28; stroke: var(--amber); stroke-width: 1.5; }
+
+/* Blues */
+.dot.blue circle { fill: var(--surface); stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 3 2.5; }
+.dot.blue text { fill: var(--accent); }
+.swatch.blue { background: var(--surface); border: 1.5px dashed var(--accent); }
+.bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }
+.bars .bar text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-mono); }
+.bars .deg { fill: var(--muted); font-size: 13px; }
+.bars .sym { fill: var(--ink); font-size: 18px; font-weight: 600; }
+.bars .bar.on rect { fill: var(--accent); stroke: var(--accent); }
+.bars .bar.on text { fill: var(--accent-ink); }
+.pitchcurve .semi line { stroke: var(--line); stroke-width: 1; }
+.pitchcurve .semi.zero line { stroke: var(--muted); }
+.pitchcurve .semi text { fill: var(--muted); font-family: var(--f-mono); font-size: 10px; text-anchor: end; dominant-baseline: central; }
+.pitchcurve .target line { stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.pitchcurve .target text { fill: var(--amber); font-family: var(--f-mono); font-size: 11px; font-weight: 600; text-anchor: end; }
+.pitchcurve .curve { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.pitchcurve .curve.ghost { stroke-opacity: 0.18; }
+.pitchcurve .curve.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation-name: curve-draw; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes curve-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .pitchcurve .curve.draw { animation: none; stroke-dashoffset: 0; } }
+.subquiz { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.subquiz h3 { font-size: 1.05rem; }

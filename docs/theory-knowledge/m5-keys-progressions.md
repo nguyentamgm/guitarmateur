@@ -46,7 +46,7 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 - Ví dụ ở A: A7 A7 A7 A7 D7 D7 A7 A7 E7 D7 A7 A7 (hoặc E7 ở ô cuối).
 - Thường chơi swing (K1.5).
 
-**Dạy trong Theory.** Lưới 12 ô, ô đang phát sáng lên. Vòng đệm tự sinh. Đây là nền cho bài blues (K6.1) và bài solo (K7.2).
+**Dạy trong Theory.** Bài `/theory/blues` bước 3: lưới 12 ô (ba hàng bốn ô, số La Mã trên, tên hợp âm dưới), ô đang phát sáng lên. Vòng đệm tự sinh kiểu boogie shuffle: nốt gốc trầm với 5 5 6 6 ♭7 ♭7 6 6 phía trên, mỗi cặp móc đơn. Chọn giọng (12 giọng trưởng), bật đổi sớm và quay vòng. Lõi: `twelveBar()` và `bluesChord()` trong `core/music`. Đây là nền cho bài blues (K6.1) và bài solo (K7.2).
 
 **Cần trước:** K5.3, K1.5. **Nguồn:** ch. 13.
 

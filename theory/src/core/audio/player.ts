@@ -4,6 +4,7 @@
  * audio that starts on its own. Nothing is created at import time.
  */
 import { clickSamples } from './click';
+import { rateOf, type Glide } from './glide';
 import { pluckSamples } from './pluck';
 
 /** The slice of the Web Audio API the player uses; lets tests pass a fake. */
@@ -28,9 +29,10 @@ export interface PlayerOptions {
 export interface Player {
   /**
    * Play a MIDI note now, or `delaySec` from now; with `lengthSec`, damp it after that long (a
-   * note's length, K1.2). Silently does nothing when disabled or unsupported.
+   * note's length, K1.2). A `glide` bends, slides or hammers the same sound without a new pick
+   * (K6.3, K6.4). Silently does nothing when disabled or unsupported.
    */
-  pluck(midi: number, delaySec?: number, lengthSec?: number): void;
+  pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide): void;
   /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
   click(accent?: boolean, delaySec?: number): void;
   setEnabled(on: boolean): void;
@@ -59,7 +61,7 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     return buf;
   };
 
-  const play = (key: string, render: (sampleRate: number) => Float32Array, delaySec: number, lengthSec?: number) => {
+  const play = (key: string, render: (sampleRate: number) => Float32Array, delaySec: number, lengthSec?: number, glide?: Glide) => {
     if (!enabled) return;
     try {
       if (!ctx) {
@@ -79,6 +81,14 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
         // A quick fade, not a cut, so the end of a note does not click.
         g.gain.setTargetAtTime(0, at + lengthSec, 0.015);
       }
+      const rate = src.playbackRate;
+      if (glide && rate && typeof rate.setValueAtTime === 'function') {
+        rate.setValueAtTime(1, at);
+        for (const p of glide) {
+          if (p.ramp === 'linear') rate.linearRampToValueAtTime(rateOf(p.semis), at + p.t);
+          else rate.setValueAtTime(rateOf(p.semis), at + p.t);
+        }
+      }
       src.start(at);
     } catch {
       // Audio is a nicety: a failure here must never break a lesson.
@@ -92,8 +102,8 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     setEnabled(on) {
       enabled = on;
     },
-    pluck(midi, delaySec = 0, lengthSec) {
-      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec);
+    pluck(midi, delaySec = 0, lengthSec, glide) {
+      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide);
     },
     click(accent = false, delaySec = 0) {
       play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec);

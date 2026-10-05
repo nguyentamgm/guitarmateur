@@ -28,6 +28,8 @@ import {
   scaleSteps,
   decorationDegrees,
   transpose,
+  twelveBar,
+  bluesChord,
   type ChordId,
 } from './index';
 
@@ -319,5 +321,21 @@ describe('diatonic chords and roman numerals (K5.2, K5.3)', () => {
     const triads = diatonicChords({ tonic: n('A'), mode: 'minor' });
     expect(triads.map((d) => d.roman)).toEqual(['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII']);
     expect(triads.map((d) => chordSymbol(d.chord))).toEqual(['Am', 'B°', 'C', 'Dm', 'Em', 'F', 'G']);
+  });
+});
+
+describe('12-bar blues (K5.4)', () => {
+  it('lays out I I I I · IV IV I I · V IV I I and its variants', () => {
+    expect(twelveBar().join(' ')).toBe('I I I I IV IV I I V IV I I');
+    expect(twelveBar({ quickChange: true })[1]).toBe('IV');
+    expect(twelveBar({ turnaround: true })[11]).toBe('V');
+    expect(twelveBar({ quickChange: true, turnaround: true })).toHaveLength(12);
+  });
+
+  it('builds dominant 7 chords on I, IV and V, spelled in the key', () => {
+    const inA = (['I', 'IV', 'V'] as const).map((d) => chordSymbol(bluesChord(n('A'), d)));
+    expect(inA).toEqual(['A7', 'D7', 'E7']);
+    const inBb = (['I', 'IV', 'V'] as const).map((d) => chordSymbol(bluesChord(n('Bb'), d)));
+    expect(inBb).toEqual(['B♭7', 'E♭7', 'F7']);
   });
 });

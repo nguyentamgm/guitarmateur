@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { clickSamples, createPlayer, decayFactor, midiToFrequency, pluckSamples, seededRandom, type MiniAudioContext } from './index';
+import { bend, bendRelease, clickSamples, createPlayer, glideEnd, legato, rateOf, semisAt, slide, vibrato, decayFactor, midiToFrequency, pluckSamples, seededRandom, type MiniAudioContext } from './index';
 
 const rms = (xs: Float32Array, from: number, to: number) => {
   let s = 0;
@@ -135,5 +135,60 @@ describe('click synthesis', () => {
     expect(peak(accent)).toBeLessThanOrEqual(1);
     expect(peak(accent)).toBeGreaterThan(peak(plain));
     expect(Math.abs(plain[plain.length - 1]!)).toBeLessThan(0.01);
+  });
+});
+
+describe('glides (K6.3, K6.4)', () => {
+  it('turns semitones into playback rates', () => {
+    expect(rateOf(0)).toBe(1);
+    expect(rateOf(12)).toBeCloseTo(2);
+    expect(rateOf(2)).toBeCloseTo(1.1225, 4);
+  });
+
+  it('bends up to the target and stays there', () => {
+    const g = bend(2, 0.1, 0.2);
+    expect(semisAt(g, 0.05)).toBe(0);
+    expect(semisAt(g, 0.2)).toBeCloseTo(1);
+    expect(semisAt(g, 0.3)).toBeCloseTo(2);
+    expect(semisAt(g, 5)).toBe(2);
+  });
+
+  it('releases a bend back to the fretted pitch', () => {
+    const g = bendRelease(2, 0.1, 0.1, 0.2, 0.1);
+    expect(semisAt(g, 0.25)).toBe(2);
+    expect(semisAt(g, 0.45)).toBeCloseTo(1);
+    expect(semisAt(g, 1)).toBe(0);
+    expect(glideEnd(g)).toBeCloseTo(0.5);
+  });
+
+  it('jumps on a hammer-on or pull-off, ramps on a slide', () => {
+    expect(semisAt(legato(2, 0.2), 0.19)).toBe(0);
+    expect(semisAt(legato(2, 0.2), 0.2)).toBe(2);
+    expect(semisAt(legato(-2, 0.2), 0.3)).toBe(-2);
+    expect(semisAt(slide(-3, 0.2, 0.1), 0.25)).toBeCloseTo(-1.5);
+  });
+
+  it('wobbles evenly around the note and stays within its depth', () => {
+    const g = vibrato(0.2, 1, 0.4, 5);
+    const samples = Array.from({ length: 200 }, (_, i) => semisAt(g, 0.2 + i / 200));
+    expect(Math.max(...samples)).toBeLessThanOrEqual(0.4 + 1e-9);
+    expect(Math.min(...samples)).toBeGreaterThanOrEqual(-0.4 - 1e-9);
+    expect(Math.max(...samples)).toBeGreaterThan(0.35);
+    expect(semisAt(g, 0.1)).toBe(0);
+  });
+
+  it('schedules the glide on the same source, in context time', () => {
+    const f = fakeContext();
+    const calls: [string, number, number][] = [];
+    const rate = {
+      setValueAtTime: (v: number, t: number) => calls.push(['set', v, t]),
+      linearRampToValueAtTime: (v: number, t: number) => calls.push(['ramp', v, t]),
+    };
+    const ctx = { ...f.ctx, createBufferSource: () => ({ connect: vi.fn(), buffer: null, playbackRate: rate, start: vi.fn() }) as unknown as AudioBufferSourceNode };
+    createPlayer({ createContext: () => ctx }).pluck(60, 0.5, undefined, bend(2, 0.1, 0.2));
+    expect(calls[0]).toEqual(['set', 1, 1.5]);
+    expect(calls.at(-1)![0]).toBe('ramp');
+    expect(calls.at(-1)![1]).toBeCloseTo(rateOf(2));
+    expect(calls.at(-1)![2]).toBeCloseTo(1.8);
   });
 });

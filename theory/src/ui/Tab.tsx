@@ -13,6 +13,8 @@ export interface TabNote {
   readonly string: StringNumber;
   readonly fret: number;
   readonly midi: number;
+  /** Shown instead of the fret number: '7b9', 'h7', '/7~' (K6.4). */
+  readonly text?: string;
 }
 
 interface Props {
@@ -29,6 +31,8 @@ const LEFT = 30;
 const COL = 46;
 const TOP = 16;
 const GAP = 20;
+/** Width of a number's backing: wider for technique text such as '7b9'. */
+const boxW = (n: TabNote) => Math.max(20, 8 + 8.5 * (n.text ?? String(n.fret)).length);
 
 export function Tab({ columns, label, active = [], column = null, onNote }: Props) {
   const { player } = useTheory();
@@ -86,13 +90,13 @@ export function Tab({ columns, label, active = [], column = null, onNote }: Prop
               className={active.includes(n.key) ? 'tabnum on' : 'tabnum'}
               role="button"
               tabIndex={0}
-              aria-label={`${stringName(n.string)}/${n.fret}`}
+              aria-label={`${stringName(n.string)}/${n.text ?? n.fret}`}
               onClick={() => play(n, i)}
               onKeyDown={(e) => onKey(e, n, i)}
             >
-              <rect x={x(i) - 10} y={y(n.string) - 9} width={20} height={18} rx={4} />
+              <rect x={x(i) - boxW(n) / 2} y={y(n.string) - 9} width={boxW(n)} height={18} rx={4} />
               <text x={x(i)} y={y(n.string)}>
-                {n.fret}
+                {n.text ?? n.fret}
               </text>
             </g>
           )),

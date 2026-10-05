@@ -15,7 +15,7 @@ Mọi kỹ thuật cần được **nghe** và **thấy cao độ thay đổi th
 - Blues trưởng: 1 2 b3 3 5 6, khoảng cách 2 1 1 3 2 3.
 - Trong mỗi hộp pentatonic (K3.4), b5 nằm giữa bậc 4 và bậc 5.
 
-**Dạy trong Theory.** Năm hộp pentatonic với một chấm mới (nét đứt) cho nốt blue. Bật tắt nốt blue và nghe một câu ngắn có và không có nó.
+**Dạy trong Theory.** Bài `/theory/blues` bước 1: năm hộp pentatonic với một chấm nét đứt cho nốt blue (A blues thứ hoặc C blues trưởng, cùng các hộp). Bật tắt nốt blue và nghe câu ngắn từ nốt nhà lên bậc 5 rồi về, có và không có nốt blue. Bước 3 nói tới K6.2: A thứ pentatonic chơi trên cả ba hợp âm 7 của blues 12 ô.
 
 **Bẫy.** Sách gộp hai âm giai thành một âm giai 9 nốt. Theory tách riêng (xem Đính chính trong README).
 
@@ -39,7 +39,7 @@ Mọi kỹ thuật cần được **nghe** và **thấy cao độ thay đổi th
 
 Kiểm tra: nốt đích nằm 2 phím trên (một cung) hoặc 1 phím trên (nửa cung) cùng dây.
 
-**Dạy trong Theory.** Đường cong cao độ vẽ theo thời gian, với một vạch ngang đánh dấu cao độ đích. Âm thanh nhéo ramp tần số. Bài tai: phát nốt đích trước, rồi phát nhéo, người học phân biệt nhéo đủ, thiếu hay thừa.
+**Dạy trong Theory.** Bài `/theory/blues` bước 4: chọn một trong bốn nhéo (nốt nhéo là nốt cao nhất của bậc đó trong hộp 1), phát nốt đích rồi phát nhéo; đường cong cao độ (`ui/PitchCurve.tsx`) vẽ theo thời gian với vạch đích nét đứt. Âm thanh nhéo là `playbackRate` tăng dần trên cùng tiếng gảy (`bend()` trong `core/audio`). Bài tai: nhéo đủ, thiếu hay thừa một phần tư cung; nhéo nhẹ ♭3 không đưa vào bài đố vì không có đích.
 
 **Cần trước:** K3.4. **Nguồn:** ch. 14.
 
@@ -54,7 +54,7 @@ Kiểm tra: nốt đích nằm 2 phím trên (một cung) hoặc 1 phím trên (
 
 **Dữ liệu.** Ký hiệu trên tab: h (luyến lên), p (luyến xuống), / và \ (trượt lên, xuống), b (nhéo), r (nhả), ~ (rung), t (tapping).
 
-**Dạy trong Theory.** Mỗi kỹ thuật có đường cong cao độ riêng (bậc thang cho luyến, dốc liền cho trượt, sóng cho rung) và âm thanh tương ứng (không có tiếng gảy ở nốt thứ hai khi luyến).
+**Dạy trong Theory.** Bài `/theory/blues` bước 5: mỗi kỹ thuật có đường cong cao độ riêng (bậc thang cho luyến, dốc liền cho trượt, sóng cho rung) và âm thanh tương ứng: nốt sau của luyến, trượt, nhả là cùng một tiếng gảy đổi cao độ, không gảy lại. Kết thúc bằng một câu mẫu hai ô (ghi theo vị trí trong hộp 1, nên đổi giọng thì câu đi theo) chạy trên nền blues 12 ô, tab ghi h p / b r ~. Tapping chưa dạy.
 
 **Nguồn:** ch. 14.
 

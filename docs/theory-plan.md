@@ -160,12 +160,15 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (0.2, 0.3) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập. File này chỉ bật cờ `act` của React nên test UI của Theory (0.3) dùng được. Chỉ tách khi Theory cần setup khác.
 - (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
-- (1.2) K1.5 (liên ba, swing, shuffle) chưa có bài; phiên 2.2 dạy nó. `core/rhythm` mới chia phách thành 1, 2 hoặc 4 ô: cần thêm chia 3 và hệ số swing, kèm test.
-- (1.2) Tab chưa nằm trên lưới phách: bài luyện ngón chạy tab và `BeatGrid` riêng. Ghép hai thứ khi một bài cần tab có tiết tấu (2.2 hoặc 4.2).
+- (1.2, 2.2) Tab có tiết tấu mới ở mức một cột cho mỗi móc đơn (câu mẫu `/theory/blues` bước 5); chưa vẽ độ dài nốt hay chữ đếm dưới tab. Ghép `Tab` với `BeatGrid` khi phiên 4.2 cần.
 - (1.2) Tempo của mỗi cảnh không được nhớ giữa các lần mở trang. Nếu người học cần, lưu vào localStorage của Theory với khóa riêng.
 - (1.1, 2.1) Bài đố nốt nhà và bài đố chọn hình (`/theory/pentatonic` bước 5) không lưu kết quả; tempo cao nhất của mẫu luyện ngón cũng vậy. Chế độ ôn tập chung thuộc phiên 5.1.
+- (2.2) Chữ đếm liên ba tiếng Việt là "1 trí-ô" (từ *triolet*), do phiên 2.2 tự chọn; chưa có cách đếm chuẩn được thống nhất. Nếu người học thấy lạ, đổi trong `lessons/blues/copy.vi.ts`.
+- (2.2) Âm thanh nhéo, trượt, rung chỉ đổi `playbackRate` của tiếng gảy: đúng cao độ (đo trong Chrome: D nhéo +2 tới 331,6 Hz, E là 329,6 Hz) nhưng tiếng tắt nhanh hơn khi nhéo cao và không có tiếng "rít" của dây. Chỉnh âm sắc khi cần.
+- (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Câu tự sinh nhiều biến thể thuộc bài solo (4.2, K7.4).
+- (2.2) Bài kiểm tra tai nhéo dây không lưu điểm (cùng việc với chế độ ôn tập 5.1).
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
-- (2.1) Vòng đệm của bài đố chỉ là hợp âm chủ lặp lại. Tiến trình thật (12 ô, I–IV–V) để phiên 2.2 và 4.2; khi đó gom phần dựng vòng đệm (`vampVoicing`, quạt dây) vào lõi.
+- (2.1, 2.2) Vòng đệm còn nằm trong từng bài: `vampVoicing` (pentatonic) và boogie `shuffleNotes`/`bassMidi` (blues). Phiên 4.2 cần vòng đệm theo tiến trình bất kỳ: khi đó gom vào lõi (`core/audio` hoặc một `core/backing`).
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
 - (2.1) Các bài Bản đồ Pentatonic và Pentatonic đầy đủ có `scaleNeck`, `boxes`, `upAndDown` gần giống nhau, mỗi bài một bản. Nếu bài thứ ba cần, chuyển chúng vào `core/fretboard`.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
@@ -222,7 +225,7 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt; bài luyện ngón 1-2-3-4 và tư thế tay (K0.8, chuyển từ 1.1). Bài `/theory/rhythm` (en + vi), lõi `core/rhythm` | Ch. 1–3, 9, 16 | Xong |
 | 1.3 | Âm giai trưởng và quãng là hình trên cần: công thức, đánh vần, tên quãng, hình quãng, bậc trong một thế. Bài `/theory/major-scale` (en + vi), đứng trước Bản đồ Pentatonic; bài đố nốt nhà thêm ♯/♭ | Ch. 7, 9 | Xong |
 | 2.1 | Pentatonic bản đầy đủ: 5 hộp, mẫu bộ 3/bộ 4, nối hộp, trưởng/thứ song song, chọn hình theo bài. Bài `/theory/pentatonic` (en + vi), lõi `sequence()` và tên giọng thứ | Ch. 11 | Xong |
-| 2.2 | Blues: nốt b5, tiến trình 12 ô, nhéo dây, trượt; liên ba và shuffle (K1.5, chuyển từ 1.2) | Ch. 13, 14, 17 | Chưa làm |
+| 2.2 | Blues: nốt b5, tiến trình 12 ô, nhéo dây, trượt; liên ba và shuffle (K1.5, chuyển từ 1.2). Bài `/theory/blues` (en + vi), lõi swing, 12 ô, glide cao độ | Ch. 13, 14, 17 | Xong |
 | 2.3 | Guitar điện: power chord, double stop, quãng 8 | Ch. 14, 15 | Chưa làm |
 | 3.1 | Hợp âm là xếp chồng quãng: hợp âm ba, hợp âm dây buông | Ch. 5, 6, 13 | Chưa làm |
 | 3.2 | Hợp âm chặn di động gốc dây 6 và dây 5, sus, m7, maj7, m11 | Ch. 7, 8, 12 | Chưa làm |
