@@ -36,7 +36,7 @@ const vi: UiStrings = {
   tocEyebrow: 'Nhạc lý cho guitar điện',
   tocTitle: 'Học cần đàn qua hình',
   tocLead:
-    'Những bài ngắn, mỗi ý là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được. Hình đi trước, tên gọi đến sau, khi bạn thật sự cần.',
+    'Những bài ngắn, mỗi ý là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được. Shape đi trước, tên gọi đến sau, khi bạn thật sự cần.',
   tocLessons: 'Các bài',
   tocConcepts: 'Khái niệm {ids}',
   notFound: 'Không có bài nào ở “{path}”. Dưới đây là tất cả các bài hiện có.',
