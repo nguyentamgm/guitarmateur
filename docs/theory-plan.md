@@ -166,8 +166,8 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (1.1) Bài đố nốt nhà không lưu kết quả. Chế độ ôn tập chung thuộc phiên 5.1.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
 - (1.3) `FINDER_KEYS` của Bản đồ Pentatonic gõ tay tên giọng thứ (G♯, C♯, E♭…). Lõi mới có `majorKeyTonic()` cho giọng trưởng; khi phiên 2.1 hoặc 4.1 cần tên giọng thứ, thêm quy tắc vào lõi (qua `relativeMinorTonic`) rồi sinh danh sách từ đó.
-- (1.3) `octaveUp()` và `shapeAt(p, '8', 2)` cùng một phép tính; `octaveUp` không chặn `MAX_FRET`. Gộp khi sửa lõi lần sau.
-- (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5. Nếu người học cần, cho đổi nốt nhà.
+- (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
+- (1.3) `posKey` và `signed` được chép lại trong từng file cảnh ở `ui/lessons/`. Gom vào một helper chung khi sửa UI lần sau.
 - (0.3) Bài Bản đồ Pentatonic đã lên `/theory/pentatonic-map`. Phiên 2.1 (pentatonic đầy đủ) dùng slug riêng, ví dụ `/theory/pentatonic`, và dùng lại `Fretboard`, `scenes.ts`.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:

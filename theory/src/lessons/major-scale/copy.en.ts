@@ -103,7 +103,7 @@ export const en: MajorScaleCopy = {
       up2: 'two strings up',
       caption: '{name}, {from} → {to}: {up}, fret shift {offset}',
       crossesB: 'Crosses G→B: the upper note sits one fret further right.',
-      offNeck: 'No room for this shape from here. Click a lower string or fret.',
+      offNeck: 'This shape does not fit on the neck from here. Click another note.',
     },
     degrees: {
       key: 'Key',

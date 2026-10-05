@@ -48,7 +48,7 @@ function scaleNote(pos: FretPos, tonic: NoteName, context: readonly NoteName[]):
   };
 }
 
-/** Every note of a major scale from fret 0 to `maxFret`, low string first. */
+/** Every note of a major scale from fret 0 to `maxFret`, grouped by degree (all the 1s, then the 2s…). */
 export function scaleNeck(tonic: NoteName, maxFret: number): ScaleNote[] {
   const context = scaleNotes(tonic, 'major');
   return context.flatMap((n) => allPositions(n, maxFret)).map((pos) => scaleNote(pos, tonic, context));
@@ -163,16 +163,28 @@ export function labelsFor(semitones: number): DegreeLabel[] {
 
 /**
  * The same number one semitone lower or higher: major → minor, perfect → diminished, either →
- * augmented. Null past one accidental, below home or above the octave.
+ * augmented. Null past one accidental, and for the unison and octave, which stay perfect here.
  */
 export function alterLabel(label: DegreeLabel, by: 1 | -1): DegreeLabel | null {
   const m = /^(b|#)?(\d+)$/.exec(label);
-  if (!m) return null;
+  if (!m || m[2] === '1' || m[2] === '8') return null;
   const acc = (m[1] === 'b' ? -1 : m[1] === '#' ? 1 : 0) + by;
   if (acc < -1 || acc > 1) return null;
   const next = `${acc < 0 ? 'b' : acc > 0 ? '#' : ''}${m[2]}`;
-  const semis = interval(next).semitones;
-  return semis < 0 || semis > 12 ? null : next;
+  return next;
+}
+
+/** The clicked note moved one fret on its string, renamed by `alterLabel`; null off the scene. */
+export function alterTarget(
+  target: IntervalTarget,
+  label: DegreeLabel,
+  by: 1 | -1,
+): { target: IntervalTarget; label: DegreeLabel } | null {
+  const next = alterLabel(label, by);
+  const fret = target.fret + by;
+  if (!next || fret < 0 || fret > INTERVAL_FRETS) return null;
+  const pos = { string: target.string, fret };
+  return { target: { ...pos, midi: midiAt(pos), semitones: target.semitones + by }, label: next };
 }
 
 export interface IntervalReading {

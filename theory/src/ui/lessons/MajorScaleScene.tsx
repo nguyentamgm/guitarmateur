@@ -6,6 +6,7 @@ import { fill } from '../../i18n';
 import {
   DEGREE_FRETS,
   FORMULA_FRETS,
+  FORMULA_STRING,
   INTERVAL_FRETS,
   INTERVAL_ROOT,
   INTERVAL_TONIC,
@@ -14,7 +15,7 @@ import {
   SHAPE_FRETS,
   SHAPE_START,
   SPELLING_FRETS,
-  alterLabel,
+  alterTarget,
   degreeWindow,
   formulaRun,
   intervalTargets,
@@ -37,7 +38,7 @@ const posKey = (p: FretPos) => `${p.string}:${p.fret}`;
 /** '+3', '−2', '0' (a real minus sign). */
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
 /** 'b3' → '♭3', '#4' → '♯4'. */
-const degreeText = (d: DegreeLabel) => d.replace('b', '♭').replace('#', '♯');
+const degreeText = (d: DegreeLabel) => d.replaceAll('b', '♭').replaceAll('#', '♯');
 const keyItems = KEYS.map((k) => ({ value: format(k), text: format(k) }));
 const keyOf = (name: string): NoteName => KEYS.find((k) => format(k) === name)!;
 
@@ -92,7 +93,7 @@ function FormulaScene({ copy }: { copy: SceneCopy['formula'] }) {
     on === null
       ? fill(copy.idle, { note: key, fret: run.notes[0]!.fret })
       : fill(copy.step, { n: run.notes[on]!.degree, note: run.notes[on]!.name });
-  const y = g.y(5) - 12;
+  const y = g.y(FORMULA_STRING) - 12;
 
   return (
     <div className="board">
@@ -243,13 +244,9 @@ function IntervalsScene({ copy, names }: { copy: SceneCopy['intervals']; names: 
     player.pluck(p.target.midi, 1.3);
   };
   const alter = (by: 1 | -1) => {
-    if (!picked || picked.labels.length !== 1) return;
-    const label = alterLabel(picked.labels[0]!, by);
-    const fret = picked.target.fret + by;
-    if (!label || fret < 0 || fret > INTERVAL_FRETS) return;
-    const pos = { string: picked.target.string, fret };
-    const next = { target: { ...pos, midi: midiAt(pos), semitones: picked.target.semitones + by }, labels: [label] };
-    setPicked(next);
+    const next = picked?.labels.length === 1 ? alterTarget(picked.target, picked.labels[0]!, by) : null;
+    if (!next) return;
+    setPicked({ target: next.target, labels: [next.label] });
     player.pluck(next.target.midi);
   };
 
@@ -262,11 +259,8 @@ function IntervalsScene({ copy, names }: { copy: SceneCopy['intervals']; names: 
         span: spanOf(names, picked.target.semitones),
       })
     : copy.idle;
-  const canAlter = (by: 1 | -1) => {
-    if (!picked || picked.labels.length !== 1) return false;
-    const f = picked.target.fret + by;
-    return alterLabel(picked.labels[0]!, by) !== null && f >= 0 && f <= INTERVAL_FRETS;
-  };
+  const canAlter = (by: 1 | -1) =>
+    picked?.labels.length === 1 && alterTarget(picked.target, picked.labels[0]!, by) !== null;
   const band = picked && posKey(picked.target) !== rootKey ? picked.target : null;
 
   return (

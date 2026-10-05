@@ -8,6 +8,7 @@ import {
   SHAPE_FRETS,
   SPELLING_FRETS,
   alterLabel,
+  alterTarget,
   degreeWindow,
   formulaRun,
   intervalTargets,
@@ -103,10 +104,30 @@ describe('step 3: interval names (K2.3)', () => {
     expect(alterLabel('b3', -1)).toBeNull();
     expect(alterLabel('5', -1)).toBe('b5');
     expect(alterLabel('5', 1)).toBe('#5');
-    expect(alterLabel('1', -1)).toBeNull();
-    expect(alterLabel('8', 1)).toBeNull();
+    for (const by of [1, -1] as const) {
+      expect(alterLabel('1', by)).toBeNull();
+      expect(alterLabel('8', by)).toBeNull();
+    }
     for (const l of ['2', '3', '6', '7']) expect(readInterval(INTERVAL_TONIC, alterLabel(l, -1)!).quality).toBe('minor');
-    for (const l of ['4', '5', '8']) expect(readInterval(INTERVAL_TONIC, alterLabel(l, -1)!).quality).toBe('diminished');
+    for (const l of ['4', '5']) expect(readInterval(INTERVAL_TONIC, alterLabel(l, -1)!).quality).toBe('diminished');
+  });
+
+  it('moves the clicked note one fret with its new name, never off the scene', () => {
+    const e = intervalTargets().find((t) => t.string === 4 && t.fret === 2)!;
+    const down = alterTarget(e, '3', -1)!;
+    expect(down.label).toBe('b3');
+    expect(down.target).toMatchObject({ string: 4, fret: 1, semitones: 3 });
+    expect(down.target.midi - midiAt(INTERVAL_ROOT)).toBe(interval('b3').semitones);
+    const open = intervalTargets().find((t) => t.string === 4 && t.fret === 0)!;
+    expect(alterTarget(open, '2', -1)).toBeNull();
+    for (const t of intervalTargets()) {
+      for (const label of labelsFor(t.semitones)) {
+        for (const by of [1, -1] as const) {
+          const r = alterTarget(t, label, by);
+          if (r) expect(r.target.midi - midiAt(INTERVAL_ROOT), `${label}${by}`).toBe(interval(r.label).semitones);
+        }
+      }
+    }
   });
 
   it('spells the upper note by letter count', () => {

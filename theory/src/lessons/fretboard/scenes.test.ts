@@ -7,6 +7,7 @@ import {
   isAnswer,
   naturalAt,
   naturalHomes,
+  namesAt,
   octaveView,
   openStrings,
   quizQuestion,
@@ -133,5 +134,7 @@ describe('step 5: home notes on strings 6 and 5 (K0.7, K0.5)', () => {
     for (let r = 0; r < 1; r += 0.02) expect(quizQuestion(() => r, prev, 'all')).not.toEqual(prev);
     expect(isAnswer({ name: parseNote('Db'), string: 5 }, { string: 5, fret: 4 })).toBe(true);
     expect(isAnswer({ name: parseNote('Bb'), string: 6 }, { string: 6, fret: 6 })).toBe(true);
+    expect(namesAt({ string: 5, fret: 6 })).toBe('D♯ / E♭');
+    expect(namesAt({ string: 5, fret: 5 })).toBe('D');
   });
 });

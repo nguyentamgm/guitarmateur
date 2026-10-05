@@ -55,7 +55,7 @@ export const vi: MajorScaleCopy = {
   scene: {
     interval: {
       name: '{number} {quality}',
-      numbers: ['đồng âm', 'quãng 2', 'quãng 3', 'quãng 4', 'quãng 5', 'quãng 6', 'quãng 7', 'quãng 8'],
+      numbers: ['quãng 1', 'quãng 2', 'quãng 3', 'quãng 4', 'quãng 5', 'quãng 6', 'quãng 7', 'quãng 8'],
       qualities: {
         perfect: 'đúng',
         major: 'trưởng',
@@ -103,7 +103,7 @@ export const vi: MajorScaleCopy = {
       up2: 'lên hai dây',
       caption: '{name}, {from} → {to}: {up}, lệch {offset} phím',
       crossesB: 'Qua G→B: nốt phía trên dời thêm một phím sang phải.',
-      offNeck: 'Từ chỗ này không đủ chỗ cho hình. Bấm một dây thấp hơn hoặc phím thấp hơn.',
+      offNeck: 'Từ chỗ này hình không nằm gọn trên cần. Bấm một nốt khác.',
     },
     degrees: {
       key: 'Giọng',

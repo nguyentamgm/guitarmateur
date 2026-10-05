@@ -72,10 +72,9 @@ describe('neck (M0)', () => {
       expect(shapeAt({ string: 5, fret: 5 }, '8', 2)).toEqual({ string: 3, fret: 7 });
     });
 
-    it('generalises octaveUp', () => {
-      for (const s of STRINGS) {
-        for (let f = 0; f <= 12; f++) expect(shapeAt({ string: s, fret: f }, '8', 2)).toEqual(octaveUp({ string: s, fret: f }));
-      }
+    it('backs octaveUp, which is the octave shape', () => {
+      expect(octaveUp({ string: 6, fret: MAX_FRET - 1 })).toBeNull();
+      expect(octaveUp({ string: 6, fret: MAX_FRET - 2 })).toEqual({ string: 4, fret: MAX_FRET });
     });
 
     it('returns null off the neck', () => {

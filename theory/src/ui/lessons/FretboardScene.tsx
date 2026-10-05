@@ -10,6 +10,7 @@ import {
   isAnswer,
   naturalAt,
   naturalHomes,
+  namesAt,
   octaveView,
   openStrings,
   quizQuestion,
@@ -278,7 +279,7 @@ function OctavesScene({ copy }: { copy: SceneCopy['octaves'] }) {
 type Feedback =
   | { readonly kind: 'right'; readonly fret: number }
   | { readonly kind: 'wrongString' }
-  | { readonly kind: 'wrongFret'; readonly fret: number; readonly heard: NoteName }
+  | { readonly kind: 'wrongFret'; readonly fret: number; readonly heard: string }
   | { readonly kind: 'between'; readonly fret: number };
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
@@ -321,7 +322,8 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     setMissed(true);
     const natural = naturalAt(d);
     if (d.string !== question.string) setFeedback({ kind: 'wrongString' });
-    else if (natural) setFeedback({ kind: 'wrongFret', fret: d.fret, heard: natural });
+    // With sharps and flats in play, a black-key fret is named too, both ways.
+    else if (natural || pool === 'all') setFeedback({ kind: 'wrongFret', fret: d.fret, heard: namesAt(d) });
     else setFeedback({ kind: 'between', fret: d.fret });
   };
   const next = (notes: QuizNotes = pool) => {
@@ -350,7 +352,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
       case 'wrongString':
         return fill(copy.wrongString, vars);
       case 'wrongFret':
-        return fill(copy.wrongFret, { fret: feedback.fret, heard: format(feedback.heard) });
+        return fill(copy.wrongFret, { fret: feedback.fret, heard: feedback.heard });
       case 'between':
         return fill(copy.between, { fret: feedback.fret });
     }

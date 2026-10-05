@@ -154,6 +154,13 @@ export function quizQuestion(random: () => number, previous?: QuizQuestion, note
   return pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))]!;
 }
 
+/** Both names of a sharp/flat fret ('C♯ / D♭'), or the natural's name. */
+export function namesAt(pos: FretPos): string {
+  const sharp = format(pitchAtPos(pos, [], 'sharp'));
+  const flat = format(pitchAtPos(pos, [], 'flat'));
+  return sharp === flat ? sharp : `${sharp} / ${flat}`;
+}
+
 /** Right string, and a fret where the note sounds (fret 12 counts as much as the open string). */
 export function isAnswer(q: QuizQuestion, pos: FretPos): boolean {
   return pos.string === q.string && mod(pos.fret - homeFret(q.name, q.string), 12) === 0;
