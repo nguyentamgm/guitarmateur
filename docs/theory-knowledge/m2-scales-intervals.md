@@ -114,7 +114,7 @@ Khi hình đi qua dây G→B, phần nằm trên dây B dời thêm +1 phím.
 
 **Cốt lõi.** Mỗi giọng trưởng có một giọng thứ dùng **cùng bộ nốt**, gọi là giọng song song (tiếng Anh: *relative*). Nhà thứ nằm ở bậc 6 của giọng trưởng, tức thấp hơn nhà trưởng 3 nửa cung. C trưởng và La thứ là một cặp. Khác nhau chỉ ở chỗ coi nốt nào là nhà.
 
-**Dữ liệu.** Nhà thứ = nhà trưởng − 3 nửa cung (hoặc + 9). Đánh vần theo bậc: nhà thứ là chữ cái thứ 6 của âm giai trưởng.
+**Dữ liệu.** Nhà thứ = nhà trưởng − 3 nửa cung (hoặc + 9). Đánh vần theo bậc: nhà thứ là chữ cái thứ 6 của âm giai trưởng. Tên 12 giọng thứ theo cùng quy tắc với giọng trưởng (K2.2): ít dấu hóa nhất, không có thăng kép hay giáng kép; chỗ hòa duy nhất (6 thăng hay 6 giáng) chọn E♭ thứ thay vì D♯ thứ. Kết quả: A E B F♯ C♯ G♯ E♭ B♭ F C G D (lõi: `minorKeyTonic`, `MINOR_KEY_TONICS`).
 
 **Dạy trong Theory.** Bước 5 của Bản đồ Pentatonic: bật qua lại trưởng/thứ, không chấm nào di chuyển, chỉ màu nhà đổi chỗ.
 

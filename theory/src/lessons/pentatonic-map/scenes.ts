@@ -17,6 +17,7 @@ import {
 import {
   degreeOf,
   format,
+  MINOR_KEY_TONICS,
   parseNote,
   pc,
   relativeMajorTonic,
@@ -137,10 +138,8 @@ export const inBox = (box: Pick<Box, 'minFret' | 'maxFret'>, pos: FretPos): bool
 
 // --- Step 4: changing key (K0.7, K3.5) ---
 
-/** Minor keys by home fret on string 6 (0…11), spelled the way minor keys are usually named. */
-export const FINDER_KEYS: readonly NoteName[] = ['E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B', 'C', 'C#', 'D', 'Eb']
-  .map(parseNote)
-  .sort((a, b) => homeFret(a) - homeFret(b));
+/** Minor keys by home fret on string 6 (0…11), named by the core's minor-key rule. */
+export const FINDER_KEYS: readonly NoteName[] = [...MINOR_KEY_TONICS].sort((a, b) => homeFret(a) - homeFret(b));
 
 export interface KeyView {
   readonly tonic: NoteName;

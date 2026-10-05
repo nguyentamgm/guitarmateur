@@ -1,6 +1,6 @@
 /** The five scenes of the Pentatonic Map. Every position comes from lessons/pentatonic-map. */
 import { useMemo, useRef, useState } from 'react';
-import { homeFret, midiAt, type FretPos } from '../../core/fretboard';
+import { homeFret, midiAt } from '../../core/fretboard';
 import { format, sameNote, type NoteName } from '../../core/music';
 import { fill } from '../../i18n';
 import {
@@ -20,15 +20,13 @@ import {
   type StepId,
 } from '../../lessons/pentatonic-map';
 import { useTheory } from '../context';
+import { posKey, signed } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, stringName } from '../geometry';
 import { useSequence } from '../useSequence';
 
-const posKey = (p: FretPos) => `${p.string}:${p.fret}`;
 const homeMidi = (tonic: NoteName) => midiAt({ string: 6, fret: homeFret(tonic, 6) });
-/** '+3', '−2', '0' (a real minus sign). */
-const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
 
 export function PentatonicMapScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {

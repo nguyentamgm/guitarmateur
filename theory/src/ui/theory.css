@@ -217,3 +217,13 @@ button { font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* Pentatonic, the whole neck */
+.boxghost rect { fill: none; stroke: var(--fret); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 4; }
+.boxghost text { fill: var(--fretnum); font-family: var(--f-mono); font-size: 10px; font-weight: 600; dominant-baseline: central; }
+.boxghost.on rect { stroke: var(--accent); stroke-opacity: 0.9; stroke-dasharray: none; }
+.boxghost.on text { fill: var(--accent); }
+.kink circle { fill: none; stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.kink line { stroke: var(--amber); stroke-width: 2; }
+.swatch.kinkghost { border: 1.5px dashed var(--amber); }
+.shared { fill: var(--amber); fill-opacity: 0.28; stroke: var(--amber); stroke-width: 1.5; }
