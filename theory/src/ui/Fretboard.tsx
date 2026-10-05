@@ -7,7 +7,7 @@ import { STRINGS, type StringNumber } from '../core/fretboard';
 import { useTheory } from './context';
 import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, type NeckGeometry } from './geometry';
 
-export type DotTone = 'plain' | 'home' | 'homeMajor' | 'blue';
+export type DotTone = 'plain' | 'home' | 'homeMajor' | 'blue' | 'soft';
 
 export interface FretDot {
   readonly key: string;

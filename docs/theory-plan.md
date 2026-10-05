@@ -169,10 +169,10 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.2) Bài kiểm tra tai nhéo dây không lưu điểm (cùng việc với chế độ ôn tập 5.1).
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
-- (3.1) `openVoicing()` chưa sinh được hợp âm 7 dây buông (C7, G7 dạng 320001 thì được, C7 x32310 thì không vì quy tắc lấy phím thấp nhất). Phiên 3.3 (hợp âm 7) cần mở rộng quy tắc: ưu tiên nốt chưa có trong thế bấm trước khi lấy phím thấp nhất.
 - (3.1) Bài đố dựng hợp âm không lưu điểm (cùng việc với chế độ ôn tập 5.1).
-- (3.2) Hình chặn m11 (sách ch. 12) chưa có: `openVoicing()` không sinh được Am11/Em11 vì quy tắc phím thấp nhất bỏ sót bậc ♭3. Làm cùng phần mở rộng quy tắc ở 3.3.
 - (3.2) Vòng hợp âm của bước 5 chỉ là I–vi–IV–V ở 12 giọng trưởng, chưa có nhịp hay quạt theo mẫu. Phiên 4.1 dạy tiến trình và số La Mã.
+- (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
+- (3.3) Hợp âm có bass ngoài hợp âm (F/G, D/C) chưa dạy; `openVoicing({ bass })` đã nhận được nốt bất kỳ nhưng chưa có test cho trường hợp này.
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
 - (2.1, 2.2, 2.3) Mẫu boogie (`BOOGIE`) đã vào lõi, nhưng phần phát vòng đệm vẫn nằm trong từng bài: `vampVoicing` (pentatonic), `shuffleNotes`/`bassMidi` (blues), `boogieShape` (electric). Phiên 4.2 cần vòng đệm theo tiến trình bất kỳ: khi đó gom vào lõi.
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
@@ -235,7 +235,7 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 2.3 | Guitar điện: power chord, chặn tiếng, double stop, quãng 8, boogie. Bài `/theory/electric` (en + vi), lõi `powerChord`, `doubleStops`, `BOOGIE`, tiếng chặn | Ch. 14, 15 | Xong |
 | 3.1 | Hợp âm là xếp chồng quãng: hợp âm ba, sus, hợp âm dây buông, bài đố dựng hợp âm. Bài `/theory/chords` (en + vi), lõi `openVoicing`, `triadShape` | Ch. 5, 6, 13 | Xong |
 | 3.2 | Hợp âm chặn di động gốc dây 6 và dây 5: trưởng, m, 7, m7, maj7, sus4; tìm hợp âm; trộn hình khi đổi hợp âm. Bài `/theory/barre` (en + vi), lõi `barreVoicing`, `nearestBarre`. m11 dời sang 3.3 | Ch. 7, 8, 12 | Xong |
-| 3.3 | Bảng công thức hợp âm tương tác, hợp âm 7, thế đảo | Ch. 17, 20 | Chưa làm |
+| 3.3 | Bảng công thức hợp âm tương tác, hợp âm 7, hợp âm 7 và m11 dây buông, thế đảo, rút gọn hợp âm. Bài `/theory/chord-table` (en + vi), `openVoicing` thành phép tìm có nốt thiết yếu và bass, `stackShape`, `simplifyChord` | Ch. 17, 20 | Xong |
 | 4.1 | Giọng và tiến trình: số La Mã, trưởng/thứ song song, II–V–I | Ch. 8, 13, 18 | Chưa làm |
 | 4.2 | Solo theo hợp âm: nốt đích sáng lên khi hợp âm đổi, vòng đệm tự sinh | Ch. 19 | Chưa làm |
 | 4.3 | Âm giai 3 nốt mỗi dây, phủ toàn cần đàn | Ch. 17 | Chưa làm |

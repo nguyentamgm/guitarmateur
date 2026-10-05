@@ -2,6 +2,7 @@
 import type { Lesson } from './types';
 import { barre } from './barre';
 import { blues } from './blues';
+import { chordTable } from './chord-table';
 import { chords } from './chords';
 import { electric } from './electric';
 import { fretboard } from './fretboard';
@@ -13,6 +14,7 @@ import { rhythm } from './rhythm';
 export * from './types';
 export { barre } from './barre';
 export { blues } from './blues';
+export { chordTable } from './chord-table';
 export { chords } from './chords';
 export { electric } from './electric';
 export { fretboard } from './fretboard';
@@ -31,6 +33,7 @@ export const LESSONS: readonly Lesson[] = [
   electric as Lesson,
   chords as Lesson,
   barre as Lesson,
+  chordTable as Lesson,
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);
