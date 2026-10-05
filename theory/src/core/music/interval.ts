@@ -16,7 +16,7 @@ export interface Interval {
 /** Semitones of each major-scale degree above the root (degree 1..7). */
 const MAJOR = [0, 2, 4, 5, 7, 9, 11];
 
-/** A degree label: optional accidentals then a degree number 1–13. */
+/** A degree label: optional accidentals then a degree number 1–15. */
 export type DegreeLabel = string;
 
 /** 'b3' → { degrees: 2, semitones: 3 }; '9' → { degrees: 8, semitones: 14 }; 'bb7' → { 6, 9 }. */
@@ -71,3 +71,27 @@ export function degreeOf(root: NoteName, n: NoteName): DegreeLabel {
 export const INTERVAL_TABLE: readonly { label: DegreeLabel; semitones: number }[] = [
   '1', 'b2', '2', 'b3', '3', '4', '#4', 'b5', '5', '#5', 'b6', '6', 'b7', '7', '8',
 ].map((label) => ({ label, semitones: interval(label).semitones }));
+
+export type IntervalQuality = 'perfect' | 'major' | 'minor' | 'augmented' | 'diminished';
+
+export interface IntervalName {
+  /** Letters spanned, both ends counted: 3 for a third, 8 for an octave. */
+  readonly number: number;
+  readonly quality: IntervalQuality;
+}
+
+/** Degrees whose natural form is perfect (1, 4, 5 and their octaves); the rest are major. */
+const PERFECT = new Set([0, 3, 4]);
+const PERFECT_BY_ACC: Readonly<Record<string, IntervalQuality>> = { '': 'perfect', b: 'diminished', '#': 'augmented' };
+const MAJOR_BY_ACC: Readonly<Record<string, IntervalQuality>> = {
+  '': 'major', b: 'minor', bb: 'diminished', '#': 'augmented',
+};
+
+/** 'b3' → minor 3, '#4' → augmented 4, 'b5' → diminished 5, 'bb7' → diminished 7 (K2.3). */
+export function intervalName(label: DegreeLabel): IntervalName {
+  const { degrees } = interval(label);
+  const acc = /^(bb|b|##|#)?/.exec(label)![1] ?? '';
+  const quality = (PERFECT.has(degrees % 7) ? PERFECT_BY_ACC : MAJOR_BY_ACC)[acc];
+  if (!quality) throw new RangeError(`No simple quality for "${label}"`);
+  return { number: degrees + 1, quality };
+}

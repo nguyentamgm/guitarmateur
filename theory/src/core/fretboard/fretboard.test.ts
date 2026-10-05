@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { format, parseNote, pc, scaleNotes, type ScaleId } from '../music';
+import { format, interval, parseNote, pc, scaleNotes, type ScaleId } from '../music';
 import {
   allPositions,
   fretsOf,
   gapToNextString,
   homeFret,
   keyShift,
+  MAX_FRET,
   midiAt,
   octaveUp,
   pitchAtPos,
   positions,
+  shapeAt,
   STRINGS,
   type Position,
 } from './index';
@@ -44,6 +46,44 @@ describe('neck (M0)', () => {
       const up = octaveUp({ string: s, fret: 3 });
       if (up) expect(midiAt(up) - midiAt({ string: s, fret: 3 })).toBe(12);
     }
+  });
+
+  describe('interval shapes (K2.4)', () => {
+    // Fret offsets from the knowledge base, before the B-string shift.
+    const K24: [string, number, number][] = [
+      ['b3', 1, -2], ['3', 1, -1], ['4', 1, 0], ['#4', 1, 1], ['5', 1, 2],
+      ['b6', 2, -2], ['6', 2, -1], ['b7', 2, 0], ['7', 2, 1], ['8', 2, 2],
+    ];
+    const crossesB = (from: number, up: number) => from >= 3 && from - up <= 2;
+
+    it.each(K24)('%s, %i string(s) up: offset %i, +1 across G→B, on every string pair', (label, up, offset) => {
+      for (const s of STRINGS.filter((x) => x - up >= 1)) {
+        const from = { string: s, fret: 5 };
+        const to = shapeAt(from, label, up)!;
+        expect(to.string).toBe(s - up);
+        expect(to.fret - 5, `string ${s}`).toBe(offset + (crossesB(s, up) ? 1 : 0));
+        expect(midiAt(to) - midiAt(from)).toBe(interval(label).semitones);
+      }
+    });
+
+    it('shifts the two-string jumps 4→2 and 3→1', () => {
+      expect(shapeAt({ string: 4, fret: 5 }, '8', 2)).toEqual({ string: 2, fret: 8 });
+      expect(shapeAt({ string: 3, fret: 5 }, '8', 2)).toEqual({ string: 1, fret: 8 });
+      expect(shapeAt({ string: 5, fret: 5 }, '8', 2)).toEqual({ string: 3, fret: 7 });
+    });
+
+    it('generalises octaveUp', () => {
+      for (const s of STRINGS) {
+        for (let f = 0; f <= 12; f++) expect(shapeAt({ string: s, fret: f }, '8', 2)).toEqual(octaveUp({ string: s, fret: f }));
+      }
+    });
+
+    it('returns null off the neck', () => {
+      expect(shapeAt({ string: 6, fret: 0 }, 'b3', 1)).toBeNull();
+      expect(shapeAt({ string: 6, fret: MAX_FRET }, '5', 1)).toBeNull();
+      expect(shapeAt({ string: 2, fret: 5 }, '8', 2)).toBeNull();
+      expect(shapeAt({ string: 5, fret: 3 }, '3', 0)).toEqual({ string: 5, fret: 7 });
+    });
   });
 
   it('lists every position of a note', () => {
