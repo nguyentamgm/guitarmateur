@@ -19,7 +19,7 @@ export const en: ChordsCopy = {
       title: 'Four qualities from one formula',
       body: [
         'The major formula is 1 3 5. Lower the 3 and you get minor, 1 ♭3 5. Raise the 5 for augmented, 1 3 ♯5; lower both 3 and 5 for diminished, 1 ♭3 ♭5. Each change is one fret.',
-        'The names follow the formula, never the black and white keys: C minor has E♭, not D♯, because the 3rd of C is some kind of E. That is why F♯ minor is F♯ A C♯ and B♭ diminished has an F♭.',
+        'The names follow the formula, not whichever sharp or flat name looks more familiar: C minor has E♭, not D♯, because the 3rd of C is some kind of E. That is why F♯ minor is F♯ A C♯ and B♭ diminished has an F♭.',
       ],
       takeaway: 'The 3rd decides major or minor; the 5th decides augmented or diminished.',
       tryIt: 'On A, switch major ↔ minor and listen to the one note that moves. Then try augmented and diminished.',
@@ -103,7 +103,7 @@ export const en: ChordsCopy = {
     { title: '7th chords and the formula table', why: 'They add one more 3rd on top. They come with the chord table.' },
     { title: 'Barre chords', why: 'Movable full shapes, built from the same formula on string 6 and 5 roots. Next lesson.' },
     { title: 'Inversions and slash chords', why: 'The same notes with another one in the bass. They come with the chord table.' },
-    { title: 'Chord progressions', why: 'Which chords belong together in a key comes with keys and roman numerals.' },
+    { title: 'Chord progressions', why: 'Which chords belong together in a key comes with keys and Roman numerals.' },
     { title: 'Open C7, F and other shapes', why: 'Some open chords need a barre or a stretch; the simple rule here does not reach them yet.' },
   ],
 };

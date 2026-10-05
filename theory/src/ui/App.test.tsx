@@ -121,7 +121,7 @@ describe('Theory app', () => {
     const finder = container.querySelector('section#keys .finder')!;
     click([...finder.querySelectorAll('button')].find((b) => b.textContent?.startsWith('C'))!);
     expect(container.querySelector('section#keys .caption')!.textContent).toBe(
-      'C minor: home on string 6 at fret 8; the shape slid +3 frets',
+      'C minor: root on string 6 at fret 8; the shape slid +3 frets',
     );
   });
 

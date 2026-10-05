@@ -16,7 +16,7 @@ export const en: RhythmCopy = {
       tryIt: 'Start the metronome at 80 BPM, tap your foot, and say "1" out loud with every high click.',
     },
     lengths: {
-      title: 'A note’s length is the length of its bar',
+      title: 'A note’s length is the length of its block',
       body: [
         'Here one bar is a strip of 16 cells, four per beat. A note is a block as long as the cells it lasts: a whole note fills all 16, a quarter note takes 4, an eighth 2, a sixteenth 1. A dot adds half again, so a dotted half lasts 3 beats.',
         'A rest is an empty block of the same length. Silence is part of the rhythm and needs counting just as much as the notes do.',
@@ -30,14 +30,14 @@ export const en: RhythmCopy = {
         'Counting keeps your place inside the bar. Say the beat numbers on the beats. Split each beat in two and say "and" on the half: 1 & 2 & 3 & 4 &.',
         'Split it in four and add "e" and "a": 1 e & a 2 e & a. Switch the sound to click only and keep counting by yourself, without the notes to lean on.',
       ],
-      takeaway: 'Numbers on the beats, "&" on the halves, "e" and "a" on the quarters in between.',
+      takeaway: 'Numbers on the beats, "&" on the halves, "e" and "a" on the sixteenths in between.',
       tryIt: 'Count eighths out loud at 70 BPM with the click only, then sixteenths at 60.',
     },
     strum: {
       title: 'Your strumming hand is a pendulum',
       body: [
         'Keep the strumming hand moving down and up all the time, like a pendulum: down on every beat, up on every "&". The rhythm comes from when the pick touches the strings, not from changing how the hand moves.',
-        'In the grid below a solid arrow hits the strings and a faint one is a stroke that misses on purpose. A down strum crosses all six strings; an up strum catches only the thin ones. Click a cell to make your own pattern.',
+        'In the grid below a solid arrow hits the strings and a faint one is a ghost strum, a stroke that misses on purpose. A down strum crosses all six strings; an up strum catches only the thin ones. Click a cell to make your own pattern.',
       ],
       takeaway: 'Never stop the hand: down on the beat, up on the "&"; only the contact changes.',
       tryIt: 'Play D – D U – U D U on the open strings, saying "1 & 2 & 3 & 4 &" while the hand keeps swinging.',
@@ -95,7 +95,7 @@ export const en: RhythmCopy = {
       down: 'down',
       up: 'up',
       hit: 'hits the strings',
-      miss: 'misses on purpose',
+      miss: 'ghost strum',
       cell: 'Cell {n}: {stroke}, {state}',
       caption: 'Pattern: {pattern}',
     },

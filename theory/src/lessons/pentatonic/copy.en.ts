@@ -10,7 +10,7 @@ export const en: PentatonicCopy = {
       title: 'Five boxes tile the neck',
       body: [
         'Each box holds two notes on every string, twelve notes in all, within about four frets. The five boxes sit edge to edge along the neck, and after box 5 the chain starts again 12 frets up.',
-        'Every box has the same small jog: the pair on the B string sits one fret to the right of where the pattern on the lower strings would put it. That is the G→B gap of 4 frets, not a new shape to learn.',
+        'Every box has the same B-string shift: the pair on the B string sits one fret to the right of where the pattern on the lower strings would put it. That comes from G and B being tuned 4 frets apart instead of 5, not from a new shape to learn.',
       ],
       takeaway: 'Five boxes of two notes per string, edge to edge: one map, not five shapes.',
       tryIt: 'Play box 1 up and down. Then find box 2 by its lowest note on string 6, the second note of box 1 on that string.',
@@ -21,7 +21,7 @@ export const en: PentatonicCopy = {
         'Box 1 and box 2 share six notes, one on each string: the higher note of box 1 on a string is the lower note of box 2 on that string. The same holds for every pair, and box 5 hands over to box 1 an octave up.',
         'So a new box is never learned from zero. Half of it is the edge you already play; you only add the six notes past it.',
       ],
-      takeaway: 'The top note of box k on each string is the bottom note of box k + 1.',
+      takeaway: 'On each string, the top note of one box is the bottom note of the next.',
       tryIt: 'Play up box 1, then down box 2 without stopping. Do the same for 2→3 before moving on.',
     },
     sequences: {
@@ -36,17 +36,17 @@ export const en: PentatonicCopy = {
     major: {
       title: 'Major key? The same shape, 3 frets lower',
       body: [
-        'A major pentatonic uses the same five notes as the minor pentatonic whose home is 3 frets lower. G major pentatonic is E minor pentatonic; C major is A minor.',
-        'So for a major key you need no new boxes. Find the major home on string 6, slide down 3 frets, and start box 1 there. Then make the major home the note you start on, lean on and end on.',
+        'A major pentatonic uses the same five notes as the minor pentatonic whose root is 3 frets lower, its relative minor. G major pentatonic is E minor pentatonic; C major is A minor.',
+        'So for a major key you need no new boxes. Find the major root on string 6, slide down 3 frets, and start box 1 there. Then treat the major root as home: the note you start on, lean on and end on.',
       ],
-      takeaway: 'Major key: put box 1 three frets below the major home.',
+      takeaway: 'Major key: put box 1 three frets below the major root.',
       tryIt: 'Pick G: box 1 starts at fret 0 (or 12). Play from G to G over the drone and hear it sound major.',
     },
     choose: {
       title: 'Which shape fits this song?',
       body: [
-        'Minor song: minor pentatonic on the song\'s home. Major song: the same shape slid 3 frets below its home. Blues on a 7 chord: the minor pentatonic on the home still works, and its ♭3 rubbing against the chord\'s 3 is part of the blues sound.',
-        'The vamp plays the song\'s home chord. Name its root on string 6, decide minor, major or blues, then click where box 1 starts.',
+        'Minor song: minor pentatonic on the song\'s root. Major song: the same shape slid 3 frets below its root. Blues over dominant 7th chords: the minor pentatonic on the root still works, and its ♭3 rubbing against the chord\'s 3 is part of the blues sound.',
+        'The vamp plays the song\'s I chord. Name its root on string 6, decide minor, major or blues, then click where box 1 starts.',
       ],
       takeaway: 'Minor or blues: start box 1 on the root. Major: start it 3 frets lower.',
       tryIt: 'Get five right in a row, then play the scale over the vamp for each one.',
@@ -91,9 +91,9 @@ export const en: PentatonicCopy = {
     },
     major: {
       key: 'Major key',
-      play: 'Home to home over a drone',
+      play: 'Root to root over a drone',
       stop: 'Stop',
-      legendMajor: 'Major home',
+      legendMajor: 'Major root',
       legendMinor: 'Where box 1 starts',
       caption: '{key} major: box 1 starts on {minor} at fret {minorFret}, 3 frets below {key} at fret {majorFret}.',
       playing: 'From {key} up to {key} and back, over a low {key}.',

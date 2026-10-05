@@ -2,9 +2,9 @@ import type { FretboardCopy } from './model';
 
 export const en: FretboardCopy = {
   title: 'The Neck Is a Grid',
-  summary: 'Read tab, count frets, and find any note from one home note and two octave shapes.',
+  summary: 'Read tab, count frets, and find any note from the notes on two strings and two octave shapes.',
   lead:
-    'You do not need to memorise every note on the neck. You need to count frets, read tab, know two octave shapes and where the home notes sit on the two thickest strings. Five steps, each one a picture you can play. Click any note to hear it.',
+    'You do not need to memorise every note on the neck. You need to count frets, read tab, know two octave shapes and where the natural notes sit on the two thickest strings. Five steps, each one a picture you can play. Click any note to hear it.',
   steps: {
     strings: {
       title: 'String 1 is the thinnest, and it sits on top',
@@ -22,7 +22,7 @@ export const en: FretboardCopy = {
         'Twelve frets make an octave: fret 12 has the same name as the open string, only higher. That is why the neck repeats itself after fret 12, and why fret 12 carries a double dot.',
       ],
       takeaway: '1 fret = 1 semitone; 12 frets = 1 octave, same name, higher.',
-      tryIt: 'Pick any string. Play it open, then at fret 12, and hear the same note one floor up.',
+      tryIt: 'Pick any string. Play it open, then at fret 12, and hear the same note one octave higher.',
     },
     tab: {
       title: 'Tab: lines are strings, numbers are frets',
@@ -37,15 +37,15 @@ export const en: FretboardCopy = {
       title: 'Two octave shapes find every copy of a note',
       body: [
         'The same note lives in several places on the neck. Go two strings up and two frets right and you land on the same name, one octave higher.',
-        'When the jump lands on the B or high E string, go three frets instead of two. That extra fret is the G-to-B kink again: the only pair of strings tuned 4 frets apart instead of 5. And strings 6 and 1 share names at every fret, two octaves apart.',
+        'When the jump lands on the B or high E string, go three frets instead of two. That extra fret is the G–B shift: G and B are the only pair of strings tuned 4 frets apart instead of 5. And strings 6 and 1 share names at every fret, two octaves apart.',
       ],
       takeaway: 'Two strings up: +2 frets, or +3 when you land on string 2 or 1.',
       tryIt: 'Find A at fret 5 on string 6. Use the shapes to reach every other A up to fret 15 without looking.',
     },
     home: {
-      title: 'Learn home notes on strings 6 and 5 only',
+      title: 'Learn the notes on strings 6 and 5 only',
       body: [
-        'This is the one table worth learning by heart. Every scale box and barre chord later on hangs from a note on string 6 or string 5.',
+        'This is the one table worth learning by heart. Every scale box and barre chord later on hangs from a root on string 6 or string 5.',
         'There are seven letters, A to G. Neighbouring letters are a whole step apart, except E to F and B to C, which are a semitone apart. Sharps (♯) raise a note one fret and flats (♭) lower it one fret, so the frets between the letters have two names, such as C♯ and D♭.',
       ],
       takeaway: 'Know where A to G sit on strings 6 and 5; the octave shapes find the rest.',
@@ -106,7 +106,7 @@ export const en: FretboardCopy = {
   notYetIntro:
     'All of these matter at some point. Leaving them out now keeps your attention on the neck itself.',
   notYet: [
-    { title: 'Every note name on every string', why: 'Home notes on strings 6 and 5 plus two octave shapes find any note you need.' },
+    { title: 'Every note name on every string', why: 'The notes on strings 6 and 5 plus two octave shapes find any note you need.' },
     { title: 'Reading staff notation', why: 'Tab and shapes cover electric guitar. The staff can wait until you need it.' },
     { title: 'Chord diagrams', why: 'They read like tab turned on its side. They come with the chord lessons.' },
     { title: 'How long each note lasts', why: 'Tab leaves rhythm out. The rhythm lesson puts tab on a beat grid.' },

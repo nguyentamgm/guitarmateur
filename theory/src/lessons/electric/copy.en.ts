@@ -13,13 +13,13 @@ export const en: ElectricCopy = {
         'It has no 3rd, so it is neither major nor minor. That is why the same shape fits under a major or a minor song, and why it stays clear through distortion, where fuller chords turn to mush.',
       ],
       takeaway: 'Power chord = root + 5th (+ octave): one shape for every key, major or minor.',
-      tryIt: 'Using your home-fret table, play E5, G5 and A5 on string 6, then C5 and D5 on string 5.',
+      tryIt: 'Using the notes you know on strings 6 and 5, play E5, G5 and A5 on string 6, then C5 and D5 on string 5.',
     },
     mute: {
       title: 'Palm mute: the chug between the hits',
       body: [
         'Rest the edge of your picking hand lightly on the strings right where they meet the bridge. The note gets short, dark and thick: a chug instead of a ring.',
-        'Most rock riffs alternate the two: chug the root in tight eighths, then lift the hand and let a chord ring. This riff walks the minor pentatonic roots, I, ♭III and IV, all as power chords.',
+        'Most rock riffs alternate the two: chug the root in tight eighths, then lift the hand and let a chord ring. This riff takes its roots from E minor pentatonic, E, G and A (I, ♭III and IV), all as power chords.',
       ],
       takeaway: 'Chug the root palm-muted, lift to let the accents ring.',
       tryIt: 'Chug E5 in steady eighths with the click, then play the riff and lift the palm only on the long chords.',
@@ -45,7 +45,7 @@ export const en: ElectricCopy = {
     boogie: {
       title: 'The blues boogie is a moving power chord',
       body: [
-        'The shuffle under the blues lesson is a two-note power chord whose top finger rocks: 5, 5, 6, 6, ♭7, ♭7, 6, 6. The root stays put; the 6 is two frets past the 5, the ♭7 three.',
+        'The shuffle behind the blues lesson is a boogie: a two-note power chord whose top finger rocks: 5, 5, 6, 6, ♭7, ♭7, 6, 6. The root stays put; the 6 is two frets past the 5, the ♭7 three.',
         'Play the I on string 6 and move to string 5 for the IV and V, so your hand barely travels. Palm-mute it lightly and swing it, and you are the band.',
       ],
       takeaway: 'Boogie = root + 5–6–♭7–6 on the next string, I on string 6, IV and V on string 5.',

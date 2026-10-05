@@ -27,10 +27,10 @@ export const en: BluesCopy = {
     twelveBar: {
       title: 'The 12-bar blues: three chords, three lines',
       body: [
-        'The 12-bar blues uses the chords on degrees I, IV and V of the key, all as 7 chords. Four bars of I; two of IV, two of I; then V, IV, I, I. In A: A7, D7 and E7.',
-        'Two common changes: the quick change goes to IV in bar 2 and straight back; the turnaround plays V in bar 12 to pull you back to the top. Over all of it, A minor pentatonic works: its ♭3 and ♭7 rub against the chords, and that rub is the blues.',
+        'The 12-bar blues uses the chords on degrees I, IV and V of the key, all as dominant 7th chords. Four bars of I; two of IV, two of I; then V, IV, I, I. In A: A7, D7 and E7.',
+        'Two common changes: the quick change goes to IV in bar 2 and straight back; the turnaround plays V in bar 12 to pull you back to the top. Over all of it, A minor pentatonic works: its ♭3 rubs against the major 3rd of the chords, and that rub is the blues.',
       ],
-      takeaway: 'I I I I · IV IV I I · V IV I I, all 7 chords.',
+      takeaway: 'I I I I · IV IV I I · V IV I I, all dominant 7ths.',
       tryIt: 'Play along and say the chord name one beat before each change. Then try the quick change and the turnaround.',
     },
     bends: {
@@ -112,7 +112,7 @@ export const en: BluesCopy = {
         hammer: 'Pick the lower note, then hammer the higher one: the step up is heard without a new pick.',
         pull: 'Pick the higher note with the lower one already fretted, then pull off: the step down.',
         slide: 'Pick, then keep pressing and glide two frets up: every pitch in between is heard.',
-        vibrato: 'Hold the home note and shake it evenly, a little above and below its pitch.',
+        vibrato: 'Hold the root and shake it evenly, a little above and below its pitch.',
         bendRelease: 'Bend up a whole step, hold it, then let the string back down to where it started.',
       },
       lick: 'The lick',
@@ -129,7 +129,7 @@ export const en: BluesCopy = {
     { title: 'Palm muting, power chords and double stops', why: 'They are the rhythm side of electric guitar, in the next lesson.' },
     { title: 'Tapping', why: 'A right-hand hammer-on. It needs clean legato first.' },
     { title: 'Changing notes on each chord', why: 'Targeting the notes of D7 over D7 comes with soloing over changes.' },
-    { title: 'Swing beyond the shuffle', why: 'Jazz swing loosens the feel further. The triplet shuffle is the blues standard.' },
+    { title: 'Swing beyond the shuffle', why: 'Jazz swing changes the long–short ratio with tempo and style. The triplet shuffle is the blues standard.' },
     { title: 'Saving your ear-check score', why: 'A review mode across lessons comes at the end.' },
     { title: 'Writing your own licks', why: 'First learn to hear and play one well; phrasing comes with soloing.' },
   ],
