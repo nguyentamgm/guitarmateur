@@ -1,8 +1,8 @@
 /** The five scenes of "Blues: blue notes, shuffle and bends". Every note comes from lessons/blues. */
 import { useMemo, useState } from 'react';
 import { bend, type PitchPoint } from '../../core/audio';
-import { homeFret, midiAt } from '../../core/fretboard';
-import { format, sameNote, type NoteName } from '../../core/music';
+import { midiAt } from '../../core/fretboard';
+import { format, type NoteName } from '../../core/music';
 import { beatSeconds, countTriplets, swingDelay, swingLength } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
@@ -39,9 +39,10 @@ import {
   type SceneCopy,
   type StepId,
 } from '../../lessons/blues';
+import { BarGrid } from '../BarGrid';
 import { BeatGrid, type Block } from '../BeatGrid';
 import { useTheory } from '../context';
-import { Button, ChipGroup, Tempo } from '../controls';
+import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
@@ -213,60 +214,6 @@ function ShuffleScene({ copy }: { copy: SceneCopy }) {
 
 // --- Step 3 ---
 
-function KeyFinder({ label, value, onChange }: { label: string; value: NoteName; onChange(k: NoteName): void }) {
-  return (
-    <div className="finder" role="group" aria-label={label}>
-      {BLUES_KEYS.map((k) => (
-        <button key={format(k)} type="button" aria-pressed={sameNote(k, value)} onClick={() => onChange(k)}>
-          <b>{format(k)}</b> {homeFret(k)}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function OnOff({ label, on, off, value, onChange }: { label: string; on: string; off: string; value: boolean; onChange(v: boolean): void }) {
-  return (
-    <ChipGroup<'on' | 'off'>
-      label={label}
-      items={[
-        { value: 'off', text: off },
-        { value: 'on', text: on },
-      ]}
-      value={value ? 'on' : 'off'}
-      onChange={(v) => onChange(v === 'on')}
-    />
-  );
-}
-
-/** The 12 bars as three lines of four: degree above, chord below, the bar being heard filled. */
-function Bars({ label, bars, current }: { label: string; bars: ReturnType<typeof bluesForm>; current: number | null }) {
-  const W = 132;
-  const H = 62;
-  const GAP = 8;
-  return (
-    <div className="scroll">
-      <svg className="bars" viewBox={`0 0 ${4 * W + 3 * GAP} ${3 * H + 2 * GAP}`} style={{ minWidth: 300, maxWidth: 720 }} role="img" aria-label={label}>
-        {bars.map((b, i) => {
-          const x = (i % 4) * (W + GAP);
-          const y = Math.floor(i / 4) * (H + GAP);
-          return (
-            <g key={i} className={current === i ? 'bar on' : 'bar'}>
-              <rect x={x} y={y} width={W} height={H} rx={8} />
-              <text className="deg" x={x + W / 2} y={y + 20}>
-                {b.degree}
-              </text>
-              <text className="sym" x={x + W / 2} y={y + 43}>
-                {b.symbol}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-}
-
 function TwelveBarScene({ copy }: { copy: SceneCopy }) {
   const c = copy.twelveBar;
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
@@ -282,14 +229,14 @@ function TwelveBarScene({ copy }: { copy: SceneCopy }) {
 
   return (
     <div className="board">
-      <KeyFinder label={c.key} value={tonic} onChange={setTonic} />
+      <KeyFinder keys={BLUES_KEYS} label={c.key} value={tonic} onChange={setTonic} />
       <div className="controls">
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.play}</Button>
         <OnOff label={c.quickChange} on={c.on} off={c.off} value={quickChange} onChange={setQuickChange} />
         <OnOff label={c.turnaround} on={c.on} off={c.off} value={turnaround} onChange={setTurnaround} />
         <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
-      <Bars label={c.form} bars={form} current={bar} />
+      <BarGrid label={c.form} bars={form} current={bar} />
       <p className="caption" aria-live="polite">
         {bar === null ? fill(c.idle, { key: format(tonic) }) : fill(c.playing, { n: bar + 1, chord: form[bar]!.symbol, degree: form[bar]!.degree })}
       </p>

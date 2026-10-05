@@ -72,6 +72,9 @@ export function homeFret(name: NoteName, s: 6 | 5 = 6): number {
   return fretsOf(name, s, 11)[0]!;
 }
 
+/** Keys in the order their home notes sit on string 6, fret 0 to 11: how the finder lists them. */
+export const byHomeFret = (names: readonly NoteName[]): NoteName[] => [...names].sort((a, b) => homeFret(a) - homeFret(b));
+
 /**
  * An interval shape (K2.4): the note `label` above `pos`, played `stringsUp` strings higher.
  * Each string crossed takes back its gap (5, or 4 for G→B). Null off the neck.

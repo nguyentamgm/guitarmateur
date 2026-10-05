@@ -250,3 +250,9 @@ button { font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .pitchcurve .curve.draw { animation: none; stroke-dashoffset: 0; } }
 .subquiz { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
 .subquiz h3 { font-size: 1.05rem; }
+
+/* Electric guitar */
+.power-symbol { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 2rem; line-height: 1; color: var(--accent); }
+.stopline { stroke: var(--fret); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.stopline.on { stroke: var(--amber); opacity: 1; stroke-width: 5; }
+.mutex { fill: var(--amber); font-family: var(--f-mono); font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: var(--wood); stroke-width: 4px; }

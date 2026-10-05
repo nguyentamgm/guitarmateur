@@ -7,13 +7,14 @@
 import { semisAt, type Glide, type PitchPoint } from '../../core/audio';
 import {
   allPositions,
-  homeFret,
+  byHomeFret,
   midiAt,
   pitchAtPos,
   positions,
   type FretPos,
 } from '../../core/fretboard';
 import {
+  BOOGIE,
   MAJOR_KEY_TONICS,
   bluesChord,
   chordSymbol,
@@ -134,7 +135,7 @@ export function swingBar(swing: number): SwingBlock[] {
 // --- Step 3: the 12-bar blues (K5.4) ---
 
 /** The 12 major keys by home fret on string 6, as blues keys are found on the neck. */
-export const BLUES_KEYS: readonly NoteName[] = [...MAJOR_KEY_TONICS].sort((a, b) => homeFret(a) - homeFret(b));
+export const BLUES_KEYS: readonly NoteName[] = byHomeFret(MAJOR_KEY_TONICS);
 
 export interface Bar {
   readonly degree: BluesDegree;
@@ -151,9 +152,6 @@ export function bluesForm(tonic: NoteName, opts: TwelveBarOptions = {}): Bar[] {
 
 /** The chord root as a low bass note between low E (40) and the D♯ above it (51). */
 export const bassMidi = (root: NoteName): number => 40 + mod(pc(root) - 4, 12);
-
-/** The boogie shuffle under each eighth of a bar: the root with its 5, 6, ♭7, 6 above, two eighths each. */
-const BOOGIE: readonly DegreeLabel[] = ['5', '5', '6', '6', 'b7', 'b7', '6', '6'];
 
 /** MIDI notes the backing plays on eighth `eighth` (0–7) of a bar of `chord`. */
 export function shuffleNotes(chord: Chord, eighth: number): number[] {

@@ -138,6 +138,38 @@ describe('click synthesis', () => {
   });
 });
 
+describe('palm mute (K6.5)', () => {
+  const sr = 8000;
+  const open = pluckSamples({ midi: 40, sampleRate: sr, durationSec: 0.6 });
+  const muted = pluckSamples({ midi: 40, sampleRate: sr, muted: true });
+  /** Energy of the sample-to-sample change: a rough measure of brightness. */
+  const edge = (xs: Float32Array, from: number, to: number) => {
+    const d = new Float32Array(to - from);
+    for (let i = from; i < to; i++) d[i - from] = xs[i]! - xs[i - 1]!;
+    return rms(d, 0, d.length) / rms(xs, from, to);
+  };
+
+  it('is short: almost silent by 0.4 s while the open string still rings', () => {
+    expect(muted.length).toBe(0.6 * sr);
+    expect(rms(muted, 0.4 * sr, 0.5 * sr) / rms(muted, 0, 0.05 * sr)).toBeLessThan(0.05);
+    expect(rms(open, 0.4 * sr, 0.5 * sr) / rms(open, 0, 0.05 * sr)).toBeGreaterThan(0.2);
+  });
+
+  it('is darker than an open pluck', () => {
+    expect(edge(muted, 1, 0.05 * sr)).toBeLessThan(edge(open, 1, 0.05 * sr));
+  });
+
+  it('has its own cached buffer in the player', () => {
+    const f = fakeContext();
+    const p = createPlayer({ createContext: () => f.ctx });
+    p.pluck(40);
+    p.mute(40);
+    p.mute(40, 0.25);
+    expect(f.buffers).toHaveLength(2);
+    expect(f.started).toEqual([1, 1, 1.25]);
+  });
+});
+
 describe('glides (K6.3, K6.4)', () => {
   it('turns semitones into playback rates', () => {
     expect(rateOf(0)).toBe(1);

@@ -29,6 +29,7 @@ import {
   decorationDegrees,
   transpose,
   twelveBar,
+  BOOGIE,
   bluesChord,
   type ChordId,
 } from './index';
@@ -325,6 +326,10 @@ describe('diatonic chords and roman numerals (K5.2, K5.3)', () => {
 });
 
 describe('12-bar blues (K5.4)', () => {
+  it('rocks the boogie 5 5 6 6 ♭7 ♭7 6 6 over one bar of eighths', () => {
+    expect(BOOGIE.map((d) => interval(d).semitones)).toEqual([7, 7, 9, 9, 10, 10, 9, 9]);
+  });
+
   it('lays out I I I I · IV IV I I · V IV I I and its variants', () => {
     expect(twelveBar().join(' ')).toBe('I I I I IV IV I I V IV I I');
     expect(twelveBar({ quickChange: true })[1]).toBe('IV');

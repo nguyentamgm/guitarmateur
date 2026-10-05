@@ -62,7 +62,7 @@ Kiểm tra: nốt đích nằm 2 phím trên (một cung) hoặc 1 phím trên (
 
 **Cốt lõi.** Đặt cạnh lòng bàn tay phải nhẹ lên dây ngay sát ngựa đàn. Tiếng thành trầm, đục, ngắn. Đây là âm thanh của riff rock với power chord.
 
-**Dạy trong Theory.** Bật tắt chặn tiếng trên một riff power chord để nghe sự khác biệt. Âm thanh: lọc bớt tần số cao và tắt nhanh hơn.
+**Dạy trong Theory.** Bài `/theory/electric` bước 2: riff power chord hai ô trên các nốt gốc 1, ♭3, 4 của pentatonic thứ (giọng E), xen tiếng chặt; bật tắt chặn tiếng để nghe sự khác biệt. Âm thanh: `player.mute()`, tiếng gảy mềm hơn (bớt tần số cao) và tắt trong khoảng 0,1 giây. Bước 5 dùng chặn tiếng cho boogie.
 
 **Nguồn:** ch. 14.
 
@@ -70,10 +70,14 @@ Kiểm tra: nốt đích nằm 2 phím trên (một cung) hoặc 1 phím trên (
 
 **Cốt lõi.** Double stop là chơi hai nốt cùng lúc. Trong pentatonic, cặp hay dùng là hai nốt trên hai dây kề nhau cùng phím (quãng 4), riêng cặp dây G–B cùng phím là quãng 3 trưởng. Trượt quãng 4 là trượt cả cặp double stop vào vị trí, rất hay gặp trong rock và country. Riff là một câu ngắn lặp lại, thường dựng từ power chord và pentatonic thứ.
 
+**Dạy trong Theory.** Bài `/theory/electric` bước 3: lõi `doubleStops()` tìm mọi cặp cùng phím trên hai dây kề nhau trong một hộp; chọn cặp, nghe, hoặc trượt vào từ hai phím dưới. Riff thì ở bước 2.
+
 **Cần trước:** K2.4, K3.4, K4.2. **Nguồn:** ch. 15.
 
 ## K6.7 Quãng 8 kiểu jazz
 
 **Cốt lõi.** Chơi giai điệu bằng hai nốt cách nhau một quãng 8 (hình K0.6, cách hai dây), chặn tiếng dây ở giữa. Âm thanh dày và tròn hơn một nốt đơn.
+
+**Dạy trong Theory.** Bài `/theory/electric` bước 4: câu 1 ♭3 4 5 4 ♭3 1 chơi bằng quãng 8 trên bốn cặp dây (6/4, 5/3 thì +2 phím; 4/2, 3/1 qua G→B thì +3), nốt nhà luôn ở phím 5 của dây dưới, dây giữa đánh dấu ×.
 
 **Cần trước:** K0.6. **Nguồn:** ch. 14.

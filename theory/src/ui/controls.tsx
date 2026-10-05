@@ -1,3 +1,5 @@
+import { homeFret } from '../core/fretboard';
+import { format, sameNote, type NoteName } from '../core/music';
 import { MAX_BPM, MIN_BPM, clampBpm } from '../core/rhythm';
 import type { ReactNode } from 'react';
 
@@ -56,5 +58,33 @@ export function Tempo({ label, text, bpm, onChange }: { label: string; text: str
       />
       <output>{text}</output>
     </label>
+  );
+}
+
+/** Two chips, off and on. */
+export function OnOff({ label, on, off, value, onChange }: { label: string; on: string; off: string; value: boolean; onChange(v: boolean): void }) {
+  return (
+    <ChipGroup<'on' | 'off'>
+      label={label}
+      items={[
+        { value: 'off', text: off },
+        { value: 'on', text: on },
+      ]}
+      value={value ? 'on' : 'off'}
+      onChange={(v) => onChange(v === 'on')}
+    />
+  );
+}
+
+/** One button per key, with its home fret on string 6 beside the name (K0.7). */
+export function KeyFinder({ keys, label, value, onChange }: { keys: readonly NoteName[]; label: string; value: NoteName; onChange(k: NoteName): void }) {
+  return (
+    <div className="finder" role="group" aria-label={label}>
+      {keys.map((k) => (
+        <button key={format(k)} type="button" aria-pressed={sameNote(k, value)} onClick={() => onChange(k)}>
+          <b>{format(k)}</b> {homeFret(k)}
+        </button>
+      ))}
+    </div>
   );
 }
