@@ -13,6 +13,9 @@ function fakePlayer() {
     pluck: (midi) => {
       if (enabled) plucked.push(midi);
     },
+    mute: (midi) => {
+      if (enabled) plucked.push(midi);
+    },
     click: (accent = false) => {
       if (enabled) clicks.push(accent);
     },

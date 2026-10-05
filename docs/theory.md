@@ -65,8 +65,9 @@ ui → lessons → core/fretboard → core/music
 - `pluckSamples()` is pure and deterministic (seeded noise); tune the sound there, with tests.
 - `createPlayer()` makes its `AudioContext` on the first `pluck()` or `click()`. Call it only
   from a user gesture. Audio failures are swallowed: a lesson must work silently.
-- `pluck(midi, delay, length, glide)` damps the note after `length` seconds; `click(accent, delay)`
-  is the metronome (`clickSamples()` is pure, like `pluckSamples()`).
+- `pluck(midi, delay, length, glide)` damps the note after `length` seconds; `mute(midi, delay)` is
+  a palm-muted chug (`pluckSamples({ muted: true })`, K6.5); `click(accent, delay)` is the
+  metronome (`clickSamples()` is pure, like `pluckSamples()`).
 - A `glide` (`bend`, `bendRelease`, `legato`, `slide`, `vibrato` in `core/audio/glide.ts`) moves
   the pitch of the same plucked sound through `playbackRate`: a hammer-on, pull-off or slide is
   never picked again. `semisAt()` reads the same points, so `ui/PitchCurve.tsx` draws what is heard.
@@ -94,6 +95,8 @@ ui → lessons → core/fretboard → core/music
   to a click, `faint` dots for places to click that are not notes of the picture) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
   never from the component. `Tab` scrolls itself to keep the playing column in view; a note's
   `text` replaces its fret number for technique marks (`7b9`, `h7`, `/7~`).
+- Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
+  form is drawn with `ui/BarGrid.tsx`. Key lists for a finder come from `byHomeFret()`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.
 - Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.

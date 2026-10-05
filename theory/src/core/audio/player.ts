@@ -33,6 +33,8 @@ export interface Player {
    * (K6.3, K6.4). Silently does nothing when disabled or unsupported.
    */
   pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide): void;
+  /** A palm-muted note (K6.5): darker and much shorter than `pluck`. Same rules. */
+  mute(midi: number, delaySec?: number): void;
   /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
   click(accent?: boolean, delaySec?: number): void;
   setEnabled(on: boolean): void;
@@ -104,6 +106,9 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     },
     pluck(midi, delaySec = 0, lengthSec, glide) {
       play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide);
+    },
+    mute(midi, delaySec = 0) {
+      play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec);
     },
     click(accent = false, delaySec = 0) {
       play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec);

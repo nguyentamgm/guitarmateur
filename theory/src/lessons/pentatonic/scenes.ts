@@ -5,6 +5,7 @@
  */
 import {
   allPositions,
+  byHomeFret,
   homeFret,
   midiAt,
   pitchAtPos,
@@ -138,7 +139,7 @@ export const SPEED_STEP = 4;
 // --- Step 4: major keys, the same shape 3 frets down (K3.3) ---
 
 /** The 12 major keys, ordered by home fret on string 6 (E F F♯ G A♭ …). */
-export const MAJOR_KEYS: readonly NoteName[] = [...MAJOR_KEY_TONICS].sort((a, b) => homeFret(a) - homeFret(b));
+export const MAJOR_KEYS: readonly NoteName[] = byHomeFret(MAJOR_KEY_TONICS);
 
 export interface MajorView {
   readonly tonic: NoteName;

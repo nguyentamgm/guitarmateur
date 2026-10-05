@@ -32,11 +32,19 @@ export interface PluckOptions {
    * prototype used 0.45.
    */
   readonly softness?: number;
+  /**
+   * Palm mute (K6.5): the hand on the bridge damps the string at once. A darker pick (more
+   * smoothing) and a fast fade, so the note is a short, thick chug.
+   */
+  readonly muted?: boolean;
 }
+
+/** Seconds for a palm-muted note to fade to about a third. */
+export const MUTE_FADE_SEC = 0.09;
 
 /** Render one plucked note into a mono buffer of samples in −1…1. */
 export function pluckSamples(opts: PluckOptions): Float32Array {
-  const { midi, sampleRate, durationSec = 1.8, seed = midi, softness = 0.45 } = opts;
+  const { midi, sampleRate, muted = false, durationSec = muted ? 0.6 : 1.8, seed = midi, softness = muted ? 0.8 : 0.45 } = opts;
   const period = Math.max(2, Math.round(sampleRate / midiToFrequency(midi)));
   const length = Math.floor(sampleRate * durationSec);
   const out = new Float32Array(length);
@@ -53,6 +61,10 @@ export function pluckSamples(opts: PluckOptions): Float32Array {
   const k = decayFactor(midi) * 0.5;
   for (let i = period; i < length; i++) {
     out[i] = k * (out[i - period]! + out[i - period + 1]!);
+  }
+  if (muted) {
+    // Fade after the loop so the string model still rings at its pitch, only shorter.
+    for (let i = 0; i < length; i++) out[i]! *= Math.exp(-i / (sampleRate * MUTE_FADE_SEC));
   }
   return out;
 }

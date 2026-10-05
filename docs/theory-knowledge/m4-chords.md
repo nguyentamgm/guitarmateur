@@ -31,7 +31,7 @@ Mọi tên nốt trong hợp âm do lõi tính từ công thức (K2.5), không 
 
 **Dữ liệu.** Công thức 1 5 (8), ký hiệu C5. Hình gốc dây 6 hoặc dây 5: nhà, dây kế trên +2 phím (K2.4), thêm dây kế nữa +2 phím cho quãng 8. Bỏ nốt cao nhất thì được power chord 2 nốt.
 
-**Dạy trong Theory.** Hình power chord như một con dấu trượt dọc dây 6 và dây 5. Bài riff ngắn với chặn tiếng (K6.5).
+**Dạy trong Theory.** Bài `/theory/electric` bước 1: hình power chord (lõi `powerChord()`, dựng từ `shapeAt`) như một con dấu, bấm phím nào trên dây 6 hoặc dây 5 thì con dấu trượt tới đó; tên hợp âm theo quy tắc tên giọng (B♭5, F♯5); nghe cùng hình dưới quãng 3 trưởng rồi quãng 3 thứ. Bước 2: riff ngắn với chặn tiếng (K6.5). Bước 5: boogie blues là power chord có ngón trên đi 5–6–♭7–6 (lõi `BOOGIE`).
 
 **Cần trước:** K2.4, K0.7. **Nguồn:** ch. 15.
 

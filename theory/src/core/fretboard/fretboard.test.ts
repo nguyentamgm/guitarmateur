@@ -12,6 +12,8 @@ import {
   pitchAtPos,
   positions,
   sequence,
+  powerChord,
+  doubleStops,
   SEQUENCE_IDS,
   shapeAt,
   STRINGS,
@@ -193,5 +195,44 @@ describe('sequences (K3.6)', () => {
   it('gives nothing when the run is shorter than a group', () => {
     expect(sequence(2, 'threes', 'up')).toEqual([]);
     expect(sequence(0, 'straight', 'up')).toEqual([]);
+  });
+});
+
+describe('power chords and double stops (K4.2, K6.6)', () => {
+  it('stamps root, +2 frets on the next string, +2 on the one after', () => {
+    expect(powerChord({ string: 6, fret: 5 })).toEqual([
+      { string: 6, fret: 5 },
+      { string: 5, fret: 7 },
+      { string: 4, fret: 7 },
+    ]);
+    expect(powerChord({ string: 5, fret: 3 }, false)).toEqual([
+      { string: 5, fret: 3 },
+      { string: 4, fret: 5 },
+    ]);
+    // Rooted on string 4 the octave crosses G→B: +3.
+    expect(powerChord({ string: 4, fret: 5 })![2]).toEqual({ string: 2, fret: 8 });
+    expect(powerChord({ string: 2, fret: 5 })).toBeNull();
+  });
+
+  it('sounds root, 5th (7 semitones) and octave (12)', () => {
+    for (const s of [6, 5] as const) {
+      const [r, f, o] = powerChord({ string: s, fret: 3 })!.map(midiAt);
+      expect([f! - r!, o! - r!]).toEqual([7, 12]);
+    }
+  });
+
+  it('finds the same-fret pairs of A minor box 1: 4ths, and a major 3rd on G–B', () => {
+    const box = positions({ tonic: n('A'), scale: 'minorPentatonic', notesPerString: 2 })[0]!;
+    const stops = doubleStops(box.notes);
+    expect(stops.map((d) => `${d.low.string}${d.high.string}@${d.low.fret}:${d.semitones}`)).toEqual([
+      '65@5:5',
+      '54@5:5',
+      '54@7:5',
+      '43@5:5',
+      '43@7:5',
+      '32@5:4',
+      '21@5:5',
+      '21@8:5',
+    ]);
   });
 });
