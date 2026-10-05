@@ -116,6 +116,14 @@ Dùng thống nhất trong lời giảng cả hai thứ tiếng. Cột "Theory d
 
 Lưu ý: tiếng Việt gọi C trưởng và La thứ là "giọng song song" (cùng hóa biểu). Tiếng Anh gọi đó là *relative*; *parallel* trong tiếng Anh lại là hai giọng cùng chủ âm (C trưởng và C thứ). Khi dịch lời giảng, dùng *relative*.
 
+Lời giảng tiếng Anh dùng thuật ngữ chuẩn, không dịch sát từng chữ tiếng Việt:
+
+- "nốt nhà" là *root* (giọng: *tonic*), không phải "home note". "Home" chỉ dùng để giải nghĩa: "the root, the note that sounds like home".
+- Bảng nốt trên dây 6 và 5 (K0.7) là "the notes on strings 6 and 5", không phải "home frets".
+- Nốt 9, 11, 13 là *extension*, không phải "colour note". Hợp âm 7 của blues là *dominant 7th*, không viết trống "7 chords".
+- Một phím là *semitone / half step*; *step* đứng một mình dễ bị hiểu là một cung.
+- Chỗ lệch của cặp dây G–B gọi thống nhất là *the G–B shift*.
+
 ## Đính chính so với sách
 
 Bản dịch có vài chỗ sai hoặc dễ gây hiểu lầm. Theory theo bản đúng dưới đây; test của lõi nhạc lý cũng dựa trên bản đúng.

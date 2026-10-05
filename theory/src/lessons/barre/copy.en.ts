@@ -10,7 +10,7 @@ export const en: BarreCopy = {
       title: 'Your first finger is a moving nut',
       body: [
         'Play an open E chord with fingers 2, 3 and 4, leaving your first finger free. Now lay that finger flat across all six strings one fret up and move the shape with it: you are playing F. Every open string of the E shape is now under the barre.',
-        'Slide the whole thing up and the chord keeps its quality but changes its name. The name is simply the note under the barre on string 6, which you already know from your home frets.',
+        'Slide the whole thing up and the chord keeps its quality but changes its name. The name is simply the note under the barre on string 6, which you already know from the fretboard lesson.',
       ],
       takeaway: 'E shape + barre = every major chord; its name is the note on string 6.',
       tryIt: 'Play F at fret 1, G at fret 3 and A at fret 5. Name each one before you check.',
@@ -36,7 +36,7 @@ export const en: BarreCopy = {
     find: {
       title: 'Find any barre chord',
       body: [
-        'To play a chord you have never played, find its root on string 6 or string 5 using your home frets. Put the barre there, pick the shape for that string, and choose the variant from the name: m for minor, 7, maj7, m7.',
+        'To play a chord you have never played, find its root on string 6 or string 5 using the notes you learned on those strings. Put the barre there, pick the shape for that string, and choose the variant from the name: m for minor, 7, maj7, m7.',
         'Both answers are right. Most chords are easier in one of the two places, depending on where your hand already is.',
       ],
       takeaway: 'Root on string 6 → E shape; root on string 5 → A shape; the symbol picks the variant.',
@@ -95,6 +95,6 @@ export const en: BarreCopy = {
     { title: 'C, G and D shapes (CAGED)', why: 'Three more movable shapes. The E and A shapes do the job first.' },
     { title: 'Partial barres and small triads', why: 'Three-string shapes high on the neck come with soloing over changes.' },
     { title: 'Inversions', why: 'Another note in the bass. They come with the chord table.' },
-    { title: 'Why I, vi, IV, V', why: 'The roman numerals and which chords belong to a key come with keys and progressions.' },
+    { title: 'Why I, vi, IV, V', why: 'The Roman numerals and which chords belong to a key come with keys and progressions.' },
   ],
 };

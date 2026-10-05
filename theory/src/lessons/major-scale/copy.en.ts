@@ -9,10 +9,10 @@ export const en: MajorScaleCopy = {
     formula: {
       title: 'The major scale is one formula: W W H W W W H',
       body: [
-        'Pick a home note and climb: whole step, whole step, half step, whole, whole, whole, half. On one string that is +2 +2 +1 +2 +2 +2 +1 frets, and you land on home again one octave up.',
-        'The two half steps, between degrees 3 and 4 and between 7 and 8, give the scale its sound. Change the home note and the whole pattern slides along the string; the gaps never change.',
+        'Pick a root, the note the scale starts from and feels at home on, and climb: whole step, whole step, half step, whole, whole, whole, half. On one string that is +2 +2 +1 +2 +2 +2 +1 frets, and you land on the root again one octave up.',
+        'The two half steps, between degrees 3 and 4 and between 7 and 8, give the scale its sound. Change the root and the whole pattern slides along the string; the gaps never change.',
       ],
-      takeaway: 'Major scale = home + 2 2 1 2 2 2 1 frets, in every key.',
+      takeaway: 'Major scale = root + 2 2 1 2 2 2 1 frets, in every key.',
       tryIt: 'Play the scale on string 5 from fret 3 (C), then from fret 5 (D), counting the gaps out loud.',
     },
     spelling: {
@@ -28,7 +28,7 @@ export const en: MajorScaleCopy = {
       title: 'An interval has a number and a quality',
       body: [
         'The number counts letters, both ends included: C up to E is C D E, a 3rd. The quality comes from the semitones: C to E is 4 semitones, a major 3rd; C to E♭ is 3, a minor 3rd.',
-        'Above home in a major scale, degrees 2, 3, 6 and 7 are major intervals; 1, 4, 5 and 8 are perfect. One semitone lower turns major into minor and perfect into diminished; one higher makes any of them augmented. F♯ and G♭ sound the same over C, yet one is an augmented 4th and the other a diminished 5th: the letter count decides.',
+        'Above the root in a major scale, degrees 2, 3, 6 and 7 are major intervals; 1, 4, 5 and 8 are perfect. One semitone lower turns major into minor and perfect into diminished; one higher makes any of them augmented. F♯ and G♭ sound the same over C, yet one is an augmented 4th and the other a diminished 5th: the letter count decides.',
       ],
       takeaway: 'Number = letters counted; quality = semitones. 2 3 6 7 are major, 1 4 5 8 perfect.',
       tryIt: 'Click a few notes above C and sing each interval before you press play. Then lower a major 3rd to minor and listen.',
@@ -43,13 +43,13 @@ export const en: MajorScaleCopy = {
       tryIt: 'Pick the major 3rd and stamp it on strings 5, 4 and 3. Feel where your finger has to shift.',
     },
     degrees: {
-      title: 'A scale is home plus seven interval shapes',
+      title: 'A scale is a root plus six interval shapes',
       body: [
-        'Put home on string 6 and look at five frets around it. Every note of the major scale in that window is one of the shapes you just learned, measured from home: a major 2nd, a major 3rd, a perfect 4th, and so on.',
+        'Put the root on string 6 and look at five frets around it. Every note of the major scale in that window is one of the shapes you just learned, measured from the root: a major 2nd, a major 3rd, a perfect 4th, and so on.',
         'Knowing the shapes means knowing the scale by its degrees, not by a box you memorised. The degree numbers are also how chords and the pentatonic are written later on.',
       ],
-      takeaway: 'Each scale note is an interval from home: 1 2 3 4 5 6 7.',
-      tryIt: 'Play home, then each degree in turn, and name the interval you hear before you check.',
+      takeaway: 'Each scale note is an interval from the root: 1 2 3 4 5 6 7.',
+      tryIt: 'Play the root, then each degree in turn, and name the interval you hear before you check.',
     },
   },
   scene: {
@@ -67,7 +67,7 @@ export const en: MajorScaleCopy = {
       spanOne: '1 semitone',
     },
     formula: {
-      key: 'Home',
+      key: 'Root',
       play: 'Play the scale',
       stop: 'Stop',
       whole: 'Whole step: +2',
@@ -87,11 +87,11 @@ export const en: MajorScaleCopy = {
       neck: '{key} major on frets 0–12',
     },
     intervals: {
-      home: 'Home: {note} on string 5',
+      home: 'Root: {note} on string 5',
       play: 'Play apart, then together',
       lower: 'Lower ½ step',
       raise: 'Raise ½ step',
-      idle: 'Click a note above home, up to its octave.',
+      idle: 'Click a note above the root, up to its octave.',
       reading: '{from} → {to}: {name}, {span}',
       or: 'or',
     },
@@ -110,19 +110,19 @@ export const en: MajorScaleCopy = {
       labels: 'Labels',
       degrees: 'Degrees',
       notes: 'Notes',
-      degree: 'Play home, then',
-      idle: '{key} major, five frets around home at fret {fret} on string 6.',
-      heard: 'Home, then degree {n}: {note}, a {name} ({span}).',
+      degree: 'Play the root, then',
+      idle: '{key} major, five frets around the root at fret {fret} on string 6.',
+      heard: 'Root, then degree {n}: {note}, a {name} ({span}).',
     },
   },
   notYetTitle: 'What you do not need yet',
   notYetIntro: 'The major scale opens many doors. These ones can wait until a lesson needs them.',
   notYet: [
-    { title: 'The natural minor scale and relative keys', why: 'They are the same notes from another home. They come with the full pentatonic and with keys.' },
+    { title: 'The natural minor scale and relative keys', why: 'They are the same notes with another note as the root. They come with the full pentatonic and with keys.' },
     { title: 'Memorising key signatures', why: 'The letter rule names every note for you. Reading a key from the signature belongs to sheet music.' },
     { title: 'Double sharps and double flats', why: 'D♯ major would need F𝄪, so the same key is called E♭ major. They come back in chord formulas.' },
     { title: '9ths, 11ths and 13ths', why: 'They are 2, 4 and 6 an octave up. They matter for chord names.' },
     { title: 'Three notes per string', why: 'A way to play the scale across the whole neck. It comes after the pentatonic boxes.' },
-    { title: 'Descending and inverted intervals, modes', why: 'Upward shapes from home are enough for scales and chords for now.' },
+    { title: 'Descending and inverted intervals, modes', why: 'Upward shapes from the root are enough for scales and chords for now.' },
   ],
 };
