@@ -16,7 +16,7 @@ import {
   type FretPos,
   type StringNumber,
 } from '../../core/fretboard';
-import { LETTERS, format, mod, note, parseNote, type NoteName } from '../../core/music';
+import { LETTERS, MAJOR_KEY_TONICS, format, mod, note, parseNote, sameNote, type NoteName } from '../../core/music';
 
 /** Frets drawn on the full-neck scenes. */
 export const NECK_FRETS = 15;
@@ -137,16 +137,28 @@ export interface QuizQuestion {
   readonly string: HomeString;
 }
 
+/** 'naturals': A–G only. 'all': the 12 names keys are spelled with (F♯, D♭…), K2.2. */
+export type QuizNotes = 'naturals' | 'all';
+export const QUIZ_NOTES: Readonly<Record<QuizNotes, readonly NoteName[]>> = {
+  naturals: NATURALS,
+  all: MAJOR_KEY_TONICS,
+};
+
 /**
- * Pick a natural note and string 6 or 5 with `random()` in [0, 1), never repeating the previous
+ * Pick a note and string 6 or 5 with `random()` in [0, 1), never repeating the previous
  * question exactly.
  */
-export function quizQuestion(random: () => number, previous?: QuizQuestion): QuizQuestion {
-  const all = HOME_STRINGS.flatMap((string) => NATURALS.map((name) => ({ name, string })));
-  const pool = previous
-    ? all.filter((q) => !(q.string === previous.string && q.name.letter === previous.name.letter))
-    : all;
+export function quizQuestion(random: () => number, previous?: QuizQuestion, notes: QuizNotes = 'naturals'): QuizQuestion {
+  const all = HOME_STRINGS.flatMap((string) => QUIZ_NOTES[notes].map((name) => ({ name, string })));
+  const pool = previous ? all.filter((q) => !(q.string === previous.string && sameNote(q.name, previous.name))) : all;
   return pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))]!;
+}
+
+/** Both names of a sharp/flat fret ('C♯ / D♭'), or the natural's name. */
+export function namesAt(pos: FretPos): string {
+  const sharp = format(pitchAtPos(pos, [], 'sharp'));
+  const flat = format(pitchAtPos(pos, [], 'flat'));
+  return sharp === flat ? sharp : `${sharp} / ${flat}`;
 }
 
 /** Right string, and a fret where the note sounds (fret 12 counts as much as the open string). */

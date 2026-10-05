@@ -9,9 +9,16 @@ import {
   diatonicChords,
   format,
   interval,
+  intervalName,
+  INTERVAL_TABLE,
   keySignature,
+  LETTERS,
+  majorKeyTonic,
+  MAJOR_KEY_TONICS,
   midi,
+  mod,
   parseNote,
+  pc,
   pitchAt,
   relativeKey,
   scaleNotes,
@@ -60,6 +67,35 @@ describe('intervals (K2.3, K2.6)', () => {
     expect(format(transpose(n('E'), interval('#2')))).toBe('F𝄪');
   });
 
+  it('names #4 and b5 by letter distance (K2.3)', () => {
+    expect(degreeOf(n('C'), n('F#'))).toBe('#4');
+    expect(degreeOf(n('C'), n('Gb'))).toBe('b5');
+  });
+
+  it('names every row of the K2.3 table', () => {
+    const k23: [string, number, string, number][] = [
+      ['1', 1, 'perfect', 0], ['b2', 2, 'minor', 1], ['2', 2, 'major', 2], ['b3', 3, 'minor', 3],
+      ['3', 3, 'major', 4], ['4', 4, 'perfect', 5], ['#4', 4, 'augmented', 6], ['b5', 5, 'diminished', 6],
+      ['5', 5, 'perfect', 7], ['#5', 5, 'augmented', 8], ['b6', 6, 'minor', 8], ['6', 6, 'major', 9],
+      ['b7', 7, 'minor', 10], ['7', 7, 'major', 11], ['8', 8, 'perfect', 12],
+    ];
+    expect(INTERVAL_TABLE.map((r) => r.label)).toEqual(k23.map((r) => r[0]));
+    INTERVAL_TABLE.forEach((row, i) => {
+      const [label, number, quality, semis] = k23[i]!;
+      expect(intervalName(row.label), label).toEqual({ number, quality });
+      expect(row.semitones, label).toBe(semis);
+    });
+  });
+
+  it('lowers major to minor then diminished, perfect straight to diminished', () => {
+    expect(intervalName('bb7')).toEqual({ number: 7, quality: 'diminished' });
+    expect(intervalName('#2')).toEqual({ number: 2, quality: 'augmented' });
+    expect(intervalName('11')).toEqual({ number: 11, quality: 'perfect' });
+    expect(intervalName('b9')).toEqual({ number: 9, quality: 'minor' });
+    expect(() => intervalName('bb5')).toThrow(RangeError);
+    expect(() => intervalName('16')).toThrow(RangeError);
+  });
+
   it('reads the degree of a note over a root', () => {
     expect(degreeOf(n('C'), n('Eb'))).toBe('b3');
     expect(degreeOf(n('A'), n('Eb'))).toBe('b5');
@@ -86,6 +122,14 @@ describe('scales', () => {
     expect(names(scaleNotes(n('C'), 'majorBlues'))).toEqual(['C', 'D', 'E♭', 'E', 'G', 'A']);
     expect(decorationDegrees('minorBlues')).toEqual(['b5']);
     expect(decorationDegrees('majorBlues')).toEqual(['b3']);
+  });
+
+  it('puts the major half steps at 3→4 and 7→8 in every key (K2.1)', () => {
+    for (const k of MAJOR_KEYS) {
+      const notes = scaleNotes(n(k), 'major');
+      const steps = notes.map((x, i) => mod(pc(notes[(i + 1) % 7]!) - pc(x), 12));
+      expect(steps, k).toEqual([2, 2, 1, 2, 2, 2, 1]);
+    }
   });
 
   it('exposes the fret steps the lessons animate', () => {
@@ -118,6 +162,54 @@ describe('key signatures (K2.2)', () => {
   for (const [k, sig] of Object.entries(expected)) {
     it(`${k} major`, () => expect(names(keySignature(n(k)))).toEqual(sig));
   }
+});
+
+describe('major key names (K2.2)', () => {
+  const accidentals = (t: { letter: string; alter: number }) =>
+    scaleNotes(t as never, 'major').filter((x) => x.alter !== 0).length;
+  const doubles = (t: { letter: string; alter: number }) =>
+    scaleNotes(t as never, 'major').some((x) => Math.abs(x.alter) > 1);
+
+  it('names the 12 keys around the circle of fifths', () => {
+    expect(MAJOR_KEY_TONICS.map(format)).toEqual(['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'D♭', 'A♭', 'E♭', 'B♭', 'F']);
+    expect(format(majorKeyTonic(1))).toBe('D♭');
+    expect(format(majorKeyTonic(-1))).toBe('B');
+  });
+
+  it.each(MAJOR_KEY_TONICS.map((t) => [format(t), t] as const))(
+    '%s: 7 letters, no doubles, at most 6 accidentals, all one kind',
+    (_k, t) => {
+      const notes = scaleNotes(t, 'major');
+      expect(new Set(notes.map((x) => x.letter)).size).toBe(7);
+      expect(doubles(t)).toBe(false);
+      expect(accidentals(t)).toBeLessThanOrEqual(6);
+      const signs = new Set(notes.filter((x) => x.alter !== 0).map((x) => Math.sign(x.alter)));
+      expect(signs.size).toBeLessThanOrEqual(1);
+    },
+  );
+
+  it('rejects every other spelling for more accidentals or a double', () => {
+    for (const chosen of MAJOR_KEY_TONICS) {
+      for (const letter of LETTERS) {
+        for (const alter of [-1, 0, 1] as const) {
+          const t = { letter, alter };
+          if (pc(t) !== pc(chosen) || (letter === chosen.letter && alter === chosen.alter)) continue;
+          const tie = format(chosen) === 'F♯' && format(t) === 'G♭';
+          if (!tie) expect(doubles(t) || accidentals(t) > accidentals(chosen), format(t)).toBe(true);
+        }
+      }
+    }
+    expect(names(scaleNotes(n('D#'), 'major'))).toContain('F𝄪');
+    expect(names(scaleNotes(n('A#'), 'major'))).toEqual(expect.arrayContaining(['C𝄪', 'G𝄪']));
+  });
+
+  it('breaks the F♯/G♭ tie (6 each) for F♯', () => {
+    expect(accidentals(n('F#'))).toBe(6);
+    expect(accidentals(n('Gb'))).toBe(6);
+    expect(names(scaleNotes(n('F#'), 'major'))).toContain('E♯');
+    expect(names(scaleNotes(n('Gb'), 'major'))).toContain('C♭');
+    expect(format(majorKeyTonic(6))).toBe('F♯');
+  });
 });
 
 describe('relative keys (K2.8)', () => {

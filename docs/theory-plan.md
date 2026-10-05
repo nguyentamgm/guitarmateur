@@ -1,6 +1,6 @@
 # Kế hoạch app Theory — chuyển Learn & Master Guitar sang học trực quan
 
-Cập nhật: 2026-10-04 · File này là bản chuẩn của kế hoạch. Bảng tiến độ ở cuối file được cập nhật sau mỗi phiên.
+Cập nhật: 2026-10-05 · File này là bản chuẩn của kế hoạch. Bảng tiến độ ở cuối file được cập nhật sau mỗi phiên.
 
 ## Mục tiêu và nguyên tắc
 
@@ -157,15 +157,17 @@ Làm đủ từng bước, theo thứ tự. Bước nào không làm được th
 Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau đọc mục này thay vì đọc lại PR cũ. Ghi mỗi việc một dòng, kèm phiên phát hiện.
 
 - (0.2) Luật ESLint của app Luyện tập dạng `'**/fretboard/**'` bỏ sót import trỏ thẳng vào thư mục như `'../fretboard'` từ `src/music`. Luật của Theory đã dùng `dir()` để bắt cả hai dạng. Sửa bằng một PR riêng cho `src/`.
-- (0.2) `interval()` chấp nhận bậc 1–15, nhưng comment của `DegreeLabel` ghi 1–13. Chọn một phạm vi rồi sửa cho khớp.
 - (0.2, 0.3) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập. File này chỉ bật cờ `act` của React nên test UI của Theory (0.3) dùng được. Chỉ tách khi Theory cần setup khác.
 - (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
 - (1.2) K1.5 (liên ba, swing, shuffle) chưa có bài; phiên 2.2 dạy nó. `core/rhythm` mới chia phách thành 1, 2 hoặc 4 ô: cần thêm chia 3 và hệ số swing, kèm test.
 - (1.2) Tab chưa nằm trên lưới phách: bài luyện ngón chạy tab và `BeatGrid` riêng. Ghép hai thứ khi một bài cần tab có tiết tấu (2.2 hoặc 4.2).
 - (1.2) Tempo của mỗi cảnh không được nhớ giữa các lần mở trang. Nếu người học cần, lưu vào localStorage của Theory với khóa riêng.
-- (1.1) Bài đố nốt nhà không lưu kết quả và chỉ hỏi 7 nốt tự nhiên. Nốt thăng/giáng vào đố khi phiên 1.3 dạy cách chọn tên (K2.2). Chế độ ôn tập chung thuộc phiên 5.1.
+- (1.1) Bài đố nốt nhà không lưu kết quả. Chế độ ôn tập chung thuộc phiên 5.1.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
+- (1.3) `FINDER_KEYS` của Bản đồ Pentatonic gõ tay tên giọng thứ (G♯, C♯, E♭…). Lõi mới có `majorKeyTonic()` cho giọng trưởng; khi phiên 2.1 hoặc 4.1 cần tên giọng thứ, thêm quy tắc vào lõi (qua `relativeMinorTonic`) rồi sinh danh sách từ đó.
+- (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
+- (1.3) `posKey` và `signed` được chép lại trong từng file cảnh ở `ui/lessons/`. Gom vào một helper chung khi sửa UI lần sau.
 - (0.3) Bài Bản đồ Pentatonic đã lên `/theory/pentatonic-map`. Phiên 2.1 (pentatonic đầy đủ) dùng slug riêng, ví dụ `/theory/pentatonic`, và dùng lại `Fretboard`, `scenes.ts`.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -217,7 +219,7 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 0.3 | Khung app Theory: entry Vite riêng, `/theory`, mục lục, chọn ngôn ngữ (en mặc định), rewrite Vercel, service worker. Bài thử: Bản đồ Pentatonic `/theory/pentatonic-map` (en + vi) | Ch. 11 | Xong |
 | 1.1 | Cần đàn là lưới: đọc tab, hình quãng 8, tìm nốt nhà. Bài `/theory/fretboard` (en + vi), đứng đầu mục lục | Ch. 1–4, 7 | Xong |
 | 1.2 | Nhịp không cần khuông: lưới phách, metronome, mẫu quạt; bài luyện ngón 1-2-3-4 và tư thế tay (K0.8, chuyển từ 1.1). Bài `/theory/rhythm` (en + vi), lõi `core/rhythm` | Ch. 1–3, 9, 16 | Xong |
-| 1.3 | Âm giai trưởng và quãng là hình trên cần | Ch. 7, 9 | Chưa làm |
+| 1.3 | Âm giai trưởng và quãng là hình trên cần: công thức, đánh vần, tên quãng, hình quãng, bậc trong một thế. Bài `/theory/major-scale` (en + vi), đứng trước Bản đồ Pentatonic; bài đố nốt nhà thêm ♯/♭ | Ch. 7, 9 | Xong |
 | 2.1 | Pentatonic bản đầy đủ: 5 hộp, mẫu bộ 3/bộ 4, nối hộp, trưởng/thứ song song | Ch. 11 | Chưa làm |
 | 2.2 | Blues: nốt b5, tiến trình 12 ô, nhéo dây, trượt; liên ba và shuffle (K1.5, chuyển từ 1.2) | Ch. 13, 14, 17 | Chưa làm |
 | 2.3 | Guitar điện: power chord, double stop, quãng 8 | Ch. 14, 15 | Chưa làm |

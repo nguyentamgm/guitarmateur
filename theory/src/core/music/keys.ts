@@ -1,7 +1,7 @@
 /** Keys, key signatures, relative keys, diatonic chords and roman numerals (K2.2, K2.8, K5.2, K5.3). */
 import { CHORDS, identifyChord, type Chord, type ChordId } from './chords';
 import { interval, transpose, transposeDown } from './interval';
-import type { NoteName } from './pitch';
+import { LETTERS, mod, pc, type Alter, type NoteName } from './pitch';
 import { scaleNotes } from './scales';
 
 export type Mode = 'major' | 'minor';
@@ -18,6 +18,26 @@ export function keySignature(majorTonic: NoteName): NoteName[] {
   const order = sharps ? 'FCGDAEB' : 'BEADGCF';
   return [...notes].sort((a, b) => order.indexOf(a.letter) - order.indexOf(b.letter));
 }
+
+/**
+ * The usual spelling of the major key on a pitch class: no double sharps or flats in its scale,
+ * then the fewest accidentals; the F♯/G♭ tie goes to F♯ (K2.2).
+ */
+export function majorKeyTonic(pitchClass: number): NoteName {
+  const cost = (t: NoteName) => {
+    const notes = scaleNotes(t, 'major');
+    return notes.some((n) => Math.abs(n.alter) > 1) ? Infinity : notes.filter((n) => n.alter !== 0).length;
+  };
+  const candidates = LETTERS.flatMap((letter) =>
+    ([0, 1, -1] as Alter[]).map((alter) => ({ letter, alter })),
+  ).filter((t) => pc(t) === mod(pitchClass, 12));
+  return candidates.reduce((best, t) =>
+    cost(t) < cost(best) || (cost(t) === cost(best) && t.alter > best.alter) ? t : best,
+  );
+}
+
+/** The 12 major keys around the circle of fifths from C: C G D A E B F♯ D♭ A♭ E♭ B♭ F. */
+export const MAJOR_KEY_TONICS: readonly NoteName[] = Array.from({ length: 12 }, (_, i) => majorKeyTonic(7 * i));
 
 /** The relative key: same notes, other home (K2.8). C major ↔ A minor. */
 export function relativeKey(key: Key): Key {

@@ -49,6 +49,8 @@ ui → lessons → core/fretboard → core/music
 
 - **Spelled notes only.** Notes are letter + accidental (`parseNote('Bb')`), never a bare pitch
   class. F minor shows B♭; C°7 shows B𝄫. Pitch classes are for comparison only.
+- **Major key names come from the core:** `MAJOR_KEY_TONICS` / `majorKeyTonic()` (no double
+  accidentals, fewest accidentals, F♯ over G♭). Do not hand-type lists of major keys.
 - **Formulas are degree labels** (`'1'`, `'b3'`, `'#5'`, `'bb7'`, `'9'`), the same notation as the
   knowledge base, converted by `interval()`.
 - **No shape tables.** Boxes and positions come from `positions()`. Never hand-type frets of a
@@ -82,7 +84,7 @@ ui → lessons → core/fretboard → core/music
 - Time is drawn on `ui/BeatGrid.tsx` (one bar as cells; a note is a block as long as it lasts,
   a rest an empty outline, count words underneath).
 - Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
-  to a click) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
+  to a click, `faint` dots for places to click that are not notes of the picture) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
   never from the component.
 - Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.
 

@@ -10,11 +10,13 @@ import {
   isAnswer,
   naturalAt,
   naturalHomes,
+  namesAt,
   octaveView,
   openStrings,
   quizQuestion,
   semitoneRun,
   tabExample,
+  type QuizNotes,
   type QuizQuestion,
   type SceneCopy,
   type StepId,
@@ -277,13 +279,14 @@ function OctavesScene({ copy }: { copy: SceneCopy['octaves'] }) {
 type Feedback =
   | { readonly kind: 'right'; readonly fret: number }
   | { readonly kind: 'wrongString' }
-  | { readonly kind: 'wrongFret'; readonly fret: number; readonly heard: NoteName }
+  | { readonly kind: 'wrongFret'; readonly fret: number; readonly heard: string }
   | { readonly kind: 'between'; readonly fret: number };
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   const { player } = useTheory();
   const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
   const [names, setNames] = useState<'show' | 'hide'>('show');
+  const [pool, setPool] = useState<QuizNotes>('naturals');
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [missed, setMissed] = useState(false);
@@ -319,14 +322,19 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     setMissed(true);
     const natural = naturalAt(d);
     if (d.string !== question.string) setFeedback({ kind: 'wrongString' });
-    else if (natural) setFeedback({ kind: 'wrongFret', fret: d.fret, heard: natural });
+    // With sharps and flats in play, a black-key fret is named too, both ways.
+    else if (natural || pool === 'all') setFeedback({ kind: 'wrongFret', fret: d.fret, heard: namesAt(d) });
     else setFeedback({ kind: 'between', fret: d.fret });
   };
-  const next = () => {
-    setQuestion((q) => quizQuestion(Math.random, q));
+  const next = (notes: QuizNotes = pool) => {
+    setQuestion((q) => quizQuestion(Math.random, q, notes));
     setFeedback(null);
     setMissed(false);
     setLit(null);
+  };
+  const choosePool = (notes: QuizNotes) => {
+    setPool(notes);
+    next(notes);
   };
   const play = (string: 6 | 5, fret: number) => {
     const pos = { string, fret };
@@ -344,7 +352,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
       case 'wrongString':
         return fill(copy.wrongString, vars);
       case 'wrongFret':
-        return fill(copy.wrongFret, { fret: feedback.fret, heard: format(feedback.heard) });
+        return fill(copy.wrongFret, { fret: feedback.fret, heard: feedback.heard });
       case 'between':
         return fill(copy.between, { fret: feedback.fret });
     }
@@ -361,6 +369,15 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
           ]}
           value={names}
           onChange={setNames}
+        />
+        <ChipGroup<QuizNotes>
+          label={copy.pool}
+          items={[
+            { value: 'naturals', text: copy.naturals },
+            { value: 'all', text: copy.all },
+          ]}
+          value={pool}
+          onChange={choosePool}
         />
       </div>
       {names === 'show' && (
@@ -379,7 +396,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
       )}
       <div className="quiz">
         <span className="question">{fill(copy.question, vars)}</span>
-        <Button onClick={next} ghost>
+        <Button onClick={() => next()} ghost>
           {copy.next}
         </Button>
         <span className="muted small">{fill(copy.score, score)}</span>

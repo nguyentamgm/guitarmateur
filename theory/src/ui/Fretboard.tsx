@@ -17,6 +17,8 @@ export interface FretDot {
   readonly label?: string;
   readonly tone?: DotTone;
   readonly dim?: boolean;
+  /** Drawn small and pale but still clickable: a place to click, not a note of the picture. */
+  readonly faint?: boolean;
 }
 
 interface Props {
@@ -109,7 +111,7 @@ export function Fretboard({ geometry: g, dots, label, box, active, onDot, childr
         )}
         {children}
         {dots.map((d) => {
-          const cls = ['dot', d.tone && d.tone !== 'plain' ? d.tone : '', d.dim ? 'dim' : '', active?.includes(d.key) || d.key === flash ? 'hit' : '']
+          const cls = ['dot', d.tone && d.tone !== 'plain' ? d.tone : '', d.dim ? 'dim' : '', d.faint ? 'faint' : '', active?.includes(d.key) || d.key === flash ? 'hit' : '']
             .filter(Boolean)
             .join(' ');
           return (

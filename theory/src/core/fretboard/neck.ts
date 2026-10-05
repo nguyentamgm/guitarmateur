@@ -73,15 +73,22 @@ export function homeFret(name: NoteName, s: 6 | 5 = 6): number {
 }
 
 /**
+ * An interval shape (K2.4): the note `label` above `pos`, played `stringsUp` strings higher.
+ * Each string crossed takes back its gap (5, or 4 for G→B). Null off the neck.
+ */
+export function shapeAt(pos: FretPos, label: string, stringsUp: number): FretPos | null {
+  const target = pos.string - stringsUp;
+  if (!Number.isInteger(stringsUp) || stringsUp < 0 || target < 1) return null;
+  const string = target as StringNumber;
+  const fret = pos.fret + interval(label).semitones - (openMidi(string) - openMidi(pos.string));
+  return fret < 0 || fret > MAX_FRET ? null : { string, fret };
+}
+
+/**
  * The same note one octave up, two strings higher: +2 frets, or +3 when the jump crosses the
  * G→B pair (K0.6). Null on strings 2 and 1.
  */
-export function octaveUp(pos: FretPos): FretPos | null {
-  if (pos.string <= 2) return null;
-  const target = (pos.string - 2) as StringNumber;
-  const gap = openMidi(target) - openMidi(pos.string);
-  return { string: target, fret: pos.fret + 12 - gap };
-}
+export const octaveUp = (pos: FretPos): FretPos | null => shapeAt(pos, '8', 2);
 
 /** Every position of a note's pitch class across the neck, low string first. */
 export function allPositions(name: NoteName, maxFret = 12): FretPos[] {
