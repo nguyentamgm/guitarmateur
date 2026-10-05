@@ -256,3 +256,11 @@ button { font: inherit; cursor: pointer; }
 .stopline { stroke: var(--fret); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
 .stopline.on { stroke: var(--amber); opacity: 1; stroke-width: 5; }
 .mutex { fill: var(--amber); font-family: var(--f-mono); font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: var(--wood); stroke-width: 4px; }
+
+/* Barre chords */
+.barrebar { fill: var(--accent); fill-opacity: 0.35; stroke: var(--accent); stroke-width: 1.5; }
+.barrebar.faint { fill-opacity: 0.08; stroke-opacity: 0.35; stroke-dasharray: 4 3; }
+.mutedline { stroke: var(--amber); stroke-width: 2.5; stroke-linecap: round; }
+.chordpath { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; font-family: var(--f-mono); font-size: 0.9rem; }
+.chordpath li { padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.chordpath li.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }

@@ -1,5 +1,6 @@
 /** Every lesson, in contents order. Add a lesson here and give it scenes in theory/src/ui. */
 import type { Lesson } from './types';
+import { barre } from './barre';
 import { blues } from './blues';
 import { chords } from './chords';
 import { electric } from './electric';
@@ -10,6 +11,7 @@ import { pentatonicMap } from './pentatonic-map';
 import { rhythm } from './rhythm';
 
 export * from './types';
+export { barre } from './barre';
 export { blues } from './blues';
 export { chords } from './chords';
 export { electric } from './electric';
@@ -28,6 +30,7 @@ export const LESSONS: readonly Lesson[] = [
   blues as Lesson,
   electric as Lesson,
   chords as Lesson,
+  barre as Lesson,
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);

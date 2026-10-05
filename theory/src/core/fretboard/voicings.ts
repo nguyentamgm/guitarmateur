@@ -8,8 +8,8 @@
  * wrong one. Sus chords are the major shape with its 3rd moved: up a fret to the 4, or down two
  * frets to the 2, as guitarists find them.
  */
-import { CHORDS, chordNotes, pc, type Chord } from '../music';
-import { STRINGS, midiAt, openMidi, shapeAt, type FretPos, type StringNumber } from './neck';
+import { CHORDS, chordNotes, mod, parseNote, pc, type Chord } from '../music';
+import { STRINGS, homeFret, midiAt, openMidi, shapeAt, type FretPos, type StringNumber } from './neck';
 
 /** Highest fret an open chord may use. */
 export const OPEN_REACH = 3;
@@ -66,4 +66,44 @@ export function triadShape(root: FretPos, chord: Chord): FretPos[] | null {
   const a = shapeAt(root, middle, 1);
   const b = shapeAt(root, top, 2);
   return a && b ? [root, a, b] : null;
+}
+
+// --- Barre chords (K4.6) ---
+
+/** The two movable shapes: the open E chord (root on string 6) and the open A chord (root on string 5). */
+export type BarreShape = 'E' | 'A';
+export const BARRE_SHAPES: readonly BarreShape[] = ['E', 'A'];
+export const BARRE_STRING: Readonly<Record<BarreShape, 6 | 5>> = { E: 6, A: 5 };
+
+export interface BarreVoicing extends Voicing {
+  readonly shape: BarreShape;
+  /** Fret the index finger lies across: the old nut. 0 is the open chord itself. */
+  readonly fret: number;
+}
+
+/**
+ * A barre chord is an open E or A voicing of the same quality, moved up so its root lands on the
+ * chord's root; the index finger takes the place of the nut (K4.6). `at` picks the octave: a fret
+ * where the root sounds on the shape's string (default: the home fret, 0–11). Null when the open
+ * template does not exist for that quality.
+ */
+export function barreVoicing(chord: Chord, shape: BarreShape, at?: number): BarreVoicing | null {
+  const template = openVoicing({ root: parseNote(shape), id: chord.id });
+  if (!template) return null;
+  const home = homeFret(chord.root, BARRE_STRING[shape]);
+  const fret = at === undefined ? home : at;
+  if (mod(fret - home, 12) !== 0 || fret < 0) return null;
+  return { notes: template.notes.map((n) => ({ ...n, fret: n.fret + fret })), muted: template.muted, shape, fret };
+}
+
+/**
+ * The barre voicing (in `shapes`, either octave up to `maxFret`) whose barre is nearest
+ * `fromFret`; the first shape wins a tie.
+ */
+export function nearestBarre(chord: Chord, fromFret: number, maxFret = 12, shapes: readonly BarreShape[] = BARRE_SHAPES): BarreVoicing | null {
+  const options = shapes.flatMap((shape) => {
+    const home = homeFret(chord.root, BARRE_STRING[shape]);
+    return [home, home + 12].filter((f) => f <= maxFret).map((f) => barreVoicing(chord, shape, f));
+  }).filter((v): v is BarreVoicing => v !== null);
+  return options.reduce<BarreVoicing | null>((best, v) => (!best || Math.abs(v.fret - fromFret) < Math.abs(best.fret - fromFret) ? v : best), null);
 }

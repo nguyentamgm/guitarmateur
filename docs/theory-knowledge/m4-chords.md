@@ -93,7 +93,9 @@ Khi bấm trên guitar, thường bỏ bớt nốt (hay bỏ bậc 5, với 11 �
 
 **Dữ liệu.** Mỗi hình có các biến thể trưởng, thứ, 7, m7, sus4 (và maj7, m11 ở ch. 12). Biến thể khác nhau ở vị trí bậc 3 và bậc 7, đúng theo bảng ở K4.1 và K4.3.
 
-**Dạy trong Theory.** Hình chặn trượt dọc cần, tên hợp âm đổi theo nốt nhà. Chuyển giữa các biến thể bằng cách cho một hoặc hai chấm nhảy nửa cung, có ghi bậc.
+**Dạy trong Theory.** Bài `/theory/barre`. Bước 1: hình E trượt theo thanh kéo phím 0–12, tên đổi theo nốt dưới ngón chặn trên dây 6. Bước 2–3: sáu biến thể (trưởng, m, 7, m7, maj7, sus4) của hình E và hình A, chấm dời so với hợp âm trưởng được làm nổi, có ghi bậc. Bước 4: bài đố tìm hợp âm (nốt gốc trên dây 6 hoặc 5 đều đúng, hiện cả chỗ thứ hai). Bước 5: vòng I–vi–IV–V, trộn hình E và A để ngón chặn ít di chuyển nhất.
+
+**Dữ liệu (cách sinh thế bấm).** Lõi `barreVoicing()` lấy thế dây buông E hoặc A cùng loại từ `openVoicing()` rồi dời lên tới phím nốt gốc; không gõ tay thế chặn. Kiểm tra với các thế chuẩn: F 133211, Bm x24432, C7 x35353, Cmaj7 x35453. m11 chưa có vì quy tắc dây buông không sinh được Em11/Am11 đúng. Vòng hợp âm: hợp âm đầu ở hình E tại phím nhà; các hợp âm sau chọn hình và quãng 8 sao cho tổng quãng đường ngón chặn qua cả vòng là ngắn nhất.
 
 **Bẫy.** Người học hay coi mỗi biến thể là một hình mới. Luôn hiện các bậc để thấy chúng chỉ khác nhau một hai nốt.
 
