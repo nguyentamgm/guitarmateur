@@ -3,6 +3,7 @@ import { format, parseNote, pc } from '../../core/music';
 import {
   NATURALS,
   OCTAVE_KEYS,
+  QUIZ_NOTES,
   isAnswer,
   naturalAt,
   naturalHomes,
@@ -113,5 +114,24 @@ describe('step 5: home notes on strings 6 and 5 (K0.7, K0.5)', () => {
     const prev = quizQuestion(() => 0);
     for (let r = 0; r < 1; r += 0.05) expect(quizQuestion(() => r, prev)).not.toEqual(prev);
     expect(quizQuestion(() => 0.9999999, prev)).toBeDefined();
+  });
+
+  it('asks all 12 key names on strings 6 and 5 when sharps and flats are on (K2.2)', () => {
+    expect(QUIZ_NOTES.all.map(format).sort()).toEqual(
+      ['A', 'A♭', 'B', 'B♭', 'C', 'D', 'D♭', 'E', 'E♭', 'F', 'F♯', 'G'].sort(),
+    );
+    const seen = new Set<string>();
+    for (let i = 0; i < 24; i++) {
+      const q = quizQuestion(() => i / 24, undefined, 'all');
+      seen.add(`${q.string}${format(q.name)}`);
+      const fret = homeFret(q.name, q.string);
+      expect(isAnswer(q, { string: q.string, fret })).toBe(true);
+      expect(midiAt({ string: q.string, fret }) % 12).toBe(pc(q.name));
+    }
+    expect(seen.size).toBe(24);
+    const prev = { name: parseNote('F#'), string: 6 } as const;
+    for (let r = 0; r < 1; r += 0.02) expect(quizQuestion(() => r, prev, 'all')).not.toEqual(prev);
+    expect(isAnswer({ name: parseNote('Db'), string: 5 }, { string: 5, fret: 4 })).toBe(true);
+    expect(isAnswer({ name: parseNote('Bb'), string: 6 }, { string: 6, fret: 6 })).toBe(true);
   });
 });

@@ -49,7 +49,7 @@ export const vi: FretboardCopy = {
         'Có bảy chữ cái, từ A tới G. Hai chữ cái liền nhau cách nhau một cung, trừ E–F và B–C chỉ cách nửa cung. Dấu thăng (♯) nâng nốt lên một phím, dấu giáng (♭) hạ xuống một phím, nên phím nằm giữa hai chữ cái có hai tên, ví dụ C♯ và D♭.',
       ],
       takeaway: 'Nhớ chỗ của A tới G trên dây 6 và dây 5; hình quãng 8 lo phần còn lại.',
-      tryIt: 'Ẩn tên nốt rồi làm bài đố cho tới khi trả lời đúng mười câu liên tiếp.',
+      tryIt: 'Ẩn tên nốt rồi làm bài đố cho tới khi trả lời đúng mười câu liên tiếp. Sau đó bật cả 12 nốt: nốt ♯ nằm trên chữ cái của nó một phím, nốt ♭ nằm dưới một phím.',
     },
   },
   scene: {
@@ -90,6 +90,9 @@ export const vi: FretboardCopy = {
       names: 'Tên nốt',
       show: 'Hiện',
       hide: 'Ẩn',
+      pool: 'Nốt',
+      naturals: 'A–G',
+      all: 'Cả ♯/♭ (12 nốt)',
       question: 'Tìm {note} trên dây {n}',
       next: 'Nốt khác',
       right: 'Đúng: {note} trên dây {n} ở phím {fret}.',

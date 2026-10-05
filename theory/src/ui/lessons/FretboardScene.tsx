@@ -15,6 +15,7 @@ import {
   quizQuestion,
   semitoneRun,
   tabExample,
+  type QuizNotes,
   type QuizQuestion,
   type SceneCopy,
   type StepId,
@@ -284,6 +285,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   const { player } = useTheory();
   const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
   const [names, setNames] = useState<'show' | 'hide'>('show');
+  const [pool, setPool] = useState<QuizNotes>('naturals');
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [missed, setMissed] = useState(false);
@@ -322,11 +324,15 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     else if (natural) setFeedback({ kind: 'wrongFret', fret: d.fret, heard: natural });
     else setFeedback({ kind: 'between', fret: d.fret });
   };
-  const next = () => {
-    setQuestion((q) => quizQuestion(Math.random, q));
+  const next = (notes: QuizNotes = pool) => {
+    setQuestion((q) => quizQuestion(Math.random, q, notes));
     setFeedback(null);
     setMissed(false);
     setLit(null);
+  };
+  const choosePool = (notes: QuizNotes) => {
+    setPool(notes);
+    next(notes);
   };
   const play = (string: 6 | 5, fret: number) => {
     const pos = { string, fret };
@@ -362,6 +368,15 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
           value={names}
           onChange={setNames}
         />
+        <ChipGroup<QuizNotes>
+          label={copy.pool}
+          items={[
+            { value: 'naturals', text: copy.naturals },
+            { value: 'all', text: copy.all },
+          ]}
+          value={pool}
+          onChange={choosePool}
+        />
       </div>
       {names === 'show' && (
         <div className="homemap" role="group" aria-label={copy.mapTitle}>
@@ -379,7 +394,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
       )}
       <div className="quiz">
         <span className="question">{fill(copy.question, vars)}</span>
-        <Button onClick={next} ghost>
+        <Button onClick={() => next()} ghost>
           {copy.next}
         </Button>
         <span className="muted small">{fill(copy.score, score)}</span>

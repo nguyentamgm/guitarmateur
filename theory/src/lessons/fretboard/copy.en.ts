@@ -49,7 +49,7 @@ export const en: FretboardCopy = {
         'There are seven letters, A to G. Neighbouring letters are a whole step apart, except E to F and B to C, which are a semitone apart. Sharps (♯) raise a note one fret and flats (♭) lower it one fret, so the frets between the letters have two names, such as C♯ and D♭.',
       ],
       takeaway: 'Know where A to G sit on strings 6 and 5; the octave shapes find the rest.',
-      tryIt: 'Hide the names and take the quiz until you answer ten in a row without missing.',
+      tryIt: 'Hide the names and take the quiz until you answer ten in a row without missing. Then switch on all 12: a ♯ is one fret above its letter, a ♭ one fret below.',
     },
   },
   scene: {
@@ -90,6 +90,9 @@ export const en: FretboardCopy = {
       names: 'Note names',
       show: 'Show',
       hide: 'Hide',
+      pool: 'Notes',
+      naturals: 'A–G',
+      all: 'All 12 (♯/♭)',
       question: 'Find {note} on string {n}',
       next: 'Next note',
       right: 'Yes: {note} on string {n} is at fret {fret}.',

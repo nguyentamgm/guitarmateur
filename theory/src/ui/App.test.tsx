@@ -179,6 +179,20 @@ describe('Theory app', () => {
     expect(section.textContent).toContain('First try: 0 of 2');
   });
 
+  it('asks sharps and flats once the quiz is switched to all 12', () => {
+    render('/theory/fretboard');
+    const section = container.querySelector('section#home')!;
+    const question = () => section.querySelector('.question')!.textContent!;
+    click(button('All 12 (♯/♭)'));
+    const asked = new Set<string>();
+    for (let i = 0; i < 60; i++) {
+      expect(question()).toMatch(/^Find [A-G][♯♭]? on string [56]$/);
+      asked.add(question());
+      click(button('Next note'));
+    }
+    expect([...asked].some((q) => /[♯♭]/.test(q))).toBe(true);
+  });
+
   describe('major scale', () => {
     const chip = (section: Element, label: string) =>
       [...section.querySelectorAll('button.chip')].find((b) => b.textContent === label)!;

@@ -49,6 +49,10 @@ export interface SceneCopy {
     readonly names: string;
     readonly show: string;
     readonly hide: string;
+    /** Label of the naturals / all-12 switch of the quiz. */
+    readonly pool: string;
+    readonly naturals: string;
+    readonly all: string;
     /** {note} {n} */
     readonly question: string;
     readonly next: string;
