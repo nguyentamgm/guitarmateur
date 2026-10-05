@@ -11,6 +11,8 @@ import {
   octaveUp,
   pitchAtPos,
   positions,
+  sequence,
+  SEQUENCE_IDS,
   shapeAt,
   STRINGS,
   type Position,
@@ -157,5 +159,39 @@ describe('key shift (K3.5)', () => {
     expect(keyShift(n('A'), n('E'))).toBe(-5);
     expect(keyShift(n('A'), n('D'))).toBe(5);
     expect(keyShift(n('E'), n('Bb'))).toBe(-6);
+  });
+});
+
+describe('sequences (K3.6)', () => {
+  it('builds groups of 3 and 4 that climb one note at a time', () => {
+    expect(sequence(5, 'threes', 'up')).toEqual([0, 1, 2, 1, 2, 3, 2, 3, 4]);
+    expect(sequence(5, 'fours', 'up')).toEqual([0, 1, 2, 3, 1, 2, 3, 4]);
+    expect(sequence(5, 'skip', 'up')).toEqual([0, 2, 1, 3, 2, 4]);
+    expect(sequence(4, 'straight', 'up')).toEqual([0, 1, 2, 3]);
+  });
+
+  it('mirrors from the top going down', () => {
+    expect(sequence(5, 'threes', 'down')).toEqual([4, 3, 2, 3, 2, 1, 2, 1, 0]);
+    expect(sequence(4, 'straight', 'down')).toEqual([3, 2, 1, 0]);
+  });
+
+  it.each(SEQUENCE_IDS.map((id) => [id] as const))('%s over a 12-note box: starts low, ends on the top note, stays in range', (id) => {
+    const up = sequence(12, id, 'up');
+    expect(up[0]).toBe(0);
+    expect(up.at(-1)).toBe(11);
+    expect(Math.min(...up)).toBe(0);
+    expect(Math.max(...up)).toBe(11);
+    const down = sequence(12, id, 'down');
+    expect(down[0]).toBe(11);
+    expect(down.at(-1)).toBe(0);
+  });
+
+  it('gives the expected lengths on a box: 12, 30, 36, 20', () => {
+    expect(SEQUENCE_IDS.map((id) => sequence(12, id, 'up').length)).toEqual([12, 30, 36, 20]);
+  });
+
+  it('gives nothing when the run is shorter than a group', () => {
+    expect(sequence(2, 'threes', 'up')).toEqual([]);
+    expect(sequence(0, 'straight', 'up')).toEqual([]);
   });
 });

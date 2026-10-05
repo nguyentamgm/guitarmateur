@@ -29,16 +29,12 @@ import {
   type StepId,
 } from '../../lessons/major-scale';
 import { useTheory } from '../context';
+import { degreeText, posKey, signed } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { useSequence } from '../useSequence';
 
-const posKey = (p: FretPos) => `${p.string}:${p.fret}`;
-/** '+3', '−2', '0' (a real minus sign). */
-const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
-/** 'b3' → '♭3', '#4' → '♯4'. */
-const degreeText = (d: DegreeLabel) => d.replaceAll('b', '♭').replaceAll('#', '♯');
 const keyItems = KEYS.map((k) => ({ value: format(k), text: format(k) }));
 const keyOf = (name: string): NoteName => KEYS.find((k) => format(k) === name)!;
 

@@ -1,6 +1,5 @@
 /** The five scenes of "Rhythm Without Sheet Music". Lengths, counts and patterns come from lessons/rhythm. */
 import { useMemo, useState } from 'react';
-import type { FretPos } from '../../core/fretboard';
 import {
   BEATS_PER_BAR,
   CELLS_PER_BAR,
@@ -42,13 +41,13 @@ import {
 } from '../../lessons/rhythm';
 import { BeatGrid, type Block } from '../BeatGrid';
 import { useTheory } from '../context';
+import { posKey } from '../keys';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
 
-const posKey = (p: FretPos) => `${p.string}:${p.fret}`;
 
 export function RhythmScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {

@@ -2,7 +2,7 @@
  * Six-line tab, string 1 on top (K0.3). Each number is a button that plays its note. Columns read
  * left to right; notes in one column sound together. Positions come from the lesson's scenes.
  */
-import type { KeyboardEvent } from 'react';
+import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { STRINGS, type StringNumber } from '../core/fretboard';
 import { useTheory } from './context';
 import { stringName } from './geometry';
@@ -37,6 +37,17 @@ export function Tab({ columns, label, active = [], column = null, onNote }: Prop
   const y = (s: StringNumber) => TOP + (s - 1) * GAP;
   const x = (i: number) => LEFT + (i + 0.5) * COL;
 
+  // A long tab scrolls sideways: keep the column being played in view.
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scroller.current;
+    if (column === null || !el || el.scrollWidth <= el.clientWidth) return;
+    const scale = el.scrollWidth / width;
+    const left = (LEFT + column * COL) * scale;
+    const right = left + COL * scale;
+    if (left < el.scrollLeft || right > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, left - el.clientWidth / 3);
+  }, [column, width]);
+
   const play = (n: TabNote, i: number) => {
     player.pluck(n.midi);
     onNote?.(n, i);
@@ -49,7 +60,7 @@ export function Tab({ columns, label, active = [], column = null, onNote }: Prop
   };
 
   return (
-    <div className="scroll">
+    <div className="scroll" ref={scroller}>
       <svg
         className="tab"
         viewBox={`0 0 ${width} ${height}`}

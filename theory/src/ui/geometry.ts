@@ -41,6 +41,11 @@ export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGa
   };
 }
 
+/** Left and right x of a frame around frets `minFret`…`maxFret` (fret 0 reaches past the nut). */
+export function boxSpan(g: NeckGeometry, minFret: number, maxFret: number): { left: number; right: number } {
+  return { left: minFret === 0 ? g.nutX - 36 : g.wireX(minFret - 1), right: g.wireX(maxFret) };
+}
+
 /** Fret markers: single dots, and the double dot at 12. */
 export const INLAYS: readonly number[] = [3, 5, 7, 9, 15, 17, 19, 21];
 export const DOUBLE_INLAYS: readonly number[] = [12, 24];

@@ -20,24 +20,33 @@ export function keySignature(majorTonic: NoteName): NoteName[] {
 }
 
 /**
- * The usual spelling of the major key on a pitch class: no double sharps or flats in its scale,
- * then the fewest accidentals; the F♯/G♭ tie goes to F♯ (K2.2).
+ * The usual spelling of the key on a pitch class: no double sharps or flats in its scale (major,
+ * or natural minor), then the fewest accidentals. The one tie, six sharps against six flats, goes
+ * to F♯ major and to E♭ minor, the names guitarists use (K2.2, K2.8).
  */
-export function majorKeyTonic(pitchClass: number): NoteName {
+export function keyTonic(pitchClass: number, mode: Mode): NoteName {
   const cost = (t: NoteName) => {
-    const notes = scaleNotes(t, 'major');
+    const notes = scaleNotes(t, mode === 'major' ? 'major' : 'naturalMinor');
     return notes.some((n) => Math.abs(n.alter) > 1) ? Infinity : notes.filter((n) => n.alter !== 0).length;
   };
+  const tieWins = (t: NoteName, best: NoteName) => (mode === 'major' ? t.alter > best.alter : t.alter < best.alter);
   const candidates = LETTERS.flatMap((letter) =>
     ([0, 1, -1] as Alter[]).map((alter) => ({ letter, alter })),
   ).filter((t) => pc(t) === mod(pitchClass, 12));
-  return candidates.reduce((best, t) =>
-    cost(t) < cost(best) || (cost(t) === cost(best) && t.alter > best.alter) ? t : best,
-  );
+  return candidates.reduce((best, t) => (cost(t) < cost(best) || (cost(t) === cost(best) && tieWins(t, best)) ? t : best));
 }
+
+/** The usual spelling of the major key on a pitch class; F♯ over G♭ (K2.2). */
+export const majorKeyTonic = (pitchClass: number): NoteName => keyTonic(pitchClass, 'major');
+
+/** The usual spelling of the minor key on a pitch class: G♯ over A♭, B♭ over A♯, E♭ over D♯. */
+export const minorKeyTonic = (pitchClass: number): NoteName => keyTonic(pitchClass, 'minor');
 
 /** The 12 major keys around the circle of fifths from C: C G D A E B F♯ D♭ A♭ E♭ B♭ F. */
 export const MAJOR_KEY_TONICS: readonly NoteName[] = Array.from({ length: 12 }, (_, i) => majorKeyTonic(7 * i));
+
+/** The 12 minor keys around the circle of fifths from A: A E B F♯ C♯ G♯ E♭ B♭ F C G D. */
+export const MINOR_KEY_TONICS: readonly NoteName[] = Array.from({ length: 12 }, (_, i) => minorKeyTonic(9 + 7 * i));
 
 /** The relative key: same notes, other home (K2.8). C major ↔ A minor. */
 export function relativeKey(key: Key): Key {

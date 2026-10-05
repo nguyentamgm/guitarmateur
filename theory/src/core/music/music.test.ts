@@ -15,6 +15,9 @@ import {
   LETTERS,
   majorKeyTonic,
   MAJOR_KEY_TONICS,
+  minorKeyTonic,
+  MINOR_KEY_TONICS,
+  relativeMinorTonic,
   midi,
   mod,
   parseNote,
@@ -209,6 +212,31 @@ describe('major key names (K2.2)', () => {
     expect(names(scaleNotes(n('F#'), 'major'))).toContain('E♯');
     expect(names(scaleNotes(n('Gb'), 'major'))).toContain('C♭');
     expect(format(majorKeyTonic(6))).toBe('F♯');
+  });
+});
+
+describe('minor key names (K2.8)', () => {
+  const accidentals = (t: { letter: string; alter: number }) =>
+    scaleNotes(t as never, 'naturalMinor').filter((x) => x.alter !== 0).length;
+
+  it('names the 12 minor keys around the circle of fifths', () => {
+    expect(MINOR_KEY_TONICS.map(format)).toEqual(['A', 'E', 'B', 'F♯', 'C♯', 'G♯', 'E♭', 'B♭', 'F', 'C', 'G', 'D']);
+  });
+
+  it('is the relative minor of the major key with the same signature, except the 6-sign tie', () => {
+    for (const t of MINOR_KEY_TONICS) {
+      const relMajor = MAJOR_KEY_TONICS.find((m) => pc(m) === mod(pc(t) + 3, 12))!;
+      if (format(t) === 'E♭') expect(format(relMajor)).toBe('F♯');
+      else expect(format(relativeMinorTonic(relMajor))).toBe(format(t));
+    }
+  });
+
+  it('breaks the D♯/E♭ tie (6 each) for E♭ and avoids A♯ and A♭', () => {
+    expect(accidentals(n('D#'))).toBe(6);
+    expect(accidentals(n('Eb'))).toBe(6);
+    expect(format(minorKeyTonic(3))).toBe('E♭');
+    expect(format(minorKeyTonic(10))).toBe('B♭');
+    expect(format(minorKeyTonic(8))).toBe('G♯');
   });
 });
 

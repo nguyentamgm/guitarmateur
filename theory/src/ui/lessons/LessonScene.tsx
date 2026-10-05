@@ -1,11 +1,13 @@
 /** Draws one step of any lesson. Add a case here when a lesson is added to theory/src/lessons. */
 import type * as Fretboard from '../../lessons/fretboard';
 import type * as MajorScale from '../../lessons/major-scale';
+import type * as Pentatonic from '../../lessons/pentatonic';
 import type * as PentatonicMap from '../../lessons/pentatonic-map';
 import type * as Rhythm from '../../lessons/rhythm';
 import { FretboardScene } from './FretboardScene';
 import { MajorScaleScene } from './MajorScaleScene';
 import { PentatonicMapScene } from './PentatonicMapScene';
+import { PentatonicScene } from './PentatonicScene';
 import { RhythmScene } from './RhythmScene';
 
 export function LessonScene({ slug, step, copy }: { slug: string; step: string; copy: unknown }) {
@@ -18,6 +20,8 @@ export function LessonScene({ slug, step, copy }: { slug: string; step: string; 
       return <MajorScaleScene step={step as MajorScale.StepId} copy={copy as MajorScale.SceneCopy} />;
     case 'pentatonic-map':
       return <PentatonicMapScene step={step as PentatonicMap.StepId} copy={copy as PentatonicMap.SceneCopy} />;
+    case 'pentatonic':
+      return <PentatonicScene step={step as Pentatonic.StepId} copy={copy as Pentatonic.SceneCopy} />;
     default:
       return null;
   }

@@ -5,7 +5,7 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STRINGS, type StringNumber } from '../core/fretboard';
 import { useTheory } from './context';
-import { DOUBLE_INLAYS, INLAYS, stringName, type NeckGeometry } from './geometry';
+import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, type NeckGeometry } from './geometry';
 
 export type DotTone = 'plain' | 'home' | 'homeMajor';
 
@@ -60,8 +60,7 @@ export function Fretboard({ geometry: g, dots, label, box, active, onDot, childr
   const woodTop = g.top - 14;
   const woodHeight = 5 * g.stringGap + 28;
   const mid = (a: StringNumber, b: StringNumber) => (g.y(a) + g.y(b)) / 2;
-  const boxLeft = box ? (box.minFret === 0 ? g.nutX - 36 : g.wireX(box.minFret - 1)) : 0;
-  const boxRight = box ? g.wireX(box.maxFret) : 0;
+  const span = box ? boxSpan(g, box.minFret, box.maxFret) : { left: 0, right: 0 };
 
   return (
     <div className="scroll">
@@ -103,10 +102,10 @@ export function Fretboard({ geometry: g, dots, label, box, active, onDot, childr
             className="boxrect"
             x={0}
             y={woodTop + 2}
-            width={boxRight - boxLeft}
+            width={span.right - span.left}
             height={woodHeight - 4}
             rx={8}
-            style={{ transform: `translateX(${boxLeft}px)` }}
+            style={{ transform: `translateX(${span.left}px)` }}
           />
         )}
         {children}

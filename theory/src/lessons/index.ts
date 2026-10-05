@@ -2,12 +2,14 @@
 import type { Lesson } from './types';
 import { fretboard } from './fretboard';
 import { majorScale } from './major-scale';
+import { pentatonic } from './pentatonic';
 import { pentatonicMap } from './pentatonic-map';
 import { rhythm } from './rhythm';
 
 export * from './types';
 export { fretboard } from './fretboard';
 export { majorScale } from './major-scale';
+export { pentatonic } from './pentatonic';
 export { pentatonicMap } from './pentatonic-map';
 export { rhythm } from './rhythm';
 
@@ -16,6 +18,7 @@ export const LESSONS: readonly Lesson[] = [
   rhythm as Lesson,
   majorScale as Lesson,
   pentatonicMap as Lesson,
+  pentatonic as Lesson,
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);

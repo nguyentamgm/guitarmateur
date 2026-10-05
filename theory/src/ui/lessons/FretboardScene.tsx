@@ -1,6 +1,6 @@
 /** The five scenes of "The neck is a grid". Every position comes from lessons/fretboard. */
 import { useMemo, useState } from 'react';
-import { STRINGS, midiAt, type FretPos, type StringNumber } from '../../core/fretboard';
+import { STRINGS, midiAt, type StringNumber } from '../../core/fretboard';
 import { format, type NoteName } from '../../core/music';
 import { fill } from '../../i18n';
 import {
@@ -22,13 +22,13 @@ import {
   type StepId,
 } from '../../lessons/fretboard';
 import { useTheory } from '../context';
+import { posKey } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useSequence } from '../useSequence';
 
-const posKey = (p: FretPos) => `${p.string}:${p.fret}`;
 
 export function FretboardScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {

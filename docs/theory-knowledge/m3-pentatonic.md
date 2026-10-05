@@ -1,6 +1,6 @@
 # M3 · Pentatonic
 
-Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bài **Bản đồ Pentatonic** (`/theory/pentatonic-map`, phiên 0.3, dựng từ bản demo [`docs/prototypes/ban-do-pentatonic.html`](../prototypes/ban-do-pentatonic.html)) đã dạy K3.1–K3.5 cùng K0.2, K0.4, K0.7. Bài đầy đủ (phiên 2.1) mở rộng từ đó. Các chỗ "bước N" dưới đây là bước của bài này.
+Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bài **Bản đồ Pentatonic** (`/theory/pentatonic-map`, phiên 0.3, dựng từ bản demo [`docs/prototypes/ban-do-pentatonic.html`](../prototypes/ban-do-pentatonic.html)) đã dạy K3.1–K3.5 cùng K0.2, K0.4, K0.7. Bài đầy đủ **Pentatonic trên toàn cần đàn** (`/theory/pentatonic`, phiên 2.1) mở rộng từ đó và dạy thêm K3.6, K3.7. "Bước N" dưới đây là bước của Bản đồ Pentatonic; "bài đầy đủ, bước N" là bước của bài sau.
 
 ---
 
@@ -28,7 +28,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 **Dữ liệu.** Nhà trưởng = nhà thứ + 3 nửa cung.
 
-**Dạy trong Theory.** Bước 5 của Bản đồ Pentatonic: bật trưởng/thứ, các chấm đứng yên, chỉ màu nhà đổi chỗ (xanh cho thứ, hổ phách cho trưởng).
+**Dạy trong Theory.** Bước 5 của Bản đồ Pentatonic: bật trưởng/thứ, các chấm đứng yên, chỉ màu nhà đổi chỗ (xanh cho thứ, hổ phách cho trưởng). Bài đầy đủ, bước 4: chọn một giọng trưởng, hộp 1 đặt ở nhà thứ song song (thấp hơn nhà trưởng 3 phím), rồi chạy từ nhà trưởng tới nhà trưởng trên nền một nốt ngân.
 
 **Cần trước:** K3.1, K3.2, K2.8. **Nguồn:** ch. 11.
 
@@ -41,7 +41,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 - Ví dụ La thứ: hộp 1 khoảng phím 5–8, hộp 2 khoảng 7–10, hộp 3 khoảng 9–13, hộp 4 khoảng 12–15, hộp 5 khoảng 2–5 (cũng là 14–17).
 - Lõi sinh hộp bằng thuật toán: lấy 12 nốt liên tiếp của âm giai từ điểm xuất phát, chia 2 nốt cho mỗi dây từ dây 6 lên dây 1. Không dùng bảng hình cứng. Mỗi hộp đều có chỗ lệch một phím ở dây B (K0.4); thuật toán tự xử lý vì nó tính theo cao độ.
 
-**Dạy trong Theory.** Bước 3 của Bản đồ Pentatonic: khung hộp trượt mượt từ hộp này sang hộp khác, các nốt ngoài hộp mờ đi. Nút "phát hộp" chạy lên rồi xuống.
+**Dạy trong Theory.** Bước 3 của Bản đồ Pentatonic: khung hộp trượt mượt từ hộp này sang hộp khác, các nốt ngoài hộp mờ đi. Nút "phát hộp" chạy lên rồi xuống. Bài đầy đủ, bước 1: cả 5 khung hiện cùng lúc để thấy chúng lát kín cần; vòng nét đứt trên dây B chỉ chỗ cặp nốt sẽ nằm nếu G→B cách 5 phím.
 
 **Bẫy.** Đừng bắt học thuộc cả 5 hộp cùng lúc. Thuộc hộp 1 trước, rồi chỉ tập phần nối 1→2 (K3.5).
 
@@ -53,7 +53,9 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 **Dữ liệu.** Độ dời (phím) = vị trí nhà mới trên dây 6 − vị trí nhà cũ, lấy trong khoảng −6…+6 để đi quãng ngắn nhất.
 
-**Dạy trong Theory.** Bước 4 của Bản đồ Pentatonic: bảng tìm nhà và chế độ tự trượt qua các giọng. Bài nối hộp: chỉ hiện hai cột phím chung của hai hộp kề nhau.
+**Dữ liệu (nối hộp).** Hai hộp kề nhau dùng chung đúng 6 nốt, mỗi dây một nốt: nốt cao của hộp k trên mỗi dây là nốt thấp của hộp k + 1. Vì dây B lệch, 6 nốt chung không luôn nằm trên cùng một cột phím.
+
+**Dạy trong Theory.** Bước 4 của Bản đồ Pentatonic: bảng tìm nhà và chế độ tự trượt qua các giọng. Bài đầy đủ, bước 2: chọn cặp hộp (1→2 … 5→1), 6 nốt chung được khoanh, nút chạy lên hộp này rồi xuống hộp kế không ngắt.
 
 **Cần trước:** K0.7, K3.4. **Nguồn:** ch. 11.
 
@@ -68,7 +70,7 @@ Mục tiêu: người học chơi được pentatonic ở mọi giọng trên to
 
 Mỗi mẫu có chiều lên và chiều xuống. Lõi sinh mẫu từ thứ tự nốt, không chép tab.
 
-**Dạy trong Theory.** Mẫu chạy trên cần với metronome. Người học chọn mẫu, tempo và hộp. Có thể tăng tempo dần sau mỗi vòng đúng.
+**Dạy trong Theory.** Bài đầy đủ, bước 3: mẫu chạy trên cần và trên tab cùng lúc, nốt móc đơn theo metronome. Người học chọn hộp, mẫu, chiều và tempo; công tắc "tăng tốc" cộng 4 BPM sau mỗi vòng. Lõi: `sequence()` trong `core/fretboard`.
 
 **Cần trước:** K3.4, K1.1. **Nguồn:** ch. 11.
 
@@ -79,6 +81,6 @@ Mỗi mẫu có chiều lên và chiều xuống. Lõi sinh mẫu từ thứ t�
 - Bài giọng trưởng: pentatonic trưởng của nốt nhà bài. Mẹo: dùng hình pentatonic thứ dời xuống 3 phím.
 - Blues (hợp âm trưởng hoặc 7): pentatonic thứ của nốt nhà vẫn dùng được và tạo màu blues (K6.2).
 
-**Dạy trong Theory.** Một vòng đệm ngắn và câu hỏi "dùng hình nào?". Người học kéo hộp vào đúng chỗ, rồi nghe thử.
+**Dạy trong Theory.** Bài đầy đủ, bước 5: vòng đệm tự sinh chơi hợp âm chủ của một bài (thứ, trưởng, hoặc 7 cho blues) ở giọng ngẫu nhiên. Người học bấm phím trên dây 6 nơi hộp 1 bắt đầu, rồi nghe âm giai trên vòng đệm. Hai lỗi hay gặp được giải thích riêng: bài trưởng mà đặt hộp ở nốt gốc, và bài thứ/blues mà lùi 3 phím.
 
 **Cần trước:** K3.3. **Nguồn:** ch. 11, 13.
