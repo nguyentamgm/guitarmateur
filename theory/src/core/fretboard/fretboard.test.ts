@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { format, interval, parseNote, pc, scaleNotes, type ScaleId } from '../music';
+import { chordNotes, format, interval, parseNote, pc, scaleNotes, type ChordId, type ScaleId } from '../music';
 import {
   allPositions,
   fretsOf,
@@ -14,6 +14,9 @@ import {
   sequence,
   powerChord,
   doubleStops,
+  openVoicing,
+  triadShape,
+  type Voicing,
   SEQUENCE_IDS,
   shapeAt,
   STRINGS,
@@ -234,5 +237,61 @@ describe('power chords and double stops (K4.2, K6.6)', () => {
       '21@5:5',
       '21@8:5',
     ]);
+  });
+});
+
+describe('voicings (K4.1, K4.5)', () => {
+  /** Standard open shapes, low E to high E, x = not played: an independent check of the rule. */
+  const KNOWN: Record<string, string> = {
+    C: 'x32010',
+    A: 'x02220',
+    G: '320003',
+    E: '022100',
+    D: 'xx0232',
+    Am: 'x02210',
+    Em: '022000',
+    Dm: 'xx0231',
+    Asus4: 'x02230',
+    Dsus4: 'xx0233',
+    Esus4: '022200',
+    Asus2: 'x02200',
+    Dsus2: 'xx0230',
+  };
+  const ids: Record<string, ChordId> = { '': 'major', m: 'minor', sus4: 'sus4', sus2: 'sus2' };
+  const parse = (sym: string) => {
+    const m = /^([A-G])(.*)$/.exec(sym)!;
+    return { root: n(m[1]!), id: ids[m[2]!]! };
+  };
+  const tab = (v: Voicing) =>
+    STRINGS.map((s) => (v.muted.includes(s) ? 'x' : String(v.notes.find((x) => x.string === s)!.fret))).join('');
+
+  it.each(Object.entries(KNOWN))('%s comes out as %s', (sym, shape) => {
+    expect(tab(openVoicing(parse(sym))!)).toBe(shape);
+  });
+
+  it('puts the root in the bass and every chord tone in the voicing', () => {
+    for (const sym of Object.keys(KNOWN)) {
+      const chord = parse(sym);
+      const v = openVoicing(chord)!;
+      expect(pc(pitchAtPos(v.notes[0]!))).toBe(pc(chord.root));
+      const sounding = new Set(v.notes.map((x) => midiAt(x) % 12));
+      for (const t of chordNotes(chord)) expect(sounding.has(pc(t))).toBe(true);
+    }
+  });
+
+  it('gives no open voicing when a tone is missing (C7) or it takes five fingers (F)', () => {
+    expect(openVoicing({ root: n('C'), id: 'dom7' })).toBeNull();
+    expect(openVoicing({ root: n('F'), id: 'major' })).toBeNull();
+  });
+
+  it('stacks a triad on three strings: C on string 5 is C E G, the 5th crossing G→B when rooted on 4', () => {
+    expect(triadShape({ string: 5, fret: 3 }, { root: n('C'), id: 'major' })).toEqual([
+      { string: 5, fret: 3 },
+      { string: 4, fret: 2 },
+      { string: 3, fret: 0 },
+    ]);
+    const onFour = triadShape({ string: 4, fret: 5 }, { root: n('G'), id: 'minor' })!;
+    expect(onFour.map(midiAt).map((m) => m - midiAt(onFour[0]!))).toEqual([0, 3, 7]);
+    expect(triadShape({ string: 5, fret: 0 }, { root: n('A'), id: 'major' })).toBeNull();
   });
 });

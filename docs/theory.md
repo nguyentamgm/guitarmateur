@@ -55,7 +55,8 @@ ui → lessons → core/fretboard → core/music
 - **Formulas are degree labels** (`'1'`, `'b3'`, `'#5'`, `'bb7'`, `'9'`), the same notation as the
   knowledge base, converted by `interval()`.
 - **No shape tables.** Boxes and positions come from `positions()`, practice orders (groups of
-  3, 4, skips) from `sequence()`. Never hand-type frets or tab of a scale or chord into lesson
+  3, 4, skips) from `sequence()`, open chords from `openVoicing()`, stacked triads from
+  `triadShape()`. Never hand-type frets or tab of a scale or chord into lesson
   data; derive them.
 - **String numbering is guitar numbering:** 1 = high E (top line of tab), 6 = low E.
 - When the book and the knowledge base disagree, the knowledge base wins (see its errata).

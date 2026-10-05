@@ -21,7 +21,7 @@ Mọi tên nốt trong hợp âm do lõi tính từ công thức (K2.5), không 
 | Sus4 | 1 4 5 | Csus4 (sách: Csus) | C F G |
 | Sus2 | 1 2 5 | Csus2 | C D G |
 
-**Dạy trong Theory.** Chồng quãng: chấm nhà sáng trước, rồi bậc 3, rồi bậc 5. Mỗi lớp ghi tên quãng (K2.3) và phát tiếng. Nút chuyển trưởng/thứ chỉ làm một chấm (bậc 3) lùi một phím, người học nghe ngay sự khác biệt.
+**Dạy trong Theory.** Bài `/theory/chords`. Bước 1: chồng quãng trên ba dây kề nhau (gốc dây 5, bậc 3 dây 4, bậc 5 dây 3; lõi `triadShape()`), chấm nhà sáng trước, rồi bậc 3, rồi bậc 5, mỗi lớp ghi tên quãng (K2.3). Bước 2: bốn tính chất trên 12 nốt gốc; từ trưởng, thứ và tăng dời một chấm một phím, giảm dời hai chấm (bậc 3 và 5). Nốt gốc đặt từ phím 4 trở lên vì ♭5 của hợp âm giảm nằm lệch trái nốt gốc 4 phím. Bước 3: sus2/sus4 và "sus rồi trưởng". Bước 5: bài đố dựng hợp âm từ công thức, quãng 8 nào cũng tính.
 
 **Cần trước:** K2.3. **Nguồn:** ch. 5, 6, 13, 20.
 
@@ -81,7 +81,9 @@ Khi bấm trên guitar, thường bỏ bớt nốt (hay bỏ bậc 5, với 11 �
 
 **Dữ liệu.** Bộ hợp âm dây buông của sách: C, C7, D, D7, Dm, E, E7, Em, G, G7, A, A7, Am, B7, Am7, Dm7, Em7, Asus4, Dsus4, Esus4. Chương 12 thêm hợp âm 2 (C2, D2, E2, G2, A2), maj7 dây buông (Amaj7, Cmaj7, Dmaj7, Fmaj7, Gmaj7) và m11 dây buông. Thế bấm cụ thể lấy từ kiến thức chuẩn về guitar, không chép biểu đồ của sách.
 
-**Dạy trong Theory.** Biểu đồ hợp âm với lớp nhãn bậc bật tắt. Đổi giữa E và Em, A và Am: chỉ một chấm (bậc 3) đổi chỗ.
+**Dạy trong Theory.** Bài `/theory/chords` bước 4: C A G E D, Am Em Dm, Asus4 Dsus4 Esus4, Asus2 Dsus2 với lớp nhãn bậc/tên nốt; đổi giữa E và Em, A và Am, D và Dm thì chỉ bậc 3 đổi chỗ.
+
+**Dữ liệu (cách sinh thế bấm).** Không gõ tay thế bấm. Lõi `openVoicing()` dùng một quy tắc: nốt gốc làm bass, trên dây thấp nhất có nốt gốc trong phím 0–3; mỗi dây cao hơn lấy phím thấp nhất (0–3) là nốt của hợp âm; tối đa bốn nốt bấm. Hợp âm sus là hình trưởng với bậc 3 dời lên bậc 4 (+1 phím) hoặc xuống bậc 2 (−2 phím). Quy tắc cho đúng các thế quen thuộc (C x32010, G 320003, D xx0232…); hợp âm thiếu nốt (C7) hoặc cần năm ngón (F) thì không có thế dây buông. Quy tắc cũng sinh ra vài thế lạ (Cm x31013) nên bài chỉ hiện danh sách hợp âm chọn sẵn.
 
 **Cần trước:** K4.1, K0.3. **Nguồn:** ch. 5, 6, 12.
 
