@@ -17,6 +17,11 @@ import {
   toggleRest,
   valueOfLength,
   type Syllable,
+  countTriplets,
+  swingDelay,
+  swingLength,
+  swingOnset,
+  TRIPLET_CELLS,
 } from '.';
 
 const say = (s: Syllable) => (s.kind === 'beat' ? String(s.n) : s.kind);
@@ -115,5 +120,34 @@ describe('strumming (K1.4)', () => {
       { item: 4, delay: 0.02 },
     ]);
     expect(strumDelays([6, 5, 4], 'up', 0.01).map((d) => d.item)).toEqual([4, 5, 6]);
+  });
+});
+
+describe('triplets and swing (K1.5)', () => {
+  it('counts a bar of triplets: 1 trip let 2 trip let …', () => {
+    const words = countTriplets().map((s) => (s.kind === 'beat' ? String(s.n) : s.kind));
+    expect(words).toEqual(['1', 'trip', 'let', '2', 'trip', 'let', '3', 'trip', 'let', '4', 'trip', 'let']);
+    expect(words).toHaveLength(TRIPLET_CELLS);
+  });
+
+  it('puts the "and" halfway when straight and on the last triplet third at full swing', () => {
+    expect(swingOnset(1, 0)).toBe(0.5);
+    expect(swingOnset(1, 1)).toBeCloseTo(2 / 3);
+    expect(swingOnset(3, 1)).toBeCloseTo(1 + 2 / 3);
+    expect(swingOnset(4, 1)).toBe(2);
+    expect(swingOnset(1, 0.5)).toBeCloseTo(0.5 + 1 / 12);
+  });
+
+  it('plays long–short at full swing and keeps every beat the same length', () => {
+    expect(swingLength(0, 1)).toBeCloseTo(2 / 3);
+    expect(swingLength(1, 1)).toBeCloseTo(1 / 3);
+    for (const s of [0, 0.3, 1]) expect(swingLength(0, s) + swingLength(1, s)).toBeCloseTo(1);
+  });
+
+  it('clamps the swing amount and delays only the off-beats', () => {
+    expect(swingOnset(1, 5)).toBeCloseTo(2 / 3);
+    expect(swingOnset(1, -1)).toBe(0.5);
+    expect(swingDelay(0, 1, 60)).toBe(0);
+    expect(swingDelay(1, 1, 60)).toBeCloseTo(1 / 6);
   });
 });

@@ -52,6 +52,6 @@ Mục tiêu: người học giữ được phách, đếm được, và chơi đ
 
 **Dữ liệu.** Swing chuẩn: nốt đầu chiếm ⅔ phách, nốt sau ⅓. Có thể dùng một hệ số swing liên tục (0 = thẳng, 1 = liên ba đầy đủ).
 
-**Dạy trong Theory.** Thanh trượt "thẳng ↔ swing" trên cùng một câu nhạc, lưới hiện vị trí nốt dịch chuyển khi kéo. Bài `/theory/rhythm` (phiên 1.2) chưa dạy mục này; nó đến cùng bài blues (phiên 2.2), nơi shuffle là cảm giác chính.
+**Dạy trong Theory.** Bài `/theory/blues` bước 2: một ô nhịp móc đơn trên lưới liên ba (3 ô mỗi phách, đếm "1 trip-let"), thanh trượt "thẳng ↔ swing" dời móc đơn thứ hai từ giữa phách tới ⅔ phách, kèm metronome. Lõi: `swingOnset()`, `swingLength()`, `swingDelay()`, `countTriplets()` trong `core/rhythm`. Nền blues 12 ô của bài chơi shuffle đầy đủ (hệ số 1).
 
 **Cần trước:** K1.3. **Nguồn:** ch. 17 (liên ba), ch. 13 (shuffle blues).

@@ -65,8 +65,13 @@ ui → lessons → core/fretboard → core/music
 - `pluckSamples()` is pure and deterministic (seeded noise); tune the sound there, with tests.
 - `createPlayer()` makes its `AudioContext` on the first `pluck()` or `click()`. Call it only
   from a user gesture. Audio failures are swallowed: a lesson must work silently.
-- `pluck(midi, delay, length)` damps the note after `length` seconds; `click(accent, delay)` is
-  the metronome (`clickSamples()` is pure, like `pluckSamples()`).
+- `pluck(midi, delay, length, glide)` damps the note after `length` seconds; `click(accent, delay)`
+  is the metronome (`clickSamples()` is pure, like `pluckSamples()`).
+- A `glide` (`bend`, `bendRelease`, `legato`, `slide`, `vibrato` in `core/audio/glide.ts`) moves
+  the pitch of the same plucked sound through `playbackRate`: a hammer-on, pull-off or slide is
+  never picked again. `semisAt()` reads the same points, so `ui/PitchCurve.tsx` draws what is heard.
+- Swing is a delay, not a different grid: a clock steps in straight eighths and adds
+  `swingDelay(eighth, swing, bpm)` to each off-beat (`core/rhythm`, K1.5).
 - Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
   time with its exact delay, so timer jitter moves only the cursor, never the sound. `useSequence`
   stays for short demos where a few ms do not matter.
@@ -87,7 +92,8 @@ ui → lessons → core/fretboard → core/music
   a rest an empty outline, count words underneath).
 - Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
   to a click, `faint` dots for places to click that are not notes of the picture) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
-  never from the component. `Tab` scrolls itself to keep the playing column in view.
+  never from the component. `Tab` scrolls itself to keep the playing column in view; a note's
+  `text` replaces its fret number for technique marks (`7b9`, `h7`, `/7~`).
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.
 - Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.

@@ -131,3 +131,35 @@ export function strumDelays<T>(stringsLowToHigh: readonly T[], stroke: Stroke, s
   const order = stroke === 'down' ? stringsLowToHigh : [...stringsLowToHigh].reverse();
   return order.map((item, i) => ({ item, delay: i * spread }));
 }
+
+// --- Triplets and swing (K1.5) ---
+
+/** A beat split into three: "1 trip-let 2 trip-let …". */
+export type TripletSyllable = { readonly kind: 'beat'; readonly n: number } | { readonly kind: 'trip' | 'let' };
+
+export const TRIPLET_CELLS = BEATS_PER_BAR * 3;
+
+export function countTriplets(): TripletSyllable[] {
+  return Array.from({ length: BEATS_PER_BAR }, (_, b) => [
+    { kind: 'beat', n: b + 1 } as const,
+    { kind: 'trip' } as const,
+    { kind: 'let' } as const,
+  ]).flat();
+}
+
+/**
+ * Where an eighth note starts, in beats from the start of the bar, with a swing amount from 0
+ * (straight: the "and" halfway through the beat) to 1 (shuffle: the "and" on the last third of
+ * a triplet, 2/3 of the way through). Even eighths sit on the beat whatever the swing.
+ */
+export function swingOnset(eighth: number, swing: number): number {
+  const s = Math.min(1, Math.max(0, swing));
+  return Math.floor(eighth / 2) + (eighth % 2 === 0 ? 0 : 0.5 + s / 6);
+}
+
+/** How long an eighth lasts, in beats, at a swing amount: long–short, 2/3 + 1/3 at full swing. */
+export const swingLength = (eighth: number, swing: number): number => swingOnset(eighth + 1, swing) - swingOnset(eighth, swing);
+
+/** Extra delay of an eighth over its straight position, in seconds: what the clock adds when swinging. */
+export const swingDelay = (eighth: number, swing: number, bpm: number): number =>
+  (swingOnset(eighth, swing) - swingOnset(eighth, 0)) * beatSeconds(bpm);
