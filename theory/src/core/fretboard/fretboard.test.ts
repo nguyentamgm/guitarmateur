@@ -16,6 +16,8 @@ import {
   doubleStops,
   openVoicing,
   triadShape,
+  barreVoicing,
+  nearestBarre,
   type Voicing,
   SEQUENCE_IDS,
   shapeAt,
@@ -293,5 +295,53 @@ describe('voicings (K4.1, K4.5)', () => {
     const onFour = triadShape({ string: 4, fret: 5 }, { root: n('G'), id: 'minor' })!;
     expect(onFour.map(midiAt).map((m) => m - midiAt(onFour[0]!))).toEqual([0, 3, 7]);
     expect(triadShape({ string: 5, fret: 0 }, { root: n('A'), id: 'major' })).toBeNull();
+  });
+});
+
+describe('barre chords (K4.6)', () => {
+  const tab = (v: Voicing) =>
+    STRINGS.map((s) => (v.muted.includes(s) ? 'x' : String(v.notes.find((x) => x.string === s)!.fret))).join(' ');
+  const chord = (r: string, id: ChordId) => ({ root: n(r), id });
+
+  it.each([
+    ['F', 'major', 'E', '1 3 3 2 1 1'],
+    ['G', 'minor', 'E', '3 5 5 3 3 3'],
+    ['A', 'dom7', 'E', '5 7 5 6 5 5'],
+    ['A', 'm7', 'E', '5 7 5 5 5 5'],
+    ['G', 'maj7', 'E', '3 5 4 4 3 3'],
+    ['A', 'sus4', 'E', '5 7 7 7 5 5'],
+    ['B', 'minor', 'A', 'x 2 4 4 3 2'],
+    ['C', 'dom7', 'A', 'x 3 5 3 5 3'],
+    ['C', 'm7', 'A', 'x 3 5 3 4 3'],
+    ['C', 'maj7', 'A', 'x 3 5 4 5 3'],
+    ['D', 'sus4', 'A', 'x 5 7 7 8 5'],
+  ] as const)('%s %s, %s shape: %s', (r, id, shape, expected) => {
+    expect(tab(barreVoicing(chord(r, id), shape)!)).toBe(expected);
+  });
+
+  it('is the open chord at fret 0, and moves an octave when asked', () => {
+    expect(tab(barreVoicing(chord('E', 'major'), 'E')!)).toBe('0 2 2 1 0 0');
+    expect(barreVoicing(chord('E', 'major'), 'E', 12)!.notes[0]!.fret).toBe(12);
+    expect(barreVoicing(chord('E', 'major'), 'E', 5)).toBeNull();
+  });
+
+  it('keeps every chord tone and the root in the bass, for every quality the shapes cover', () => {
+    for (const id of ['major', 'minor', 'dom7', 'm7', 'maj7', 'sus4'] as const) {
+      for (const shape of ['E', 'A'] as const) {
+        for (const r of ['C', 'Db', 'F#', 'Bb']) {
+          const v = barreVoicing(chord(r, id), shape)!;
+          expect(pc(pitchAtPos(v.notes[0]!))).toBe(pc(n(r)));
+          const sounding = new Set(v.notes.map((x) => midiAt(x) % 12));
+          for (const t of chordNotes(chord(r, id))) expect(sounding.has(pc(t))).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('picks the shape nearest the hand: from G at fret 3, C is the A shape at 3, D the A shape at 5', () => {
+    expect([nearestBarre(chord('C', 'major'), 3)!.shape, nearestBarre(chord('C', 'major'), 3)!.fret]).toEqual(['A', 3]);
+    expect([nearestBarre(chord('D', 'major'), 3)!.shape, nearestBarre(chord('D', 'major'), 3)!.fret]).toEqual(['A', 5]);
+    expect(nearestBarre(chord('E', 'minor'), 8)!.fret).toBe(7);
+    expect(nearestBarre(chord('E', 'minor'), 10)!.fret).toBe(12);
   });
 });

@@ -1,4 +1,5 @@
 /** Draws one step of any lesson. Add a case here when a lesson is added to theory/src/lessons. */
+import type * as Barre from '../../lessons/barre';
 import type * as Blues from '../../lessons/blues';
 import type * as Chords from '../../lessons/chords';
 import type * as Electric from '../../lessons/electric';
@@ -7,6 +8,7 @@ import type * as MajorScale from '../../lessons/major-scale';
 import type * as Pentatonic from '../../lessons/pentatonic';
 import type * as PentatonicMap from '../../lessons/pentatonic-map';
 import type * as Rhythm from '../../lessons/rhythm';
+import { BarreScene } from './BarreScene';
 import { BluesScene } from './BluesScene';
 import { ChordsScene } from './ChordsScene';
 import { ElectricScene } from './ElectricScene';
@@ -34,6 +36,8 @@ export function LessonScene({ slug, step, copy }: { slug: string; step: string; 
       return <ElectricScene step={step as Electric.StepId} copy={copy as Electric.SceneCopy} />;
     case 'chords':
       return <ChordsScene step={step as Chords.StepId} copy={copy as Chords.SceneCopy} />;
+    case 'barre':
+      return <BarreScene step={step as Barre.StepId} copy={copy as Barre.SceneCopy} />;
     default:
       return null;
   }
