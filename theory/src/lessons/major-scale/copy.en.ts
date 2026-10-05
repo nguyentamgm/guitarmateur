@@ -101,7 +101,7 @@ export const en: MajorScaleCopy = {
       idle: 'Click any note to move the stamp there.',
       up1: 'next string up',
       up2: 'two strings up',
-      caption: '{name}, {from} → {to}: {up}, {offset} frets',
+      caption: '{name}, {from} → {to}: {up}, fret shift {offset}',
       crossesB: 'Crosses G→B: the upper note sits one fret further right.',
       offNeck: 'No room for this shape from here. Click a lower string or fret.',
     },

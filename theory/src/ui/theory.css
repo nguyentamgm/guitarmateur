@@ -122,6 +122,8 @@ button { font: inherit; cursor: pointer; }
 .dot.homeMajor circle { fill: var(--amber); stroke: none; }
 .dot.homeMajor text { fill: var(--amber-ink); }
 .dot.dim { opacity: 0.22; }
+.dot.faint circle { fill: var(--dot); opacity: 0.35; transform: scale(0.6); }
+.dot.faint:hover circle, .dot.faint:focus-visible circle { opacity: 1; }
 .dot.hit circle { transform: scale(1.4); }
 .dot:hover circle, .dot:focus-visible circle { stroke: var(--accent); stroke-width: 2; }
 
@@ -135,6 +137,19 @@ button { font: inherit; cursor: pointer; }
 .arc text { fill: var(--accent); font-family: var(--f-mono); font-size: 13px; font-weight: 600; text-anchor: middle; }
 .arc { transition: opacity 0.25s; }
 .arc.dim { opacity: 0.15; }
+.arc.half path { stroke: var(--amber); }
+.arc.half text { fill: var(--amber); }
+.formula .half { color: var(--amber); border-color: var(--amber); }
+.swatch.whole { background: var(--accent); }
+.swatch.half { background: var(--amber); }
+.band line { stroke: var(--amber); stroke-width: 3; stroke-linecap: round; }
+.letters { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; font-family: var(--f-mono); }
+.letters li { display: grid; gap: 2px; justify-items: center; padding: 8px 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); min-height: 3.6em; }
+.letters b { font-size: 0.78rem; color: var(--muted); }
+.letters span { font-size: 0.95rem; font-weight: 600; }
+.letters .twice { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+.letters .empty { border-style: dashed; }
+.caption.warn { color: var(--ink); border-left: 3px solid var(--amber); padding-left: 8px; }
 
 /* The neck is a grid */
 .note { font-size: 0.92rem; padding-left: 10px; border-left: 3px solid var(--accent); }

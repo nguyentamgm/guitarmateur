@@ -179,6 +179,49 @@ describe('Theory app', () => {
     expect(section.textContent).toContain('First try: 0 of 2');
   });
 
+  describe('major scale', () => {
+    const chip = (section: Element, label: string) =>
+      [...section.querySelectorAll('button.chip')].find((b) => b.textContent === label)!;
+
+    it('doubles the letter A when F major spells its fourth A♯', () => {
+      render('/theory/major-scale');
+      const section = container.querySelector('section#spelling')!;
+      const caption = () => section.querySelector('.caption')!.textContent;
+      expect(caption()).toBe('Each letter once: F G A B♭ C D E');
+      click(chip(section, 'A♯'));
+      expect(caption()).toBe('A♯ uses the letter A twice and leaves B out. That is why F major has B♭.');
+      expect(section.querySelector('.letters .twice')!.textContent).toBe('AA A♯');
+      expect(section.querySelector('.letters .empty')!.textContent).toBe('B');
+    });
+
+    it('names a clicked interval, both ways at 6 semitones, and lowers major to minor', () => {
+      const { player, plucked } = fakePlayer();
+      render('/theory/major-scale', player);
+      const section = container.querySelector('section#intervals')!;
+      const caption = () => section.querySelector('.caption')!.textContent;
+      // Home C is string 5 fret 3; string 4 fret 2 is E, fret 4 is F♯/G♭.
+      click(section.querySelector('.dot[aria-label$="D/2"]')!);
+      expect(caption()).toBe('C → E: major 3rd, 4 semitones');
+      click(button('Lower ½ step'));
+      expect(caption()).toBe('C → E♭: minor 3rd, 3 semitones');
+      click(section.querySelector('.dot[aria-label$="D/4"]')!);
+      expect(caption()).toBe('C → F♯ / G♭: augmented 4th or diminished 5th, 6 semitones');
+      expect(plucked).toEqual([52, 51, 54]);
+    });
+
+    it('shifts a stamp one fret right across G→B', () => {
+      render('/theory/major-scale');
+      const section = container.querySelector('section#shapes')!;
+      const lines = () => [...section.querySelectorAll('p.caption')].map((p) => p.textContent);
+      expect(lines()[0]).toBe('major 3rd, 5/3 → 4/2: next string up, fret shift −1');
+      click(section.querySelector('.dot[aria-label$="G/5"]')!);
+      expect(lines()).toEqual([
+        'major 3rd, 3/5 → 2/5: next string up, fret shift 0',
+        'Crosses G→B: the upper note sits one fret further right.',
+      ]);
+    });
+  });
+
   describe('rhythm', () => {
     beforeEach(() => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
