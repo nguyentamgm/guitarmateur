@@ -49,6 +49,8 @@ ui → lessons → core/fretboard → core/music
 
 - **Spelled notes only.** Notes are letter + accidental (`parseNote('Bb')`), never a bare pitch
   class. F minor shows B♭; C°7 shows B𝄫. Pitch classes are for comparison only.
+- **Progressions come from the core:** `PROGRESSIONS` / `progression()` give the chords and numerals of a
+  progression in any key, `twoFive()` the ii–V into a chord. Never type a list of chord names.
 - **Key names come from the core:** `MAJOR_KEY_TONICS` / `majorKeyTonic()` and
   `MINOR_KEY_TONICS` / `minorKeyTonic()` (no double accidentals, fewest accidentals; F♯ major
   over G♭, E♭ minor over D♯). Do not hand-type lists of keys.
@@ -56,7 +58,7 @@ ui → lessons → core/fretboard → core/music
   knowledge base, converted by `interval()`.
 - **No shape tables.** Boxes and positions come from `positions()`, practice orders (groups of
   3, 4, skips) from `sequence()`, open chords from `openVoicing()`, stacked triads from
-  `triadShape()`, barre chords from `barreVoicing()` (the open E or A voicing moved up). `openVoicing()` is a
+  `triadShape()`, barre chords from `barreVoicing()` (the open E or A voicing moved up; every place a chord can go from `barreOptions()`, the loop with least travel from `closestPath()`). `openVoicing()` is a
   small search: essential tones (`essentialDegrees()`), fewest fretted notes, optional `bass` for
   inversions. Label chord tones with `chordToneDegree()` so a 9 or 11 keeps its name. Never hand-type frets or tab of a scale or chord into lesson
   data; derive them.
@@ -98,7 +100,7 @@ ui → lessons → core/fretboard → core/music
   to a click, `faint` dots for places to click that are not notes of the picture) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
   never from the component. `Tab` scrolls itself to keep the playing column in view; a note's
   `text` replaces its fret number for technique marks (`7b9`, `h7`, `/7~`).
-- Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
+- A barre is drawn with `ui/BarreBar.tsx`. Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
   form is drawn with `ui/BarGrid.tsx`. Key lists for a finder come from `byHomeFret()`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.

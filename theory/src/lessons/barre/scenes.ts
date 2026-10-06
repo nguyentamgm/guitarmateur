@@ -1,13 +1,16 @@
 /**
  * What each scene of "Barre chords" shows, derived from the core: every shape is an open E or A
  * voicing moved by `barreVoicing()`, the progression comes from `diatonicChords()`, the shape
- * choice from `nearestBarre()` and a small search. The only typed lists are chord qualities and the degrees of the
+ * choice from `nearestBarre()` and `closestPath()`. The only typed lists are chord qualities and the degrees of the
  * progression.
  */
 import {
   BARRE_STRING,
+  barreOptions,
   barreVoicing,
   byHomeFret,
+  closestPath,
+  loopTravel,
   midiAt,
   nearestBarre,
   pitchAtPos,
@@ -144,39 +147,16 @@ export function progressionChords(tonic: NoteName): Chord[] {
 
 export type PathMode = 'near' | 'string6';
 
-/** Every voicing of a chord within reach: both shapes, home fret and an octave up. */
-function options(chord: Chord, maxFret: number): BarreVoicing[] {
-  return (['E', 'A'] as const).flatMap((shape) => {
-    const home = barreVoicing(chord, shape)!;
-    return [home.fret, home.fret + 12].filter((f) => f <= maxFret).map((f) => barreVoicing(chord, shape, f)!);
-  });
-}
-
 /**
  * Voicings for a progression played as a loop. 'string6': every chord in the E shape at its home
- * fret. 'near': the first chord stays there (where the hand starts); of every combination of
- * shapes and octaves for the rest, the one whose barre travels least around the loop, ties to
- * the lower position. A handful of chords keeps the search tiny.
+ * fret. 'near': the first chord stays there (where the hand starts); the rest take whichever
+ * shape and octave makes the barre travel least around the loop (`closestPath()`).
  */
 export function chordPath(chords: readonly Chord[], mode: PathMode, maxFret = BARRE_FRETS - 3): BarreView[] {
   if (mode === 'string6') return chords.map((c) => toView(c, barreVoicing(c, 'E')!));
-  const loop = (frets: readonly number[]) => frets.reduce((sum, f, i) => sum + Math.abs(f - frets[(i + 1) % frets.length]!), 0);
-  let best: BarreVoicing[] = [];
-  let bestCost = Infinity;
-  const walk = (i: number, picked: BarreVoicing[]) => {
-    if (i === chords.length) {
-      const frets = picked.map((v) => v.fret);
-      const cost = loop(frets) * 100 + frets.reduce((a, b) => a + b, 0);
-      if (cost < bestCost) [best, bestCost] = [picked, cost];
-      return;
-    }
-    for (const v of options(chords[i]!, maxFret)) walk(i + 1, [...picked, v]);
-  };
-  if (chords.length > 0) walk(1, [barreVoicing(chords[0]!, 'E')!]);
-  return best.map((v, i) => toView(chords[i]!, v));
+  const choices = chords.map((c, i) => (i === 0 ? [barreVoicing(c, 'E')!] : barreOptions(c, maxFret)));
+  return closestPath(choices).map((v, i) => toView(chords[i]!, v));
 }
 
 /** Frets the hand travels around the loop, back to the first chord included. */
-export function travel(path: readonly BarreView[]): number {
-  return path.reduce((sum, v, i) => sum + Math.abs(v.fret - path[(i + 1) % path.length]!.fret), 0);
-}
+export const travel = (path: readonly BarreView[]): number => loopTravel(path.map((v) => v.fret));

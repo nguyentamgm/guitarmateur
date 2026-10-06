@@ -6,6 +6,8 @@ export interface Sequence {
   readonly playing: boolean;
   /** Start from the first item, or stop if already playing. */
   toggle(): void;
+  /** Start from the first item, restarting if already playing. */
+  start(): void;
   stop(): void;
 }
 
@@ -52,5 +54,9 @@ export function useSequence(
 
   const playing = current !== null;
   const toggle = useCallback(() => (playing ? stop() : run(0)), [playing, run, stop]);
-  return { current, playing, toggle, stop };
+  const start = useCallback(() => {
+    stop();
+    run(0);
+  }, [run, stop]);
+  return { current, playing, toggle, start, stop };
 }

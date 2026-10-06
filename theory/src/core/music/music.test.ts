@@ -30,6 +30,10 @@ import {
   decorationDegrees,
   transpose,
   twelveBar,
+  progression,
+  PROGRESSIONS,
+  twoFive,
+  type ProgressionId,
   BOOGIE,
   bluesChord,
   type ChordId,
@@ -359,5 +363,37 @@ describe('simplifying chords (K4.8)', () => {
   });
   it('leaves triads, sus and power chords alone', () => {
     for (const id of ['major', 'minor', 'sus4', 'sus2', 'power'] as const) expect(simplifyChord({ root: n('C'), id })).toHaveLength(1);
+  });
+});
+
+describe('common progressions (K5.3) and ii–V (K5.5)', () => {
+  const symbols = (tonic: string, id: ProgressionId) => progression(n(tonic), id).map((d) => chordSymbol(d.chord));
+  const romans = (id: ProgressionId) => progression(n('C'), id).map((d) => d.roman);
+
+  it('spells each progression from the key', () => {
+    expect(symbols('G', 'I-V-vi-IV')).toEqual(['G', 'D', 'Em', 'C']);
+    expect(symbols('E', 'I-IV-V')).toEqual(['E', 'A', 'B']);
+    expect(symbols('Bb', 'ii-V-I')).toEqual(['Cm7', 'F7', 'B♭maj7', 'B♭maj7']);
+    expect(symbols('Db', 'vi-IV-I-V')).toEqual(['B♭m', 'G♭', 'D♭', 'A♭']);
+    expect(symbols('A', 'i-VII-VI-VII')).toEqual(['Am', 'G', 'F', 'G']);
+  });
+
+  it('keeps the numerals in its id, in every key', () => {
+    for (const id of Object.keys(PROGRESSIONS) as ProgressionId[]) {
+      expect(romans(id).map((r) => r.replace(/maj7|7/, '')).join('-')).toBe(id.split('-').concat(id === 'ii-V-I' ? ['I'] : []).join('-'));
+      for (const k of MAJOR_KEYS) {
+        expect(progression(n(k), id).map((d) => d.roman), `${id} in ${k}`).toEqual(romans(id));
+      }
+    }
+  });
+
+  it('builds the ii–V into any chord: into F, Gm7 C7; into B♭, Cm7 F7; into F♯, G♯m7 C♯7', () => {
+    expect(twoFive(n('F')).map(chordSymbol)).toEqual(['Gm7', 'C7']);
+    expect(twoFive(n('Bb')).map(chordSymbol)).toEqual(['Cm7', 'F7']);
+    expect(twoFive(n('F#')).map(chordSymbol)).toEqual(['G♯m7', 'C♯7']);
+    for (const k of MAJOR_KEYS) {
+      const ii = diatonicChords({ tonic: n(k), mode: 'major' }, 4);
+      expect(twoFive(n(k)), k).toEqual([ii[1]!.chord, ii[4]!.chord]);
+    }
   });
 });

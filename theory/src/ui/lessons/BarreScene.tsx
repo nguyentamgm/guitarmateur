@@ -2,7 +2,6 @@
 import { useMemo, useState } from 'react';
 import { midiAt, type BarreShape } from '../../core/fretboard';
 import { chordSymbol, format, type ChordId, type NoteName } from '../../core/music';
-import { strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
   BARRE_FRETS,
@@ -25,12 +24,13 @@ import {
   type SceneCopy,
   type StepId,
 } from '../../lessons/barre';
-import { useTheory } from '../context';
+import { BarreBar } from '../BarreBar';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
+import { useStrum } from '../useStrum';
 
 export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -49,13 +49,6 @@ export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 
 type Labels = 'degrees' | 'notes';
 
-function useStrum() {
-  const { player } = useTheory();
-  return (view: BarreView, delay = 0) => {
-    for (const s of strumDelays(view.notes, 'down', 0.018)) player.pluck(s.item.midi, delay + s.delay, 1.5);
-  };
-}
-
 const chordDots = (view: BarreView, labels: Labels, extra: Partial<FretDot> = {}): FretDot[] =>
   view.notes.map((n) => ({
     key: posKey(n),
@@ -66,14 +59,6 @@ const chordDots = (view: BarreView, labels: Labels, extra: Partial<FretDot> = {}
     tone: n.degree === '1' ? 'home' : 'plain',
     ...extra,
   }));
-
-/** The index finger across the strings of the shape, drawn under the dots; nothing at fret 0. */
-function BarreBar({ g, view, faint = false }: { g: NeckGeometry; view: BarreView; faint?: boolean }) {
-  if (view.fret === 0) return null;
-  const top = g.y(1) - 13;
-  const bottom = g.y(view.shape === 'E' ? 6 : 5) + 13;
-  return <rect className={faint ? 'barrebar faint' : 'barrebar'} x={g.x(view.fret) - 13} y={top} width={26} height={bottom - top} rx={13} />;
-}
 
 function MutedMarks({ g, view }: { g: NeckGeometry; view: BarreView }) {
   return (

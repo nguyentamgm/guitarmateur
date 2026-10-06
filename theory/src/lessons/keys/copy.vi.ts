@@ -1,0 +1,119 @@
+import type { KeysCopy } from './model';
+
+export const vi: KeysCopy = {
+  title: 'Giọng và vòng hợp âm: gọi hợp âm bằng số',
+  summary: 'Mỗi giọng có bảy hợp âm. Gọi chúng bằng số thì vòng hợp âm nào cũng dời được sang giọng nào, và bạn nghe ra được hợp âm nào là nhà.',
+  lead:
+    'Bài hát không chọn hợp âm ngẫu nhiên. Phần lớn dùng bảy hợp âm mọc ra từ một major scale, và người chơi gọi chúng bằng số: "vòng một–năm–sáu–bốn giọng G". Bài này dựng bảy hợp âm đó, đổi chúng thành số La Mã, luyện tai tìm hợp âm nhà, rồi chỉ ra vì sao hợp âm V kéo về và vì sao hai giọng dùng chung một bộ hợp âm. Năm bước. Bấm vào nốt nào cũng nghe được.',
+  steps: {
+    family: {
+      title: 'Mỗi giọng có một gia đình bảy hợp âm',
+      body: [
+        'Lấy major scale và dựng một hợp âm trên mỗi nốt, chỉ dùng nốt của scale: bắt đầu từ một nốt, bỏ một nốt, lấy nốt kế, bỏ một nốt, lấy nốt kế. Từ G được G B D; từ A được A C E; từ B được B D F♯; và cứ thế đi lên scale.',
+        'Các nửa cung của scale nằm ở chỗ cố định, nên các hợp âm ra giống nhau ở mọi giọng: trưởng ở bậc 1, 4 và 5, thứ ở bậc 2, 3 và 6, giảm ở bậc 7. Lấy thêm một nốt theo cùng cách là được hợp âm 7: maj7 ở bậc 1 và 4, dominant 7 ở bậc 5, m7 ở bậc 2, 3 và 6, m7♭5 ở bậc 7.',
+      ],
+      takeaway: 'Chồng các nốt cách một của scale: trưởng ở 1, 4, 5; thứ ở 2, 3, 6; giảm ở 7.',
+      tryIt: 'Bấm lần lượt cả bảy hợp âm giọng G, rồi chuyển sang hợp âm 7 và so Gmaj7 với D7.',
+    },
+    numbers: {
+      title: 'Gọi bằng số, không bằng tên',
+      body: [
+        'Người chơi gọi các hợp âm này bằng số La Mã: chữ hoa là trưởng (I, IV, V), chữ thường là thứ (ii, iii, vi), thêm vòng tròn nhỏ là giảm (vii°). Số cho biết hợp âm đứng ở đâu trong giọng, không phải tên chữ cái của nó.',
+        'Đổi giọng thì mọi tên hợp âm đổi, nhưng số giữ nguyên. I–V–vi–IV là G D Em C ở giọng G và A E F♯m D ở giọng A: cùng một bài, cùng các shape, chỉ trượt lên hai phím. Học vòng hợp âm bằng số là chơi được ở mọi giọng.',
+      ],
+      takeaway: 'Học vòng hợp âm bằng số La Mã; giọng chỉ quyết định tay bắt đầu ở đâu.',
+      tryIt: 'Chơi I–V–vi–IV giọng G, rồi dời sang giọng A và chơi lại mà không nhìn tên hợp âm.',
+    },
+    home: {
+      title: 'Hợp âm nào là nhà?',
+      body: [
+        'Giọng của bài là hợp âm bài muốn quay về: hợp âm I, dựng trên tonic. Bạn nghe được điều đó. Dừng vòng hợp âm ở hợp âm V, nó lơ lửng cho tới khi bạn chơi hợp âm I.',
+        'Không cần key signature để tìm giọng. Hãy nghe hợp âm có cảm giác như dấu chấm hết câu, hợp âm bài bắt đầu hay kết thúc, hoặc hợp âm mà V dẫn tới.',
+      ],
+      takeaway: 'Nhà là hợp âm vòng hợp âm muốn đáp xuống: hợp âm I.',
+      tryIt: 'Nghe đoạn dẫn, rồi chọn hợp âm kết thúc nó. Đúng năm câu liên tiếp.',
+    },
+    twoFive: {
+      title: 'V muốn về nhà, và ii–V–I',
+      body: [
+        'Hợp âm V7 có hai nốt dựa rất mạnh vào hợp âm I: bậc 3 của nó thấp hơn tonic nửa cung, còn ♭7 của nó cao hơn bậc 3 của hợp âm I nửa cung. Ở giọng C, G7 có B và F; hai nốt đó bước sang C và E. Lực kéo đó làm V7 → I nghe như một cái kết.',
+        'Đặt hợp âm ii phía trước là được ii–V–I, vòng hợp âm phổ biến nhất của jazz: Dm7 G7 Cmaj7. Nó dẫn được vào bất kỳ hợp âm nào, không chỉ hợp âm I. Muốn dẫn vào F, chơi ii và V của chính F trước: Gm7 C7 F. Người chơi ghi chúng là ii7/IV và V7/IV: "ii và V của hợp âm IV".',
+      ],
+      takeaway: 'V7 kéo về I. Muốn dẫn vào hợp âm nào, chơi ii–V của chính nó trước.',
+      tryIt: 'Ở giọng C, thêm ii–V vào IV và nghe Gm7 C7 kéo vào F. Rồi thử ở giọng G.',
+    },
+    relative: {
+      title: 'Cùng bộ hợp âm, hai nhà',
+      body: [
+        'Mỗi giọng trưởng dùng chung bộ hợp âm với relative minor của nó, giọng thứ nằm ở bậc 6. Giọng C trưởng và giọng A thứ dùng đúng cùng bảy hợp âm. Nhìn từ A, các số dời đi: Am là i, C là III, G là VII, còn hợp âm giảm là ii°.',
+        'Bài ở giọng nào tùy hợp âm nào thắng. C G Am F đáp xuống C, nên nó ở giọng C trưởng; Am G F G cứ quay về Am, nên nó ở giọng A thứ. Nhà cũng cho biết solo bằng gì: major pentatonic của nhà trưởng, hoặc minor pentatonic của nhà thứ. Đó là cùng năm nốt, chỉ khác root.',
+      ],
+      takeaway: 'Hợp âm vi của giọng trưởng là hợp âm i của relative minor; hợp âm thắng quyết định chọn pentatonic nào.',
+      tryIt: 'Chơi cả hai vòng ở giọng C và ngân nga root trên mỗi vòng. Rồi thử ở giọng G: G trưởng với E thứ.',
+    },
+  },
+  scene: {
+    stop: 'Dừng',
+    key: 'Giọng',
+    playLoop: 'Phát vòng',
+    quality: { major: 'Trưởng', minor: 'Thứ', dim: 'Giảm' },
+    family: {
+      size: 'Hợp âm',
+      triads: 'Triad',
+      sevenths: 'Hợp âm 7',
+      playAll: 'Phát cả bảy',
+      scale: 'Major scale, các nốt của hợp âm được tô lên',
+      caption: '{roman}: {symbol} = {notes}, các nốt cách một của scale tính từ {start}.',
+    },
+    numbers: {
+      progression: 'Vòng',
+      grid: 'Vòng hợp âm, số La Mã ở trên, tên hợp âm ở dưới',
+      caption: 'Giọng {key}: {chords}. Ngón chặn đi {travel} phím quanh vòng.',
+    },
+    home: {
+      question: 'Hợp âm nào nghe như nhà?',
+      listen: 'Phát đoạn dẫn',
+      leadIn: 'Đoạn dẫn',
+      choices: 'Hợp âm kết thúc',
+      right: 'Đúng: {symbol} là hợp âm I. V7 giải quyết về nó: nhà của giọng {key} trưởng.',
+      vi: '{symbol} là hợp âm vi. Gần đúng: nó chung hai nốt với hợp âm I ({home}), nên nghe như một cái kết bất ngờ, chưa phải nhà.',
+      away: '{symbol} là hợp âm {roman}. Nó đi tiếp chỗ khác, không đáp xuống. Nghe lại nhé.',
+      next: 'Giọng khác',
+      score: '{right} / {total} · {streak} câu liên tiếp',
+    },
+    twoFive: {
+      pull: 'Lực kéo',
+      hang: 'Dừng ở V7',
+      resolve: 'Về I',
+      hangCaption: 'I IV V7, rồi im lặng: {v} bị bỏ lửng, chờ {i}.',
+      resolveCaption: 'I IV V7 I: {v} về nhà ở {i}.',
+      approach: 'Thêm ii–V',
+      off: 'Tắt',
+      intoI: 'Vào I',
+      intoIV: 'Vào IV',
+      grid: 'Vòng hợp âm, số La Mã ở trên, tên hợp âm ở dưới',
+      offCaption: '{chords}: không có gì kéo, vòng cứ trôi.',
+      onCaption: '{ii} và {v} dẫn vào {target}.',
+    },
+    relative: {
+      home: 'Nhà',
+      majorHome: '{root} trưởng',
+      minorHome: '{root} thứ',
+      rowMajor: 'Giọng {root} trưởng',
+      rowMinor: 'Giọng {root} thứ',
+      caption: '{chords} đáp xuống {root}. Solo bằng {scale}.',
+      majorScale: '{root} major pentatonic',
+      minorScale: '{root} minor pentatonic',
+    },
+  },
+  notYetTitle: 'Những gì chưa cần học',
+  notYetIntro: 'Bảy hợp âm và số của chúng đủ cho phần lớn bài hát. Những phần này để sau.',
+  notYet: [
+    { title: 'Key signature và circle of fifths', why: 'Theory tìm giọng bằng tai và bằng hợp âm, không bằng các dấu thăng giáng trên khuông nhạc.' },
+    { title: 'Mode', why: 'Dorian, Mixolydian và các mode khác là cùng scale với một nhà khác. Nhà trưởng và nhà thứ học trước.' },
+    { title: 'Harmonic minor và hợp âm V trưởng trong giọng thứ', why: 'Nhiều bài giọng thứ mượn một V7 trưởng để kéo mạnh hơn. Một nốt được nâng, học sau.' },
+    { title: 'Hợp âm mượn', why: 'Hợp âm ngoài giọng, như ♭VII trong bài giọng trưởng. Học gia đình hợp âm trước.' },
+    { title: 'ii–V vào hợp âm thứ', why: 'Thường dùng m7♭5 và một V7 căng hơn. Phần này đến cùng hòa âm jazz.' },
+    { title: 'Solo theo hợp âm', why: 'Chơi nốt của hợp âm đúng lúc hợp âm đến là bài tiếp theo.' },
+  ],
+};

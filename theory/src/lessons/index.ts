@@ -6,6 +6,7 @@ import { chordTable } from './chord-table';
 import { chords } from './chords';
 import { electric } from './electric';
 import { fretboard } from './fretboard';
+import { keys } from './keys';
 import { majorScale } from './major-scale';
 import { pentatonic } from './pentatonic';
 import { pentatonicMap } from './pentatonic-map';
@@ -18,6 +19,7 @@ export { chordTable } from './chord-table';
 export { chords } from './chords';
 export { electric } from './electric';
 export { fretboard } from './fretboard';
+export { keys } from './keys';
 export { majorScale } from './major-scale';
 export { pentatonic } from './pentatonic';
 export { pentatonicMap } from './pentatonic-map';
@@ -34,6 +36,7 @@ export const LESSONS: readonly Lesson[] = [
   chords as Lesson,
   barre as Lesson,
   chordTable as Lesson,
+  keys as Lesson,
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);

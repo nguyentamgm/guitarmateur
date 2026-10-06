@@ -8,7 +8,7 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 
 **Cốt lõi.** Giọng của bài là âm giai mà bài lấy làm "nhà": nốt nhà và hợp âm nhà là nơi bài muốn quay về. Theory xác định giọng bằng tai và bằng hợp âm (hợp âm mở đầu, hợp âm kết thúc, hợp âm xuất hiện nhiều nhất), không bằng hóa biểu.
 
-**Dạy trong Theory.** Phát một vòng hợp âm rồi dừng giữa chừng. Người học chọn hợp âm nào nghe "về nhà".
+**Dạy trong Theory.** Bài `/theory/keys` bước 3: phát một đoạn dẫn ở giọng trưởng ngẫu nhiên, dừng ở V7. Người học chọn trong bốn hợp âm của giọng hợp âm nào kết thúc đoạn dẫn; bấm là nghe V7 → hợp âm đó. Hợp âm vi là đáp án "gần đúng" (chung hai nốt với I, kiểu kết bất ngờ). Đáp xong mới hiện số La Mã. Lõi: `homeQuestion()`, `judgeHome()` trong bài.
 
 **Cần trước:** K2.1. **Nguồn:** ch. 8, 19.
 
@@ -21,7 +21,7 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 - Hợp âm 7: Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7. Ví dụ ở C: Cmaj7 Dm7 Em7 Fmaj7 G7 Am7 Bm7♭5.
 - Giọng thứ tự nhiên (nhìn từ nhà thứ): i ii° III iv v VI VII.
 
-**Dạy trong Theory.** Âm giai trưởng xếp thành một hàng nốt. Một "khung ba ô" trượt qua từng bậc, gom các nốt cách một thành hợp âm, rồi hợp âm đó hiện ra trên cần và phát tiếng. Màu cho trưởng, thứ, giảm.
+**Dạy trong Theory.** Bài `/theory/keys` bước 1: major scale xếp thành một hàng nốt; chọn một bậc, các nốt cách một của nó được tô lên, hợp âm hiện ra trên cần (hợp âm chặn; hợp âm giảm vii° không có shape chặn nên được chồng từ root, `stackShape()`) và phát tiếng. Bật triad / hợp âm 7. Màu: trưởng hổ phách, thứ xanh, giảm xám. Lõi: `diatonicChords()`.
 
 **Cần trước:** K2.1, K4.1. **Nguồn:** ch. 15, 18.
 
@@ -31,7 +31,7 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 
 **Dữ liệu.** Vòng hay gặp: I–IV–V, I–V–vi–IV, ii–V–I, vi–IV–I–V, i–VII–VI (thứ).
 
-**Dạy trong Theory.** Một vòng hợp âm hiện cả tên và số La Mã. Kéo nốt nhà sang giọng khác: tên đổi, số giữ nguyên, các hình chặn trượt theo (K4.6).
+**Dạy trong Theory.** Bài `/theory/keys` bước 2: chọn I–V–vi–IV, I–IV–V, vi–IV–I–V hoặc ii–V–I; lưới bar hiện số La Mã trên, tên hợp âm dưới. Đổi giọng: tên đổi, số giữ nguyên, hợp âm I nằm ở shape E tại phím nhà và các hợp âm khác chọn shape gần nhất (`closestPath()`, K4.6). Lõi: `PROGRESSIONS`, `progression()` trong `core/music`.
 
 **Cần trước:** K5.2. **Nguồn:** ch. 13, 18.
 
@@ -56,12 +56,14 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 
 **Dữ liệu.** II–V tới hợp âm X: (bậc 2 của X)m7 → (bậc 5 của X)7 → X. Ví dụ dẫn tới F: Gm7 → C7 → F.
 
-**Dạy trong Theory.** Một vòng hợp âm đơn giản; nút "thêm II–V" chèn hai hợp âm trước hợp âm đích, nghe trước/sau.
+**Dạy trong Theory.** Bài `/theory/keys` bước 4: nghe I IV V7 dừng lửng rồi I IV V7 I. Sau đó vòng I–vi–IV–I (không có V nên không kéo); chọn "vào I" hoặc "vào IV" để chèn ii7–V7 của hợp âm đích ngay trước nó, ghi ii7/IV và V7/IV. Chỉ dẫn vào hợp âm trưởng; ii–V vào hợp âm thứ (m7♭5) để sau. Lõi: `twoFive()` trong `core/music`.
 
 **Cần trước:** K5.2, K4.3. **Nguồn:** ch. 18.
 
 ## K5.6 Giọng song song trong tiến trình
 
 **Cốt lõi.** Giọng trưởng và giọng thứ song song dùng chung bộ hợp âm (K2.8). Hợp âm vi của giọng trưởng chính là hợp âm i của giọng thứ. Nhiều bài đi qua lại giữa hai nhà này. Khi solo, chọn pentatonic theo nhà đang "thắng" (K3.7).
+
+**Dạy trong Theory.** Bài `/theory/keys` bước 5: bảy hợp âm của một giọng trưởng với hai hàng số La Mã (giọng trưởng và relative minor). Chọn nhà: I–V–vi–IV đáp xuống nhà trưởng, i–VII–VI–VII đáp xuống nhà thứ; cần đàn hiện pentatonic để solo, cùng năm nốt, chỉ đổi màu root.
 
 **Cần trước:** K2.8, K5.2. **Nguồn:** ch. 8, 11.

@@ -137,14 +137,21 @@ export function barreVoicing(chord: Chord, shape: BarreShape, at?: number): Barr
   return { notes: template.notes.map((n) => ({ ...n, fret: n.fret + fret })), muted: template.muted, shape, fret };
 }
 
+/** Every barre voicing of a chord up to `maxFret`: each shape at its home fret and an octave up (K4.6). */
+export function barreOptions(chord: Chord, maxFret = 12, shapes: readonly BarreShape[] = BARRE_SHAPES): BarreVoicing[] {
+  return shapes.flatMap((shape) => {
+    const home = homeFret(chord.root, BARRE_STRING[shape]);
+    return [home, home + 12].filter((f) => f <= maxFret).map((f) => barreVoicing(chord, shape, f));
+  }).filter((v): v is BarreVoicing => v !== null);
+}
+
 /**
  * The barre voicing (in `shapes`, either octave up to `maxFret`) whose barre is nearest
  * `fromFret`; the first shape wins a tie.
  */
 export function nearestBarre(chord: Chord, fromFret: number, maxFret = 12, shapes: readonly BarreShape[] = BARRE_SHAPES): BarreVoicing | null {
-  const options = shapes.flatMap((shape) => {
-    const home = homeFret(chord.root, BARRE_STRING[shape]);
-    return [home, home + 12].filter((f) => f <= maxFret).map((f) => barreVoicing(chord, shape, f));
-  }).filter((v): v is BarreVoicing => v !== null);
-  return options.reduce<BarreVoicing | null>((best, v) => (!best || Math.abs(v.fret - fromFret) < Math.abs(best.fret - fromFret) ? v : best), null);
+  return barreOptions(chord, maxFret, shapes).reduce<BarreVoicing | null>(
+    (best, v) => (!best || Math.abs(v.fret - fromFret) < Math.abs(best.fret - fromFret) ? v : best),
+    null,
+  );
 }

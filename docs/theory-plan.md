@@ -1,6 +1,6 @@
 # Kế hoạch app Theory — chuyển Learn & Master Guitar sang học trực quan
 
-Cập nhật: 2026-10-05 · File này là bản chuẩn của kế hoạch. Bảng tiến độ ở cuối file được cập nhật sau mỗi phiên.
+Cập nhật: 2026-10-07 · File này là bản chuẩn của kế hoạch. Bảng tiến độ ở cuối file được cập nhật sau mỗi phiên.
 
 ## Mục tiêu và nguyên tắc
 
@@ -170,7 +170,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
 - (3.1) Bài đố dựng hợp âm không lưu điểm (cùng việc với chế độ ôn tập 5.1).
-- (3.2) Vòng hợp âm của bước 5 chỉ là I–vi–IV–V ở 12 giọng trưởng, chưa có nhịp hay quạt theo mẫu. Phiên 4.1 dạy tiến trình và số La Mã.
+- (3.2, 4.1) Vòng hợp âm (`/theory/barre` bước 5, `/theory/keys` bước 2, 4, 5) phát mỗi hợp âm một lần quạt, chưa có nhịp hay mẫu quạt. Ghép với `core/rhythm` khi phiên 4.2 dựng vòng đệm.
 - (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
 - (3.3) Hợp âm có bass ngoài hợp âm (F/G, D/C) chưa dạy; `openVoicing({ bass })` đã nhận được nốt bất kỳ nhưng chưa có test cho trường hợp này.
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
@@ -178,6 +178,11 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
 - (2.1) Các bài Bản đồ Pentatonic và Pentatonic đầy đủ có `scaleNeck`, `boxes`, `upAndDown` gần giống nhau, mỗi bài một bản. Nếu bài thứ ba cần, chuyển chúng vào `core/fretboard`.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
+- (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3) không lưu điểm (cùng việc với chế độ ôn tập 5.1). Đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
+- (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.
+- (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
+- (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
+- (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -236,7 +241,7 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 3.1 | Hợp âm là xếp chồng quãng: hợp âm ba, sus, hợp âm dây buông, bài đố dựng hợp âm. Bài `/theory/chords` (en + vi), lõi `openVoicing`, `triadShape` | Ch. 5, 6, 13 | Xong |
 | 3.2 | Hợp âm chặn di động gốc dây 6 và dây 5: trưởng, m, 7, m7, maj7, sus4; tìm hợp âm; trộn hình khi đổi hợp âm. Bài `/theory/barre` (en + vi), lõi `barreVoicing`, `nearestBarre`. m11 dời sang 3.3 | Ch. 7, 8, 12 | Xong |
 | 3.3 | Bảng công thức hợp âm tương tác, hợp âm 7, hợp âm 7 và m11 dây buông, thế đảo, rút gọn hợp âm. Bài `/theory/chord-table` (en + vi), `openVoicing` thành phép tìm có nốt thiết yếu và bass, `stackShape`, `simplifyChord` | Ch. 17, 20 | Xong |
-| 4.1 | Giọng và tiến trình: số La Mã, trưởng/thứ song song, II–V–I | Ch. 8, 13, 18 | Chưa làm |
+| 4.1 | Giọng và vòng hợp âm: gia đình 7 hợp âm, số La Mã, tìm hợp âm nhà bằng tai, V7 → I và ii–V, relative minor. Bài `/theory/keys` (en + vi), lõi `progression()`, `PROGRESSIONS`, `twoFive()`, `barreOptions()`, `closestPath()` | Ch. 8, 13, 18 | Xong |
 | 4.2 | Solo theo hợp âm: nốt đích sáng lên khi hợp âm đổi, vòng đệm tự sinh | Ch. 19 | Chưa làm |
 | 4.3 | Âm giai 3 nốt mỗi dây, phủ toàn cần đàn | Ch. 17 | Chưa làm |
 | 5.1 | Chế độ đố và ôn tập xuyên các bài, liên kết với app Luyện tập | Tất cả | Chưa làm |
