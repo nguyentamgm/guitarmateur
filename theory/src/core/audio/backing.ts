@@ -3,6 +3,7 @@
  * Pure MIDI data; the scenes schedule it on a clock and swing it when the style swings.
  */
 import { BOOGIE, CHORDS, interval, mod, pc, type Chord, type NoteName } from '../music';
+import { BEATS_PER_BAR } from '../rhythm';
 
 /** The chord root as a low bass note: between low E (40) and the D♯ above it (51), string 6 frets 0–11. */
 export const bassMidi = (root: NoteName): number => 40 + mod(pc(root) - 4, 12);
@@ -22,7 +23,7 @@ export function chordMidis(chord: Chord): number[] {
 export type BackingStyle = 'shuffle' | 'strum' | 'rock' | 'comp';
 export const BACKING_STYLES: readonly BackingStyle[] = ['shuffle', 'strum', 'rock', 'comp'];
 
-export const EIGHTHS_PER_BAR = 8;
+export const EIGHTHS_PER_BAR = BEATS_PER_BAR * 2;
 
 /** Whether the style is played with a swing feel (K1.5). */
 export const STYLE_SWINGS: Readonly<Record<BackingStyle, boolean>> = { shuffle: true, strum: false, rock: false, comp: true };

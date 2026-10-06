@@ -25,6 +25,8 @@ export interface SceneCopy {
     readonly wrong: string;
     /** {scale} {fret} */
     readonly caption: string;
+    /** {scale}: box 1 starts at the nut. */
+    readonly captionOpen: string;
     /** How each style plays the scale (K7.3). */
     readonly styles: Readonly<Record<BackingId, string>>;
     /** {scale} {notes} */

@@ -37,7 +37,7 @@ export const vi: SoloCopy = {
       title: 'Một ý nhỏ, lặp lại, rồi đổi đoạn kết',
       body: [
         'Một chuỗi chạy scale không phải là câu solo. Câu hay bắt đầu từ một ý nhỏ, ba bốn nốt, và lặp lại để người nghe kịp nhận ra. Rồi nó đổi một điều gì đó: nhịp, hướng đi hoặc nốt cuối. Chính chỗ đổi đó làm câu nhạc nghe có chủ đích.',
-        'Chừa khoảng trống. Bar trống là một phần của câu: nó cho ý vừa chơi được nghe rõ và cho bạn chỗ để đáp lại. Mỗi ý ở đây được dựng từ scale, và đoạn kết nào cũng dừng trên một nốt của hợp âm trong bar đó.',
+        'Chừa khoảng trống. Bar trống là một phần của câu: nó cho ý vừa chơi được nghe rõ và cho bạn chỗ để đáp lại. Mỗi ý ở đây được dựng từ scale. Đoạn kết đầu dừng trên một nốt của hợp âm lúc đó, còn đoạn kết mới dừng trên một nốt của hợp âm bên dưới nó.',
       ],
       takeaway: 'Nói một ý, nói lại, đổi đoạn kết, rồi chừa khoảng trống.',
       tryIt: 'Nghe ý nhạc, rồi đáp lại mỗi bar trống bằng một biến thể của riêng bạn.',
@@ -64,6 +64,7 @@ export const vi: SoloCopy = {
       right: 'Scale hợp',
       wrong: 'Scale sai',
       caption: 'Solo bằng {scale}, box 1 ở phím {fret}.',
+      captionOpen: 'Solo bằng {scale}, box 1 ở thế bấm dây buông.',
       styles: {
         blues: 'Blues: dựa vào ♭3 và nốt blue, nhéo chúng lên, và để nhịp shuffle làm câu nhạc swing.',
         pop: 'Pop: câu nhạc như hát, lấy từ major pentatonic, đi từng bước, kết ở root hoặc bậc 3.',

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { chordNotes, format, parseNote, pc, scaleNotes } from '../../core/music';
+import { EIGHTHS_PER_BAR } from '../../core/audio';
+import { LICK_EIGHTHS, chordNotes, format, parseNote, pc, scaleNotes } from '../../core/music';
 import {
   BACKINGS,
   BACKING_IDS,
@@ -147,5 +148,7 @@ describe('step 4: say it, say it again, change it (K7.4)', () => {
       }
     });
     expect([0, 1, 2, 3, 4].map(phraseRole)).toEqual(['idea', 'again', 'change', 'yours', 'idea']);
+    // Ideas are timed in the same eighths the backing plays.
+    expect(LICK_EIGHTHS).toBe(EIGHTHS_PER_BAR);
   });
 });

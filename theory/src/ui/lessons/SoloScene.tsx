@@ -1,11 +1,12 @@
 /** The four scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
 import { useMemo, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
-import { format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
+import { SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
 import { fill } from '../../i18n';
 import {
   BACKINGS,
   BACKING_IDS,
+  PHRASE_BARS,
   SOLO_FRETS,
   backingBars,
   backingKeys,
@@ -103,12 +104,10 @@ function scaleDot(n: SoloNote, minor: boolean): FretDot {
     tone: n.isTonic ? (minor ? 'home' : 'homeMajor') : n.isAdded ? (minor ? 'blue' : 'soft') : 'plain',
   };
 }
-const isMinorScale = (w: SoloWindow) => w.scale === 'minorPentatonic' || w.scale === 'minorBlues';
+const isMinorScale = (w: SoloWindow) => SCALES[w.scale].quality === 'minor';
 
 /** A note of the box, dimmed and unlabelled: the background a target stands out from. */
 const quietDot = (n: SoloNote): FretDot => ({ key: posKey(n), string: n.string, fret: n.fret, midi: n.midi, dim: true });
-
-const bars = (path: readonly BackingBar[]) => path.map((b) => ({ degree: b.degree, symbol: b.symbol }));
 
 // --- Step 1 ---
 
@@ -119,10 +118,11 @@ function ScaleScene({ copy }: { copy: SceneCopy }) {
   const [wrong, setWrong] = useState(false);
   const backing = useBacking(choice.bars, BACKINGS[choice.id].style, choice.bpm);
   const scale = wrong ? wrongScale(choice.id) : BACKINGS[choice.id].scale;
-  const box = useMemo(() => soloWindow(choice.tonic, scale), [choice.tonic, scale]);
+  const wrongBox = useMemo(() => soloWindow(choice.tonic, wrongScale(choice.id)), [choice.tonic, choice.id]);
+  const box = wrong ? wrongBox : choice.box;
   const name = scaleName(copy, scale, choice.tonic);
   const caption = !wrong
-    ? `${fill(c.caption, { scale: name, fret: box.minFret })} ${c.styles[choice.id]}`
+    ? `${box.minFret === 0 ? fill(c.captionOpen, { scale: name }) : fill(c.caption, { scale: name, fret: box.minFret })} ${c.styles[choice.id]}`
     : choice.id === 'blues'
       ? fill(c.wrongBlues, { scale: name })
       : fill(c.wrongCaption, { scale: name, notes: outsideNotes(choice.id, choice.tonic).join(', ') });
@@ -141,7 +141,7 @@ function ScaleScene({ copy }: { copy: SceneCopy }) {
         />
       </BackingControls>
       <Fretboard geometry={g} dots={box.notes.map((n) => scaleDot(n, isMinorScale(box)))} box={box} label={fill(copy.neck, { scale: name })} />
-      <BarGrid label={copy.grid} bars={bars(choice.bars)} current={backing.bar} />
+      <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} />
       <p className="caption" aria-live="polite">
         {caption}
       </p>
@@ -198,7 +198,7 @@ function TonesScene({ copy }: { copy: SceneCopy }) {
         />
       </BackingControls>
       <Fretboard geometry={g} dots={dots} box={choice.box} label={fill(copy.neck, { scale: name })} />
-      <BarGrid label={copy.grid} bars={bars(choice.bars)} current={backing.bar} />
+      <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} />
       <p className="caption" aria-live="polite">
         {backing.bar === null ? fill(c.caption, { symbol: bar.symbol, tones }) : fill(c.playing, { n: backing.bar + 1, symbol: bar.symbol, tones })}
       </p>
@@ -217,8 +217,8 @@ function GuideScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const [withLine, setWithLine] = useState(true);
   const line = useMemo(() => guideLine(choice.box, choice.bars), [choice.box, choice.bars]);
-  const backing = useBacking(choice.bars, BACKINGS[choice.id].style, choice.bpm, (bar, eighth, delay, eighthSec) => {
-    if (withLine && eighth === 0) player.pluck(line[bar]!.note.midi, delay, eighthSec * 7.5);
+  const backing = useBacking(choice.bars, BACKINGS[choice.id].style, choice.bpm, ({ bar, eighth, at, seconds }) => {
+    if (withLine && eighth === 0) player.pluck(line[bar]!.note.midi, at, seconds(EIGHTHS_PER_BAR) * 0.95);
   });
   const at = backing.bar ?? 0;
   const now = line[at]!;
@@ -239,7 +239,7 @@ function GuideScene({ copy }: { copy: SceneCopy }) {
       <Fretboard geometry={g} dots={dots} box={choice.box} active={[posKey(now.note)]} label={fill(copy.neck, { scale: name })}>
         <polyline className="guideline" points={moves.map((x) => `${g.x(x.note.fret)},${g.y(x.note.string)}`).join(' ')} />
       </Fretboard>
-      <BarGrid label={copy.grid} bars={bars(choice.bars)} current={backing.bar} />
+      <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} />
       <p className="caption" aria-live="polite">
         {fill(isThird(now.degree) ? c.caption : c.fallback, fields)} {fill(c.line, { line: moves.map((x) => x.note.name).join(' – ') })}
       </p>
@@ -258,13 +258,13 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const [seed, setSeed] = useState(newSeed);
   const lines = useMemo(() => phrase(choice.box, choice.bars, seededRandom(seed)), [choice.box, choice.bars, seed]);
-  const backing = useBacking(choice.bars, BACKINGS[choice.id].style, choice.bpm, (bar, eighth, delay, eighthSec) => {
-    for (const x of lines[bar]!) if (x.at === eighth) player.pluck(x.note.midi, delay, x.length * eighthSec * 0.95);
+  const backing = useBacking(choice.bars, BACKINGS[choice.id].style, choice.bpm, ({ bar, eighth, at, seconds }) => {
+    for (const x of lines[bar]!) if (x.at === eighth) player.pluck(x.note.midi, at, seconds(x.length) * 0.95);
   });
 
   const at = backing.bar ?? 0;
-  const first = at - (at % 4);
-  const group = lines.slice(first, first + 4);
+  const first = at - (at % PHRASE_BARS);
+  const group = lines.slice(first, first + PHRASE_BARS);
   const columns: TabNote[][] = [];
   const counts: string[] = [];
   const barLines: number[] = [];
@@ -278,7 +278,7 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
     }
     for (const x of notes) {
       columnOf.set(`${k}:${x.at}`, columns.length);
-      columns.push([{ key: posKey(x.note), string: x.note.string, fret: x.note.fret, midi: x.note.midi }]);
+      columns.push([{ key: `${k}:${x.at}`, string: x.note.string, fret: x.note.fret, midi: x.note.midi }]);
       counts.push(x.at % 2 === 0 ? String(x.at / 2 + 1) : fill(c.offbeat, { n: Math.floor(x.at / 2) + 1 }));
     }
   });
@@ -304,8 +304,8 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
         </Button>
       </BackingControls>
       <Fretboard geometry={g} dots={dots} box={choice.box} active={sounding ? [posKey(sounding.note)] : []} label={fill(copy.neck, { scale: name })} />
-      <Tab columns={columns} counts={counts} barLines={barLines} column={column} active={sounding ? [posKey(sounding.note)] : []} label={c.tab} />
-      <BarGrid label={copy.grid} bars={bars(choice.bars)} current={backing.bar} />
+      <Tab columns={columns} counts={counts} barLines={barLines} column={column} active={sounding ? [`${at - first}:${sounding.at}`] : []} label={c.tab} />
+      <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} />
       <p className="caption" aria-live="polite">
         {caption}
       </p>

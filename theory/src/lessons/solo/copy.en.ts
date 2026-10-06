@@ -37,7 +37,7 @@ export const en: SoloCopy = {
       title: 'A small idea, again, then a new ending',
       body: [
         'A string of scale runs is not a solo. A good phrase starts from a small idea, three or four notes, and repeats it so the listener can catch it. Then it changes something: the rhythm, the direction or the last note. That change is what makes it sound intended.',
-        'Leave space. The empty bar is part of the phrase: it lets the idea land and gives you room to answer. Each idea here is made from the scale, and every ending lands on a note of its bar\'s chord.',
+        'Leave space. The empty bar is part of the phrase: it lets the idea land and gives you room to answer. Each idea here is made from the scale. Its first ending lands on a note of its chord, and the new ending on a note of the chord under it.',
       ],
       takeaway: 'Say an idea, say it again, change the end, then leave space.',
       tryIt: 'Listen to the idea, then answer each empty bar with your own version of it.',
@@ -64,6 +64,7 @@ export const en: SoloCopy = {
       right: 'The one that fits',
       wrong: 'The wrong one',
       caption: 'Solo with the {scale}, box 1 at fret {fret}.',
+      captionOpen: 'Solo with the {scale}, box 1 in open position, with open strings.',
       styles: {
         blues: 'Blues: lean on the ♭3 and the blue note, bend them, and let the shuffle swing your phrases.',
         pop: 'Pop: sing-like lines from the major pentatonic, mostly steps, ending on the root or the 3rd.',

@@ -45,7 +45,11 @@ describe('backing patterns (K5.4, K7.1)', () => {
     }
   });
 
-  it('plays every chord tone somewhere in a bar of each style that strikes the chord', () => {
-    for (const style of BACKING_STYLES) expect(bar(a7, style).flat().length, style).toBeGreaterThan(0);
+  it('sounds the root in every style, and the whole chord, 3rd and 7th included, when strummed or comped', () => {
+    const pcs = (style: (typeof BACKING_STYLES)[number]) => new Set(bar(a7, style).flatMap((h) => h.flatMap((x) => x.midis.map((m) => m % 12))));
+    for (const style of BACKING_STYLES) expect(pcs(style).has(9), style).toBe(true);
+    // A7 = A C♯ E G: pitch classes 9, 1, 4, 7. The shuffle and the rock chug leave the 3rd out on purpose.
+    for (const style of ['strum', 'comp'] as const) expect(pcs(style), style).toEqual(new Set([9, 1, 4, 7]));
+    expect(pcs('rock')).toEqual(new Set([9, 4]));
   });
 });
