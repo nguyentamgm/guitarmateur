@@ -1,0 +1,113 @@
+import type { SoloCopy } from './model';
+
+export const vi: SoloCopy = {
+  title: 'Solo theo hợp âm: nhắm vào nốt của hợp âm',
+  summary: 'Chọn scale theo giọng, để hợp âm đang vang chỉ cho bạn nên dừng ở nốt nào, rồi dựng những câu nhạc để bạn đáp lại.',
+  lead:
+    'Solo trên một backing quy về hai câu hỏi: nốt nào an toàn ở đây, và nốt nào hay nhất lúc này. Giọng trả lời câu thứ nhất; hợp âm đang vang trả lời câu thứ hai. Bài này đặt một backing dưới tay bạn (một bài blues, một vòng pop, một vòng rock hoặc một ii–V–I jazz), làm sáng các nốt của từng hợp âm khi nó đến, và dựng các câu nhạc để bạn đáp lại. Bốn bước. Cầm đàn chơi theo nhé.',
+  steps: {
+    scale: {
+      title: 'Chọn scale theo giọng',
+      body: [
+        'Bắt đầu từ giọng. Nhà thứ hoặc blues: minor pentatonic, và với blues thì thêm ♭5, nốt blue. Nhà trưởng: major pentatonic. Nốt nào của nó cũng nghe ổn trên mọi hợp âm của giọng, nên đây là scale đầu tiên người chơi dùng để solo.',
+        'Phong cách quyết định màu sắc. Rock dựa vào minor pentatonic và nhéo dây. Blues thêm nốt blue và lối chơi swing thoải mái. Jazz dùng cả major scale và đi theo từng hợp âm, vì hợp âm jazz có bậc 7 mà pentatonic bỏ mất. Thử chuyển sang pentatonic sai một lần để nghe vì sao chọn đúng lại quan trọng.',
+      ],
+      takeaway: 'Giọng chọn scale; phong cách chọn màu.',
+      tryIt: 'Chơi tự do trong box trên mỗi backing, mỗi cái một vòng. Rồi chuyển sang scale sai và nghe chỗ bị chỏi.',
+    },
+    tones: {
+      title: 'Nốt của hợp âm sáng lên',
+      body: [
+        'Scale cho biết nốt nào được phép. Hợp âm đang vang cho biết nốt nào mạnh nhất lúc này: chính các nốt của nó, bậc 1, 3, 5 và 7. Ở đây các nốt của hợp âm đang vang sáng lên, ghi theo vị trí của chúng trong hợp âm, và đổi theo khi backing đổi hợp âm.',
+        'Các nốt còn lại không sai. Chúng là nốt đi qua: tốt khi đang đi, yếu khi dừng lại. Dừng trên một nốt sáng, nhất là ở phách 1 và ở cuối câu, thì câu solo nghe như biết bài đang ở đâu.',
+      ],
+      takeaway: 'Scale nói nốt nào được phép; hợp âm nói nốt nào mạnh nhất.',
+      tryIt: 'Chơi tự do, nhưng ở phách 1 của mỗi bar phải dừng trên một nốt sáng.',
+    },
+    guide: {
+      title: 'Nhắm vào bậc 3',
+      body: [
+        'Khi hợp âm đổi, bậc 3 của nó báo điều đó rõ nhất: chính nốt này làm hợp âm thành trưởng hay thứ. Kế đến là bậc 7. Hai nốt này gọi là guide tone. Chơi bậc 3 gần nhất của mỗi hợp âm mới là nghe ra vòng hợp âm, kể cả khi không có backing.',
+        'Đường nốt ở đây lấy một nốt đích cho mỗi bar và đi ít nhất có thể, thường chỉ một bước. Khi box không có bậc 3 của một hợp âm, như các bậc 3 trưởng của bài blues trong box thứ, nó lấy bậc 7 thay vào.',
+      ],
+      takeaway: 'Khi hợp âm đổi, nhắm vào bậc 3 của nó; bậc 7 là lựa chọn kế tiếp.',
+      tryIt: 'Chỉ chơi đường nốt, mỗi bar một nốt ngân dài. Rồi thêm hai ba nốt dẫn vào từng nốt.',
+    },
+    phrase: {
+      title: 'Một ý nhỏ, lặp lại, rồi đổi đoạn kết',
+      body: [
+        'Một chuỗi chạy scale không phải là câu solo. Câu hay bắt đầu từ một ý nhỏ, ba bốn nốt, và lặp lại để người nghe kịp nhận ra. Rồi nó đổi một điều gì đó: nhịp, hướng đi hoặc nốt cuối. Chính chỗ đổi đó làm câu nhạc nghe có chủ đích.',
+        'Chừa khoảng trống. Bar trống là một phần của câu: nó cho ý vừa chơi được nghe rõ và cho bạn chỗ để đáp lại. Mỗi ý ở đây được dựng từ scale, và đoạn kết nào cũng dừng trên một nốt của hợp âm trong bar đó.',
+      ],
+      takeaway: 'Nói một ý, nói lại, đổi đoạn kết, rồi chừa khoảng trống.',
+      tryIt: 'Nghe ý nhạc, rồi đáp lại mỗi bar trống bằng một biến thể của riêng bạn.',
+    },
+  },
+  scene: {
+    play: 'Phát backing',
+    stop: 'Dừng',
+    key: 'Giọng',
+    tempo: 'Tempo',
+    bpm: '{bpm} BPM',
+    backing: 'Backing',
+    backings: { blues: 'Blues 12-bar', pop: 'Pop I–V–vi–IV', rock: 'Rock i–VII–VI–VII', jazz: 'Jazz ii–V–I' },
+    grid: 'Backing, số La Mã ở trên, tên hợp âm ở dưới',
+    neck: '{scale}, box 1',
+    scales: {
+      minorBlues: 'blues scale {root}',
+      majorPentatonic: '{root} major pentatonic',
+      minorPentatonic: '{root} minor pentatonic',
+      major: '{root} major scale',
+    },
+    scale: {
+      choice: 'Scale',
+      right: 'Scale hợp',
+      wrong: 'Scale sai',
+      caption: 'Solo bằng {scale}, box 1 ở phím {fret}.',
+      styles: {
+        blues: 'Blues: dựa vào ♭3 và nốt blue, nhéo chúng lên, và để nhịp shuffle làm câu nhạc swing.',
+        pop: 'Pop: câu nhạc như hát, lấy từ major pentatonic, đi từng bước, kết ở root hoặc bậc 3.',
+        rock: 'Rock: minor pentatonic, riff ngắn lặp lại, nhéo dây lên root và bậc 5.',
+        jazz: 'Jazz: đủ các nốt của major scale, chọn theo từng hợp âm. Hai bước sau chỉ cách làm.',
+      },
+      wrongCaption: '{scale}: {notes} không thuộc giọng, và chúng chỏi với các hợp âm. Nghe kỹ nhé.',
+      wrongBlues: '{scale} trên nền blues không sai, chỉ sáng hơn: dân chơi blues trộn cả hai. Nên học màu thứ trước.',
+    },
+    tones: {
+      chord: 'Hợp âm',
+      caption: '{symbol}: {tones} sáng lên.',
+      playing: 'Bar {n}, {symbol}: dừng ở {tones}.',
+    },
+    guide: {
+      withLine: 'Phát đường nốt',
+      on: 'Bật',
+      off: 'Tắt',
+      line: 'Đường nốt: {line}.',
+      caption: 'Bar {n}, {symbol}: nhắm vào {name}, bậc {degree} của nó.',
+      fallback: 'Bar {n}, {symbol}: box không có bậc 3 của hợp âm này, nên nhắm vào {name}, bậc {degree} của nó.',
+    },
+    phrase: {
+      newIdea: 'Ý mới',
+      tab: 'Câu nhạc, kèm phách mỗi nốt bắt đầu',
+      offbeat: '{n} và',
+      yourTurn: 'bạn',
+      idle: 'Bốn bar: một ý, lặp lại ý đó, ý đó với đoạn kết mới, rồi một bar để bạn đáp lại.',
+      roles: {
+        idea: 'Bar {n}: ý nhạc, dừng ở {name}, bậc {degree} của {symbol}.',
+        again: 'Bar {n}: lặp lại đúng ý đó.',
+        change: 'Bar {n}: đoạn kết mới, dừng ở {name}, bậc {degree} của {symbol}.',
+        yours: 'Bar {n}: tới lượt bạn. Đáp lại đi.',
+      },
+    },
+  },
+  notYetTitle: 'Những gì chưa cần học',
+  notYetIntro: 'Một box, nốt của hợp âm và mỗi lần một ý là đủ để câu solo nghe có chủ đích. Những phần này để sau.',
+  notYet: [
+    { title: 'Nghe một câu rồi chơi lại', why: 'Nghe một câu và tìm nó trên cần đàn sẽ có trong chế độ ôn tập.' },
+    { title: 'Thu lại câu solo và nghe lại', why: 'Thử một ý rồi nghe lại cũng thuộc chế độ ôn tập.' },
+    { title: 'Mode và scale cho từng hợp âm', why: 'Dân chơi jazz chọn scale theo từng hợp âm. Trên ii–V–I, tạm thời major scale là đủ.' },
+    { title: 'Nốt đi qua chromatic', why: 'Nốt ngoài scale trên đường tới một nốt của hợp âm. Học nốt đích trước.' },
+    { title: 'Solo qua cả năm box', why: 'Một box là đủ để nhắm vào nốt của hợp âm. Nối các box sẽ học cùng bài scale phủ toàn cần đàn.' },
+    { title: 'Nhéo, vuốt và rung trong câu nhạc', why: 'Bài blues và bài đàn điện đã dạy các kỹ thuật này. Ở đây nốt và nhịp đi trước.' },
+  ],
+};

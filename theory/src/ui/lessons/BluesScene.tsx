@@ -1,8 +1,8 @@
 /** The five scenes of "Blues: blue notes, shuffle and bends". Every note comes from lessons/blues. */
 import { useMemo, useState } from 'react';
-import { bend, type PitchPoint } from '../../core/audio';
+import { backingAt, bend, type PitchPoint } from '../../core/audio';
 import { midiAt } from '../../core/fretboard';
-import { format, type NoteName } from '../../core/music';
+import { format, type Chord, type NoteName } from '../../core/music';
 import { beatSeconds, countTriplets, swingDelay, swingLength } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
@@ -28,7 +28,6 @@ import {
   planGlide,
   planSeconds,
   questionSemis,
-  shuffleNotes,
   swingBar,
   type BendOutcome,
   type BendQuestion,
@@ -73,10 +72,10 @@ const EIGHTHS = 8;
 /** Plays one eighth of the boogie under a chord, swung: shared by steps 3 and 5. */
 function useBacking() {
   const { player } = useTheory();
-  return (chord: Parameters<typeof shuffleNotes>[0], eighth: number, delay: number, bpm: number) => {
+  return (chord: Chord, eighth: number, delay: number, bpm: number) => {
     const at = delay + swingDelay(eighth, SHUFFLE, bpm);
     const length = swingLength(eighth, SHUFFLE) * beatSeconds(bpm) * 0.85;
-    for (const m of shuffleNotes(chord, eighth)) player.pluck(m, at, length);
+    for (const hit of backingAt(chord, 'shuffle', eighth)) for (const m of hit.midis) player.pluck(m, at, length);
   };
 }
 

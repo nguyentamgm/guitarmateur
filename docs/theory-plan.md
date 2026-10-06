@@ -160,21 +160,21 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (0.2, 0.3) Test của Theory chạy chung setup `src/test/setup.ts` của app Luyện tập. File này chỉ bật cờ `act` của React nên test UI của Theory (0.3) dùng được. Chỉ tách khi Theory cần setup khác.
 - (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
-- (1.2, 2.2) Tab có tiết tấu mới ở mức một cột cho mỗi móc đơn (câu mẫu `/theory/blues` bước 5); chưa vẽ độ dài nốt hay chữ đếm dưới tab. Ghép `Tab` với `BeatGrid` khi phiên 4.2 cần.
+- (1.2, 2.2, 4.2) `Tab` đã có chữ đếm dưới mỗi cột và vạch nhịp (`counts`, `barLines`, dùng ở `/theory/solo` bước 4), nhưng chưa vẽ độ dài nốt: nốt dài và nốt ngắn trông như nhau. Ghép `Tab` với `BeatGrid` nếu một bài cần đọc độ dài.
 - (1.2) Tempo của mỗi cảnh không được nhớ giữa các lần mở trang. Nếu người học cần, lưu vào localStorage của Theory với khóa riêng.
 - (1.1, 2.1) Bài đố nốt nhà và bài đố chọn hình (`/theory/pentatonic` bước 5) không lưu kết quả; tempo cao nhất của mẫu luyện ngón cũng vậy. Chế độ ôn tập chung thuộc phiên 5.1.
 - (2.2) Chữ đếm liên ba tiếng Việt là "1 trí-ô" (từ *triolet*), do phiên 2.2 tự chọn; chưa có cách đếm chuẩn được thống nhất. Nếu người học thấy lạ, đổi trong `lessons/blues/copy.vi.ts`.
 - (2.2) Âm thanh nhéo, trượt, rung chỉ đổi `playbackRate` của tiếng gảy: đúng cao độ (đo trong Chrome: D nhéo +2 tới 331,6 Hz, E là 329,6 Hz) nhưng tiếng tắt nhanh hơn khi nhéo cao và không có tiếng "rít" của dây. Chỉnh âm sắc khi cần.
-- (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Câu tự sinh nhiều biến thể thuộc bài solo (4.2, K7.4).
+- (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Lõi đã sinh được ý nhạc (`motif()`, phiên 4.2) nhưng câu blues chưa chuyển sang dùng nó.
 - (2.2) Bài kiểm tra tai nhéo dây không lưu điểm (cùng việc với chế độ ôn tập 5.1).
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
 - (3.1) Bài đố dựng hợp âm không lưu điểm (cùng việc với chế độ ôn tập 5.1).
-- (3.2, 4.1) Vòng hợp âm (`/theory/barre` bước 5, `/theory/keys` bước 2, 4, 5) phát mỗi hợp âm một lần quạt, chưa có nhịp hay mẫu quạt. Ghép với `core/rhythm` khi phiên 4.2 dựng vòng đệm.
+- (3.2, 4.1) Vòng hợp âm (`/theory/barre` bước 5, `/theory/keys` bước 2, 4, 5) vẫn phát mỗi hợp âm một lần quạt. Lõi đã có kiểu quạt pop (`backingAt(chord, 'strum')`) và `ui/useBacking.ts` từ phiên 4.2; chuyển các vòng này sang đó là việc nhỏ, nhưng đổi nhịp độ đọc của bài nên để một PR riêng.
 - (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
 - (3.3) Hợp âm có bass ngoài hợp âm (F/G, D/C) chưa dạy; `openVoicing({ bass })` đã nhận được nốt bất kỳ nhưng chưa có test cho trường hợp này.
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
-- (2.1, 2.2, 2.3) Mẫu boogie (`BOOGIE`) đã vào lõi, nhưng phần phát vòng đệm vẫn nằm trong từng bài: `vampVoicing` (pentatonic), `shuffleNotes`/`bassMidi` (blues), `boogieShape` (electric). Phiên 4.2 cần vòng đệm theo tiến trình bất kỳ: khi đó gom vào lõi.
+- (2.3) `boogieShape` (electric) vẫn nằm trong bài: nó vẽ vị trí bấm trên cần, không phải âm thanh, nên không gom vào `core/audio/backing.ts` như `vampVoicing`, `shuffleNotes` và `bassMidi` (đã gom ở phiên 4.2).
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
 - (2.1) Các bài Bản đồ Pentatonic và Pentatonic đầy đủ có `scaleNeck`, `boxes`, `upAndDown` gần giống nhau, mỗi bài một bản. Nếu bài thứ ba cần, chuyển chúng vào `core/fretboard`.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
@@ -183,6 +183,10 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
 - (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
+- (4.2) Thu lại câu solo và phát lại (K7.6) và câu đố nghe rồi chơi lại (K7.5) chuyển sang chế độ ôn tập (5.1).
+- (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống.
+- (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ (phiên 4.3).
+- (4.2) Đường guide tone đi giữa các nốt trong box theo cao độ; chưa nối sang box khác khi nốt gần hơn nằm ngoài box.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -242,6 +246,6 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 3.2 | Hợp âm chặn di động gốc dây 6 và dây 5: trưởng, m, 7, m7, maj7, sus4; tìm hợp âm; trộn hình khi đổi hợp âm. Bài `/theory/barre` (en + vi), lõi `barreVoicing`, `nearestBarre`. m11 dời sang 3.3 | Ch. 7, 8, 12 | Xong |
 | 3.3 | Bảng công thức hợp âm tương tác, hợp âm 7, hợp âm 7 và m11 dây buông, thế đảo, rút gọn hợp âm. Bài `/theory/chord-table` (en + vi), `openVoicing` thành phép tìm có nốt thiết yếu và bass, `stackShape`, `simplifyChord` | Ch. 17, 20 | Xong |
 | 4.1 | Giọng và vòng hợp âm: gia đình 7 hợp âm, số La Mã, tìm hợp âm nhà bằng tai, V7 → I và ii–V, relative minor. Bài `/theory/keys` (en + vi), lõi `progression()`, `PROGRESSIONS`, `twoFive()`, `barreOptions()`, `closestPath()` | Ch. 8, 13, 18 | Xong |
-| 4.2 | Solo theo hợp âm: nốt đích sáng lên khi hợp âm đổi, vòng đệm tự sinh | Ch. 19 | Chưa làm |
+| 4.2 | Solo theo hợp âm: chọn scale theo giọng, nốt của hợp âm sáng theo backing, đường guide tone, ý nhạc lặp rồi đổi đoạn kết. Bài `/theory/solo` (en + vi), lõi `backingAt()` (4 kiểu đệm), `motif()`/`landOn()`, `closestPath()` chạy bằng quy hoạch động; `ui/useBacking.ts`, `Tab` có chữ đếm | Ch. 19 | Xong |
 | 4.3 | Âm giai 3 nốt mỗi dây, phủ toàn cần đàn | Ch. 17 | Chưa làm |
 | 5.1 | Chế độ đố và ôn tập xuyên các bài, liên kết với app Luyện tập | Tất cả | Chưa làm |

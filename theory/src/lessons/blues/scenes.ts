@@ -4,7 +4,7 @@
  * timing from `swingOnset()`, pitch movements from core/audio's glides. The bends, demos and the
  * lick name notes by their place in box 1 (degree, or index in pitch order), never by fret.
  */
-import { semisAt, type Glide, type PitchPoint } from '../../core/audio';
+import { EIGHTHS_PER_BAR, semisAt, type Glide, type PitchPoint } from '../../core/audio';
 import {
   allPositions,
   byHomeFret,
@@ -14,15 +14,12 @@ import {
   type FretPos,
 } from '../../core/fretboard';
 import {
-  BOOGIE,
   MAJOR_KEY_TONICS,
   bluesChord,
   chordSymbol,
   decorationDegrees,
   degreeOf,
   format,
-  interval,
-  mod,
   parseNote,
   pc,
   relativeMajorTonic,
@@ -114,7 +111,6 @@ export function bluePhrase(box: Box, withBlue: boolean): NeckNote[] {
 
 /** The note the shuffle drill plays: the open A string, damped short. */
 export const SHUFFLE_MIDI = midiAt({ string: 5, fret: 0 });
-export const EIGHTHS_PER_BAR = 8;
 
 export interface SwingBlock {
   readonly eighth: number;
@@ -148,15 +144,6 @@ export function bluesForm(tonic: NoteName, opts: TwelveBarOptions = {}): Bar[] {
     const chord = bluesChord(tonic, degree);
     return { degree, chord, symbol: chordSymbol(chord) };
   });
-}
-
-/** The chord root as a low bass note between low E (40) and the D♯ above it (51). */
-export const bassMidi = (root: NoteName): number => 40 + mod(pc(root) - 4, 12);
-
-/** MIDI notes the backing plays on eighth `eighth` (0–7) of a bar of `chord`. */
-export function shuffleNotes(chord: Chord, eighth: number): number[] {
-  const root = bassMidi(chord.root);
-  return [root, root + interval(BOOGIE[mod(eighth, EIGHTHS_PER_BAR)]!).semitones];
 }
 
 export const BLUES_BPM = 84;

@@ -19,7 +19,6 @@ import {
   samePos,
   scaleNeck,
   songChordSymbol,
-  vampVoicing,
   type QuizQuestion,
 } from './scenes';
 
@@ -154,11 +153,6 @@ describe('step 5: which shape? (K3.7)', () => {
 
   it('names the vamp chord: Am, G, E7', () => {
     expect([q('minor', 'A'), q('major', 'G'), q('blues', 'E')].map(songChordSymbol)).toEqual(['Am', 'G', 'E7']);
-  });
-
-  it('voices the vamp chord from its formula, root on string 6', () => {
-    expect(vampVoicing({ root: n('A'), id: 'minor' })).toEqual([45, 57, 60, 64]);
-    expect(vampVoicing({ root: n('E'), id: 'dom7' })).toEqual([40, 52, 56, 59, 62]);
   });
 
   it.each(QUIZ_POOL.map((x) => [`${x.kind} ${format(x.tonic)}`, x] as const))('%s: the shown box starts where the answer says and fits the vamp loop', (_l, x) => {

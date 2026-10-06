@@ -58,7 +58,7 @@ ui → lessons → core/fretboard → core/music
   knowledge base, converted by `interval()`.
 - **No shape tables.** Boxes and positions come from `positions()`, practice orders (groups of
   3, 4, skips) from `sequence()`, open chords from `openVoicing()`, stacked triads from
-  `triadShape()`, barre chords from `barreVoicing()` (the open E or A voicing moved up; every place a chord can go from `barreOptions()`, the loop with least travel from `closestPath()`). `openVoicing()` is a
+  `triadShape()`, barre chords from `barreVoicing()` (the open E or A voicing moved up; every place a chord can go from `barreOptions()`, the loop with least travel from `closestPath()`, which also takes an accessor to find a melody line by pitch). `openVoicing()` is a
   small search: essential tones (`essentialDegrees()`), fewest fretted notes, optional `bass` for
   inversions. Label chord tones with `chordToneDegree()` so a 9 or 11 keeps its name. Never hand-type frets or tab of a scale or chord into lesson
   data; derive them.
@@ -78,6 +78,10 @@ ui → lessons → core/fretboard → core/music
   never picked again. `semisAt()` reads the same points, so `ui/PitchCurve.tsx` draws what is heard.
 - Swing is a delay, not a different grid: a clock steps in straight eighths and adds
   `swingDelay(eighth, swing, bpm)` to each off-beat (`core/rhythm`, K1.5).
+- A backing track is `ui/useBacking.ts` over `backingAt(chord, style, eighth)` from
+  `core/audio/backing.ts` (styles `shuffle`, `strum`, `rock`, `comp`; `bassMidi()` and `chordMidis()`
+  voice it). Its `onEighth` callback gets the same swung delay, so a melody over it stays in time.
+  Do not write a per-lesson backing.
 - Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
   time with its exact delay, so timer jitter moves only the cursor, never the sound. `useSequence`
   stays for short demos where a few ms do not matter.
@@ -99,7 +103,10 @@ ui → lessons → core/fretboard → core/music
 - Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
   to a click, `faint` dots for places to click that are not notes of the picture) and `ui/Tab.tsx` (six-line tab whose numbers play). Positions come from `scenes.ts`,
   never from the component. `Tab` scrolls itself to keep the playing column in view; a note's
-  `text` replaces its fret number for technique marks (`7b9`, `h7`, `/7~`).
+  `text` replaces its fret number for technique marks (`7b9`, `h7`, `/7~`). With `counts` it shows
+  the count word each column starts on, and `barLines` draws bar lines.
+- Melodic ideas come from `motif()` / `landOn()` in `core/music/licks.ts` (indexes into a
+  pitch-ordered list of scale notes), never typed in.
 - A barre is drawn with `ui/BarreBar.tsx`. Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
   form is drawn with `ui/BarGrid.tsx`. Key lists for a finder come from `byHomeFret()`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
