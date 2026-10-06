@@ -25,6 +25,7 @@ import {
   type SceneCopy,
   type StepId,
 } from '../../lessons/barre';
+import { BarreBar } from '../BarreBar';
 import { useTheory } from '../context';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
@@ -66,14 +67,6 @@ const chordDots = (view: BarreView, labels: Labels, extra: Partial<FretDot> = {}
     tone: n.degree === '1' ? 'home' : 'plain',
     ...extra,
   }));
-
-/** The index finger across the strings of the shape, drawn under the dots; nothing at fret 0. */
-function BarreBar({ g, view, faint = false }: { g: NeckGeometry; view: BarreView; faint?: boolean }) {
-  if (view.fret === 0) return null;
-  const top = g.y(1) - 13;
-  const bottom = g.y(view.shape === 'E' ? 6 : 5) + 13;
-  return <rect className={faint ? 'barrebar faint' : 'barrebar'} x={g.x(view.fret) - 13} y={top} width={26} height={bottom - top} rx={13} />;
-}
 
 function MutedMarks({ g, view }: { g: NeckGeometry; view: BarreView }) {
   return (

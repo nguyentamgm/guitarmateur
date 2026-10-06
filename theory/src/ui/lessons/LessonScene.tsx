@@ -5,6 +5,7 @@ import type * as ChordTable from '../../lessons/chord-table';
 import type * as Chords from '../../lessons/chords';
 import type * as Electric from '../../lessons/electric';
 import type * as Fretboard from '../../lessons/fretboard';
+import type * as Keys from '../../lessons/keys';
 import type * as MajorScale from '../../lessons/major-scale';
 import type * as Pentatonic from '../../lessons/pentatonic';
 import type * as PentatonicMap from '../../lessons/pentatonic-map';
@@ -15,6 +16,7 @@ import { ChordTableScene } from './ChordTableScene';
 import { ChordsScene } from './ChordsScene';
 import { ElectricScene } from './ElectricScene';
 import { FretboardScene } from './FretboardScene';
+import { KeysScene } from './KeysScene';
 import { MajorScaleScene } from './MajorScaleScene';
 import { PentatonicMapScene } from './PentatonicMapScene';
 import { PentatonicScene } from './PentatonicScene';
@@ -42,6 +44,8 @@ export function LessonScene({ slug, step, copy }: { slug: string; step: string; 
       return <BarreScene step={step as Barre.StepId} copy={copy as Barre.SceneCopy} />;
     case 'chord-table':
       return <ChordTableScene step={step as ChordTable.StepId} copy={copy as ChordTable.SceneCopy} />;
+    case 'keys':
+      return <KeysScene step={step as Keys.StepId} copy={copy as Keys.SceneCopy} />;
     default:
       return null;
   }

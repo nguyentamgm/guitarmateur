@@ -20,6 +20,9 @@ import {
   essentialDegrees,
   barreVoicing,
   nearestBarre,
+  barreOptions,
+  closestPath,
+  loopTravel,
   type Voicing,
   SEQUENCE_IDS,
   shapeAt,
@@ -388,5 +391,36 @@ describe('barre chords (K4.6)', () => {
     expect([nearestBarre(chord('D', 'major'), 3)!.shape, nearestBarre(chord('D', 'major'), 3)!.fret]).toEqual(['A', 5]);
     expect(nearestBarre(chord('E', 'minor'), 8)!.fret).toBe(7);
     expect(nearestBarre(chord('E', 'minor'), 10)!.fret).toBe(12);
+  });
+});
+
+describe('moving between chords (K4.6)', () => {
+  const chord = (r: string, id: ChordId) => ({ root: n(r), id });
+
+  it('lists each barre shape at its home fret and an octave up, within reach', () => {
+    expect(barreOptions(chord('G', 'major')).map((v) => `${v.shape}${v.fret}`)).toEqual(['E3', 'A10']);
+    expect(barreOptions(chord('G', 'major'), 15).map((v) => `${v.shape}${v.fret}`)).toEqual(['E3', 'E15', 'A10']);
+    expect(barreOptions(chord('B', 'dim'))).toEqual([]);
+  });
+
+  it('measures travel around a loop, back to the start', () => {
+    expect(loopTravel([3, 0, 8, 10])).toBe(3 + 8 + 2 + 7);
+    expect(loopTravel([5])).toBe(0);
+    expect(loopTravel([])).toBe(0);
+  });
+
+  it('picks one option per chord with the least travel, ties to the lower position', () => {
+    const at = (...frets: number[]) => frets.map((fret) => ({ fret }));
+    expect(closestPath([at(3, 15), at(0, 12), at(3, 10)]).map((v) => v.fret)).toEqual([3, 0, 3]);
+    // 7 0 2 and 7 12 14 both travel 14 frets: the lower one wins.
+    expect(closestPath([at(7), at(0, 12), at(2, 14)]).map((v) => v.fret)).toEqual([7, 0, 2]);
+    expect(closestPath([at(1), []])).toEqual([]);
+    expect(closestPath([])).toEqual([]);
+  });
+
+  it('keeps G Em C D in G within a few frets by mixing shapes', () => {
+    const path = closestPath(['G', 'Em', 'C', 'D'].map((s) => barreOptions(chord(s[0]!, s.endsWith('m') ? 'minor' : 'major'))));
+    expect(path.map((v) => `${v.shape}${v.fret}`)).toEqual(['A10', 'A7', 'E8', 'E10']);
+    expect(loopTravel(path.map((v) => v.fret))).toBe(6);
   });
 });
