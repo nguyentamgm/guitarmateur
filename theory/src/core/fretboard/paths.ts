@@ -13,13 +13,15 @@ export function loopTravel(frets: readonly number[]): number {
  */
 export function closestPath<V extends { readonly fret: number }>(choices: readonly (readonly V[])[]): V[] {
   let best: V[] = [];
-  let bestCost = Infinity;
+  let bestTravel = Infinity;
+  let bestHeight = Infinity;
   const picked: V[] = [];
   const walk = (i: number) => {
     if (i === choices.length) {
       const frets = picked.map((v) => v.fret);
-      const cost = loopTravel(frets) * 100 + frets.reduce((a, b) => a + b, 0);
-      if (cost < bestCost) [best, bestCost] = [[...picked], cost];
+      const travel = loopTravel(frets);
+      const height = frets.reduce((a, b) => a + b, 0);
+      if (travel < bestTravel || (travel === bestTravel && height < bestHeight)) [best, bestTravel, bestHeight] = [[...picked], travel, height];
       return;
     }
     for (const v of choices[i]!) {

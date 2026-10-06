@@ -62,7 +62,7 @@ export interface ChordView extends Slot {
   readonly symbol: string;
   /** The barre shape, or null for a chord stacked one note per string from its root. */
   readonly shape: BarreShape | null;
-  /** Barre fret, or the root's fret for a stacked chord. */
+  /** Barre fret, or the lowest fret of a stacked chord: where the first finger sits. */
   readonly fret: number;
   /** Low string to high. */
   readonly notes: readonly ChordNote[];
@@ -88,7 +88,7 @@ function places(chord: Chord): Place[] {
       .filter((fret) => fret <= MAX_FRET)
       .map((fret) => stackShape({ string, fret }, chord, size))
       .filter((notes): notes is FretPos[] => notes !== null)
-      .map((notes) => ({ notes, shape: null, fret: notes[0]!.fret }));
+      .map((notes) => ({ notes, shape: null, fret: Math.min(...notes.map((x) => x.fret)) }));
   });
 }
 
@@ -117,10 +117,22 @@ export function loopViews(slots: readonly Slot[]): ChordView[] {
   const anchor = Math.max(0, slots.findIndex(isTonic));
   const choices = slots.map((s, i) => {
     const all = places(s.chord);
-    const home = barreVoicing(s.chord, 'E');
-    return i === anchor && home ? all.filter((p) => p.shape === 'E' && p.fret === home.fret) : all;
+    const home = i === anchor ? barreVoicing(s.chord, 'E') : null;
+    return home ? all.filter((p) => p.shape === 'E' && p.fret === home.fret) : all;
   });
   return closestPath(choices).map((p, i) => toView(slots[i]!, p));
+}
+
+/** Each chord where it sits nearest `fret` (ties to the lower one): answers placed by the hand. */
+export function viewsNear(slots: readonly Slot[], fret: number): ChordView[] {
+  return slots.map((s) => {
+    const best = places(s.chord).reduce((a, b) => {
+      const da = Math.abs(a.fret - fret);
+      const db = Math.abs(b.fret - fret);
+      return db < da || (db === da && b.fret < a.fret) ? b : a;
+    });
+    return toView(s, best);
+  });
 }
 
 export type Quality = 'major' | 'minor' | 'dim';
@@ -196,8 +208,8 @@ export function homeQuestion(random: () => number, previous?: HomeQuestion): Hom
   const lead = pick(LEAD_INS, random).map((d) => (d === 5 ? v7 : triads[d - 1]!));
   const decoys = shuffle(DECOYS, random).slice(0, 3);
   const choices = shuffle([1, ...decoys], random).map((d) => triads[d - 1]!);
-  const views = loopViews([...lead, ...choices]);
-  return { tonic, lead: views.slice(0, lead.length), choices: views.slice(lead.length) };
+  const leadViews = loopViews(lead);
+  return { tonic, lead: leadViews, choices: viewsNear(choices, leadViews.at(-1)!.fret) };
 }
 
 export type HomeResult = 'right' | 'vi' | 'away';

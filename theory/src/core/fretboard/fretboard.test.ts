@@ -414,6 +414,10 @@ describe('moving between chords (K4.6)', () => {
     expect(closestPath([at(3, 15), at(0, 12), at(3, 10)]).map((v) => v.fret)).toEqual([3, 0, 3]);
     // 7 0 2 and 7 12 14 both travel 14 frets: the lower one wins.
     expect(closestPath([at(7), at(0, 12), at(2, 14)]).map((v) => v.fret)).toEqual([7, 0, 2]);
+    // Travel always wins over height, however high the loop sits.
+    const high = Array.from({ length: 10 }, () => at(12, 14));
+    high[9] = at(0, 13);
+    expect(closestPath(high).map((v) => v.fret)).toEqual([...Array<number>(9).fill(12), 13]);
     expect(closestPath([at(1), []])).toEqual([]);
     expect(closestPath([])).toEqual([]);
   });

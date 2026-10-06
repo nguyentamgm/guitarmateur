@@ -2,7 +2,6 @@
 import { useMemo, useState } from 'react';
 import { midiAt, type BarreShape } from '../../core/fretboard';
 import { chordSymbol, format, type ChordId, type NoteName } from '../../core/music';
-import { strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
   BARRE_FRETS,
@@ -26,12 +25,12 @@ import {
   type StepId,
 } from '../../lessons/barre';
 import { BarreBar } from '../BarreBar';
-import { useTheory } from '../context';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
+import { useStrum } from '../useStrum';
 
 export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -49,13 +48,6 @@ export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 }
 
 type Labels = 'degrees' | 'notes';
-
-function useStrum() {
-  const { player } = useTheory();
-  return (view: BarreView, delay = 0) => {
-    for (const s of strumDelays(view.notes, 'down', 0.018)) player.pluck(s.item.midi, delay + s.delay, 1.5);
-  };
-}
 
 const chordDots = (view: BarreView, labels: Labels, extra: Partial<FretDot> = {}): FretDot[] =>
   view.notes.map((n) => ({

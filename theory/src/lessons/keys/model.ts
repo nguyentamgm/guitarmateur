@@ -4,7 +4,6 @@ export type StepId = 'family' | 'numbers' | 'home' | 'twoFive' | 'relative';
 
 /** Strings the scenes of this lesson show. `{name}` placeholders are filled by the UI. */
 export interface SceneCopy {
-  readonly strum: string;
   readonly stop: string;
   readonly key: string;
   readonly playLoop: string;

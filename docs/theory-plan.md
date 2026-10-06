@@ -182,6 +182,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.
 - (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
+- (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:

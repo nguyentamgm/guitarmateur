@@ -10,7 +10,7 @@ export const vi: KeysCopy = {
       title: 'Mỗi giọng có một gia đình bảy hợp âm',
       body: [
         'Lấy major scale và dựng một hợp âm trên mỗi nốt, chỉ dùng nốt của scale: bắt đầu từ một nốt, bỏ một nốt, lấy nốt kế, bỏ một nốt, lấy nốt kế. Từ G được G B D; từ A được A C E; từ B được B D F♯; và cứ thế đi lên scale.',
-        'Các nửa cung của scale nằm ở chỗ cố định, nên các hợp âm ra giống nhau ở mọi giọng: trưởng ở bậc 1, 4 và 5, thứ ở bậc 2, 3 và 6, giảm ở bậc 7. Bỏ thêm một nốt nữa là được hợp âm 7: maj7 ở bậc 1 và 4, dominant 7 ở bậc 5, m7 ở bậc 2, 3 và 6, m7♭5 ở bậc 7.',
+        'Các nửa cung của scale nằm ở chỗ cố định, nên các hợp âm ra giống nhau ở mọi giọng: trưởng ở bậc 1, 4 và 5, thứ ở bậc 2, 3 và 6, giảm ở bậc 7. Lấy thêm một nốt theo cùng cách là được hợp âm 7: maj7 ở bậc 1 và 4, dominant 7 ở bậc 5, m7 ở bậc 2, 3 và 6, m7♭5 ở bậc 7.',
       ],
       takeaway: 'Chồng các nốt cách một của scale: trưởng ở 1, 4, 5; thứ ở 2, 3, 6; giảm ở 7.',
       tryIt: 'Bấm lần lượt cả bảy hợp âm giọng G, rồi chuyển sang hợp âm 7 và so Gmaj7 với D7.',
@@ -53,7 +53,6 @@ export const vi: KeysCopy = {
     },
   },
   scene: {
-    strum: 'Quạt',
     stop: 'Dừng',
     key: 'Giọng',
     playLoop: 'Phát vòng',

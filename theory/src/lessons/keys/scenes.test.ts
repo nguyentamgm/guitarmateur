@@ -72,6 +72,8 @@ describe('step 1: the chord family (K5.2)', () => {
       const dim = family(k, 3)[6]!;
       expect(dim.shape).toBeNull();
       expect(dim.notes).toHaveLength(3);
+      // A stacked chord sits where its lowest note is: the first finger.
+      expect(dim.fret).toBe(Math.min(...dim.notes.map((x) => x.fret)));
     }
   });
 });
@@ -118,6 +120,9 @@ describe('step 3: which chord is home? (K5.1)', () => {
       expect(new Set(romans(q.choices)).size).toBe(4);
       expect(romans(q.choices).filter((r) => r === 'V' || r === 'vii°')).toEqual([]);
       [...q.lead, ...q.choices].forEach(playable);
+      // The lead-in is voiced on its own, whatever the answers are; each answer sits near the V7.
+      expect(q.lead).toEqual(loopViews(q.lead));
+      for (const v of q.choices) expect(Math.abs(v.fret - q.lead.at(-1)!.fret)).toBeLessThanOrEqual(6);
       const next = homeQuestion(random, q);
       expect(pc(next.tonic)).not.toBe(pc(q.tonic));
       q = next;

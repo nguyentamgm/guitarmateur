@@ -10,7 +10,7 @@ export const en: KeysCopy = {
       title: 'Every key has a family of seven chords',
       body: [
         'Take the major scale and build a chord on each note, using only notes of the scale: start on a note, skip one, take the next, skip one, take the next. From G that gives G B D; from A, A C E; from B, B D F♯; and so on up the scale.',
-        'The scale has semitones in fixed places, so the chords come out the same in every key: major on degrees 1, 4 and 5, minor on 2, 3 and 6, and diminished on 7. Add one more skip and you get 7th chords: maj7 on 1 and 4, the dominant 7 on 5, m7 on 2, 3 and 6, and m7♭5 on 7.',
+        'The scale has semitones in fixed places, so the chords come out the same in every key: major on degrees 1, 4 and 5, minor on 2, 3 and 6, and diminished on 7. Take one more note the same way and you get 7th chords: maj7 on 1 and 4, the dominant 7 on 5, m7 on 2, 3 and 6, and m7♭5 on 7.',
       ],
       takeaway: 'Stack every other scale note: major on 1, 4, 5; minor on 2, 3, 6; diminished on 7.',
       tryIt: 'Click through all seven chords in G, then switch to 7th chords and compare Gmaj7 with D7.',
@@ -53,7 +53,6 @@ export const en: KeysCopy = {
     },
   },
   scene: {
-    strum: 'Strum',
     stop: 'Stop',
     key: 'Key',
     playLoop: 'Play the loop',

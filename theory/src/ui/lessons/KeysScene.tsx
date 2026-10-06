@@ -2,7 +2,6 @@
 import { useMemo, useState } from 'react';
 import { loopTravel } from '../../core/fretboard';
 import { format, type Mode, type NoteName, type ProgressionId } from '../../core/music';
-import { strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
   APPROACHES,
@@ -36,12 +35,12 @@ import {
 } from '../../lessons/keys';
 import { BarGrid } from '../BarGrid';
 import { BarreBar } from '../BarreBar';
-import { useTheory } from '../context';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
+import { useStrum } from '../useStrum';
 
 export function KeysScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -61,13 +60,6 @@ export function KeysScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 /** Seconds between chords of a loop, and of a lead-in. */
 const LOOP_MS = 1500;
 const LEAD_MS = 1100;
-
-function useStrum() {
-  const { player } = useTheory();
-  return (view: ChordView, delay = 0) => {
-    for (const s of strumDelays(view.notes, 'down', 0.018)) player.pluck(s.item.midi, delay + s.delay, 1.5);
-  };
-}
 
 const useNeck = () => useMemo(() => neckGeometry(KEYS_FRETS, { fretWidth: 46 }), []);
 
@@ -94,15 +86,19 @@ function QualityLegend({ copy }: { copy: SceneCopy }) {
   );
 }
 
-/** A loop on the neck: the chord being heard, the others' barres faint. */
+const placeKey = (v: ChordView) => `${v.shape ?? 'stack'}${v.fret}`;
+
+/** A loop on the neck: the chord being heard, the barres of the others faint (a repeated chord drawn once). */
 function LoopNeck({ path, current, label }: { path: readonly ChordView[]; current: number | null; label: string }) {
   const g = useNeck();
   const now = path[current ?? 0]!;
+  const others = [...new Map(path.filter((v) => placeKey(v) !== placeKey(now)).map((v) => [placeKey(v), v])).values()];
   return (
     <Fretboard geometry={g} dots={chordDots(now)} label={label}>
-      {path.map((v, i) => (
-        <BarreBar key={i} g={g} view={v} faint={v !== now} />
+      {others.map((v) => (
+        <BarreBar key={placeKey(v)} g={g} view={v} faint />
       ))}
+      <BarreBar g={g} view={now} />
     </Fretboard>
   );
 }
@@ -325,7 +321,7 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
   const playPull = (home: boolean) => {
     stopAll();
     setResolved(home);
-    (home ? resolve : hang).toggle();
+    (home ? resolve : hang).start();
   };
   const move = (k: NoteName) => {
     stopAll();
@@ -339,7 +335,7 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
     if (loop.playing) return loop.stop();
     hang.stop();
     resolve.stop();
-    loop.toggle();
+    loop.start();
   };
   const playing = hang.playing ? hang.current : resolve.current;
   const v7 = pull[2]!.symbol;
