@@ -422,6 +422,29 @@ describe('moving between chords (K4.6)', () => {
     expect(closestPath([])).toEqual([]);
   });
 
+  it('finds the same loop as trying every combination, ties included', () => {
+    const brute = (choices: number[][]) => {
+      let best: number[] = [];
+      let cost = [Infinity, Infinity];
+      const walk = (i: number, picked: number[]) => {
+        if (i === choices.length) {
+          const c = [loopTravel(picked), picked.reduce((a, b) => a + b, 0)];
+          if (c[0]! < cost[0]! || (c[0] === cost[0] && c[1]! < cost[1]!)) [best, cost] = [picked, c];
+          return;
+        }
+        for (const f of choices[i]!) walk(i + 1, [...picked, f]);
+      };
+      walk(0, []);
+      return best;
+    };
+    let seed = 3;
+    const rand = (k: number) => (seed = (seed * 1103515245 + 12345) % 2147483648) % k;
+    for (let t = 0; t < 300; t++) {
+      const choices = Array.from({ length: 1 + rand(6) }, () => Array.from({ length: 1 + rand(3) }, () => rand(15)));
+      expect(closestPath(choices, (f) => f), JSON.stringify(choices)).toEqual(brute(choices));
+    }
+  });
+
   it('keeps G Em C D in G within a few frets by mixing shapes', () => {
     const path = closestPath(['G', 'Em', 'C', 'D'].map((s) => barreOptions(chord(s[0]!, s.endsWith('m') ? 'minor' : 'major'))));
     expect(path.map((v) => `${v.shape}${v.fret}`)).toEqual(['A10', 'A7', 'E8', 'E10']);

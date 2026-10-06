@@ -1,6 +1,7 @@
 /**
  * Six-line tab, string 1 on top (K0.3). Each number is a button that plays its note. Columns read
  * left to right; notes in one column sound together. Positions come from the lesson's scenes.
+ * With `counts`, each column shows the count word it starts on ("1", "&") under the tab (K1.2).
  */
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { STRINGS, type StringNumber } from '../core/fretboard';
@@ -25,19 +26,26 @@ interface Props {
   /** Index of the column being played, if any. */
   readonly column?: number | null;
   readonly onNote?: (note: TabNote, column: number) => void;
+  /** One count word per column, drawn under the tab: where each note starts in the bar. */
+  readonly counts?: readonly string[];
+  /** Columns a bar line is drawn before. */
+  readonly barLines?: readonly number[];
 }
 
 const LEFT = 30;
 const COL = 46;
 const TOP = 16;
 const GAP = 20;
+/** Room under the tab for count words. */
+const COUNT_ROW = 22;
 /** Width of a number's backing: wider for technique text such as '7b9'. */
 const boxW = (n: TabNote) => Math.max(20, 8 + 8.5 * (n.text ?? String(n.fret)).length);
 
-export function Tab({ columns, label, active = [], column = null, onNote }: Props) {
+export function Tab({ columns, label, active = [], column = null, onNote, counts, barLines = [] }: Props) {
   const { player } = useTheory();
   const width = LEFT + columns.length * COL + 12;
-  const height = TOP * 2 + 5 * GAP;
+  const staff = TOP * 2 + 5 * GAP;
+  const height = staff + (counts ? COUNT_ROW : 0);
   const y = (s: StringNumber) => TOP + (s - 1) * GAP;
   const x = (i: number) => LEFT + (i + 0.5) * COL;
 
@@ -75,6 +83,14 @@ export function Tab({ columns, label, active = [], column = null, onNote }: Prop
         {column !== null && (
           <rect className="tabcol" x={x(column) - COL / 2 + 4} y={4} width={COL - 8} height={height - 8} rx={6} />
         )}
+        {barLines.map((i) => (
+          <line key={`bar${i}`} className="tabbar" x1={LEFT + i * COL} x2={LEFT + i * COL} y1={y(1)} y2={y(6)} />
+        ))}
+        {counts?.map((word, i) => (
+          <text key={`count${i}`} className="tabcount" x={x(i)} y={staff + COUNT_ROW / 2 - 4}>
+            {word}
+          </text>
+        ))}
         {STRINGS.map((s) => (
           <g key={s}>
             <line className="tabline" x1={LEFT - 6} x2={width - 6} y1={y(s)} y2={y(s)} />

@@ -10,6 +10,7 @@ import type * as MajorScale from '../../lessons/major-scale';
 import type * as Pentatonic from '../../lessons/pentatonic';
 import type * as PentatonicMap from '../../lessons/pentatonic-map';
 import type * as Rhythm from '../../lessons/rhythm';
+import type * as Solo from '../../lessons/solo';
 import { BarreScene } from './BarreScene';
 import { BluesScene } from './BluesScene';
 import { ChordTableScene } from './ChordTableScene';
@@ -21,6 +22,7 @@ import { MajorScaleScene } from './MajorScaleScene';
 import { PentatonicMapScene } from './PentatonicMapScene';
 import { PentatonicScene } from './PentatonicScene';
 import { RhythmScene } from './RhythmScene';
+import { SoloScene } from './SoloScene';
 
 export function LessonScene({ slug, step, copy }: { slug: string; step: string; copy: unknown }) {
   switch (slug) {
@@ -46,6 +48,8 @@ export function LessonScene({ slug, step, copy }: { slug: string; step: string; 
       return <ChordTableScene step={step as ChordTable.StepId} copy={copy as ChordTable.SceneCopy} />;
     case 'keys':
       return <KeysScene step={step as Keys.StepId} copy={copy as Keys.SceneCopy} />;
+    case 'solo':
+      return <SoloScene step={step as Solo.StepId} copy={copy as Solo.SceneCopy} />;
     default:
       return null;
   }

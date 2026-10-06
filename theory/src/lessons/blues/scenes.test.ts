@@ -9,7 +9,6 @@ import {
   LICK_BARS,
   LICK_CELLS,
   SHUFFLE_MIDI,
-  bassMidi,
   bendQuestion,
   bendView,
   bluePhrase,
@@ -23,7 +22,6 @@ import {
   planGlide,
   planSeconds,
   questionSemis,
-  shuffleNotes,
   swingBar,
 } from './scenes';
 
@@ -89,12 +87,6 @@ describe('step 3: the 12-bar blues (K5.4)', () => {
   it('offers the 12 major keys by home fret', () => {
     expect(BLUES_KEYS).toHaveLength(12);
     expect(new Set(BLUES_KEYS.map(format))).toEqual(new Set(MAJOR_KEY_TONICS.map(format)));
-  });
-
-  it('plays a boogie: root with 5 5 6 6 ♭7 ♭7 6 6, low in the bass range', () => {
-    const a7 = bluesForm(n('A'))[0]!.chord;
-    expect(Array.from({ length: 8 }, (_, i) => shuffleNotes(a7, i)[1]! - shuffleNotes(a7, i)[0]!)).toEqual([7, 7, 9, 9, 10, 10, 9, 9]);
-    expect([bassMidi(n('E')), bassMidi(n('A')), bassMidi(n('D')), bassMidi(n('Eb'))]).toEqual([40, 45, 50, 51]);
   });
 });
 

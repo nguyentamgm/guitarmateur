@@ -16,13 +16,11 @@ import {
   type SequenceId,
 } from '../../core/fretboard';
 import {
-  CHORDS,
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
   chordSymbol,
   degreeOf,
   format,
-  interval,
   parseNote,
   pc,
   relativeMinorTonic,
@@ -180,9 +178,6 @@ export function majorView(tonic: NoteName): MajorView {
   };
 }
 
-/** The low home note on string 6, for a drone. */
-export const droneMidi = (tonic: NoteName): number => midiAt({ string: 6, fret: homeFret(tonic, 6) });
-
 // --- Step 5: which shape? (K3.7) ---
 
 export type SongKind = 'minor' | 'major' | 'blues';
@@ -235,12 +230,6 @@ export function quizQuestion(random: () => number, previous?: QuizQuestion): Qui
     ? QUIZ_POOL.filter((q) => !(q.kind === previous.kind && pc(q.tonic) === pc(previous.tonic)))
     : QUIZ_POOL;
   return pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))]!;
-}
-
-/** The chord of the vamp as MIDI notes: the root low on string 6, the formula an octave above. */
-export function vampVoicing(chord: Chord): number[] {
-  const root = droneMidi(chord.root);
-  return [root, ...CHORDS[chord.id].formula.map((d) => root + 12 + interval(d).semitones)];
 }
 
 export interface QuizView {

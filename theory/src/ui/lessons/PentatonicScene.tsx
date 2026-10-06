@@ -1,5 +1,6 @@
 /** The five scenes of "Pentatonic, the whole neck". Every position comes from lessons/pentatonic. */
 import { useMemo, useRef, useState } from 'react';
+import { bassMidi, chordMidis } from '../../core/audio';
 import { SEQUENCE_IDS, homeFret, midiAt, type Direction, type SequenceId } from '../../core/fretboard';
 import { format, sameNote, type NoteName } from '../../core/music';
 import { beatSeconds, cellSeconds, clampBpm, strumDelays } from '../../core/rhythm';
@@ -17,7 +18,6 @@ import {
   boxes,
   crossRun,
   drillRun,
-  droneMidi,
   inBox,
   judge,
   majorView,
@@ -29,7 +29,6 @@ import {
   songChord,
   songChordSymbol,
   upAndDown,
-  vampVoicing,
   type Box,
   type NeckNote,
   type QuizQuestion,
@@ -302,14 +301,14 @@ function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
   const view = useMemo(() => majorView(tonic), [tonic]);
   const cell = cellSeconds(80, 2);
   const clock = useClock(VAMP_CELLS, cell, (i, delay) => {
-    if (i % 8 === 0) player.pluck(droneMidi(view.tonic), delay, beatSeconds(80) * 4 * 0.95);
+    if (i % 8 === 0) player.pluck(bassMidi(view.tonic), delay, beatSeconds(80) * 4 * 0.95);
     const n = view.run[i];
     if (n) player.pluck(n.midi, delay, cell * 1.6);
   });
   const pick = (k: NoteName) => {
     clock.stop();
     setTonic(k);
-    player.pluck(droneMidi(k));
+    player.pluck(bassMidi(k));
   };
 
   const start = { string: 6, fret: view.minorFret } as const;
@@ -378,7 +377,7 @@ function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
   const scaleOn = useRef(false);
   const solved = verdict?.kind === 'right';
   const view = useMemo(() => quizView(question), [question]);
-  const voicing = useMemo(() => vampVoicing(songChord(question)), [question]);
+  const voicing = useMemo(() => chordMidis(songChord(question)), [question]);
 
   const cell = cellSeconds(VAMP_BPM, 2);
   const clock = useClock(VAMP_CELLS, cell, (i, delay) => {

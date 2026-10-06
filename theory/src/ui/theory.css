@@ -162,6 +162,9 @@ button { font: inherit; cursor: pointer; }
 .tabline { stroke: var(--line); stroke-width: 1.5; }
 .tabname { fill: var(--muted); font-size: 12px; dominant-baseline: middle; }
 .tabcol { fill: var(--accent); fill-opacity: 0.12; }
+.tabbar { stroke: var(--muted); stroke-width: 1.5; }
+.tabcount { fill: var(--muted); font-size: 12px; text-anchor: middle; dominant-baseline: middle; }
+.guideline { fill: none; stroke: var(--accent); stroke-width: 3; stroke-opacity: 0.45; stroke-linejoin: round; stroke-linecap: round; }
 .tabnum { cursor: pointer; outline: none; }
 .tabnum rect { fill: var(--surface); stroke: none; }
 .tabnum text { fill: var(--ink); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }

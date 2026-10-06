@@ -33,6 +33,9 @@ import {
   progression,
   PROGRESSIONS,
   twoFive,
+  motif,
+  landOn,
+  LICK_EIGHTHS,
   type ProgressionId,
   BOOGIE,
   bluesChord,
@@ -395,5 +398,51 @@ describe('common progressions (K5.3) and ii–V (K5.5)', () => {
       const ii = diatonicChords({ tonic: n(k), mode: 'major' }, 4);
       expect(twoFive(n(k)), k).toEqual([ii[1]!.chord, ii[4]!.chord]);
     }
+  });
+});
+
+describe('ideas for soloing (K7.4)', () => {
+  const seeded = (seed: number) => {
+    let s = seed;
+    return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  };
+
+  it('makes ideas of 3–4 neighbouring notes inside one bar, leaving beat 4 mostly free', () => {
+    const random = seeded(11);
+    for (let t = 0; t < 200; t++) {
+      const size = 8 + (t % 9);
+      const lick = motif(size, random);
+      expect(lick.length).toBeGreaterThanOrEqual(3);
+      expect(lick.length).toBeLessThanOrEqual(4);
+      expect(lick[0]!.at).toBeLessThanOrEqual(1);
+      for (const [i, x] of lick.entries()) {
+        expect(x.index).toBeGreaterThanOrEqual(0);
+        expect(x.index).toBeLessThan(size);
+        expect(x.length).toBeGreaterThan(0);
+        expect(x.at + x.length).toBeLessThanOrEqual(LICK_EIGHTHS);
+        if (i > 0) {
+          expect(x.at).toBe(lick[i - 1]!.at + lick[i - 1]!.length);
+          expect(Math.abs(x.index - lick[i - 1]!.index)).toBeGreaterThan(0);
+          expect(Math.abs(x.index - lick[i - 1]!.index)).toBeLessThanOrEqual(2);
+        }
+      }
+      expect(lick.at(-1)!.at).toBeLessThanOrEqual(5);
+      expect(lick.at(-1)!.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('moves only the last note, to the nearest one that fits, the way the line was going', () => {
+    const lick = [
+      { index: 3, at: 0, length: 1 },
+      { index: 4, at: 1, length: 1 },
+      { index: 5, at: 2, length: 4 },
+    ];
+    const even = (i: number) => i % 2 === 0;
+    expect(landOn(lick, 10, even).map((x) => x.index)).toEqual([3, 4, 6]);
+    // 4 is nearer, but it is the note just before: the ending never stands still.
+    expect(landOn(lick, 10, even, 6).map((x) => x.index)).toEqual([3, 4, 8]);
+    expect(landOn(lick, 10, (i) => i === 5).map((x) => x.index)).toEqual([3, 4, 5]);
+    expect(landOn(lick, 10, () => false)).toEqual(lick);
+    expect(landOn(lick, 10, even)[2]!.at).toBe(2);
   });
 });

@@ -28,7 +28,6 @@ import {
   planGlide,
   planSeconds,
   questionSemis,
-  shuffleNotes,
   swingBar,
   type BendOutcome,
   type BendQuestion,
@@ -48,6 +47,7 @@ import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { PitchCurve } from '../PitchCurve';
 import { Tab, type TabNote } from '../Tab';
+import { useBacking } from '../useBacking';
 import { useClock } from '../useClock';
 import { useSequence } from '../useSequence';
 
@@ -69,16 +69,6 @@ export function BluesScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 /** Shuffle backing: every scene that swings uses the full triplet feel. */
 const SHUFFLE = 1;
 const EIGHTHS = 8;
-
-/** Plays one eighth of the boogie under a chord, swung: shared by steps 3 and 5. */
-function useBacking() {
-  const { player } = useTheory();
-  return (chord: Parameters<typeof shuffleNotes>[0], eighth: number, delay: number, bpm: number) => {
-    const at = delay + swingDelay(eighth, SHUFFLE, bpm);
-    const length = swingLength(eighth, SHUFFLE) * beatSeconds(bpm) * 0.85;
-    for (const m of shuffleNotes(chord, eighth)) player.pluck(m, at, length);
-  };
-}
 
 // --- Step 1 ---
 
@@ -221,11 +211,8 @@ function TwelveBarScene({ copy }: { copy: SceneCopy }) {
   const [turnaround, setTurnaround] = useState(false);
   const [bpm, setBpm] = useState(BLUES_BPM);
   const form = useMemo(() => bluesForm(tonic, { quickChange, turnaround }), [tonic, quickChange, turnaround]);
-  const backing = useBacking();
-  const clock = useClock(form.length * EIGHTHS, beatSeconds(bpm) / 2, (i, delay) =>
-    backing(form[Math.floor(i / EIGHTHS)]!.chord, i % EIGHTHS, delay, bpm),
-  );
-  const bar = clock.current === null ? null : Math.floor(clock.current / EIGHTHS);
+  const clock = useBacking(form, 'shuffle', bpm);
+  const bar = clock.bar;
 
   return (
     <div className="board">
@@ -390,12 +377,10 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
   const cells = lick ? LICK_CELLS : DEMO_CELLS;
   const swing = lick ? SHUFFLE : 0;
   const form = useMemo(() => bluesForm(EXAMPLE_TONIC), []);
-  const backing = useBacking();
 
-  // The lick over the 12-bar: backing on every eighth, lick picks in bars 1–2, 5–6, 9–10.
-  const clock = useClock(form.length * EIGHTHS, beatSeconds(bpm) / 2, (i, delay) => {
-    backing(form[Math.floor(i / EIGHTHS)]!.chord, i % EIGHTHS, delay, bpm);
-    const cell = lickCellAt(i);
+  // The lick over the 12-bar: the shuffle on every eighth, lick picks in bars 1–2, 5–6, 9–10.
+  const clock = useBacking(form, 'shuffle', bpm, ({ step, delay }) => {
+    const cell = lickCellAt(step);
     if (cell === 0) setRun((r) => r + 1);
     for (const p of plans) {
       if (p.cell === cell) player.pluck(p.midi, delay + swingDelay(cell, swing, bpm), planSeconds(p, bpm, swing), planGlide(p, bpm, swing));
