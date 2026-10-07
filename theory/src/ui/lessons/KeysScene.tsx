@@ -212,7 +212,7 @@ function NumbersScene({ copy }: { copy: SceneCopy }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
-      <TrainerLink trainerKey={{ tonic, scale: 'major' }} chords={path.map((v) => v.chord)} />
+      <TrainerLink trainerKey={{ tonic, scale: 'major' }} chords={path.map((v) => v.chord)} progressionKey={`${format(tonic)} ${id}`} />
     </div>
   );
 }

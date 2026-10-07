@@ -155,7 +155,12 @@ function ScaleScene({ copy }: { copy: SceneCopy }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
-      <TrainerLink trainerKey={{ tonic: choice.tonic, scale: BACKINGS[choice.id].scale }} chords={choice.bars.map((b) => b.chord)} />
+      <TrainerLink
+        trainerKey={{ tonic: choice.tonic, scale: BACKINGS[choice.id].scale }}
+        chords={choice.bars.map((b) => b.chord)}
+        tempoBpm={choice.bpm}
+        progressionKey={`${format(choice.tonic)} ${choice.id}`}
+      />
     </div>
   );
 }
