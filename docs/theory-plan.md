@@ -163,7 +163,6 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (1.2, 2.2, 4.2) `Tab` đã có chữ đếm dưới mỗi cột và vạch nhịp (`counts`, `barLines`, dùng ở `/theory/solo` bước 4), nhưng chưa vẽ độ dài nốt: nốt dài và nốt ngắn trông như nhau. Ghép `Tab` với `BeatGrid` nếu một bài cần đọc độ dài.
 - (2.2) Chữ đếm liên ba tiếng Việt là "1 trí-ô" (từ *triolet*), do phiên 2.2 tự chọn; chưa có cách đếm chuẩn được thống nhất. Nếu người học thấy lạ, đổi trong `lessons/blues/copy.vi.ts`.
 - (2.2) Âm thanh nhéo, trượt, rung chỉ đổi `playbackRate` của tiếng gảy: đúng cao độ (đo trong Chrome: D nhéo +2 tới 331,6 Hz, E là 329,6 Hz) nhưng tiếng tắt nhanh hơn khi nhéo cao và không có tiếng "rít" của dây. Chỉnh âm sắc khi cần.
-- (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Lõi đã sinh được ý nhạc (`motif()`, phiên 4.2) nhưng câu blues chưa chuyển sang dùng nó.
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
 - (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
@@ -177,7 +176,8 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
 - (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
 - (5.1) Câu đố nghe rồi chơi lại (`/theory/solo` bước 5): 12 giọng thứ, một hoặc hai bar, nhưng chỉ trong box 1 của minor pentatonic; chưa có box khác hay giọng trưởng. Hai mức trợ giúp, hai độ dài và mọi giọng chung một điểm `solo-ear`; tách ra nếu điểm trên trang ôn tập gây hiểu lầm.
-- (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống.
+- (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống. Lick blues (`/theory/blues` bước 5) đã thêm kỹ thuật vào ý nhạc bằng `decorate()` trong bài; bài solo chưa dùng.
+- (2.2) Lick sinh ra ở `/theory/blues` bước 5 chưa có nhả bend (r) và chỉ trong hộp 1; bend xong rồi gảy lại cùng nốt thì tab không ghi nhả.
 - (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ. Phiên 4.3 đã có bảy thế 3 nốt mỗi dây (`/theory/three-per-string`) nhưng bài solo chưa dùng chúng.
 - (4.2) Đường guide tone đi giữa các nốt trong box theo cao độ; chưa nối sang box khác khi nốt gần hơn nằm ngoài box.
 - (4.3) Bài luyện triplet (`/theory/three-per-string` bước 3) không có "tăng tốc". Mỗi vòng được làm tròn lên số bar chẵn bằng dấu lặng (`loopSteps()`), nên một bài 18 nốt có nửa bar nghỉ trước khi lặp lại.

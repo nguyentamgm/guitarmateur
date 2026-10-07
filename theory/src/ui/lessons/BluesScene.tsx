@@ -12,8 +12,10 @@ import {
   DEMOS,
   EXAMPLE_TONIC,
   FULL_BENDS,
+  LICK,
   LICK_BARS,
   LICK_CELLS,
+  LICK_KEYS,
   NECK_FRETS,
   SHUFFLE_MIDI,
   bendQuestion,
@@ -23,6 +25,7 @@ import {
   bluesForm,
   bluesNeck,
   demoNotes,
+  generateLick,
   lickNotes,
   lickPlan,
   planGlide,
@@ -34,6 +37,7 @@ import {
   type BluesKind,
   type DemoId,
   type LickNote,
+  type LickEvent,
   type PluckPlan,
   type SceneCopy,
   type StepId,
@@ -372,16 +376,19 @@ const DEMO_BPM = 72;
 function LegatoScene({ copy }: { copy: SceneCopy }) {
   const c = copy.legato;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(10, { fretWidth: 52 }), []);
+  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const [mode, setMode] = useState<DemoId | 'lick'>('hammer');
+  const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
+  /** The hand-written lick first; New lick makes one from `generateLick()`. */
+  const [events, setEvents] = useState<readonly LickEvent[]>(LICK);
   const [run, setRun] = useState(0);
   const [bpm, setBpm] = useLastTempo('blues-legato', BLUES_BPM);
   const lick = mode === 'lick';
-  const notes = useMemo(() => (lick ? lickNotes() : demoNotes(mode)), [lick, mode]);
+  const notes = useMemo(() => (lick ? lickNotes(tonic, events) : demoNotes(mode, tonic)), [lick, mode, tonic, events]);
   const plans = useMemo(() => lickPlan(notes), [notes]);
   const cells = lick ? LICK_CELLS : DEMO_CELLS;
   const swing = lick ? SHUFFLE : 0;
-  const form = useMemo(() => bluesForm(EXAMPLE_TONIC), []);
+  const form = useMemo(() => bluesForm(tonic), [tonic]);
 
   // The lick over the 12-bar: the shuffle on every eighth, lick picks in bars 1–2, 5–6, 9–10.
   const clock = useBacking(form, 'shuffle', bpm, ({ step, delay }) => {
@@ -401,6 +408,14 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
     clock.stop();
     setMode(m);
   };
+  const move = (k: NoteName) => {
+    clock.stop();
+    setTonic(k);
+  };
+  const newLick = () => {
+    clock.stop();
+    setEvents(generateLick(Math.random, tonic));
+  };
 
   const cell = clock.current === null ? null : lickCellAt(clock.current);
   const sounding = cell === null ? null : [...notes].reverse().find((n) => n.event.cell <= cell);
@@ -413,6 +428,7 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
 
   return (
     <div className="board">
+      <KeyFinder keys={LICK_KEYS} label={c.key} value={tonic} onChange={move} />
       <div className="controls">
         <ChipGroup<DemoId | 'lick'>
           label={c.technique}
@@ -425,6 +441,9 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
         {lick ? (
           <>
             <Button onClick={clock.toggle}>{clock.playing ? copy.stop : c.playLick}</Button>
+            <Button onClick={newLick} ghost>
+              {c.newLick}
+            </Button>
             <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
           </>
         ) : (

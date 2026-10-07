@@ -15,10 +15,14 @@ import {
   type NeckNote as CoreNeckNote,
 } from '../../core/fretboard';
 import {
+  LICK_EIGHTHS,
   MAJOR_KEY_TONICS,
+  MINOR_KEY_TONICS,
   bluesChord,
   chordSymbol,
   decorationDegrees,
+  landOn,
+  motif,
   parseNote,
   relativeMajorTonic,
   scaleNotes,
@@ -266,7 +270,71 @@ function toLickNotes(events: readonly LickEvent[], tonic: NoteName): LickNote[] 
   });
 }
 
-export const lickNotes = (tonic: NoteName = EXAMPLE_TONIC): LickNote[] => toLickNotes(LICK, tonic);
+export const lickNotes = (tonic: NoteName = EXAMPLE_TONIC, events: readonly LickEvent[] = LICK): LickNote[] => toLickNotes(events, tonic);
+
+/** Keys the lick can be played in: each minor pentatonic spelled from the core (C♯, not D♭), by home fret. */
+export const LICK_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
+
+/** Notes in box 1 of the minor pentatonic: the same in every key, lowest pitch = 0. */
+const BOX_SIZE = 12;
+
+/**
+ * A new two-bar lick (K6.4, K7.4): a `motif()` idea in bar 1, a second one in bar 2 that starts a
+ * step from where the first ended and lands on a root (`landOn()`), held to the end with vibrato.
+ * The techniques follow from the notes (`decorate()`). A lick with no bend, hammer-on or pull-off
+ * is made again, so every lick shows at least one.
+ */
+export function generateLick(random: () => number, tonic: NoteName = EXAMPLE_TONIC): LickEvent[] {
+  const notes = box1(tonic).notes;
+  let events: LickEvent[] = [];
+  for (let tries = 0; tries < 50; tries++) {
+    const first = motif(BOX_SIZE, random);
+    const last = first.at(-1)!.index;
+    const start = last + (last >= BOX_SIZE - 1 ? -1 : last <= 0 ? 1 : random() < 0.5 ? -1 : 1);
+    const second = landOn(motif(BOX_SIZE, random, start), BOX_SIZE, (i) => notes[i]!.isTonic).map((l) => ({ ...l, at: l.at + LICK_EIGHTHS }));
+    const line = [...first, ...second];
+    const end = line.at(-1)!;
+    line[line.length - 1] = { ...end, length: LICK_CELLS - end.at };
+    events = decorate(line, notes);
+    if (events.some((e) => e.technique === 'bend' || e.technique === 'hammer' || e.technique === 'pull')) return events;
+  }
+  return events;
+}
+
+/**
+ * Techniques for a line of box notes, by rule:
+ * - a note a whole step above the box note below it, held two eighths or more, is that lower note
+ *   bent up (4 to 5, ♭7 to 1, ♭3 to 4), at most once a bar, never the last note nor an open string;
+ * - a note right after a one-eighth note on the same string is a hammer-on going up, a pull-off going
+ *   down, unless the note before was bent;
+ * - the last note is slid into from a fretted note two frets below on the same string, and shakes
+ *   with vibrato.
+ */
+export function decorate(line: readonly { index: number; at: number; length: number }[], notes: readonly NeckNote[]): LickEvent[] {
+  const bent = new Set<number>();
+  return line.map((l, i) => {
+    const prev = i > 0 ? line[i - 1]! : null;
+    const n = notes[l.index]!;
+    const p = prev ? notes[prev.index]! : null;
+    const base = { cell: l.at, cells: l.length, note: l.index };
+    const final = i === line.length - 1;
+    const below = notes[l.index - 1];
+    const bar = Math.floor(l.at / LICK_EIGHTHS);
+    const prevBent = prev !== null && bent.has(i - 1);
+    if (final) {
+      const slide = p !== null && !prevBent && p.fret > 0 && p.string === n.string && n.fret - p.fret === 2;
+      return { ...base, technique: slide ? 'slide' : 'pick', vibrato: true };
+    }
+    if (below && below.fret > 0 && n.midi - below.midi === 2 && l.length >= 2 && ![...bent].some((b) => Math.floor(line[b]!.at / LICK_EIGHTHS) === bar)) {
+      bent.add(i);
+      return { cell: l.at, cells: l.length, note: l.index - 1, technique: 'bend', bend: 2 };
+    }
+    if (p !== null && !prevBent && prev!.length === 1 && p.string === n.string && p.midi !== n.midi) {
+      return { ...base, technique: n.midi > p.midi ? 'hammer' : 'pull' };
+    }
+    return { ...base, technique: 'pick' };
+  });
+}
 
 /** True for techniques that sound without a new pick: they carry on the previous note's sound. */
 export const isLegato = (t: Technique): boolean => t !== 'pick' && t !== 'bend';
