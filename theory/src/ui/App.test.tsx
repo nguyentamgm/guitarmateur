@@ -356,7 +356,8 @@ describe('Theory app', () => {
       advance(9000);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
       expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', '✗']);
-      expect(section.querySelectorAll('.tab, svg').length).toBeGreaterThan(0);
+      expect(section.querySelector('[aria-label="Your take, with the count each note starts on"]')).not.toBeNull();
+      expect(inSection('Clear')).toBeDefined();
 
       const before = plucked.length;
       click(inSection('Hear it back'));

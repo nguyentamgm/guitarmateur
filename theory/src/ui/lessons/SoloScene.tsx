@@ -19,6 +19,7 @@ import {
   guideLine,
   judgeEar,
   landings,
+  nearestStep,
   outsideNotes,
   phrase,
   phraseRole,
@@ -303,7 +304,7 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
     for (const x of notes) {
       columnOf.set(`${k}:${x.at}`, columns.length);
       columns.push([{ key: `${k}:${x.at}`, string: x.note.string, fret: x.note.fret, midi: x.note.midi }]);
-      counts.push(x.at % 2 === 0 ? String(x.at / 2 + 1) : fill(c.offbeat, { n: Math.floor(x.at / 2) + 1 }));
+      counts.push(countWord(x.at, c.offbeat));
     }
   });
   const eighth = backing.current === null ? null : backing.current % EIGHTHS_PER_BAR;
@@ -439,6 +440,11 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
 
 // --- Step 6 ---
 
+/** The count word an eighth of the bar starts on: '1', '1&' (with the lesson's off-beat word). */
+function countWord(eighth: number, offbeat: string): string {
+  return eighth % 2 === 0 ? String(eighth / 2 + 1) : fill(offbeat, { n: Math.floor(eighth / 2) + 1 });
+}
+
 type TakeMode = 'idle' | 'recording' | 'playing';
 
 function RecordScene({ copy }: { copy: SceneCopy }) {
@@ -451,11 +457,14 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const [recorded, setRecorded] = useState(false);
   // Read by the clock: its first step runs before React re-renders with the new state.
   const live = useRef<{ mode: TakeMode; take: readonly TakeNote[] }>({ mode: 'idle', take: [] });
+  /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
+  const times = useRef(new Map<number, number>());
   const backing = useBacking(
     choice.bars,
     BACKINGS[choice.id].style,
     choice.bpm,
     (s) => {
+      times.current.set(s.step, performance.now() / 1000 + s.at);
       if (live.current.mode !== 'playing') return;
       for (const t of live.current.take) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
     },
@@ -471,6 +480,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const run = (m: 'recording' | 'playing') => {
     if (backing.playing) return backing.stop();
     live.current.mode = m;
+    times.current.clear();
     if (m === 'recording') {
       keep([]);
       setRecorded(true);
@@ -484,9 +494,10 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     setRecorded(false);
   };
   const click = (d: FretDot) => {
-    if (active !== 'recording' || backing.current === null) return;
+    if (active !== 'recording') return;
     const n = choice.box.notes.find((x) => posKey(x) === d.key);
-    if (n) keep(recordNote(take, n, backing.current));
+    const step = nearestStep(times.current, performance.now() / 1000);
+    if (n && step !== null) keep(recordNote(live.current.take, n, step));
   };
 
   const barIndex = backing.bar ?? 0;
@@ -496,17 +507,18 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     const d = toneIn(n, bar.chord);
     return d ? { ...quietDot(n), dim: false, label: degreeText(d), tone: d === '1' ? 'home' : 'plain' } : { ...quietDot(n), dim: false };
   });
-  const marks = landings(take, choice.bars).map((m): BarMark | null =>
-    m.kind === 'rest' ? null : m.kind === 'tone' ? { text: `✓ ${degreeText(m.degree)}`, good: true, description: fill(c.landedOn, { degree: degreeText(m.degree) }) } : { text: '✗', good: false, description: c.missed },
+  const marks = useMemo(
+    () =>
+      landings(take, choice.bars).map((m): BarMark | null =>
+        m.kind === 'rest' ? null : m.kind === 'tone' ? { text: `✓ ${degreeText(m.degree)}`, good: true, description: fill(c.landedOn, { degree: degreeText(m.degree) }) } : { text: '✗', good: false, description: c.missed },
+      ),
+    [take, choice.bars, c],
   );
   const columns = take.map((t): TabNote[] => [{ key: `${t.step}:${t.note.midi}`, string: t.note.string, fret: t.note.fret, midi: t.note.midi }]);
-  const counts = take.map((t) => {
-    const e = t.step % EIGHTHS_PER_BAR;
-    return e % 2 === 0 ? String(e / 2 + 1) : fill(copy.phrase.offbeat, { n: Math.floor(e / 2) + 1 });
-  });
+  const counts = take.map((t) => countWord(t.step % EIGHTHS_PER_BAR, copy.phrase.offbeat));
   const barLines = take.flatMap((t, i) => (i > 0 && barOf(t) !== barOf(take[i - 1]!) ? [i] : []));
   const column = sounding.length > 0 ? take.indexOf(sounding[0]!) : null;
-  const sum = takeSummary(take, choice.bars);
+  const sum = useMemo(() => takeSummary(take, choice.bars), [take, choice.bars]);
   const caption =
     active === 'recording'
       ? fill(c.recording, { n: barIndex + 1, symbol: bar.symbol })
@@ -531,11 +543,12 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
             choice.setTonic(k);
           },
         }} backing={backing} hidePlay>
-        <Button onClick={() => run('recording')}>{active === 'recording' ? copy.stop : c.record}</Button>
-        {take.length > 0 && (
+        {active !== 'playing' && <Button onClick={() => run('recording')}>{active === 'recording' ? copy.stop : c.record}</Button>}
+        {active === 'playing' && <Button onClick={() => run('playing')}>{copy.stop}</Button>}
+        {active === 'idle' && take.length > 0 && (
           <>
             <Button onClick={() => run('playing')} ghost>
-              {active === 'playing' ? copy.stop : c.hearBack}
+              {c.hearBack}
             </Button>
             <Button
               onClick={() => {
@@ -549,7 +562,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
           </>
         )}
       </BackingControls>
-      <Fretboard geometry={g} dots={dots} box={choice.box} label={c.idle} active={sounding.map((t) => posKey(t.note))} onDot={click} />
+      <Fretboard geometry={g} dots={dots} box={choice.box} label={fill(copy.neck, { scale: scaleName(copy, BACKINGS[choice.id].scale, choice.tonic) })} active={sounding.map((t) => posKey(t.note))} onDot={click} />
       <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} marks={marks} />
       {take.length > 0 && <Tab columns={columns} counts={counts} barLines={barLines} column={column} active={sounding.map((t) => `${t.step}:${t.note.midi}`)} label={c.tab} />}
       <p className="caption" aria-live="polite">

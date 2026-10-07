@@ -23,6 +23,7 @@ import {
   earWindow,
   judgeEar,
   landings,
+  nearestStep,
   recordNote,
   takeSummary,
   type TakeNote,
@@ -212,6 +213,14 @@ describe('step 6: record it, hear it back (K7.6)', () => {
     take = recordNote(take, note('A'), at(0, 2));
     take = recordNote(take, note('A'), at(0, 2));
     expect(take.map((t) => [t.step, t.note.name])).toEqual([[2, 'A'], [8, 'E']]);
+  });
+
+  it('files a click under the nearest eighth, early or late', () => {
+    const times = new Map([[7, 10.0], [8, 10.33], [9, 10.66]]);
+    expect(nearestStep(times, 10.3)).toBe(8); // a little early for bar 2, beat 1: still bar 2
+    expect(nearestStep(times, 10.4)).toBe(8);
+    expect(nearestStep(times, 10.1)).toBe(7);
+    expect(nearestStep(new Map(), 1)).toBeNull();
   });
 
   it('judges each bar by its first note: a chord tone, a note off the chord, or a rest', () => {

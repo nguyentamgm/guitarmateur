@@ -34,7 +34,7 @@ Mục tiêu: người học solo trên một vòng hợp âm mà **nghe có ch�
 
 **Cốt lõi.** Mẫu luyện ngón (K3.6) là điểm khởi đầu, nhưng một chuỗi mẫu không thành câu solo. Câu hay thường bắt đầu từ một ý nhỏ (2–4 nốt), lặp lại, rồi biến đổi nhịp, cao độ hoặc kết thúc. Khoảng lặng là một phần của câu: chừa chỗ trống cho ý vừa chơi được nghe rõ.
 
-**Dạy trong Theory.** `/theory/solo` bước 4: mỗi nhóm bốn bar là ý nhạc (3–4 nốt, `motif()`), lặp lại, đổi đoạn kết sang một nốt của hợp âm bar thứ ba (`landOn()`), rồi một bar trống để người học đáp. Tab có chữ đếm dưới mỗi nốt. Phần app biến đổi câu của người học cần thu câu chơi, để chung với K7.6 ở phiên 5.1.
+**Dạy trong Theory.** `/theory/solo` bước 4: mỗi nhóm bốn bar là ý nhạc (3–4 nốt, `motif()`), lặp lại, đổi đoạn kết sang một nốt của hợp âm bar thứ ba (`landOn()`), rồi một bar trống để người học đáp. Tab có chữ đếm dưới mỗi nốt. Phần app biến đổi chính câu người học vừa chơi (từ bản thu ở bước 6, K7.6) chưa làm.
 
 **Cần trước:** K7.2, K1.2. **Nguồn:** ch. 19.
 

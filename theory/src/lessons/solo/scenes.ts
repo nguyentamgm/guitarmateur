@@ -259,6 +259,20 @@ export function recordNote(take: readonly TakeNote[], note: SoloNote, step: numb
 export const barOf = (t: TakeNote): number => Math.floor(t.step / EIGHTHS_PER_BAR);
 
 /**
+ * The eighth a click at time `t` belongs to: the one whose sound time is nearest, early or late.
+ * `times` maps eighths (over the form) to when they sound, in the same clock as `t`.
+ */
+export function nearestStep(times: ReadonlyMap<number, number>, t: number): number | null {
+  let best: number | null = null;
+  let gap = Infinity;
+  for (const [step, at] of times) {
+    const d = Math.abs(at - t);
+    if (d < gap) [best, gap] = [step, d];
+  }
+  return best;
+}
+
+/**
  * How the take met each bar's chord: the first note played in the bar is the landing note. 'tone'
  * when it is a note of the chord (with its degree), 'off' when not, 'rest' when the bar was empty.
  */
