@@ -23,6 +23,7 @@ import {
   earQuestion,
   earWindow,
   judgeEar,
+  fixLandings,
   landings,
   nearestStep,
   recordNote,
@@ -246,6 +247,21 @@ describe('step 6: record it, hear it back (K7.6)', () => {
     expect(nearestStep(times, 10.4)).toBe(8);
     expect(nearestStep(times, 10.1)).toBe(7);
     expect(nearestStep(new Map(), 1)).toBeNull();
+  });
+
+  it('fixes each off-chord landing to the nearest chord tone, keeping every other note', () => {
+    let take: TakeNote[] = [];
+    take = recordNote(take, note('D'), at(0, 0)); // A7: D is off; the box holds A, E and G of A7
+    take = recordNote(take, note('C'), at(0, 2)); // not a landing: kept
+    take = recordNote(take, note('G'), at(1, 0)); // A7: G is the ♭7, already a tone
+    const fixed = fixLandings(take, bars, box);
+    expect(fixed[1]).toBe(take[1]);
+    expect(fixed[2]).toBe(take[2]);
+    expect(fixed[0]!.step).toBe(take[0]!.step);
+    expect(landings(fixed, bars)[0]).toMatchObject({ kind: 'tone' });
+    const moved = Math.abs(fixed[0]!.note.midi - take[0]!.note.midi);
+    const nearest = Math.min(...box.notes.filter((n) => ['A', 'E', 'G'].includes(n.name)).map((n) => Math.abs(n.midi - take[0]!.note.midi)));
+    expect(moved).toBe(nearest);
   });
 
   it('judges each bar by its first note: a chord tone, a note off the chord, or a rest', () => {

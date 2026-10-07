@@ -325,3 +325,25 @@ export function takeSummary(take: readonly TakeNote[], bars: readonly BackingBar
     notes: take.length,
   };
 }
+
+/**
+ * The take with every off-chord landing moved to the nearest chord tone in the box (by pitch; a
+ * tie goes down, the gentler resolution). Only each bar's first note changes; everything else is
+ * kept as played, so the learner hears their own phrase with better landings (K7.4, K7.2).
+ */
+export function fixLandings(take: readonly TakeNote[], bars: readonly BackingBar[], window: SoloWindow): TakeNote[] {
+  const marks = landings(take, bars);
+  return take.map((t) => {
+    const mark = marks[barOf(t)]!;
+    if (mark.kind !== 'off' || mark.note !== t) return t;
+    const chord = bars[barOf(t)]!.chord;
+    const tones = window.notes.filter((n) => toneIn(n, chord) !== null);
+    if (tones.length === 0) return t;
+    const best = tones.reduce((a, b) => {
+      const da = Math.abs(a.midi - t.note.midi);
+      const db = Math.abs(b.midi - t.note.midi);
+      return db < da || (db === da && b.midi < a.midi) ? b : a;
+    });
+    return { ...t, note: best };
+  });
+}
