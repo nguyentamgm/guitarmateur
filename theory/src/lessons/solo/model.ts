@@ -112,6 +112,13 @@ export interface SceneCopy {
     readonly fixed: string;
     /** {count}: bars whose first note was moved, shown with the fixed version. */
     readonly fixedNote: string;
+    readonly copyLink: string;
+    readonly copied: string;
+    /** {url}: shown when the browser would not copy. */
+    readonly copyFailed: string;
+    /** Opening the page with the take saved last time, or from a shared link. */
+    readonly restored: string;
+    readonly shared: string;
   };
 }
 

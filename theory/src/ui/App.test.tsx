@@ -3,7 +3,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, pentatonicMap } from '../lessons';
-import { earQuestion, earWindow } from '../lessons/solo';
+import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
+import { parseNote } from '../core/music';
+import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
 import { PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
 
@@ -373,6 +375,28 @@ describe('Theory app', () => {
       advance(11000);
       expect(plucked.length).toBeGreaterThan(before);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+    });
+  });
+
+  describe('saved and shared takes', () => {
+    const box = backingWindow('pop', parseNote('G'));
+    const code = encodeTake({ id: 'pop', tonic: parseNote('G'), bpm: 92, take: recordNote([], box.notes[4]!, 0) });
+
+    it('opens a shared link on its backing and take, ready to hear', () => {
+      render(`/theory/solo?take=${encodeURIComponent(code)}#record`);
+      const section = container.querySelector('section#record')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('A shared take. Press Hear it back to hear it over its backing.');
+      expect([...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back')).toBe(true);
+      expect(section.querySelector('[aria-pressed="true"]')!.textContent).toBe('Pop I–V–vi–IV');
+    });
+
+    it('brings back the last take, and forgets it when cleared', () => {
+      localStorage.setItem(TAKE_STORAGE_KEY, code);
+      render('/theory/solo');
+      const section = container.querySelector('section#record')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('Your last take is back. Press Hear it back, or Record a new one.');
+      click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Clear')!);
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe('');
     });
   });
 

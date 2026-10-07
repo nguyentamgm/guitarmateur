@@ -5,6 +5,7 @@
  * `landOn()`. The only typed data is which scale and style go with which backing.
  */
 import { EIGHTHS_PER_BAR, type BackingStyle } from '../../core/audio';
+import { MAX_BPM, MIN_BPM } from '../../core/rhythm';
 import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
@@ -19,6 +20,7 @@ import {
   mod,
   motif,
   parseNote,
+  sameNote,
   pc,
   progression,
   scaleNotes,
@@ -360,4 +362,55 @@ export function fixLandings(take: readonly TakeNote[], bars: readonly BackingBar
     return !seen.has(key) && !!seen.add(key);
   });
   return { take: out, fixed };
+}
+
+// --- Saving and sharing a take ---
+
+export interface SavedTake {
+  readonly id: BackingId;
+  readonly tonic: NoteName;
+  readonly bpm: number;
+  readonly take: readonly TakeNote[];
+}
+
+const ascii = (n: NoteName): string => n.letter + (n.alter < 0 ? 'b'.repeat(-n.alter) : '#'.repeat(n.alter));
+
+/**
+ * A take as short URL-safe text: `1.blues.A.84.0-6-5_2-5-7` (version, backing, key, BPM, then each
+ * note as eighth-string-fret). Positions, not pitches: the box spells them again on the way back.
+ */
+export function encodeTake(saved: SavedTake): string {
+  const notes = saved.take.map((t) => `${t.step}-${t.note.string}-${t.note.fret}`).join('_');
+  return ['1', saved.id, ascii(saved.tonic), String(saved.bpm), notes].join('.');
+}
+
+/**
+ * The take a code describes, or null when it is not one: an unknown backing, a key that backing
+ * does not offer, a tempo out of range, or a note that is not in the box or not in the form.
+ */
+export function decodeTake(code: string): SavedTake | null {
+  const parts = code.split('.');
+  if (parts.length !== 5 || parts[0] !== '1') return null;
+  const [, rawId, rawTonic, rawBpm, rawNotes] = parts as [string, string, string, string, string];
+  if (!(BACKING_IDS as readonly string[]).includes(rawId)) return null;
+  const id = rawId as BackingId;
+  let tonic: NoteName;
+  try {
+    tonic = parseNote(rawTonic);
+  } catch {
+    return null;
+  }
+  if (!backingKeys(id).some((k) => sameNote(k, tonic))) return null;
+  const bpm = Number(rawBpm);
+  if (!Number.isInteger(bpm) || bpm < MIN_BPM || bpm > MAX_BPM) return null;
+  const box = backingWindow(id, tonic);
+  const steps = backingBars(id, tonic).length * EIGHTHS_PER_BAR;
+  let take: TakeNote[] = [];
+  for (const raw of rawNotes === '' ? [] : rawNotes.split('_')) {
+    const [step, string, fret] = raw.split('-').map(Number) as [number, number, number];
+    const note = box.notes.find((n) => n.string === string && n.fret === fret);
+    if (!note || !Number.isInteger(step) || step < 0 || step >= steps) return null;
+    take = recordNote(take, note, step);
+  }
+  return { id, tonic, bpm, take };
 }

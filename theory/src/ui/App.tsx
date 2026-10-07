@@ -37,6 +37,12 @@ export function App({ player: given }: { player?: Player } = {}) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
+  // A link with a #step (a shared take, a review card opened in a new tab) lands on that step.
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id) requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView());
+  }, []);
+
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
     window.addEventListener('popstate', onPop);
