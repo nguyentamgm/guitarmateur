@@ -283,7 +283,7 @@ type Feedback =
   | { readonly kind: 'between'; readonly fret: number };
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
-  const { player } = useTheory();
+  const { player, recordQuiz } = useTheory();
   const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
   const [names, setNames] = useState<'show' | 'hide'>('show');
   const [pool, setPool] = useState<QuizNotes>('naturals');
@@ -315,10 +315,16 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     // A question counts once, on its first answer: right scores, a miss counts even if skipped.
     if (isAnswer(question, d)) {
       setFeedback({ kind: 'right', fret: d.fret });
-      if (!missed) setScore((s) => ({ right: s.right + 1, total: s.total + 1 }));
+      if (!missed) {
+        setScore((s) => ({ right: s.right + 1, total: s.total + 1 }));
+        recordQuiz('fretboard-root', true);
+      }
       return;
     }
-    if (!missed) setScore((s) => ({ ...s, total: s.total + 1 }));
+    if (!missed) {
+      setScore((s) => ({ ...s, total: s.total + 1 }));
+      recordQuiz('fretboard-root', false);
+    }
     setMissed(true);
     const natural = naturalAt(d);
     if (d.string !== question.string) setFeedback({ kind: 'wrongString' });
@@ -326,7 +332,12 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     else if (natural || pool === 'all') setFeedback({ kind: 'wrongFret', fret: d.fret, heard: namesAt(d) });
     else setFeedback({ kind: 'between', fret: d.fret });
   };
-  const next = (notes: QuizNotes = pool) => {
+  const next = (notes: QuizNotes = pool, skip = true) => {
+    // Skipping a question you never answered counts as a miss, as in every other quiz.
+    if (skip && !solved && !missed) {
+      setScore((s) => ({ ...s, total: s.total + 1 }));
+      recordQuiz('fretboard-root', false);
+    }
     setQuestion((q) => quizQuestion(Math.random, q, notes));
     setFeedback(null);
     setMissed(false);
@@ -334,7 +345,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   };
   const choosePool = (notes: QuizNotes) => {
     setPool(notes);
-    next(notes);
+    next(notes, false);
   };
   const play = (string: 6 | 5, fret: number) => {
     const pos = { string, fret };

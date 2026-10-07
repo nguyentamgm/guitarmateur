@@ -1,7 +1,7 @@
 import { LANGS } from '../i18n';
 import { useTheory } from './context';
 import { Link } from './Link';
-import { BASE } from './router';
+import { BASE, hrefFor } from './router';
 
 export function Header() {
   const { ui, lang, setLang, soundOn, setSoundOn } = useTheory();
@@ -11,6 +11,9 @@ export function Header() {
         {ui.appName}
       </Link>
       <div className="topbar-tools">
+        <Link href={hrefFor({ page: 'review' })} className="navlink">
+          {ui.navReview}
+        </Link>
         <button type="button" className="btn ghost" aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)}>
           {soundOn ? ui.soundOn : ui.soundOff}
         </button>

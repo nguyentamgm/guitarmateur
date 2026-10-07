@@ -35,6 +35,7 @@ import {
 } from '../../lessons/keys';
 import { BarGrid } from '../BarGrid';
 import { BarreBar } from '../BarreBar';
+import { useTheory } from '../context';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
@@ -217,6 +218,7 @@ function NumbersScene({ copy }: { copy: SceneCopy }) {
 // --- Step 3 ---
 
 function HomeScene({ copy }: { copy: SceneCopy }) {
+  const { recordQuiz } = useTheory();
   const c = copy.home;
   const strum = useStrum();
   const g = useNeck();
@@ -238,11 +240,15 @@ function HomeScene({ copy }: { copy: SceneCopy }) {
     if (result === 'right') {
       const clean = tried.size === 0;
       setScore((s) => ({ right: s.right + (clean ? 1 : 0), total: s.total + 1, streak: clean ? s.streak + 1 : 0 }));
+      recordQuiz('keys-home', clean);
     }
   };
   const next = () => {
     lead.stop();
-    if (!solved) setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
+    if (!solved) {
+      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
+      recordQuiz('keys-home', false);
+    }
     setQ((prev) => homeQuestion(Math.random, prev));
     setTried(new Map());
   };

@@ -12,6 +12,9 @@ export function ContentsPage({ missingPath }: { missingPath?: string }) {
         <span className="eyebrow">{ui.tocEyebrow}</span>
         <h1>{ui.tocTitle}</h1>
         <p className="lead">{ui.tocLead}</p>
+        <Link href={hrefFor({ page: 'review' })} className="toc-review">
+          {ui.tocReview}
+        </Link>
         {missingPath !== undefined && (
           <p className="notice" role="status">
             {fill(ui.notFound, { path: missingPath })}

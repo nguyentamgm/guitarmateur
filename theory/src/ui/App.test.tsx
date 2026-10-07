@@ -2,8 +2,9 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
-import { LESSONS, pentatonicMap } from '../lessons';
+import { LESSONS, barre, pentatonicMap } from '../lessons';
 import { App } from './App';
+import { PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
 
 function fakePlayer() {
   const plucked: number[] = [];
@@ -180,6 +181,8 @@ describe('Theory app', () => {
     click(dot(Number(next[1]) === 6 ? 5 : 6, 1));
     click(button('Next note'));
     expect(section.textContent).toContain('First try: 0 of 2');
+    // Both settled questions are stored for the review page.
+    expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['fretboard-root']).toMatchObject({ right: 0, total: 2 });
   });
 
   it('asks sharps and flats once the quiz is switched to all 12', () => {
@@ -319,6 +322,48 @@ describe('Theory app', () => {
       click(section.querySelectorAll('.block')[1]!);
       expect(section.querySelector('.caption')!.textContent).toBe('Pattern: DUDU-UDU');
       expect(section.querySelector('.chip[aria-pressed="true"]')!.textContent).toBe('Your own');
+    });
+  });
+
+  describe('review', () => {
+    it('lists every quiz as not tried yet, in curriculum order', () => {
+      render('/theory/review');
+      const cards = [...container.querySelectorAll('.review-card')];
+      expect(cards).toHaveLength(QUIZZES.length);
+      expect(cards[0]!.textContent).toContain('Do this next');
+      expect(cards[1]!.textContent).toContain('Not tried yet');
+      expect(cards[0]!.querySelector('a')!.getAttribute('href')).toBe('/theory/fretboard#home');
+      expect(document.title).toBe('Review · Guitarmateur Theory');
+    });
+
+    it('puts a weak quiz first and shows its stored score', () => {
+      const now = Date.now();
+      let p = {};
+      for (const q of QUIZZES) p = recordAnswer(p, q.id, true, now);
+      p = recordAnswer(recordAnswer(p, 'barre-find', false, now), 'barre-find', false, now);
+      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(p));
+      render('/theory/review');
+      const first = container.querySelector('.review-card')!;
+      expect(first.textContent).toContain(barre.copy.en.steps.find.title);
+      expect(first.textContent).toContain('33% right in the last 3 · best streak 1');
+      expect(first.textContent).toContain('Last practised today');
+    });
+
+    it('counts a song skipped without an answer as a miss', () => {
+      render('/theory/pentatonic');
+      const section = container.querySelector('section#choose')!;
+      click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Next song')!);
+      expect(section.textContent).toContain('0 of 1');
+      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['pentatonic-shape']).toMatchObject({ right: 0, total: 1 });
+    });
+
+    it('is reachable from the header and the contents', () => {
+      render('/theory');
+      const links = [...container.querySelectorAll('a')].filter((a) => a.getAttribute('href') === '/theory/review');
+      expect(links).toHaveLength(2);
+      click(links[1]!);
+      expect(window.location.pathname).toBe('/theory/review');
+      expect(text()).toContain('Each quiz in the lessons keeps its score');
     });
   });
 

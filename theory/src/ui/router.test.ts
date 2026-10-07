@@ -13,6 +13,11 @@ describe('parseRoute', () => {
     expect(parseRoute('/theory/pentatonic-map/', isLesson)).toEqual({ page: 'lesson', slug: 'pentatonic-map' });
   });
 
+  it('maps /theory/review to the review page', () => {
+    expect(parseRoute('/theory/review', isLesson)).toEqual({ page: 'review' });
+    expect(parseRoute('/theory/review/', isLesson)).toEqual({ page: 'review' });
+  });
+
   it('reports unknown or foreign paths', () => {
     expect(parseRoute('/theory/nope', isLesson)).toEqual({ page: 'notFound', path: '/theory/nope' });
     expect(parseRoute('/theoryx', isLesson)).toEqual({ page: 'notFound', path: '/theoryx' });
@@ -22,7 +27,7 @@ describe('parseRoute', () => {
 
 describe('hrefFor', () => {
   it('round-trips with parseRoute', () => {
-    for (const route of [{ page: 'contents' }, { page: 'lesson', slug: 'pentatonic-map' }] as const) {
+    for (const route of [{ page: 'contents' }, { page: 'review' }, { page: 'lesson', slug: 'pentatonic-map' }] as const) {
       expect(parseRoute(hrefFor(route), isLesson)).toEqual(route);
     }
   });

@@ -304,7 +304,7 @@ function BendsScene({ copy }: { copy: SceneCopy }) {
 
 function BendQuiz({ copy }: { copy: SceneCopy }) {
   const c = copy.bends;
-  const { player } = useTheory();
+  const { player, recordQuiz } = useTheory();
   const [q, setQ] = useState<BendQuestion>(() => bendQuestion(Math.random));
   const [answer, setAnswer] = useState<BendOutcome | null>(null);
   const [score, setScore] = useState({ right: 0, total: 0 });
@@ -318,6 +318,7 @@ function BendQuiz({ copy }: { copy: SceneCopy }) {
     if (answer) return;
     setAnswer(o);
     setScore((s) => ({ right: s.right + (o === q.outcome ? 1 : 0), total: s.total + 1 }));
+    recordQuiz('blues-bend', o === q.outcome);
   };
   const next = () => {
     setQ((prev) => bendQuestion(Math.random, prev));

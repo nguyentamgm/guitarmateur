@@ -23,6 +23,19 @@ const en = {
   tryIt: 'Try it',
   notYetEyebrow: 'Not yet',
   lessonFooter: 'Sound is synthesized in your browser. Nothing is tracked or uploaded.',
+  navReview: 'Review',
+  tocReview: 'Review: which quiz to do next →',
+  reviewTitle: 'Review',
+  reviewLead:
+    'Each quiz in the lessons keeps its score on this device. The list puts the quiz that needs you most at the top: ones you have not tried, then ones you often miss, then ones you have not practised for a week.',
+  reviewNext: 'Do this next',
+  reviewReason: { new: 'Not tried yet', weak: 'Needs work', stale: 'Due again', fresh: 'Up to date' },
+  reviewStats: '{acc}% right in the last {n} · best streak {best}',
+  reviewLastToday: 'Last practised today',
+  reviewLastYesterday: 'Last practised yesterday',
+  reviewLastDays: 'Last practised {days} days ago',
+  reviewOpen: 'Go to the quiz',
+  reviewFooter: 'Scores stay in this browser. Nothing is tracked or uploaded.',
 };
 
 export type UiStrings = typeof en;
@@ -46,6 +59,19 @@ const vi: UiStrings = {
   tryIt: 'Tự thử',
   notYetEyebrow: 'Tạm gác lại',
   lessonFooter: 'Âm thanh được tổng hợp ngay trong trình duyệt. Không theo dõi, không tải gì lên.',
+  navReview: 'Ôn tập',
+  tocReview: 'Ôn tập: nên làm bài đố nào tiếp →',
+  reviewTitle: 'Ôn tập',
+  reviewLead:
+    'Mỗi bài đố trong các bài học lưu điểm ngay trên máy này. Danh sách đặt bài đố cần bạn nhất lên đầu: bài chưa thử, rồi bài hay sai, rồi bài đã một tuần chưa tập.',
+  reviewNext: 'Làm bài này trước',
+  reviewReason: { new: 'Chưa thử', weak: 'Cần tập thêm', stale: 'Đến lúc ôn lại', fresh: 'Đang ổn' },
+  reviewStats: 'Đúng {acc}% trong {n} câu gần nhất · chuỗi đúng dài nhất {best}',
+  reviewLastToday: 'Tập lần cuối hôm nay',
+  reviewLastYesterday: 'Tập lần cuối hôm qua',
+  reviewLastDays: 'Tập lần cuối {days} ngày trước',
+  reviewOpen: 'Tới bài đố',
+  reviewFooter: 'Điểm chỉ nằm trong trình duyệt này. Không theo dõi, không tải gì lên.',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };
