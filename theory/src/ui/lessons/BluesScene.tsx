@@ -41,6 +41,7 @@ import {
 import { BarGrid } from '../BarGrid';
 import { BeatGrid, type Block } from '../BeatGrid';
 import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
@@ -304,10 +305,10 @@ function BendsScene({ copy }: { copy: SceneCopy }) {
 
 function BendQuiz({ copy }: { copy: SceneCopy }) {
   const c = copy.bends;
-  const { player, recordQuiz } = useTheory();
+  const { player } = useTheory();
   const [q, setQ] = useState<BendQuestion>(() => bendQuestion(Math.random));
   const [answer, setAnswer] = useState<BendOutcome | null>(null);
-  const [score, setScore] = useState({ right: 0, total: 0 });
+  const { score, settle } = useQuizScore('blues-bend');
   const view = bendView(FULL_BENDS[q.bend]!);
 
   const listen = () => {
@@ -317,8 +318,7 @@ function BendQuiz({ copy }: { copy: SceneCopy }) {
   const choose = (o: BendOutcome) => {
     if (answer) return;
     setAnswer(o);
-    setScore((s) => ({ right: s.right + (o === q.outcome ? 1 : 0), total: s.total + 1 }));
-    recordQuiz('blues-bend', o === q.outcome);
+    settle(o === q.outcome);
   };
   const next = () => {
     setQ((prev) => bendQuestion(Math.random, prev));

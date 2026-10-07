@@ -22,6 +22,7 @@ import {
   type StepId,
 } from '../../lessons/fretboard';
 import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { posKey } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
@@ -283,14 +284,14 @@ type Feedback =
   | { readonly kind: 'between'; readonly fret: number };
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
-  const { player, recordQuiz } = useTheory();
+  const { player } = useTheory();
   const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
   const [names, setNames] = useState<'show' | 'hide'>('show');
   const [pool, setPool] = useState<QuizNotes>('naturals');
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [missed, setMissed] = useState(false);
-  const [score, setScore] = useState({ right: 0, total: 0 });
+  const { score, settle } = useQuizScore('fretboard-root');
   const [lit, setLit] = useState<string | null>(null);
   const solved = feedback?.kind === 'right';
 
@@ -315,16 +316,10 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     // A question counts once, on its first answer: right scores, a miss counts even if skipped.
     if (isAnswer(question, d)) {
       setFeedback({ kind: 'right', fret: d.fret });
-      if (!missed) {
-        setScore((s) => ({ right: s.right + 1, total: s.total + 1 }));
-        recordQuiz('fretboard-root', true);
-      }
+      if (!missed) settle(true);
       return;
     }
-    if (!missed) {
-      setScore((s) => ({ ...s, total: s.total + 1 }));
-      recordQuiz('fretboard-root', false);
-    }
+    if (!missed) settle(false);
     setMissed(true);
     const natural = naturalAt(d);
     if (d.string !== question.string) setFeedback({ kind: 'wrongString' });
@@ -334,10 +329,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   };
   const next = (notes: QuizNotes = pool, skip = true) => {
     // Skipping a question you never answered counts as a miss, as in every other quiz.
-    if (skip && !solved && !missed) {
-      setScore((s) => ({ ...s, total: s.total + 1 }));
-      recordQuiz('fretboard-root', false);
-    }
+    if (skip && !solved && !missed) settle(false);
     setQuestion((q) => quizQuestion(Math.random, q, notes));
     setFeedback(null);
     setMissed(false);

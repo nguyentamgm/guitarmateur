@@ -34,6 +34,7 @@ import {
 } from '../../lessons/solo';
 import { BarGrid } from '../BarGrid';
 import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { TrainerLink } from '../TrainerLink';
 import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
@@ -334,7 +335,7 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
 type EarHelp = 'first' | 'none';
 
 function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
-  const { player, recordQuiz } = useTheory();
+  const { player } = useTheory();
   const g = useNeck();
   const box = useMemo(() => earWindow(), []);
   const [question, setQuestion] = useState<EarNote[]>(() => earQuestion(box, Math.random));
@@ -343,7 +344,7 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
   const [found, setFound] = useState(start);
   const [missed, setMissed] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [score, setScore] = useState({ right: 0, total: 0 });
+  const { score, settle } = useQuizScore('solo-ear');
   const solved = found >= question.length;
 
   const cell = cellSeconds(EAR_BPM, 2);
@@ -356,10 +357,6 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
     false,
   );
 
-  const settle = (right: boolean) => {
-    setScore((s) => ({ right: s.right + (right ? 1 : 0), total: s.total + 1 }));
-    recordQuiz('solo-ear', right);
-  };
   const reset = (q: EarNote[], h: EarHelp) => {
     clock.stop();
     setQuestion(q);

@@ -25,6 +25,7 @@ import {
   type StepId,
 } from '../../lessons/chords';
 import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
@@ -298,7 +299,6 @@ const POOL_KINDS: Record<Pool, readonly ChordId[]> = { basic: ['major', 'minor']
 const WINDOW = { below: 5, above: 3 };
 
 function BuildScene({ copy }: { copy: SceneCopy }) {
-  const { recordQuiz } = useTheory();
   const c = copy.build;
   const strum = useStrum();
   const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
@@ -307,7 +307,7 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
   const [found, setFound] = useState<(FretPos & { degree: string })[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [missed, setMissed] = useState(false);
-  const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
+  const { score, settle } = useQuizScore('chords-build');
 
   const chord = { root: q.root, id: q.id };
   const symbol = chordSymbol(chord);
@@ -344,8 +344,7 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
     setFound(next);
     if (need.every((x) => next.some((f) => f.degree === x))) {
       strum([root, ...next].map((p) => ({ midi: midiAt(p) })).sort((a, b) => a.midi - b.midi));
-      setScore((s) => ({ right: s.right + (missed ? 0 : 1), total: s.total + 1, streak: missed ? 0 : s.streak + 1 }));
-      recordQuiz('chords-build', !missed);
+      settle(!missed);
       setMessage(fill(c.solved, { symbol, notes: chordNotes(chord).map(format).join(' ') }));
     } else {
       setMessage(fill(c.found, { degree: degreeText(r.degree), symbol }));
@@ -353,10 +352,7 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
   };
   const next = (p: Pool = pool, skip = true) => {
     // Skipping an unsolved chord counts as a miss, so a streak means every chord was built.
-    if (skip && !solved) {
-      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
-      recordQuiz('chords-build', false);
-    }
+    if (skip && !solved) settle(false);
     setQ((prev) => buildQuestion(Math.random, prev, POOL_KINDS[p]));
     setFound([]);
     setMessage(null);

@@ -25,7 +25,7 @@ import {
   type StepId,
 } from '../../lessons/barre';
 import { BarreBar } from '../BarreBar';
-import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
@@ -166,14 +166,13 @@ function ShapeScene({ copy, shape, defaultRoot }: { copy: SceneCopy; shape: Barr
 // --- Step 4 ---
 
 function FindScene({ copy }: { copy: SceneCopy }) {
-  const { recordQuiz } = useTheory();
   const c = copy.find;
   const strum = useStrum();
   const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
   const [q, setQ] = useState<FindQuestion>(() => findQuestion(Math.random));
   const [result, setResult] = useState<FindResult | null>(null);
   const [missed, setMissed] = useState(false);
-  const [score, setScore] = useState({ right: 0, total: 0, streak: 0 });
+  const { score, settle } = useQuizScore('barre-find');
   const symbol = chordSymbol({ root: q.root, id: q.id });
   const solved = result?.kind === 'right';
 
@@ -196,17 +195,13 @@ function FindScene({ copy }: { copy: SceneCopy }) {
     setResult(r);
     if (r.kind === 'right') {
       strum(r.view);
-      setScore((s) => ({ right: s.right + (missed ? 0 : 1), total: s.total + 1, streak: missed ? 0 : s.streak + 1 }));
-      recordQuiz('barre-find', !missed);
+      settle(!missed);
     } else {
       setMissed(true);
     }
   };
   const next = () => {
-    if (!solved) {
-      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
-      recordQuiz('barre-find', false);
-    }
+    if (!solved) settle(false);
     setQ((prev) => findQuestion(Math.random, prev));
     setResult(null);
     setMissed(false);

@@ -97,8 +97,9 @@ ui → lessons → core/fretboard → core/music
 - Quiz scores are stored under `theory.progress` (never the practice app's key) by `ui/progress.ts`:
   one record per quiz in `QUIZZES` (lesson slug + step), pure `recordAnswer()` / `nextReview()`,
   and a storage boundary that never throws and drops broken records.
-- A quiz scene reports each settled question once with `recordQuiz(id, right)` from `useTheory()`,
-  next to its own session score. A new quiz adds its entry to `QUIZZES`.
+- A quiz scene keeps its score with `useQuizScore(id)` (`ui/useQuizScore.ts`): `settle(right)`
+  counts one question once, in the score shown for this visit and in stored progress together.
+  A new quiz adds its entry to `QUIZZES`.
 - Drill tempos are stored under `theory.tempo` by `ui/tempos.ts` through `useStoredTempo(id, fallback)`:
   the last tempo set, and the best (fastest tempo of a whole round; the scene's clock calls
   `step(i, steps)`). `ui/storage.ts` is the safe way to reach localStorage from the UI.

@@ -34,6 +34,7 @@ import {
   type Verdict,
 } from '../../lessons/pentatonic';
 import { useTheory } from '../context';
+import { useQuizScore } from '../useQuizScore';
 import { PositionFrame } from '../PositionFrame';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
@@ -346,19 +347,13 @@ function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
 
 // --- Step 5 ---
 
-interface Score {
-  readonly right: number;
-  readonly total: number;
-  readonly streak: number;
-}
-
 function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
-  const { player, recordQuiz } = useTheory();
+  const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [verdict, setVerdict] = useState<{ kind: Verdict; fret: number } | null>(null);
   const [missed, setMissed] = useState(false);
-  const [score, setScore] = useState<Score>({ right: 0, total: 0, streak: 0 });
+  const { score, settle } = useQuizScore('pentatonic-shape');
   const [withScale, setWithScale] = useState(false);
   // Read by the clock: its first step runs before React re-renders with the new state.
   const scaleOn = useRef(false);
@@ -387,25 +382,16 @@ function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
     setVerdict({ kind, fret: d.fret });
     // A question counts once, on its first answer.
     if (kind === 'right') {
-      if (!missed) {
-        setScore((s) => ({ right: s.right + 1, total: s.total + 1, streak: s.streak + 1 }));
-        recordQuiz('pentatonic-shape', true);
-      }
+      if (!missed) settle(true);
       return;
     }
-    if (!missed) {
-      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
-      recordQuiz('pentatonic-shape', false);
-    }
+    if (!missed) settle(false);
     setMissed(true);
   };
   const next = () => {
     clock.stop();
     // Skipping a song you never answered counts as a miss, as in every other quiz.
-    if (!solved && !missed) {
-      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
-      recordQuiz('pentatonic-shape', false);
-    }
+    if (!solved && !missed) settle(false);
     setQuestion((q) => quizQuestion(Math.random, q));
     setVerdict(null);
     setMissed(false);
