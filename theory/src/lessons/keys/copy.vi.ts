@@ -56,6 +56,8 @@ export const vi: KeysCopy = {
     stop: 'Dừng',
     key: 'Giọng',
     playLoop: 'Phát vòng',
+    tempo: 'Tempo',
+    bpm: '{bpm} BPM',
     quality: { major: 'Trưởng', minor: 'Thứ', dim: 'Giảm' },
     family: {
       size: 'Hợp âm',

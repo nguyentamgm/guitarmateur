@@ -28,6 +28,15 @@ describe('backing patterns (K5.4, K7.1)', () => {
     expect(strokes.flatMap((h) => h.map((x) => x.eighths)).reduce((a, b) => a + b, 0)).toBe(EIGHTHS_PER_BAR);
   });
 
+  it('strums and comps the voicing it is given, low to high', () => {
+    // G major, E shape at fret 3: G D G B D G.
+    const shape = [43, 50, 55, 59, 62, 67];
+    const g = { root: n('G'), id: 'major' } as const;
+    expect(backingAt(g, 'strum', 0, shape)[0]!.midis).toEqual(shape);
+    expect(backingAt(g, 'comp', 0, shape)[1]!.midis).toEqual(shape.slice(1));
+    expect(backingAt(g, 'strum', 0)[0]!.midis).toEqual(chordMidis(g));
+  });
+
   it('chugs a muted power chord on every eighth for rock', () => {
     const hits = bar({ root: n('A'), id: 'minor' }, 'rock');
     expect(hits.every((h) => h.length === 1 && h[0]!.muted)).toBe(true);

@@ -7,6 +7,9 @@ export interface SceneCopy {
   readonly stop: string;
   readonly key: string;
   readonly playLoop: string;
+  readonly tempo: string;
+  /** Tempo readout: {bpm}. */
+  readonly bpm: string;
   /** Legend names of the chord colours. */
   readonly quality: { readonly major: string; readonly minor: string; readonly dim: string };
   readonly family: {

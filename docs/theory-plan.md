@@ -161,13 +161,12 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (0.3) Offline: service worker cache shell `/theory` khi cài, còn JS/CSS chỉ được cache ở lần tải đầu có service worker. Người chỉ mở Theory đúng một lần rồi mất mạng sẽ thấy trang trắng. App Luyện tập cũng vậy. Nếu cần, cache trước tài nguyên lúc build.
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
 - (1.2, 2.2, 4.2) `Tab` đã có chữ đếm dưới mỗi cột và vạch nhịp (`counts`, `barLines`, dùng ở `/theory/solo` bước 4), nhưng chưa vẽ độ dài nốt: nốt dài và nốt ngắn trông như nhau. Ghép `Tab` với `BeatGrid` nếu một bài cần đọc độ dài.
-- (1.2, 5.1) Chỉ ba bài luyện nhớ tempo (`theory.tempo`: luyện ngón 1-2-3-4, sequence pentatonic, triplet 3 nốt mỗi dây). Các cảnh khác (metronome, quạt dây, blues, riff, backing của bài solo) vẫn về tempo mặc định khi mở lại trang.
+- (1.2, 5.1) Chỉ ba bài luyện nhớ tempo (`theory.tempo`: luyện ngón 1-2-3-4, sequence pentatonic, triplet 3 nốt mỗi dây). Các cảnh khác (metronome, quạt dây, blues, riff, backing của bài solo, vòng hợp âm ở `/theory/barre` và `/theory/keys`) vẫn về tempo mặc định khi mở lại trang.
 - (2.2) Chữ đếm liên ba tiếng Việt là "1 trí-ô" (từ *triolet*), do phiên 2.2 tự chọn; chưa có cách đếm chuẩn được thống nhất. Nếu người học thấy lạ, đổi trong `lessons/blues/copy.vi.ts`.
 - (2.2) Âm thanh nhéo, trượt, rung chỉ đổi `playbackRate` của tiếng gảy: đúng cao độ (đo trong Chrome: D nhéo +2 tới 331,6 Hz, E là 329,6 Hz) nhưng tiếng tắt nhanh hơn khi nhéo cao và không có tiếng "rít" của dây. Chỉnh âm sắc khi cần.
 - (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Lõi đã sinh được ý nhạc (`motif()`, phiên 4.2) nhưng câu blues chưa chuyển sang dùng nó.
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
-- (3.2, 4.1) Vòng hợp âm (`/theory/barre` bước 5, `/theory/keys` bước 2, 4, 5) vẫn phát mỗi hợp âm một lần quạt. Lõi đã có kiểu quạt pop (`backingAt(chord, 'strum')`) và `ui/useBacking.ts` từ phiên 4.2; chuyển các vòng này sang đó là việc nhỏ, nhưng đổi nhịp độ đọc của bài nên để một PR riêng.
 - (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
 - (3.3) Hợp âm có bass ngoài hợp âm (F/G, D/C) chưa dạy; `openVoicing({ bass })` đã nhận được nốt bất kỳ nhưng chưa có test cho trường hợp này.
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
