@@ -1,4 +1,4 @@
-import { midiAt } from '../../core/fretboard';
+import { midiAt, scaleNeck } from '../../core/fretboard';
 import { format, interval, parseNote, pc, scaleNotes, type NoteName } from '../../core/music';
 import {
   INTERVAL_ROOT,
@@ -14,7 +14,6 @@ import {
   intervalTargets,
   labelsFor,
   readInterval,
-  scaleNeck,
   spellingView,
   stamp,
   wrongFourth,
@@ -62,7 +61,7 @@ describe('step 2: one letter each (K2.2, K0.5)', () => {
   });
 
   it('shows E♯ in F♯ major, B♭ in F major, G♭ in D♭ major', () => {
-    const names = (k: string) => new Set(scaleNeck(n(k), SPELLING_FRETS).map((x) => x.name));
+    const names = (k: string) => new Set(scaleNeck(n(k), 'major', SPELLING_FRETS).map((x) => x.name));
     expect(names('F#').has('E♯')).toBe(true);
     expect(names('F#').has('F')).toBe(false);
     expect(names('F').has('B♭')).toBe(true);
@@ -72,7 +71,7 @@ describe('step 2: one letter each (K2.2, K0.5)', () => {
   });
 
   it.each(byKey)('%s: every dot on the neck carries a name from the scale', (_k, k) => {
-    const neck = scaleNeck(k, SPELLING_FRETS);
+    const neck = scaleNeck(k, 'major', SPELLING_FRETS);
     const names = inScale(k);
     for (const x of neck) {
       expect(names.has(x.name), `${x.string}/${x.fret}`).toBe(true);

@@ -173,7 +173,6 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
 - (2.3) `boogieShape` (electric) vẫn nằm trong bài: nó vẽ vị trí bấm trên cần, không phải âm thanh, nên không gom vào `core/audio/backing.ts` như `vampVoicing`, `shuffleNotes` và `bassMidi` (đã gom ở phiên 4.2).
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
-- (2.1, 4.3) `scaleNeck`, `upAndDown`, `samePos` và kiểu `NeckNote` giờ có ba bản gần giống nhau (Bản đồ Pentatonic, Pentatonic đầy đủ, 3 nốt mỗi dây; blues có `NeckNote` riêng), cộng `Frame` vẽ khung có số ở `PentatonicScene` và `ThreePerStringScene`. Đã tới ngưỡng "bài thứ ba": gom vào `core/fretboard` (và `ui/`) bằng một PR riêng, vì phải sửa bốn bài.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
 - (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3): đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
 - (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.

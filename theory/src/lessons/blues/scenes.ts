@@ -9,19 +9,17 @@ import {
   allPositions,
   byHomeFret,
   midiAt,
-  pitchAtPos,
+  neckNote,
   positions,
   type FretPos,
+  type NeckNote as CoreNeckNote,
 } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
   bluesChord,
   chordSymbol,
   decorationDegrees,
-  degreeOf,
-  format,
   parseNote,
-  pc,
   relativeMajorTonic,
   scaleNotes,
   twelveBar,
@@ -37,11 +35,7 @@ import { swingLength, swingOnset } from '../../core/rhythm';
 export const EXAMPLE_TONIC: NoteName = parseNote('A');
 export const NECK_FRETS = 15;
 
-export interface NeckNote extends FretPos {
-  readonly midi: number;
-  readonly name: string;
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
+export interface NeckNote extends CoreNeckNote {
   /** The added blue note: ♭5 in minor blues, ♭3 in major blues (K6.1). */
   readonly isBlue: boolean;
 }
@@ -55,18 +49,10 @@ const SCALE_OF = { minor: 'minorBlues', major: 'majorBlues' } as const;
 export const bluesTonic = (kind: BluesKind, minorTonic: NoteName = EXAMPLE_TONIC): NoteName =>
   kind === 'minor' ? minorTonic : relativeMajorTonic(minorTonic);
 
-function neckNote(pos: FretPos, tonic: NoteName, kind: BluesKind): NeckNote {
+function bluesNote(pos: FretPos, tonic: NoteName, kind: BluesKind): NeckNote {
   const scale = SCALE_OF[kind];
-  const pitch = pitchAtPos(pos, scaleNotes(tonic, scale));
-  const degree = degreeOf(tonic, pitch);
-  return {
-    ...pos,
-    midi: midiAt(pos),
-    name: format(pitch),
-    degree,
-    isTonic: pc(pitch) === pc(tonic),
-    isBlue: decorationDegrees(scale).includes(degree),
-  };
+  const note = neckNote(pos, tonic, scaleNotes(tonic, scale));
+  return { ...note, isBlue: decorationDegrees(scale).includes(note.degree) };
 }
 
 /** Every note of the blues scale from fret 0 to `maxFret`, blue notes flagged. */
@@ -74,7 +60,7 @@ export function bluesNeck(kind: BluesKind, maxFret = NECK_FRETS): NeckNote[] {
   const tonic = bluesTonic(kind);
   return scaleNotes(tonic, SCALE_OF[kind])
     .flatMap((n) => allPositions(n, maxFret))
-    .map((pos) => neckNote(pos, tonic, kind));
+    .map((pos) => bluesNote(pos, tonic, kind));
 }
 
 export interface Box {
@@ -91,7 +77,7 @@ export function bluesBoxes(kind: BluesKind): Box[] {
     index: p.index,
     minFret: p.minFret,
     maxFret: p.maxFret,
-    notes: p.notes.map((n) => neckNote(n, tonic, kind)),
+    notes: p.notes.map((n) => bluesNote(n, tonic, kind)),
   }));
 }
 
@@ -178,7 +164,7 @@ const box1 = (tonic: NoteName = EXAMPLE_TONIC): Box => {
   const boxes = positions({ tonic, scale: 'minorPentatonic', notesPerString: 2 });
   return {
     ...boxes[0]!,
-    notes: boxes[0]!.notes.map((n) => neckNote(n, tonic, 'minor')),
+    notes: boxes[0]!.notes.map((n) => bluesNote(n, tonic, 'minor')),
   };
 };
 

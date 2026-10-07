@@ -1,7 +1,7 @@
 /** The five scenes of "Pentatonic, the whole neck". Every position comes from lessons/pentatonic. */
 import { useMemo, useRef, useState } from 'react';
 import { bassMidi, chordMidis } from '../../core/audio';
-import { SEQUENCE_IDS, homeFret, midiAt, type Direction, type SequenceId } from '../../core/fretboard';
+import { SEQUENCE_IDS, homeFret, midiAt, scaleNeck, upAndDown, type Direction, type SequenceId } from '../../core/fretboard';
 import { format, sameNote, type NoteName } from '../../core/music';
 import { beatSeconds, cellSeconds, clampBpm, strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
@@ -24,12 +24,9 @@ import {
   namesAt,
   quizQuestion,
   quizView,
-  scaleNeck,
   shapeTonic,
   songChord,
   songChordSymbol,
-  upAndDown,
-  type Box,
   type NeckNote,
   type QuizQuestion,
   type SceneCopy,
@@ -37,9 +34,10 @@ import {
   type Verdict,
 } from '../../lessons/pentatonic';
 import { useTheory } from '../context';
+import { PositionFrame } from '../PositionFrame';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { boxSpan, neckGeometry, type NeckGeometry } from '../geometry';
+import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
@@ -71,26 +69,13 @@ const dotOf = (n: NeckNote, label: string, tone: DotTone = 'plain', dim = false)
   dim,
 });
 
-/** An outline frame with its box number in the top-left corner, for boxes that are not selected. */
-function Frame({ g, box, on = false }: { g: NeckGeometry; box: Pick<Box, 'index' | 'minFret' | 'maxFret'>; on?: boolean }) {
-  const { left, right } = boxSpan(g, box.minFret, box.maxFret);
-  return (
-    <g className={on ? 'boxghost on' : 'boxghost'}>
-      <rect x={left + 2} y={g.top - 12} width={right - left - 4} height={5 * g.stringGap + 24} rx={7} />
-      <text x={left + 5} y={g.top - 5}>
-        {box.index}
-      </text>
-    </g>
-  );
-}
-
 // --- Step 1 ---
 
 function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
   const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const all = useMemo(() => boxes(), []);
-  const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC), []);
+  const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, 'minorPentatonic', NECK_FRETS), []);
   const [index, setIndex] = useState(1);
   const [labels, setLabels] = useState<'degrees' | 'notes'>('degrees');
   const box = all[index - 1]!;
@@ -138,7 +123,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
         active={seq.current === null ? [] : [posKey(order[seq.current]!)]}
       >
         {all.map((b) => (
-          <Frame key={b.index} g={g} box={b} on={b.index === index} />
+          <PositionFrame key={b.index} g={g} span={b} on={b.index === index} />
         ))}
         <g className="kink">
           {bNotes.map((n) => (
@@ -195,8 +180,8 @@ function ConnectScene({ copy }: { copy: SceneCopy['connect'] }) {
         box={pair.from}
         active={seq.current === null ? [] : [posKey(run[seq.current]!)]}
       >
-        <Frame g={g} box={pair.from} on />
-        <Frame g={g} box={pair.to} on />
+        <PositionFrame g={g} span={pair.from} on />
+        <PositionFrame g={g} span={pair.to} on />
         {pair.shared.map((n) => (
           <circle key={posKey(n)} className="shared" cx={g.x(n.fret)} cy={g.y(n.string)} r={15} />
         ))}

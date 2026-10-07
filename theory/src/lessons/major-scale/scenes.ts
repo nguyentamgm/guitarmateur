@@ -1,13 +1,12 @@
 /**
  * What each scene of "The major scale and interval shapes" shows, derived from the core. Names
- * come from `pitchAtPos()` in the key's scale, shapes from `shapeAt()`, windows from `allPositions()`.
+ * come from `neckNote()` / `scaleNeck()` in the key's scale, shapes from `shapeAt()`.
  */
-import { STRINGS, allPositions, homeFret, midiAt, pitchAtPos, shapeAt, type FretPos } from '../../core/fretboard';
+import { STRINGS, homeFret, midiAt, neckNote, scaleNeck, shapeAt, type FretPos, type NeckNote } from '../../core/fretboard';
 import {
   INTERVAL_TABLE,
   LETTERS,
   MAJOR_KEY_TONICS,
-  degreeOf,
   format,
   interval,
   intervalName,
@@ -29,31 +28,6 @@ import {
 /** The 12 major keys, named by `majorKeyTonic()`, in pitch order from C. */
 export const KEYS: readonly NoteName[] = [...MAJOR_KEY_TONICS].sort((a, b) => pc(a) - pc(b));
 
-export interface ScaleNote extends FretPos {
-  readonly midi: number;
-  /** Spelled in the key, e.g. 'B♭' in F major, 'E♯' in F♯ major. */
-  readonly name: string;
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
-}
-
-function scaleNote(pos: FretPos, tonic: NoteName, context: readonly NoteName[]): ScaleNote {
-  const pitch = pitchAtPos(pos, context);
-  return {
-    ...pos,
-    midi: midiAt(pos),
-    name: format(pitch),
-    degree: degreeOf(tonic, pitch),
-    isTonic: pc(pitch) === pc(tonic),
-  };
-}
-
-/** Every note of a major scale from fret 0 to `maxFret`, grouped by degree (all the 1s, then the 2s…). */
-export function scaleNeck(tonic: NoteName, maxFret: number): ScaleNote[] {
-  const context = scaleNotes(tonic, 'major');
-  return context.flatMap((n) => allPositions(n, maxFret)).map((pos) => scaleNote(pos, tonic, context));
-}
-
 // --- Step 1: the formula (K2.1, K0.2) ---
 
 export const FORMULA_STRING = 5;
@@ -68,7 +42,7 @@ export interface FormulaStep {
 
 export interface FormulaRun {
   /** Degrees 1–7, then '8': home an octave up. */
-  readonly notes: readonly ScaleNote[];
+  readonly notes: readonly NeckNote[];
   readonly steps: readonly FormulaStep[];
 }
 
@@ -79,7 +53,7 @@ export function formulaRun(tonic: NoteName): FormulaRun {
   let fret = homeFret(tonic, FORMULA_STRING);
   const notes = Array.from({ length: 8 }, (_, i) => {
     if (i > 0) fret += sizes[i - 1]!;
-    const n = scaleNote({ string: FORMULA_STRING, fret }, tonic, context);
+    const n = neckNote({ string: FORMULA_STRING, fret }, tonic, context);
     return i === 7 ? { ...n, degree: '8' } : n;
   });
   return { notes, steps: sizes.map((size) => ({ size, half: size === 1 })) };
@@ -243,7 +217,7 @@ export interface DegreeWindow {
   /** Home on string 6, inside the window. */
   readonly home: FretPos;
   /** Every scale note in the window, lowest pitch first. */
-  readonly notes: readonly ScaleNote[];
+  readonly notes: readonly NeckNote[];
 }
 
 /** Five frets around home on string 6, from one fret below it; home at fret 0 moves up to 12. */
@@ -251,7 +225,7 @@ export function degreeWindow(tonic: NoteName): DegreeWindow {
   const h = homeFret(tonic, 6) || 12;
   const minFret = h - 1;
   const maxFret = h + 3;
-  const notes = scaleNeck(tonic, DEGREE_FRETS)
+  const notes = scaleNeck(tonic, 'major', DEGREE_FRETS)
     .filter((n) => n.fret >= minFret && n.fret <= maxFret)
     .sort((a, b) => a.midi - b.midi);
   return { minFret, maxFret, home: { string: 6, fret: h }, notes };
