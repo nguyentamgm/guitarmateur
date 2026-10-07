@@ -326,6 +326,46 @@ describe('Theory app', () => {
     });
   });
 
+  describe('solo take (K7.6)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+
+    it('records clicks over one pass, marks each bar by its first note, and plays the take back', () => {
+      const { player, plucked } = fakePlayer();
+      render('/theory/solo', player);
+      const section = container.querySelector('section#record')!;
+      const inSection = (label: string) => [...section.querySelectorAll('button')].find((b) => b.textContent === label)!;
+      const caption = () => section.querySelector('.caption')!.textContent;
+      click(inSection('Pop I–V–vi–IV')); // G, D, Em, C at 92 BPM: a bar is about 2.6 s
+      click(inSection('Record'));
+      advance(300);
+      expect(caption()).toBe('Recording · bar 1, G. Click notes on the box.');
+      // Bar 1: the G chord's root, labelled 1.
+      const root = [...section.querySelectorAll('.dot')].find((d) => d.querySelector('text')?.textContent === '1')!;
+      click(root);
+      advance(2700);
+      expect(caption()).toBe('Recording · bar 2, D. Click notes on the box.');
+      // Bar 2: a box note that is not in the D chord carries no label.
+      const off = [...section.querySelectorAll('.dot')].find((d) => !d.querySelector('text'))!;
+      click(off);
+      advance(9000);
+      expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+      expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', '✗']);
+      expect(section.querySelectorAll('.tab, svg').length).toBeGreaterThan(0);
+
+      const before = plucked.length;
+      click(inSection('Hear it back'));
+      advance(11000);
+      expect(plucked.length).toBeGreaterThan(before);
+      expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+    });
+  });
+
   describe('review', () => {
     it('lists every quiz as not tried yet, in curriculum order', () => {
       render('/theory/review');

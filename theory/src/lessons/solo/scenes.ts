@@ -4,7 +4,7 @@
  * `chordToneDegree()`, the guide-tone line from `closestPath()`, ideas from `motif()` and
  * `landOn()`. The only typed data is which scale and style go with which backing.
  */
-import type { BackingStyle } from '../../core/audio';
+import { EIGHTHS_PER_BAR, type BackingStyle } from '../../core/audio';
 import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
@@ -239,4 +239,58 @@ export function judgeEar(question: readonly EarNote[], found: number, midi: numb
   const want = question[found]!.midi;
   if (midi === want) return { kind: 'right' };
   return { kind: 'wrong', direction: want > midi ? 'higher' : 'lower' };
+}
+
+// --- Step 6: record it, hear it back (K7.6) ---
+
+/** One note of a recorded take: what was clicked, and the eighth of the form it fell on. */
+export interface TakeNote {
+  /** Eighth over the whole form: bar × 8 + eighth. */
+  readonly step: number;
+  readonly note: SoloNote;
+}
+
+/** The take with one more note, kept in time order; a second click on the same note and eighth is ignored. */
+export function recordNote(take: readonly TakeNote[], note: SoloNote, step: number): TakeNote[] {
+  if (take.some((t) => t.step === step && t.note.midi === note.midi)) return [...take];
+  return [...take, { step, note }].sort((a, b) => a.step - b.step);
+}
+
+export const barOf = (t: TakeNote): number => Math.floor(t.step / EIGHTHS_PER_BAR);
+
+/**
+ * How the take met each bar's chord: the first note played in the bar is the landing note. 'tone'
+ * when it is a note of the chord (with its degree), 'off' when not, 'rest' when the bar was empty.
+ */
+export type BarLanding =
+  | { readonly kind: 'rest' }
+  | { readonly kind: 'tone'; readonly degree: DegreeLabel; readonly note: TakeNote }
+  | { readonly kind: 'off'; readonly note: TakeNote };
+
+export function landings(take: readonly TakeNote[], bars: readonly BackingBar[]): BarLanding[] {
+  return bars.map((bar, i) => {
+    const first = take.find((t) => barOf(t) === i);
+    if (!first) return { kind: 'rest' };
+    const degree = toneIn(first.note, bar.chord);
+    return degree ? { kind: 'tone', degree, note: first } : { kind: 'off', note: first };
+  });
+}
+
+export interface TakeSummary {
+  /** Bars whose first note was a chord tone, of the bars with any note. */
+  readonly landed: number;
+  readonly played: number;
+  /** Notes that were a tone of the chord under them, of all notes. */
+  readonly tones: number;
+  readonly notes: number;
+}
+
+export function takeSummary(take: readonly TakeNote[], bars: readonly BackingBar[]): TakeSummary {
+  const marks = landings(take, bars);
+  return {
+    landed: marks.filter((m) => m.kind === 'tone').length,
+    played: marks.filter((m) => m.kind !== 'rest').length,
+    tones: take.filter((t) => toneIn(t.note, bars[barOf(t)]!.chord) !== null).length,
+    notes: take.length,
+  };
 }

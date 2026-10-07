@@ -22,6 +22,10 @@ import {
   earQuestion,
   earWindow,
   judgeEar,
+  landings,
+  recordNote,
+  takeSummary,
+  type TakeNote,
 } from './scenes';
 
 const n = parseNote;
@@ -193,5 +197,34 @@ describe('step 5: hear it, play it back (K7.5)', () => {
     expect(judgeEar(q, 1, want)).toEqual({ kind: 'right' });
     expect(judgeEar(q, 1, want - 2)).toEqual({ kind: 'wrong', direction: 'higher' });
     expect(judgeEar(q, 1, want + 3)).toEqual({ kind: 'wrong', direction: 'lower' });
+  });
+});
+
+describe('step 6: record it, hear it back (K7.6)', () => {
+  const bars = backingBars('blues', parseNote('A'));
+  const box = backingWindow('blues', parseNote('A'));
+  const note = (name: string) => box.notes.find((x) => x.name === name)!;
+  const at = (bar: number, eighth: number) => bar * EIGHTHS_PER_BAR + eighth;
+
+  it('keeps the take in time order and ignores a double click', () => {
+    let take: TakeNote[] = [];
+    take = recordNote(take, note('E'), at(1, 0));
+    take = recordNote(take, note('A'), at(0, 2));
+    take = recordNote(take, note('A'), at(0, 2));
+    expect(take.map((t) => [t.step, t.note.name])).toEqual([[2, 'A'], [8, 'E']]);
+  });
+
+  it('judges each bar by its first note: a chord tone, a note off the chord, or a rest', () => {
+    // Bar 1 is A7: G is its ♭7, D is not in it. Bar 5 is D7: E is not in it, C is its ♭7.
+    let take: TakeNote[] = [];
+    take = recordNote(take, note('G'), at(0, 1));
+    take = recordNote(take, note('D'), at(0, 3));
+    take = recordNote(take, note('E'), at(4, 0));
+    take = recordNote(take, note('C'), at(4, 2));
+    const marks = landings(take, bars);
+    expect(marks[0]).toMatchObject({ kind: 'tone', degree: 'b7' });
+    expect(marks[1]).toEqual({ kind: 'rest' });
+    expect(marks[4]).toMatchObject({ kind: 'off' });
+    expect(takeSummary(take, bars)).toEqual({ landed: 1, played: 2, tones: 2, notes: 4 });
   });
 });

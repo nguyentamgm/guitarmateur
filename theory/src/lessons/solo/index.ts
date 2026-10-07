@@ -14,6 +14,7 @@ export const solo: Lesson<StepId, SceneCopy> = {
     { id: 'guide', concepts: ['K7.2'] },
     { id: 'phrase', concepts: ['K7.4'] },
     { id: 'ear', concepts: ['K7.5'] },
+    { id: 'record', concepts: ['K7.6', 'K7.2'] },
   ],
   copy: { en, vi },
 };

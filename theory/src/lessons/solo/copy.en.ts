@@ -4,7 +4,7 @@ export const en: SoloCopy = {
   title: 'Soloing over the Changes: Aim for the Chord',
   summary: 'Pick the scale from the key, then let the chord playing tell you which notes to land on, and build phrases you can answer.',
   lead:
-    'Soloing over a backing comes down to two questions: which notes are safe here, and which one is best right now. The key answers the first; the chord playing answers the second. This lesson puts a backing under you (a blues, a pop loop, a rock loop or a jazz ii–V–I), lights up the notes of each chord as it comes round, builds phrases for you to answer, and ends with short ideas to find by ear. Five steps. Play along on your guitar.',
+    'Soloing over a backing comes down to two questions: which notes are safe here, and which one is best right now. The key answers the first; the chord playing answers the second. This lesson puts a backing under you (a blues, a pop loop, a rock loop or a jazz ii–V–I), lights up the notes of each chord as it comes round, builds phrases for you to answer, gives you short ideas to find by ear, and ends by recording your own solo so you can hear where it lands. Six steps. Play along on your guitar.',
   steps: {
     scale: {
       title: 'Pick the scale from the key',
@@ -50,6 +50,15 @@ export const en: SoloCopy = {
       ],
       takeaway: 'Up or down, step or skip: find an idea one note at a time.',
       tryIt: 'Get five ideas right on the first try with the first note given, then turn the help off.',
+    },
+    record: {
+      title: 'Record it, hear it back',
+      body: [
+        'Your ear learns which notes work by hearing the result. Press record, and the backing plays once through. Click notes on the box as you would play them. Then hear the take back over the same backing.',
+        'Each bar shows how your phrase met its chord: a tick and the degree when the first note you played in that bar is a note of the chord, a cross when it is not. A cross is not wrong, it is a note that rubs. Hear it back and decide: keep the rub, or move the note a step to the chord tone next to it.',
+      ],
+      takeaway: 'Try an idea, hear it back, keep what sounds good and move what does not.',
+      tryIt: 'Record one pass of the blues. Then record it again and land a chord tone at the start of every bar where you got a cross.',
     },
   },
   scene: {
@@ -125,11 +134,24 @@ export const en: SoloCopy = {
       solved: 'Got it on the first try: {notes}.',
       solvedMissed: 'Found it: {notes}. Hear it again, then try the next one.',
     },
+    record: {
+      record: 'Record',
+      hearBack: 'Hear it back',
+      clear: 'Clear',
+      tab: 'Your take, with the count each note starts on',
+      idle: 'Press Record, then click notes on the box while the backing plays once through.',
+      recording: 'Recording · bar {n}, {symbol}. Click notes on the box.',
+      playing: 'Playing back · bar {n}, {symbol}.',
+      summary: '{landed} of {played} bars landed on a chord tone · {tones} of {notes} notes were chord tones.',
+      empty: 'Nothing recorded: click notes on the box while the backing plays.',
+      landedOn: 'landed on the {degree}',
+      missed: 'first note not in the chord',
+    },
   },
   notYetTitle: 'What you do not need yet',
   notYetIntro: 'One box, the chord tones and one idea at a time are enough to make a solo sound intended. These come later.',
   notYet: [
-    { title: 'Recording your solo and hearing it back', why: 'Trying an idea and listening back to it, with the target notes marked, comes later.' },
+    { title: 'Saving a take, or recording from your guitar', why: 'A take lasts while the page is open, and notes are clicked, not played into a microphone.' },
     { title: 'Longer phrases by ear, in other keys', why: 'Three or four notes in one box first. Longer lines and other boxes come once these feel easy.' },
     { title: 'Modes and a scale for every chord', why: 'Jazz players pick a scale per chord. Over a ii–V–I the major scale covers it for now.' },
     { title: 'Chromatic passing notes', why: 'Notes from outside the scale on the way to a chord tone. Learn the targets first.' },
