@@ -24,6 +24,8 @@ import {
   earWindow,
   judgeEar,
   fixLandings,
+  decodeTake,
+  encodeTake,
   landings,
   nearestStep,
   recordNote,
@@ -287,5 +289,43 @@ describe('step 6: record it, hear it back (K7.6)', () => {
     expect(marks[1]).toEqual({ kind: 'rest' });
     expect(marks[4]).toMatchObject({ kind: 'off' });
     expect(takeSummary(take, bars)).toEqual({ landed: 1, played: 2, tones: 2, notes: 4 });
+  });
+});
+
+describe('saving and sharing a take', () => {
+  const box = backingWindow('blues', parseNote('A'));
+  const note = (name: string) => box.notes.find((x) => x.name === name)!;
+
+  it('round-trips a take through its code', () => {
+    let take: TakeNote[] = [];
+    take = recordNote(take, note('A'), 0);
+    take = recordNote(take, note('C'), 3);
+    take = recordNote(take, note('E'), 17);
+    const code = encodeTake({ id: 'blues', tonic: parseNote('A'), bpm: 84, take });
+    expect(code).toMatch(/^1\.blues\.A\.84\./);
+    expect(encodeURIComponent(code)).toBe(code);
+    const back = decodeTake(code)!;
+    expect(back.id).toBe('blues');
+    expect(back.bpm).toBe(84);
+    expect(back.take.map((t) => [t.step, t.note.string, t.note.fret, t.note.name])).toEqual(take.map((t) => [t.step, t.note.string, t.note.fret, t.note.name]));
+  });
+
+  it('keeps sharps and flats in the key: F♯ minor rock, B♭ pop', () => {
+    expect(decodeTake(encodeTake({ id: 'rock', tonic: parseNote('F#'), bpm: 100, take: [] }))!.tonic).toEqual(parseNote('F#'));
+    expect(decodeTake(encodeTake({ id: 'pop', tonic: parseNote('Bb'), bpm: 92, take: [] }))!.tonic).toEqual(parseNote('Bb'));
+  });
+
+  it('rejects codes that are not a take', () => {
+    expect(decodeTake('')).toBeNull();
+    expect(decodeTake('2.blues.A.84.')).toBeNull();
+    expect(decodeTake('1.metal.A.84.')).toBeNull();
+    expect(decodeTake('1.blues.H.84.')).toBeNull();
+    expect(decodeTake('1.pop.A#.84.')).toBeNull(); // pop offers B♭, not A♯
+    expect(decodeTake('1.blues.A.900.')).toBeNull();
+    expect(decodeTake('1.blues.A.84.0-6-1')).toBeNull(); // fret 1 is outside box 1
+    expect(decodeTake('1.blues.A.84.999-6-5')).toBeNull(); // past the end of the form
+    expect(decodeTake('1.blues.A.84.-6-5')).toBeNull();
+    expect(decodeTake('1.blues.A.84.0-6-5-junk')).toBeNull();
+    expect(decodeTake('1.blues.A.0x54.0-6-5')).toBeNull();
   });
 });

@@ -50,6 +50,6 @@ Mục tiêu: người học solo trên một vòng hợp âm mà **nghe có ch�
 
 **Cốt lõi.** Tai học chọn nốt bằng cách nghe kết quả: thử một ý, nghe lại, giữ cái nghe hay và bỏ cái không hợp. Một nốt nghe chói thường chỉ cần đổi chỗ dừng hoặc đi tiếp sang nốt bên cạnh.
 
-**Dạy trong Theory.** `/theory/solo` bước 6: bấm Thu, backing chạy đúng một lượt; mỗi nốt bấm trên box được lưu với phách móc đơn nó rơi vào (không cần micro). Nghe lại thì backing chạy lại kèm bản thu, nốt nào đang vang sáng trên cần. Mỗi bar của lưới hợp âm được đánh dấu theo **nốt đầu tiên** chơi trong bar: ✓ kèm bậc nếu là nốt của hợp âm, ✗ nếu không, để trống nếu nghỉ (K7.2). Dưới lưới là tab của bản thu và tổng kết (bao nhiêu bar đáp vào nốt của hợp âm, bao nhiêu nốt là nốt của hợp âm). Bản thu không được lưu khi rời trang.
+**Dạy trong Theory.** `/theory/solo` bước 6: bấm Thu, backing chạy đúng một lượt; mỗi nốt bấm trên box được lưu với phách móc đơn nó rơi vào (không cần micro). Nghe lại thì backing chạy lại kèm bản thu, nốt nào đang vang sáng trên cần. Mỗi bar của lưới hợp âm được đánh dấu theo **nốt đầu tiên** chơi trong bar: ✓ kèm bậc nếu là nốt của hợp âm, ✗ nếu không, để trống nếu nghỉ (K7.2). Dưới lưới là tab của bản thu và tổng kết (bao nhiêu bar đáp vào nốt của hợp âm, bao nhiêu nốt là nốt của hợp âm). Bản thu gần nhất được giữ trong trình duyệt (`theory.take`) và mở lại khi quay lại trang; nút "Sao chép link" tạo link `/theory/solo?take=…#record` mở đúng backing, giọng, tempo và bản thu đó.
 
 **Nguồn:** ch. 19.

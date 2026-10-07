@@ -18,6 +18,15 @@ import { parseRoute } from './router';
 
 const isLesson = (slug: string) => findLesson(slug) !== undefined;
 
+/** Once the page has rendered (next frame), scroll to the step with this id, or to the top. */
+function scrollToHash(id: string): void {
+  requestAnimationFrame(() => {
+    const target = id ? document.getElementById(id) : null;
+    if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+  });
+}
+
 export function App({ player: given }: { player?: Player } = {}) {
   const [lang, setLangState] = useState<Lang>(() => loadLang());
   const [path, setPath] = useState(() => window.location.pathname);
@@ -37,6 +46,11 @@ export function App({ player: given }: { player?: Player } = {}) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
+  // A link with a #step (a shared take, a review card opened in a new tab) lands on that step.
+  useEffect(() => {
+    if (window.location.hash) scrollToHash(window.location.hash.slice(1));
+  }, []);
+
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
     window.addEventListener('popstate', onPop);
@@ -46,13 +60,7 @@ export function App({ player: given }: { player?: Player } = {}) {
   const navigate = useCallback((href: string) => {
     window.history.pushState(null, '', href);
     setPath(window.location.pathname);
-    const hash = new URL(href, window.location.href).hash.slice(1);
-    // The target page renders on the next frame; scroll to the step once it is there, or to the top.
-    requestAnimationFrame(() => {
-      const target = hash ? document.getElementById(hash) : null;
-      if (target) target.scrollIntoView();
-      else window.scrollTo(0, 0);
-    });
+    scrollToHash(new URL(href, window.location.href).hash.slice(1));
   }, []);
 
   const route = parseRoute(path, isLesson);

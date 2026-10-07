@@ -1,5 +1,5 @@
 /** The six scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
 import { LICK_EIGHTHS, SCALES, format, sameNote, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
 import { cellSeconds } from '../../core/rhythm';
@@ -53,6 +53,7 @@ import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useBacking, type Backing } from '../useBacking';
 import { useClock } from '../useClock';
+import { forgetTakeParam, initialTake, storeTake, takeLink } from '../savedTake';
 
 export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -74,10 +75,10 @@ export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 const useNeck = () => useMemo(() => neckGeometry(SOLO_FRETS, { fretWidth: 46 }), []);
 
 /** The backing, key and tempo a scene plays: picking a backing resets its key and tempo. */
-function useBackingChoice() {
-  const [id, setId] = useState<BackingId>('blues');
-  const [tonic, setTonic] = useState<NoteName>(BACKINGS.blues.tonic);
-  const [bpm, setBpm] = useState(BACKINGS.blues.bpm);
+function useBackingChoice(initial?: { readonly id: BackingId; readonly tonic: NoteName; readonly bpm: number }) {
+  const [id, setId] = useState<BackingId>(initial?.id ?? 'blues');
+  const [tonic, setTonic] = useState<NoteName>(initial?.tonic ?? BACKINGS.blues.tonic);
+  const [bpm, setBpm] = useState(initial?.bpm ?? BACKINGS.blues.bpm);
   const bars = useMemo(() => backingBars(id, tonic), [id, tonic]);
   const box = useMemo(() => backingWindow(id, tonic), [id, tonic]);
   const choose = (next: BackingId) => {
@@ -476,14 +477,25 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const c = copy.record;
   const { player } = useTheory();
   const g = useNeck();
-  const choice = useBackingChoice();
-  const [take, setTake] = useState<TakeNote[]>([]);
+  // A shared link or the take saved last time, read once.
+  const [opened] = useState(() => initialTake());
+  const choice = useBackingChoice(opened?.saved);
+  const [take, setTake] = useState<TakeNote[]>(() => [...(opened?.saved.take ?? [])]);
   const [mode, setMode] = useState<TakeMode>('idle');
-  const [recorded, setRecorded] = useState(false);
+  const [recorded, setRecorded] = useState(opened !== null);
+  const [notice, setNotice] = useState<string | null>(opened ? (opened.from === 'link' ? c.shared : c.restored) : null);
+  const saved = useMemo(() => ({ id: choice.id, tonic: choice.tonic, bpm: choice.bpm, take }), [choice.id, choice.tonic, choice.bpm, take]);
+  // A shared take is for listening: it is not saved over yours, and a reload does not bring it back.
+  useEffect(() => {
+    if (opened?.from === 'link') forgetTakeParam();
+  }, [opened]);
+  /** The take as it stands, read when a recording pass ends. */
+  const latest = useRef(saved);
+  latest.current = saved;
   const [version, setVersion] = useState<'yours' | 'fixed'>('yours');
   // Read by the clock: its first step runs before React re-renders with the new state.
   // `take` mirrors the recorded take (clicks add to it); `playback` is the version being played back.
-  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[]; playback: readonly TakeNote[] }>({ mode: 'idle', take: [], playback: [] });
+  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[]; playback: readonly TakeNote[] }>({ mode: 'idle', take: opened?.saved.take ?? [], playback: [] });
   /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
   const times = useRef(new Map<number, number>());
   const backing = useBacking(
@@ -499,11 +511,27 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   );
   // A pass that ran to the end stops the backing: the scene is idle again.
   const active: TakeMode = backing.playing ? mode : 'idle';
+  // When a recording pass ends (to the end, or stopped), keep the take in this browser, once.
+  useEffect(() => {
+    if (backing.playing || live.current.mode !== 'recording') return;
+    live.current.mode = 'idle';
+    if (latest.current.take.length > 0) storeTake(latest.current);
+  }, [backing.playing]);
 
   const keep = (next: TakeNote[]) => {
     live.current.take = next;
     setTake(next);
     setVersion('yours');
+    setNotice(null);
+  };
+  const copyLink = () => {
+    const url = takeLink(saved);
+    const failed = () => setNotice(fill(c.copyFailed, { url }));
+    try {
+      navigator.clipboard.writeText(url).then(() => setNotice(c.copied), failed);
+    } catch {
+      failed();
+    }
   };
   const { take: fixed, fixed: fixedCount } = useMemo(() => fixLandings(take, choice.bars, choice.box), [take, choice.bars, choice.box]);
   /** The version shown, marked and played back: yours unless a fixed version exists and is picked. */
@@ -512,6 +540,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const run = (m: 'recording' | 'playing') => {
     if (backing.playing) return backing.stop();
     live.current.mode = m;
+    setNotice(null);
     if (m === 'playing') live.current.playback = shown;
     times.current.clear();
     if (m === 'recording') {
@@ -557,7 +586,9 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
       ? fill(c.recording, { n: barIndex + 1, symbol: bar.symbol })
       : active === 'playing'
         ? fill(c.playing, { n: barIndex + 1, symbol: bar.symbol })
-        : take.length > 0
+        : notice !== null
+          ? notice
+          : take.length > 0
           ? `${fill(c.summary, { ...sum })}${shownVersion === 'fixed' ? ` ${fill(c.fixedNote, { count: fixedCount })}` : ''}`
           : recorded
             ? c.empty
@@ -575,6 +606,10 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
             reset();
             choice.setTonic(k);
           },
+          setBpm: (b) => {
+            setNotice(null);
+            choice.setBpm(b);
+          },
         }} backing={backing} hidePlay>
         {active !== 'playing' && <Button onClick={() => run('recording')}>{active === 'recording' ? copy.stop : c.record}</Button>}
         {active === 'playing' && <Button onClick={() => run('playing')}>{copy.stop}</Button>}
@@ -586,7 +621,10 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
               { value: 'fixed', text: c.fixed },
             ]}
             value={shownVersion}
-            onChange={setVersion}
+            onChange={(v) => {
+              setNotice(null);
+              setVersion(v);
+            }}
           />
         )}
         {active === 'idle' && take.length > 0 && (
@@ -594,10 +632,14 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
             <Button onClick={() => run('playing')} ghost>
               {c.hearBack}
             </Button>
+            <Button onClick={copyLink} ghost>
+              {c.copyLink}
+            </Button>
             <Button
               onClick={() => {
                 backing.stop();
                 reset();
+                storeTake(null);
               }}
               ghost
             >

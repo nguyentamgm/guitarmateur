@@ -3,7 +3,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, pentatonicMap } from '../lessons';
-import { earQuestion, earWindow } from '../lessons/solo';
+import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
+import { parseNote } from '../core/music';
+import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
 import { PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
 
@@ -355,6 +357,8 @@ describe('Theory app', () => {
       click(off);
       advance(9000);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+      // The finished pass is kept in this browser.
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toMatch(/^1\.pop\.G\.92\./);
       expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', '✗']);
       expect(section.querySelector('[aria-label="Your take, with the count each note starts on"]')).not.toBeNull();
       expect(inSection('Clear')).toBeDefined();
@@ -373,6 +377,33 @@ describe('Theory app', () => {
       advance(11000);
       expect(plucked.length).toBeGreaterThan(before);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+    });
+  });
+
+  describe('saved and shared takes', () => {
+    const box = backingWindow('pop', parseNote('G'));
+    const code = encodeTake({ id: 'pop', tonic: parseNote('G'), bpm: 92, take: recordNote([], box.notes[4]!, 0) });
+
+    it('opens a shared link on its backing and take, without touching your own saved take', () => {
+      const mine = encodeTake({ id: 'blues', tonic: parseNote('A'), bpm: 84, take: recordNote([], backingWindow('blues', parseNote('A')).notes[2]!, 0) });
+      localStorage.setItem(TAKE_STORAGE_KEY, mine);
+      render(`/theory/solo?take=${encodeURIComponent(code)}#record`);
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe(mine);
+      expect(window.location.search).toBe('');
+      expect(window.location.hash).toBe('#record');
+      const section = container.querySelector('section#record')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('A shared take. Press Hear it back to hear it over its backing.');
+      expect([...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back')).toBe(true);
+      expect(section.querySelector('[aria-pressed="true"]')!.textContent).toBe('Pop I–V–vi–IV');
+    });
+
+    it('brings back the last take, and forgets it when cleared', () => {
+      localStorage.setItem(TAKE_STORAGE_KEY, code);
+      render('/theory/solo');
+      const section = container.querySelector('section#record')!;
+      expect(section.querySelector('.caption')!.textContent).toBe('Your last take is back. Press Hear it back, or Record a new one.');
+      click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Clear')!);
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe('');
     });
   });
 

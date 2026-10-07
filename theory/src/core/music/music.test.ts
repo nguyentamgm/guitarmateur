@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  asciiName,
   CHORDS,
   CHORD_IDS,
   chordNotes,
@@ -456,5 +457,11 @@ describe('ideas for soloing (K7.4)', () => {
     expect(landOn(lick, 10, (i) => i === 5).map((x) => x.index)).toEqual([3, 4, 5]);
     expect(landOn(lick, 10, () => false)).toEqual(lick);
     expect(landOn(lick, 10, even)[2]!.at).toBe(2);
+  });
+});
+
+describe('asciiName', () => {
+  it('spells a note in ASCII so parseNote reads it back', () => {
+    for (const t of ['A', 'Bb', 'F#', 'Ebb', 'C##']) expect(asciiName(parseNote(t))).toBe(t);
   });
 });
