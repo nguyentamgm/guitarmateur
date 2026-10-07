@@ -179,7 +179,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
 - (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
-- (5.1) Câu đố nghe rồi chơi lại (`/theory/solo` bước 5) chỉ ở A minor pentatonic box 1, ý 3–4 nốt. Chưa có câu dài hơn, box hay giọng khác. Hai mức trợ giúp (cho sẵn nốt đầu / không) chung một điểm `solo-ear`; tách ra nếu điểm trên trang ôn tập gây hiểu lầm.
+- (5.1) Câu đố nghe rồi chơi lại (`/theory/solo` bước 5): 12 giọng thứ, một hoặc hai bar, nhưng chỉ trong box 1 của minor pentatonic; chưa có box khác hay giọng trưởng. Hai mức trợ giúp, hai độ dài và mọi giọng chung một điểm `solo-ear`; tách ra nếu điểm trên trang ôn tập gây hiểu lầm.
 - (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống.
 - (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ. Phiên 4.3 đã có bảy thế 3 nốt mỗi dây (`/theory/three-per-string`) nhưng bài solo chưa dùng chúng.
 - (4.2) Đường guide tone đi giữa các nốt trong box theo cao độ; chưa nối sang box khác khi nốt gần hơn nằm ngoài box.

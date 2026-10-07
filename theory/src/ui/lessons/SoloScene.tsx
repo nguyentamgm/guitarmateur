@@ -8,6 +8,8 @@ import {
   BACKINGS,
   BACKING_IDS,
   EAR_BPM,
+  EAR_KEYS,
+  EAR_TONIC,
   PHRASE_BARS,
   SOLO_FRETS,
   backingBars,
@@ -31,6 +33,7 @@ import {
   wrongScale,
   type BackingBar,
   type BackingId,
+  type EarBars,
   type EarNote,
   type SceneCopy,
   type SoloNote,
@@ -345,7 +348,9 @@ type EarHelp = 'first' | 'none';
 function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
   const { player } = useTheory();
   const g = useNeck();
-  const box = useMemo(() => earWindow(), []);
+  const [tonic, setTonic] = useState<NoteName>(EAR_TONIC);
+  const [bars, setBars] = useState<EarBars>(1);
+  const box = useMemo(() => earWindow(tonic), [tonic]);
   const [question, setQuestion] = useState<EarNote[]>(() => earQuestion(box, Math.random));
   const [help, setHelp] = useState<EarHelp>('first');
   const start = help === 'first' ? 1 : 0;
@@ -357,7 +362,7 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
 
   const cell = cellSeconds(EAR_BPM, 2);
   const clock = useClock(
-    LICK_EIGHTHS,
+    LICK_EIGHTHS * bars,
     cell,
     (i, delay) => {
       for (const n of question) if (n.at === i) player.pluck(n.midi, delay, n.length * cell * 0.95);
@@ -375,13 +380,20 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
   const next = () => {
     // Skipping an idea you have not found counts as a miss, as in every quiz.
     if (!solved) settle(false);
-    reset(earQuestion(box, Math.random, question), help);
+    reset(earQuestion(box, Math.random, question, bars), help);
+  };
+  // A new key or length is a new idea; leaving one you already missed counts, as "next" does.
+  const change = (k: NoteName, b: EarBars) => {
+    if (!solved && missed) settle(false);
+    setTonic(k);
+    setBars(b);
+    reset(earQuestion(earWindow(k), Math.random, undefined, b), help);
   };
   const chooseHelp = (h: EarHelp) => {
     // Leaving an idea you already missed counts, as "next" does; switching before trying does not.
     if (!solved && missed) settle(false);
     setHelp(h);
-    reset(earQuestion(box, Math.random, question), h);
+    reset(earQuestion(box, Math.random, question, bars), h);
   };
   const click = (d: FretDot) => {
     if (solved) return;
@@ -414,6 +426,7 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
 
   return (
     <div className="board">
+      <KeyFinder keys={EAR_KEYS} label={copy.key} value={tonic} onChange={(k) => change(k, bars)} />
       <div className="controls">
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.hear}</Button>
         <Button onClick={next} ghost>
@@ -428,9 +441,18 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
           value={help}
           onChange={chooseHelp}
         />
+        <ChipGroup<EarBars>
+          label={copy.length}
+          items={[
+            { value: 1, text: copy.oneBar },
+            { value: 2, text: copy.twoBars },
+          ]}
+          value={bars}
+          onChange={(b) => change(tonic, b)}
+        />
         <span className="muted small">{fill(copy.score, score)}</span>
       </div>
-      <Fretboard geometry={g} dots={dots} label={copy.neck} box={box} active={sounding.map(posKey)} onDot={click} />
+      <Fretboard geometry={g} dots={dots} label={fill(copy.neck, { key: format(tonic) })} box={box} active={sounding.map(posKey)} onDot={click} />
       <p className={solved ? 'caption good' : 'caption'} aria-live="polite">
         {message ?? (start > 0 ? fill(copy.progress, { found, count: question.length }) : copy.idle)}
       </p>

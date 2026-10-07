@@ -8,6 +8,7 @@ import { EIGHTHS_PER_BAR, type BackingStyle } from '../../core/audio';
 import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
+  LICK_EIGHTHS,
   MINOR_KEY_TONICS,
   SCALES,
   bluesChord,
@@ -209,9 +210,13 @@ export const phraseRole = (bar: number): PhraseRole => PHRASE_ROLES[bar % PHRASE
 
 // --- Step 5: hear it, play it back (K7.5) ---
 
-/** The ear quiz stays in one place: A minor pentatonic, box 1 (frets 5–8). */
+/** The ear quiz uses box 1 of a minor pentatonic: A minor (frets 5–8) unless another key is picked. */
 export const EAR_TONIC: NoteName = parseNote('A');
-export const earWindow = (): SoloWindow => soloWindow(EAR_TONIC, 'minorPentatonic');
+export const EAR_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
+export const earWindow = (tonic: NoteName = EAR_TONIC): SoloWindow => soloWindow(tonic, 'minorPentatonic');
+
+/** Bars in an ear idea: 1 = one idea of 3–4 notes, 2 = an idea and a second one that carries on from it. */
+export type EarBars = 1 | 2;
 export const EAR_BPM = 90;
 
 export interface EarNote extends SoloNote {
@@ -221,13 +226,26 @@ export interface EarNote extends SoloNote {
 }
 
 /**
- * A 3–4 note idea from the box, with its rhythm. Never the same pitches as `previous`, so "next"
- * always asks something new.
+ * A 3–4 note idea from the box, with its rhythm; with `bars` = 2, a second idea in bar 2 that
+ * starts a step from where the first ended, so the two read as one longer phrase. `at` counts
+ * eighths from the start of bar 1. Never the same pitches as `previous`, so "next" always asks
+ * something new.
  */
-export function earQuestion(window: SoloWindow, random: () => number, previous?: readonly EarNote[]): EarNote[] {
+export function earQuestion(window: SoloWindow, random: () => number, previous?: readonly EarNote[], bars: EarBars = 1): EarNote[] {
+  const size = window.notes.length;
   const same = (a: readonly EarNote[]) => previous !== undefined && a.length === previous.length && a.every((n, i) => n.midi === previous[i]!.midi);
+  const make = (): LickNote[] => {
+    const first = motif(size, random);
+    if (bars === 1) return first;
+    const second = motif(size, random);
+    const last = first.at(-1)!.index;
+    const target = last + (last >= size - 1 ? -1 : last <= 0 ? 1 : random() < 0.5 ? -1 : 1);
+    const shift = target - second[0]!.index;
+    const moved = second.map((l) => ({ ...l, index: Math.min(size - 1, Math.max(0, l.index + shift)), at: l.at + LICK_EIGHTHS }));
+    return [...first, ...moved];
+  };
   for (let tries = 0; ; tries++) {
-    const q = motif(window.notes.length, random).map((l) => ({ ...window.notes[l.index]!, at: l.at, length: l.length }));
+    const q = make().map((l) => ({ ...window.notes[l.index]!, at: l.at, length: l.length }));
     if (!same(q) || tries > 20) return q;
   }
 }

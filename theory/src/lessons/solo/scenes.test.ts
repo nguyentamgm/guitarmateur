@@ -19,6 +19,7 @@ import {
   uniqueChords,
   wrongScale,
   type BackingId,
+  EAR_KEYS,
   earQuestion,
   earWindow,
   judgeEar,
@@ -179,6 +180,29 @@ describe('step 5: hear it, play it back (K7.5)', () => {
         expect(n.at + n.length).toBeLessThanOrEqual(LICK_EIGHTHS);
       }
       q.slice(1).forEach((n, k) => expect(n.at).toBeGreaterThan(q[k]!.at));
+    }
+  });
+
+  it('asks a two-bar phrase whose second idea starts a step from where the first ended', () => {
+    const random = seededRandom(5);
+    for (let i = 0; i < 200; i++) {
+      const q = earQuestion(box, random, undefined, 2);
+      const split = q.findIndex((n) => n.at >= LICK_EIGHTHS);
+      expect(split).toBeGreaterThanOrEqual(3);
+      expect(q.length - split).toBeGreaterThanOrEqual(3);
+      const order = (n: { midi: number }) => box.notes.findIndex((b) => b.midi === n.midi);
+      expect(Math.abs(order(q[split]!) - order(q[split - 1]!))).toBeLessThanOrEqual(2);
+      for (const n of q) expect(n.at + n.length).toBeLessThanOrEqual(2 * LICK_EIGHTHS);
+    }
+  });
+
+  it('works in every minor key, inside that key\'s box 1', () => {
+    expect(EAR_KEYS).toHaveLength(12);
+    for (const k of EAR_KEYS) {
+      const w = earWindow(k);
+      const q = earQuestion(w, seededRandom(1), undefined, 2);
+      for (const n of q) expect(w.notes.some((b) => b.midi === n.midi)).toBe(true);
+      expect(w.maxFret).toBeLessThanOrEqual(15);
     }
   });
 

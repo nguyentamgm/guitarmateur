@@ -67,8 +67,12 @@ export interface SceneCopy {
     readonly hear: string;
     readonly stop: string;
     readonly next: string;
-    /** Accessible name of the neck. */
+    /** Accessible name of the neck: {key}. */
     readonly neck: string;
+    readonly key: string;
+    readonly length: string;
+    readonly oneBar: string;
+    readonly twoBars: string;
     readonly help: string;
     readonly helpFirst: string;
     readonly helpNone: string;
