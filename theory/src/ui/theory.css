@@ -309,7 +309,7 @@ button { font: inherit; cursor: pointer; }
 .degrees button[aria-pressed='true'] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--q, var(--accent)); }
 .degrees button.right { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .degrees button.right b { color: var(--accent); }
-.degrees button.vi, .degrees button.away { opacity: 0.6; border-style: dashed; }
+.degrees button.relative, .degrees button.away { opacity: 0.6; border-style: dashed; }
 .chordpath li.ask { border-style: dashed; color: var(--muted); }
 .chordpath li.ghost { border-style: dashed; color: var(--muted); }
 .numerals { border-collapse: separate; border-spacing: 4px; font-family: var(--f-mono); font-size: 0.9rem; margin-inline: auto; }

@@ -8,7 +8,7 @@ Mục tiêu: người học nhìn một vòng hợp âm và biết nó thuộc g
 
 **Cốt lõi.** Giọng của bài là âm giai mà bài lấy làm "nhà": nốt nhà và hợp âm nhà là nơi bài muốn quay về. Theory xác định giọng bằng tai và bằng hợp âm (hợp âm mở đầu, hợp âm kết thúc, hợp âm xuất hiện nhiều nhất), không bằng hóa biểu.
 
-**Dạy trong Theory.** Bài `/theory/keys` bước 3: phát một đoạn dẫn ở giọng trưởng ngẫu nhiên, dừng ở V7. Người học chọn trong bốn hợp âm của giọng hợp âm nào kết thúc đoạn dẫn; bấm là nghe V7 → hợp âm đó. Hợp âm vi là đáp án "gần đúng" (chung hai nốt với I, kiểu kết bất ngờ). Đáp xong mới hiện số La Mã. Lõi: `homeQuestion()`, `judgeHome()` trong bài.
+**Dạy trong Theory.** Bài `/theory/keys` bước 3: phát một đoạn dẫn ở một giọng ngẫu nhiên, trưởng hoặc thứ tùy người học chọn. Giọng trưởng: đoạn dẫn dừng ở V7, hoặc ở IV sau khi đã có I. Giọng thứ (natural minor, chưa có V7): đoạn dẫn bắt đầu bằng i để đặt giọng rồi dừng ở VII hoặc v. Người học chọn trong bốn hợp âm của giọng hợp âm nào kết thúc đoạn dẫn; bấm là nghe hợp âm cuối của đoạn dẫn → hợp âm đó. Nhà của giọng song song là đáp án "gần đúng" (vi ở giọng trưởng, III ở giọng thứ: chung hai nốt với nhà). Đáp xong mới hiện số La Mã. Lõi: `homeQuestion()`, `judgeHome()` trong bài.
 
 **Cần trước:** K2.1. **Nguồn:** ch. 8, 19.
 

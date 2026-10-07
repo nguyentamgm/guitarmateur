@@ -224,18 +224,19 @@ function HomeScene({ copy }: { copy: SceneCopy }) {
   const c = copy.home;
   const strum = useStrum();
   const g = useNeck();
-  const [q, setQ] = useState<HomeQuestion>(() => homeQuestion(Math.random));
+  const [mode, setMode] = useState<Mode>('major');
+  const [q, setQ] = useState<HomeQuestion>(() => homeQuestion(Math.random, 'major'));
   const [tried, setTried] = useState<ReadonlyMap<number, HomeResult>>(new Map());
   const { score, settle } = useQuizScore('keys-home');
   const lead = useSequence(q.lead.length, LEAD_MS, (i) => strum(q.lead[i]!));
   const solved = [...tried.values()].includes('right');
-  const home = q.choices.find((v) => judgeHome(v) === 'right')!;
+  const home = q.choices.find((v) => judgeHome(v, q.mode) === 'right')!;
 
   const answer = (i: number) => {
     if (solved || tried.has(i)) return;
     lead.stop();
     const choice = q.choices[i]!;
-    const result = judgeHome(choice);
+    const result = judgeHome(choice, q.mode);
     strum(q.lead.at(-1)!);
     strum(choice, LEAD_MS / 1000);
     setTried((t) => new Map(t).set(i, result));
@@ -247,7 +248,14 @@ function HomeScene({ copy }: { copy: SceneCopy }) {
   const next = () => {
     lead.stop();
     if (!solved) settle(false);
-    setQ((prev) => homeQuestion(Math.random, prev));
+    setQ((prev) => homeQuestion(Math.random, mode, prev));
+    setTried(new Map());
+  };
+  /** A new key in the other mode; the question left behind is not counted. */
+  const switchMode = (m: Mode) => {
+    lead.stop();
+    setMode(m);
+    setQ((prev) => homeQuestion(Math.random, m, prev));
     setTried(new Map());
   };
   const last = [...tried.entries()].at(-1);
@@ -258,9 +266,9 @@ function HomeScene({ copy }: { copy: SceneCopy }) {
     const v = q.choices[last[0]]!;
     switch (last[1]) {
       case 'right':
-        return fill(c.right, { symbol: v.symbol, key: format(q.tonic) });
-      case 'vi':
-        return fill(c.vi, { symbol: v.symbol, home: home.symbol });
+        return fill(q.mode === 'major' ? c.right : c.rightMinor, { symbol: v.symbol, key: format(q.tonic), last: q.lead.at(-1)!.symbol });
+      case 'relative':
+        return fill(q.mode === 'major' ? c.near : c.nearMinor, { symbol: v.symbol, home: home.symbol });
       case 'away':
         return fill(c.away, { symbol: v.symbol, roman: v.roman });
     }
@@ -275,6 +283,17 @@ function HomeScene({ copy }: { copy: SceneCopy }) {
           {c.next}
         </Button>
         <span className="muted small">{fill(c.score, score)}</span>
+      </div>
+      <div className="controls">
+        <ChipGroup<Mode>
+          label={c.mode}
+          items={[
+            { value: 'major', text: copy.quality.major },
+            { value: 'minor', text: copy.quality.minor },
+          ]}
+          value={mode}
+          onChange={switchMode}
+        />
       </div>
       <ol className="chordpath" aria-label={c.leadIn}>
         {q.lead.map((v, i) => (

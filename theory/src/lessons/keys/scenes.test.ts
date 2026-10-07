@@ -109,31 +109,63 @@ describe('step 2: numbers, not names (K5.3)', () => {
 });
 
 describe('step 3: which chord is home? (K5.1)', () => {
-  it('asks with a lead-in that stops on V7, and offers the I among four chords', () => {
+  it('asks in a major key with a lead-in that stops on V7 or IV, and offers the I among four chords', () => {
     const random = seeded(7);
     let q = homeQuestion(random);
+    const stops = new Set<string>();
     for (let i = 0; i < 40; i++) {
-      expect(romans(q.lead).at(-1)).toBe('V7');
-      expect(LEAD_INS.some((l) => l.length === q.lead.length)).toBe(true);
+      const stop = romans(q.lead).at(-1)!;
+      stops.add(stop);
+      expect(q.mode).toBe('major');
+      expect(LEAD_INS.major.some((l) => l.length === q.lead.length)).toBe(true);
       expect(q.choices).toHaveLength(4);
       expect(q.choices.filter((v) => judgeHome(v) === 'right')).toHaveLength(1);
       expect(new Set(romans(q.choices)).size).toBe(4);
-      expect(romans(q.choices).filter((r) => r === 'V' || r === 'vii°')).toEqual([]);
+      // Never the chord the lead-in stops on, never the diminished chord.
+      expect(romans(q.choices).filter((r) => r === stop.replace('7', '') || r === 'vii°')).toEqual([]);
       [...q.lead, ...q.choices].forEach(playable);
-      // The lead-in is voiced on its own, whatever the answers are; each answer sits near the V7.
+      // The lead-in is voiced on its own, whatever the answers are; each answer sits near where it stops.
       expect(q.lead).toEqual(loopViews(q.lead));
       for (const v of q.choices) expect(Math.abs(v.fret - q.lead.at(-1)!.fret)).toBeLessThanOrEqual(6);
-      const next = homeQuestion(random, q);
+      const next = homeQuestion(random, 'major', q);
       expect(pc(next.tonic)).not.toBe(pc(q.tonic));
       q = next;
     }
+    expect(stops).toEqual(new Set(['V7', 'IV']));
   });
 
-  it('names the vi as the near miss', () => {
+  it('asks in a minor key: the lead-in starts on i and stops on VII or v, with no V7', () => {
+    const random = seeded(11);
+    let q = homeQuestion(random, 'minor');
+    const keys = new Set<string>();
+    for (let i = 0; i < 60; i++) {
+      keys.add(format(q.tonic));
+      expect(q.mode).toBe('minor');
+      expect(romans(q.lead)[0]).toBe('i');
+      expect(['VII', 'v']).toContain(romans(q.lead).at(-1));
+      expect(q.lead.every((v) => v.chord.id === 'major' || v.chord.id === 'minor')).toBe(true);
+      expect(q.choices.filter((v) => judgeHome(v, 'minor') === 'right').map((v) => v.chord)).toEqual([{ root: q.tonic, id: 'minor' }]);
+      expect(new Set(romans(q.choices)).size).toBe(4);
+      expect(romans(q.choices).filter((r) => r === romans(q.lead).at(-1) || r === 'ii°')).toEqual([]);
+      [...q.lead, ...q.choices].forEach(playable);
+      const next = homeQuestion(random, 'minor', q);
+      expect(pc(next.tonic)).not.toBe(pc(q.tonic));
+      q = next;
+    }
+    // Every minor key comes up, spelled from the core: E♭ minor, not D♯ minor.
+    expect(keys.size).toBe(12);
+    expect(keys.has('E♭')).toBe(true);
+  });
+
+  it('names the relative key\'s home as the near miss: vi in major, III in minor', () => {
     const at = (roman: string) => ({ chord: { root: n('C'), id: 'major' as const }, roman });
     expect(judgeHome(at('I'))).toBe('right');
-    expect(judgeHome(at('vi'))).toBe('vi');
+    expect(judgeHome(at('vi'))).toBe('relative');
     expect(judgeHome(at('IV'))).toBe('away');
+    expect(judgeHome(at('i'), 'minor')).toBe('right');
+    expect(judgeHome(at('III'), 'minor')).toBe('relative');
+    expect(judgeHome(at('I'), 'minor')).toBe('away');
+    expect(judgeHome(at('VI'), 'minor')).toBe('away');
   });
 });
 

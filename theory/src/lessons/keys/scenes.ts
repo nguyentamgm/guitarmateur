@@ -20,6 +20,7 @@ import {
 import {
   CHORDS,
   MAJOR_KEY_TONICS,
+  MINOR_KEY_TONICS,
   chordNotes,
   chordSymbol,
   diatonicChords,
@@ -166,22 +167,42 @@ export const progressionViews = (tonic: NoteName, id: ProgressionId): ChordView[
 
 // --- Step 3: which chord is home? (K5.1) ---
 
-/** Lead-ins by scale degree; each stops on V, played as V7. */
-export const LEAD_INS: readonly (readonly number[])[] = [
-  [1, 4, 5],
-  [1, 6, 4, 5],
-  [1, 6, 2, 5],
-  [1, 2, 5],
-  [4, 5],
-  [2, 5],
-];
-/** The other answers offered beside I: not V (the lead-in stops there) and not vii°. */
-const DECOYS: readonly number[] = [2, 3, 4, 6];
+/**
+ * Lead-ins by scale degree. A major one stops on V, played as V7, or on IV after the I. Natural
+ * minor has no V7 (its v is minor), so a minor one starts on the i to set the key and stops on VII
+ * or v.
+ */
+export const LEAD_INS: Readonly<Record<Mode, readonly (readonly number[])[]>> = {
+  major: [
+    [1, 4, 5],
+    [1, 6, 4, 5],
+    [1, 6, 2, 5],
+    [1, 2, 5],
+    [4, 5],
+    [2, 5],
+    [1, 5, 6, 4],
+  ],
+  minor: [
+    [1, 6, 7],
+    [1, 4, 7],
+    [1, 7, 6, 7],
+    [1, 4, 5],
+    [1, 6, 4, 5],
+  ],
+};
+/** The other answers offered beside home, less the chord the lead-in stops on. Never the diminished chord. */
+const DECOYS: Readonly<Record<Mode, readonly number[]>> = { major: [2, 3, 4, 5, 6], minor: [3, 4, 5, 6, 7] };
+/** The near miss: the relative key's home, two notes shared with home (vi in major, III in minor). */
+const NEAR: Readonly<Record<Mode, string>> = { major: 'vi', minor: 'III' };
+
+/** Keys asked in, ordered by their root on string 6. */
+export const HOME_KEYS: Readonly<Record<Mode, readonly NoteName[]>> = { major: KEY_CHOICES, minor: byHomeFret(MINOR_KEY_TONICS) };
 
 export interface HomeQuestion {
   readonly tonic: NoteName;
+  readonly mode: Mode;
   readonly lead: readonly ChordView[];
-  /** Four chords of the key, the I among them, in random order. */
+  /** Four chords of the key, home among them, in random order. */
   readonly choices: readonly ChordView[];
 }
 
@@ -196,22 +217,31 @@ function shuffle<T>(items: readonly T[], random: () => number): T[] {
   return out;
 }
 
-export function homeQuestion(random: () => number, previous?: HomeQuestion): HomeQuestion {
-  const keys = previous ? KEY_CHOICES.filter((k) => !sameNote(k, previous.tonic)) : KEY_CHOICES;
+export function homeQuestion(random: () => number, mode: Mode = 'major', previous?: HomeQuestion): HomeQuestion {
+  const keys = previous ? HOME_KEYS[mode].filter((k) => !sameNote(k, previous.tonic)) : HOME_KEYS[mode];
   const tonic = pick(keys, random);
-  const triads = majorChords(tonic);
+  const triads = diatonicChords({ tonic, mode });
   const v7 = majorChords(tonic, 4)[4]!;
-  const lead = pick(LEAD_INS, random).map((d) => (d === 5 ? v7 : triads[d - 1]!));
-  const decoys = shuffle(DECOYS, random).slice(0, 3);
+  const degrees = pick(LEAD_INS[mode], random);
+  const stop = degrees.at(-1)!;
+  const lead = degrees.map((d) => (mode === 'major' && d === 5 ? v7 : triads[d - 1]!));
+  const decoys = shuffle(
+    DECOYS[mode].filter((d) => d !== stop),
+    random,
+  ).slice(0, 3);
   const choices = shuffle([1, ...decoys], random).map((d) => triads[d - 1]!);
   const leadViews = loopViews(lead);
-  return { tonic, lead: leadViews, choices: viewsNear(choices, leadViews.at(-1)!.fret) };
+  return { tonic, mode, lead: leadViews, choices: viewsNear(choices, leadViews.at(-1)!.fret) };
 }
 
-export type HomeResult = 'right' | 'vi' | 'away';
+export type HomeResult = 'right' | 'relative' | 'away';
 
-/** The I is home. The vi is the near miss: it shares two notes with the I (a "deceptive" ending). */
-export const judgeHome = (choice: Slot): HomeResult => (choice.roman === 'I' ? 'right' : choice.roman === 'vi' ? 'vi' : 'away');
+/**
+ * The I (or i) is home. The relative key's home is the near miss: it shares two notes with home,
+ * so landing there sounds like a surprise ending.
+ */
+export const judgeHome = (choice: Slot, mode: Mode = 'major'): HomeResult =>
+  choice.roman === (mode === 'major' ? 'I' : 'i') ? 'right' : choice.roman === NEAR[mode] ? 'relative' : 'away';
 
 // --- Step 4: V wants to go home, and ii–V–I (K5.5) ---
 

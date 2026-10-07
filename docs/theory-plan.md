@@ -173,7 +173,6 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.3) `boogieShape` (electric) vẫn nằm trong bài: nó vẽ vị trí bấm trên cần, không phải âm thanh, nên không gom vào `core/audio/backing.ts` như `vampVoicing`, `shuffleNotes` và `bassMidi` (đã gom ở phiên 4.2).
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
-- (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3): đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
 - (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.
 - (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
