@@ -47,7 +47,7 @@ import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
-import { useStoredTempo } from '../useStoredTempo';
+import { useLastTempo, useStoredTempo } from '../useStoredTempo';
 
 
 export function RhythmScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
@@ -79,7 +79,7 @@ function Transport({ copy, playing, toggle, bpm, setBpm, best }: { copy: SceneCo
 
 function BeatScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
-  const [bpm, setBpm] = useState<number>(DEFAULT_BPM.beat);
+  const [bpm, setBpm] = useLastTempo('rhythm-beat', DEFAULT_BPM.beat);
   const clock = useClock(BEATS_PER_BAR, beatSeconds(bpm), (i, delay) => player.click(i === 0, delay));
 
   const blocks: Block[] = Array.from({ length: BEATS_PER_BAR }, (_, i) => ({
@@ -110,7 +110,7 @@ function BeatScene({ copy }: { copy: SceneCopy }) {
 function LengthsScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const c = copy.lengths;
-  const [bpm, setBpm] = useState<number>(DEFAULT_BPM.lengths);
+  const [bpm, setBpm] = useLastTempo('rhythm-lengths', DEFAULT_BPM.lengths);
   const [value, setValue] = useState<NoteValueId>('quarter');
   const [slots, setSlots] = useState<readonly Slot[]>(() => fillBar('quarter'));
   const starts = useMemo(() => slotStarts(slots, CELLS_PER_BAR), [slots]);
@@ -180,7 +180,7 @@ type CountSound = 'notes' | 'click';
 function CountingScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const c = copy.counting;
-  const [bpm, setBpm] = useState<number>(DEFAULT_BPM.counting);
+  const [bpm, setBpm] = useLastTempo('rhythm-counting', DEFAULT_BPM.counting);
   const [level, setLevel] = useState<CountLevel>('eighths');
   const [sound, setSound] = useState<CountSound>('notes');
   const perBeat = PER_BEAT_OF[level];
@@ -236,7 +236,7 @@ type PatternChoice = StrumPresetId | 'custom';
 function StrumScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const c = copy.strum;
-  const [bpm, setBpm] = useState<number>(DEFAULT_BPM.strum);
+  const [bpm, setBpm] = useLastTempo('rhythm-strum', DEFAULT_BPM.strum);
   const [choice, setChoice] = useState<PatternChoice>('folk');
   const [hits, setHits] = useState<readonly boolean[]>(() => presetHits('folk'));
   const cell = cellSeconds(bpm, 2);

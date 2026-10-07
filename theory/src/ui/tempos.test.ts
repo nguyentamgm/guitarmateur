@@ -1,4 +1,4 @@
-import { TEMPO_STORAGE_KEY, finishRound, isRoundEnd, loadTempo, saveTempo } from './tempos';
+import { DRILLS, PLAYERS, TEMPO_STORAGE_KEY, finishRound, isRoundEnd, loadTempo, saveTempo } from './tempos';
 
 function memory(initial: Record<string, string> = {}) {
   const data = { ...initial };
@@ -16,6 +16,15 @@ describe('drill tempos', () => {
     saveTempo('three-per-string-triplets', (t) => ({ ...t, last: 72 }), 60, store);
     expect(loadTempo('pentatonic-sequences', 60, store)).toEqual({ last: 84, best: 0 });
     expect(JSON.parse(store.data[TEMPO_STORAGE_KEY]!)['future-drill']).toEqual({ last: 99, best: 99 });
+  });
+
+  it('remembers a scene tempo beside the drills, under ids that never clash', () => {
+    const store = memory();
+    saveTempo('solo-jazz', (t) => ({ ...t, last: 120 }), 104, store);
+    saveTempo('rhythm-fingers', (t) => ({ ...t, last: 66 }), 60, store);
+    expect(loadTempo('solo-jazz', 104, store)).toEqual({ last: 120, best: 0 });
+    expect(loadTempo('solo-pop', 92, store)).toEqual({ last: 92, best: 0 });
+    expect(new Set([...DRILLS, ...PLAYERS]).size).toBe(DRILLS.length + PLAYERS.length);
   });
 
   it('raises the best on a finished round, never lowers it', () => {

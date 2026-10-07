@@ -44,6 +44,7 @@ import { degreeText, posKey } from '../keys';
 import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useSequence } from '../useSequence';
 import { useStrum } from '../useStrum';
+import { useLastTempo } from '../useStoredTempo';
 
 export function KeysScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -187,7 +188,7 @@ function NumbersScene({ copy }: { copy: SceneCopy }) {
   const c = copy.numbers;
   const [tonic, setTonic] = useState<NoteName>(NUMBERS_TONIC);
   const [id, setId] = useState<ProgressionId>('I-V-vi-IV');
-  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
+  const [bpm, setBpm] = useLastTempo('keys-numbers', STRUM_LOOP_BPM);
   const path = useMemo(() => progressionViews(tonic, id), [tonic, id]);
   const seq = useStrumLoop(path, bpm);
   const caption = fill(c.caption, { key: format(tonic), chords: symbols(path), travel: loopTravel(path.map((v) => v.fret)) });
@@ -337,7 +338,7 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
   const [resolved, setResolved] = useState<boolean | null>(null);
   const hang = useSequence(3, LEAD_MS, (i) => strum(pull[i]!));
   const resolve = useSequence(4, LEAD_MS, (i) => strum(pull[i]!));
-  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
+  const [bpm, setBpm] = useLastTempo('keys-two-five', STRUM_LOOP_BPM);
   const path = useMemo(() => approachLoop(tonic, target), [tonic, target]);
   const loop = useStrumLoop(path, bpm);
 
@@ -414,7 +415,7 @@ function RelativeScene({ copy }: { copy: SceneCopy }) {
   const g = useNeck();
   const [tonic, setTonic] = useState<NoteName>(RELATIVE_TONIC);
   const [home, setHome] = useState<Mode>('major');
-  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
+  const [bpm, setBpm] = useLastTempo('keys-relative', STRUM_LOOP_BPM);
   const chords = useMemo(() => relativeChords(tonic), [tonic]);
   const path = useMemo(() => relativeLoop(tonic, home), [tonic, home]);
   const scale = useMemo(() => homePentatonic(tonic, home), [tonic, home]);

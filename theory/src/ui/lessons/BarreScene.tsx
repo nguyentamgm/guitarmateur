@@ -32,6 +32,7 @@ import { neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useStrum } from '../useStrum';
+import { useLastTempo } from '../useStoredTempo';
 
 export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -247,7 +248,7 @@ function ChangesScene({ copy }: { copy: SceneCopy }) {
   const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
   const [tonic, setTonic] = useState<NoteName>(PROGRESSION_TONIC);
   const [mode, setMode] = useState<PathMode>('near');
-  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
+  const [bpm, setBpm] = useLastTempo('barre-changes', STRUM_LOOP_BPM);
   const path = useMemo(() => chordPath(progressionChords(tonic), mode), [tonic, mode]);
   const seq = useStrumLoop(path, bpm);
   const now = path[seq.bar ?? 0]!;

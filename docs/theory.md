@@ -107,9 +107,12 @@ ui → lessons → core/fretboard → core/music
 - A quiz scene keeps its score with `useQuizScore(id)` (`ui/useQuizScore.ts`): `settle(right)`
   counts one question once, in the score shown for this visit and in stored progress together.
   A new quiz adds its entry to `QUIZZES`.
-- Drill tempos are stored under `theory.tempo` by `ui/tempos.ts` through `useStoredTempo(id, fallback)`:
-  the last tempo set, and the best (fastest tempo of a whole round; the scene's clock calls
-  `step(i, steps)`). localStorage is reached only through `platform/storage.ts`.
+- Tempos are stored under `theory.tempo` by `ui/tempos.ts`. A drill (`DRILLS`) uses
+  `useStoredTempo(id, fallback)`: the last tempo set, and the best (fastest tempo of a whole round;
+  the scene's clock calls `step(i, steps)`). Every other scene with a tempo slider is in `PLAYERS`
+  and uses `useLastTempo(id, fallback)`, which keeps only the last tempo the learner set; the solo
+  backings keep one tempo per backing (`solo-<backing>`), and a shared take's tempo is not saved.
+  A new scene with a tempo adds its id. localStorage is reached only through `platform/storage.ts`.
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the apps share no code). It renders nothing when the practice app lacks the
   scale or a chord.

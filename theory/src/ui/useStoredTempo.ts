@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { finishRound, isRoundEnd, loadTempo, saveTempo, type DrillId, type DrillTempo } from './tempos';
+import { finishRound, isRoundEnd, loadTempo, saveTempo, type DrillId, type DrillTempo, type PlayerId } from './tempos';
 
 export interface StoredTempo {
   readonly bpm: number;
@@ -56,4 +56,19 @@ export function useStoredTempo(id: DrillId, fallback: number): StoredTempo {
     [id, fallback],
   );
   return { bpm: tempo.last, setBpm, nudge, best: tempo.best, step };
+}
+
+/**
+ * The tempo of a scene that plays in time, remembered under `theory.tempo` when the learner sets it.
+ * Like `useState`, but the id and fallback are read once.
+ */
+export function useLastTempo(id: PlayerId, fallback: number): [number, (bpm: number) => void] {
+  const [bpm, setLocal] = useState(() => loadTempo(id, fallback).last);
+  const set = useCallback(
+    (next: number) => {
+      setLocal(saveTempo(id, (t) => ({ ...t, last: next }), fallback).last);
+    },
+    [id, fallback],
+  );
+  return [bpm, set];
 }
