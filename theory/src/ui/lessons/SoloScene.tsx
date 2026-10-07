@@ -1,4 +1,4 @@
-/** The four scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
+/** The five scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
 import { useMemo, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
 import { LICK_EIGHTHS, SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
@@ -366,12 +366,16 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
     reset(earQuestion(box, Math.random, question), help);
   };
   const chooseHelp = (h: EarHelp) => {
+    // Leaving an idea you already missed counts, as "next" does; switching before trying does not.
+    if (!solved && missed) settle(false);
     setHelp(h);
     reset(earQuestion(box, Math.random, question), h);
   };
   const click = (d: FretDot) => {
     if (solved) return;
     const r = judgeEar(question, found, d.midi);
+    // Notes already found (or given) just play again: hearing them is not an answer.
+    if (r.kind === 'wrong' && question.slice(0, found).some((n) => n.midi === d.midi)) return;
     if (r.kind === 'wrong') {
       setMissed(true);
       return setMessage(fill(r.direction === 'higher' ? copy.higher : copy.lower, { name: d.label ?? '' }));
@@ -414,7 +418,7 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
         />
         <span className="muted small">{fill(copy.score, score)}</span>
       </div>
-      <Fretboard geometry={g} dots={dots} label={copy.idle} box={box} active={sounding.map(posKey)} onDot={click} />
+      <Fretboard geometry={g} dots={dots} label={copy.neck} box={box} active={sounding.map(posKey)} onDot={click} />
       <p className={solved ? 'caption good' : 'caption'} aria-live="polite">
         {message ?? (start > 0 ? fill(copy.progress, { found, count: question.length }) : copy.idle)}
       </p>

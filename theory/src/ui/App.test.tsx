@@ -368,6 +368,9 @@ describe('Theory app', () => {
         [...section.querySelectorAll('.dot')].find((d) => d.getAttribute('aria-label')!.endsWith(` ${['', 'e', 'B', 'G', 'D', 'A', 'E'][n.string]}/${n.fret}`))!;
       const caption = () => section.querySelector('.caption')!.textContent;
       expect(caption()).toBe(`1 of ${q.length} notes found.`);
+      // The given first note only plays again: it is not an answer.
+      click(dot(q[0]!));
+      expect(caption()).toBe(`1 of ${q.length} notes found.`);
       const wrong = earWindow().notes.find((n) => n.midi !== q[1]!.midi)!;
       click(dot(wrong));
       expect(caption()).toBe(`Not ${wrong.name}: the next note is ${wrong.midi < q[1]!.midi ? 'higher' : 'lower'}.`);
