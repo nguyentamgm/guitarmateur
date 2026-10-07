@@ -1,5 +1,5 @@
 import { semisAt } from '../../core/audio';
-import { MAJOR_KEY_TONICS, format, parseNote } from '../../core/music';
+import { MAJOR_KEY_TONICS, format, parseNote, type NoteName } from '../../core/music';
 import {
   BENDS,
   BLUES_KEYS,
@@ -8,6 +8,8 @@ import {
   LICK,
   LICK_BARS,
   LICK_CELLS,
+  LICK_BOXES,
+  LICK_FRETS,
   LICK_KEYS,
   SHUFFLE_MIDI,
   bendQuestion,
@@ -20,6 +22,7 @@ import {
   demoNotes,
   generateLick,
   isLegato,
+  lickBox,
   lickNotes,
   lickPlan,
   planGlide,
@@ -187,10 +190,15 @@ describe('step 5: a new lick each time (K6.4, K7.4)', () => {
     let x = seed;
     return () => ((x = (x * 16807) % 2147483647) - 1) / 2147483646;
   };
-  const licks = LICK_KEYS.flatMap((tonic, k) => {
-    const random = seeded(k + 1);
-    return Array.from({ length: 20 }, () => ({ tonic, notes: lickNotes(tonic, generateLick(random, tonic)) }));
-  });
+  const licks = LICK_KEYS.flatMap((tonic, k) =>
+    LICK_BOXES.flatMap((box) => {
+      const random = seeded(k * 5 + box);
+      return Array.from({ length: 8 }, () => ({ tonic, box, notes: lickNotes(tonic, generateLick(random, tonic, box), box) }));
+    }),
+  );
+  /** Every note of a box as a pick, lowest first: what lick indexes point at. */
+  const boxNotes = (tonic: NoteName, box: number) =>
+    lickNotes(tonic, Array.from({ length: 12 }, (_, i) => ({ cell: i, cells: 1, note: i, technique: 'pick' as const })), box);
 
   it('plays in the 12 minor keys, spelled from the core', () => {
     expect(LICK_KEYS.map(format)).toHaveLength(12);
@@ -220,6 +228,11 @@ describe('step 5: a new lick each time (K6.4, K7.4)', () => {
         if (!isLegato(e.technique)) return;
         const p = notes[i - 1]!;
         expect(x.string, x.text).toBe(p.string);
+        if (e.technique === 'release') {
+          // Back down to the fret the bend was played on.
+          expect([p.event.technique, x.fret, x.midi]).toEqual(['bend', p.fret, p.midi]);
+          return;
+        }
         expect(p.event.technique, x.text).not.toBe('bend');
         if (e.technique === 'hammer') expect(x.midi).toBeGreaterThan(p.midi);
         if (e.technique === 'pull') expect(x.midi).toBeLessThan(p.midi);
@@ -230,8 +243,8 @@ describe('step 5: a new lick each time (K6.4, K7.4)', () => {
   });
 
   it('bends a fretted note up a whole step to the next note of the box, at most once a bar', () => {
-    for (const { tonic, notes } of licks) {
-      const box = lickNotes(tonic, Array.from({ length: 12 }, (_, i) => ({ cell: i, cells: 1, note: i, technique: 'pick' as const })));
+    for (const { tonic, box: index, notes } of licks) {
+      const box = boxNotes(tonic, index);
       const bends = notes.filter((x) => x.event.technique === 'bend');
       for (const b of bends) {
         expect(b.fret).toBeGreaterThan(0);
@@ -244,9 +257,9 @@ describe('step 5: a new lick each time (K6.4, K7.4)', () => {
 
   it('shows at least one bend, hammer-on or pull-off in every lick, and varies', () => {
     for (const { notes } of licks) expect(notes.some((x) => ['bend', 'hammer', 'pull'].includes(x.event.technique))).toBe(true);
-    expect(new Set(licks.map(({ notes }) => notes.map((x) => x.text).join(' '))).size).toBeGreaterThan(200);
+    expect(new Set(licks.map(({ notes }) => notes.map((x) => x.text).join(' '))).size).toBeGreaterThan(400);
     // Over many licks every technique of the lesson shows up.
-    expect(new Set(licks.flatMap(({ notes }) => notes.map((x) => x.event.technique)))).toEqual(new Set(['pick', 'bend', 'hammer', 'pull', 'slide']));
+    expect(new Set(licks.flatMap(({ notes }) => notes.map((x) => x.event.technique)))).toEqual(new Set(['pick', 'bend', 'release', 'hammer', 'pull', 'slide']));
   });
 
   it('sounds each lick as picks with pitch moves, lasting the two bars', () => {
@@ -256,8 +269,40 @@ describe('step 5: a new lick each time (K6.4, K7.4)', () => {
     }
   });
 
+  it('plays every box of every key on the neck drawn, the root in each', () => {
+    for (const tonic of LICK_KEYS) {
+      for (const b of LICK_BOXES) {
+        const box = lickBox(tonic, b);
+        expect(box.notes).toHaveLength(12);
+        expect(box.maxFret).toBeLessThan(LICK_FRETS);
+        expect(box.notes.some((x) => x.isTonic)).toBe(true);
+      }
+    }
+    expect(LICK_FRETS).toBe(17);
+  });
+
+  it('releases a bend when the line steps back to the fretted note, so it is never picked bent', () => {
+    for (const { notes } of licks) {
+      notes.forEach((x, i) => {
+        const next = notes[i + 1];
+        if (x.event.technique === 'bend' && next && next.midi === x.midi && next !== notes.at(-1)) expect(next.event.technique).toBe('release');
+      });
+    }
+    // A minor, box 1: index 7 is D (4) at fret 7 on string 3, index 8 is E (5).
+    const events = decorate(
+      [
+        { index: 8, at: 0, length: 2 },
+        { index: 7, at: 2, length: 1 },
+        { index: 6, at: 3, length: 1 },
+        { index: 5, at: 4, length: 4 },
+      ],
+      boxNotes(n('A'), 1),
+    );
+    expect(lickNotes(n('A'), events).map((x) => x.text).join(' ')).toBe('7b9 r7 p5 7~');
+  });
+
   it('decorates by rule: a quick note then the same string up is a hammer-on', () => {
-    const box = lickNotes(n('A'), Array.from({ length: 12 }, (_, i) => ({ cell: i, cells: 1, note: i, technique: 'pick' as const })));
+    const box = boxNotes(n('A'), 1);
     // A minor, box 1: index 3 is E (5) at fret 7 on string 5, index 2 is D at fret 5 on string 5.
     const events = decorate(
       [

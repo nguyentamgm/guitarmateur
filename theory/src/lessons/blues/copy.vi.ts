@@ -49,7 +49,7 @@ export const vi: BluesCopy = {
         'Vibrato là lắc đều một nốt đang ngân quanh cao độ của nó, thường ở nốt cuối câu. Ghép chúng lại, một box mười hai nốt bắt đầu biết nói. Tab ghi chúng là h, p, / và ~, còn bend là b.',
       ],
       takeaway: 'Gảy một lần, rồi để tay bấm đổi cao độ: đó là giọng của guitar điện.',
-      tryIt: 'Chơi chậm lick trên nền 12-bar. Chỉ gảy các số trơn và nốt bend; h, p, r và / thì không gảy. Rồi bấm Lick mới, hoặc đổi giọng, và đọc tab mới.',
+      tryIt: 'Chơi chậm lick trên nền 12-bar. Chỉ gảy các số trơn và nốt bend; h, p, r và / thì không gảy. Rồi bấm Lick mới, hoặc đổi giọng hay box, và đọc tab mới.',
     },
   },
   scene: {
@@ -117,6 +117,7 @@ export const vi: BluesCopy = {
       },
       lick: 'Lick',
       key: 'Giọng',
+      box: 'Box',
       newLick: 'Lick mới',
       playLick: 'Lick trên nền 12-bar',
       tab: 'Tab của lick',
