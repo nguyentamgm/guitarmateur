@@ -8,7 +8,8 @@ import {
   nextReview,
   reasonOf,
   recordAnswer,
-  saveProgress,
+  storeAnswer,
+  daysSince,
   type Progress,
 } from './progress';
 import { REVIEW_SLUG } from './router';
@@ -95,32 +96,63 @@ describe('nextReview', () => {
   });
 });
 
+describe('daysSince', () => {
+  it('counts calendar days, not 24-hour periods', () => {
+    const at = (h: number, day = 10) => new Date(2026, 9, day, h).getTime();
+    const rec = answers('blues-bend', '1', at(23))['blues-bend']!;
+    expect(daysSince(rec, at(23, 10) + 30 * 60 * 1000)).toBe(0);
+    expect(daysSince(rec, at(8, 11))).toBe(1);
+    expect(daysSince(rec, at(1, 17))).toBe(7);
+  });
+});
+
 describe('storage', () => {
-  it('round-trips', () => {
+  it('stores each answer and reads it back', () => {
     const store = memory();
-    const p = answers('blues-bend', '101', NOW);
-    saveProgress(p, store);
+    storeAnswer('blues-bend', true, NOW, store);
+    const p = storeAnswer('blues-bend', false, NOW, store);
     expect(loadProgress(store)).toEqual(p);
+    expect(p['blues-bend']).toMatchObject({ right: 1, total: 2 });
     expect(Object.keys(store.data)).toEqual([PROGRESS_STORAGE_KEY]);
   });
 
-  it('drops unknown quizzes and broken records, and survives garbage', () => {
-    const good = answers('blues-bend', '1', NOW)['blues-bend'];
+  it('keeps answers another tab saved meanwhile', () => {
+    const store = memory();
+    storeAnswer('blues-bend', true, NOW, store);
+    // Another tab writes barre answers to the same storage.
+    storeAnswer('barre-find', true, NOW, store);
+    const p = storeAnswer('blues-bend', true, NOW, store);
+    expect(p['barre-find']).toMatchObject({ total: 1 });
+    expect(p['blues-bend']).toMatchObject({ total: 2 });
+  });
+
+  it('leaves quizzes it does not know untouched, for newer versions', () => {
+    const later = { right: 1, total: 1, streak: 1, bestStreak: 1, recent: [true], lastAt: NOW };
+    const store = memory({ [PROGRESS_STORAGE_KEY]: JSON.stringify({ 'solo-target': later }) });
+    expect(loadProgress(store)).toEqual({});
+    storeAnswer('keys-home', true, NOW, store);
+    expect(JSON.parse(store.data[PROGRESS_STORAGE_KEY]!)['solo-target']).toEqual(later);
+  });
+
+  it('drops broken and impossible records, and survives garbage', () => {
+    const good = answers('blues-bend', '1', NOW)['blues-bend']!;
     const store = memory({
       [PROGRESS_STORAGE_KEY]: JSON.stringify({
         'blues-bend': good,
         'keys-home': { ...good, right: 5, total: 2 },
         'barre-find': { ...good, recent: ['yes'] },
+        'chords-build': { ...good, streak: 9 },
+        'fretboard-root': { ...good, recent: [true, true, true] },
         nope: good,
       }),
     });
     expect(loadProgress(store)).toEqual({ 'blues-bend': good });
     expect(loadProgress(memory({ [PROGRESS_STORAGE_KEY]: '{not json' }))).toEqual({});
-    expect(loadProgress(memory({ [PROGRESS_STORAGE_KEY]: '42' }))).toEqual({});
+    expect(loadProgress(memory({ [PROGRESS_STORAGE_KEY]: '[1]' }))).toEqual({});
     expect(loadProgress(null)).toEqual({});
   });
 
-  it('never throws when storage does', () => {
+  it('never throws when storage does, and still counts the answer for this visit', () => {
     const broken = {
       getItem: () => {
         throw new Error('blocked');
@@ -130,6 +162,6 @@ describe('storage', () => {
       },
     };
     expect(loadProgress(broken)).toEqual({});
-    expect(() => saveProgress({}, broken)).not.toThrow();
+    expect(storeAnswer('keys-home', true, NOW, broken)['keys-home']).toMatchObject({ total: 1 });
   });
 });

@@ -332,7 +332,12 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
     else if (natural || pool === 'all') setFeedback({ kind: 'wrongFret', fret: d.fret, heard: namesAt(d) });
     else setFeedback({ kind: 'between', fret: d.fret });
   };
-  const next = (notes: QuizNotes = pool) => {
+  const next = (notes: QuizNotes = pool, skip = true) => {
+    // Skipping a question you never answered counts as a miss, as in every other quiz.
+    if (skip && !solved && !missed) {
+      setScore((s) => ({ ...s, total: s.total + 1 }));
+      recordQuiz('fretboard-root', false);
+    }
     setQuestion((q) => quizQuestion(Math.random, q, notes));
     setFeedback(null);
     setMissed(false);
@@ -340,7 +345,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   };
   const choosePool = (notes: QuizNotes) => {
     setPool(notes);
-    next(notes);
+    next(notes, false);
   };
   const play = (string: 6 | 5, fret: number) => {
     const pos = { string, fret };

@@ -62,7 +62,14 @@ export function accuracy(r: QuizRecord | undefined): number | null {
   return r.recent.filter(Boolean).length / r.recent.length;
 }
 
-export const daysSince = (r: QuizRecord, now: number): number => Math.max(0, Math.floor((now - r.lastAt) / DAY_MS));
+/** Calendar days between the last answer and `now`, in local time: 0 = today, 1 = yesterday. */
+export function daysSince(r: QuizRecord, now: number): number {
+  const midnight = (t: number) => {
+    const d = new Date(t);
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+  return Math.max(0, Math.round((midnight(now) - midnight(r.lastAt)) / DAY_MS));
+}
 
 /** Why a quiz is where it is in the review order. */
 export type ReviewReason = 'new' | 'weak' | 'stale' | 'fresh';
@@ -119,35 +126,46 @@ function readRecord(v: unknown): QuizRecord | null {
   if (!v || typeof v !== 'object') return null;
   const r = v as Record<string, unknown>;
   const { right, total, streak, bestStreak, recent, lastAt } = r;
-  if (!isCount(right) || !isCount(total) || !isCount(streak) || !isCount(bestStreak) || right > total) return null;
-  if (!Array.isArray(recent) || !recent.every((x) => typeof x === 'boolean')) return null;
+  if (!isCount(right) || !isCount(total) || !isCount(streak) || !isCount(bestStreak)) return null;
+  if (right > total || streak > bestStreak || bestStreak > right) return null;
+  if (!Array.isArray(recent) || recent.length > Math.min(total, RECENT) || !recent.every((x) => typeof x === 'boolean')) return null;
   if (typeof lastAt !== 'number' || !Number.isFinite(lastAt)) return null;
-  return { right, total, streak, bestStreak, recent: recent.slice(-RECENT), lastAt };
+  return { right, total, streak, bestStreak, recent, lastAt };
 }
 
-/** Stored progress; unknown quizzes and broken records are dropped. Never throws. */
-export function loadProgress(storage: KeyValue | null = defaultStorage()): Progress {
+/** The stored object as is, or an empty one. */
+function readRaw(storage: KeyValue | null): Record<string, unknown> {
   try {
     const raw = storage?.getItem(PROGRESS_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return {};
-    const out: Partial<Record<QuizId, QuizRecord>> = {};
-    for (const id of QUIZ_IDS) {
-      const r = readRecord((parsed as Record<string, unknown>)[id]);
-      if (r) out[id] = r;
-    }
-    return out;
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
   } catch {
     return {};
   }
 }
 
-/** Remember progress. A storage failure only means it is not remembered. */
-export function saveProgress(progress: Progress, storage: KeyValue | null = defaultStorage()): void {
+/** Stored progress; unknown quizzes and broken records are left out. Never throws. */
+export function loadProgress(storage: KeyValue | null = defaultStorage()): Progress {
+  const raw = readRaw(storage);
+  const out: Partial<Record<QuizId, QuizRecord>> = {};
+  for (const id of QUIZ_IDS) {
+    const r = readRecord(raw[id]);
+    if (r) out[id] = r;
+  }
+  return out;
+}
+
+/**
+ * Add one answer straight to storage and return the new progress. It reads storage first, so
+ * answers saved meanwhile by another tab are kept, and it leaves entries this build does not know
+ * (a quiz from a newer version) untouched. A storage failure only means it is not remembered.
+ */
+export function storeAnswer(id: QuizId, right: boolean, now: number, storage: KeyValue | null = defaultStorage()): Progress {
+  const next = recordAnswer(loadProgress(storage), id, right, now);
   try {
-    storage?.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
+    storage?.setItem(PROGRESS_STORAGE_KEY, JSON.stringify({ ...readRaw(storage), [id]: next[id] }));
   } catch {
     // Private mode, full or blocked storage: progress lasts for this visit only.
   }
+  return next;
 }

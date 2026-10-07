@@ -13,13 +13,18 @@ export interface TheoryContext {
   setSoundOn(on: boolean): void;
   /** Client-side navigation to a path under /theory; a `#step` scrolls to that step. */
   navigate(href: string): void;
-  /** Stored quiz progress (theory.progress). */
-  readonly progress: Progress;
-  /** Record one settled quiz question: right on the first try or not. */
+  /** Record one settled quiz question: right on the first try or not. Stable across renders. */
   recordQuiz(id: QuizId, right: boolean): void;
 }
 
 export const Ctx = createContext<TheoryContext | null>(null);
+
+/**
+ * Stored quiz progress, apart from `Ctx` so that recording an answer re-renders only the pages
+ * that show progress, not every scene on a lesson page.
+ */
+export const ProgressCtx = createContext<Progress>({});
+export const useProgress = (): Progress => useContext(ProgressCtx);
 
 export function useTheory(): TheoryContext {
   const ctx = useContext(Ctx);

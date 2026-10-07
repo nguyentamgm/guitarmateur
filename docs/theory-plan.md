@@ -190,6 +190,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.3) Phiên 4.3 bỏ bước "chạy một đường dọc cần đàn qua nhiều thế" (người duyệt bỏ ở dàn ý). Cùng việc với mẫu luyện ngón chạy dọc nhiều hộp (2.1).
 - (5.1) Trang ôn tập chỉ xếp theo cả bài đố (chưa mới, hay sai, lâu chưa tập), chưa nhớ câu nào hay sai trong một bài đố. Chưa có nút xóa điểm; người học xóa dữ liệu trang trong trình duyệt nếu cần.
 - (5.1) Điểm hiện trong bài đố vẫn là điểm của lần mở trang này; điểm lưu (độ chính xác gần đây, chuỗi đúng dài nhất) chỉ hiện ở `/theory/review`.
+- (5.1) Mỗi bài đố gọi `setScore` (điểm của lần mở trang) và `recordQuiz` (điểm lưu) cạnh nhau ở 2–3 chỗ. Một hook `useQuizScore(id)` làm cả hai sẽ bớt lặp; để PR riêng vì phải sửa sáu bài. `ui/progress.ts` cũng chép lại phần đọc localStorage an toàn của `i18n/lang.ts`.
 - (5.1) Thu một vòng solo và phát lại có đánh dấu nốt đích (K7.6) để sang một phiên riêng.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 

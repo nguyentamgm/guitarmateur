@@ -1,13 +1,14 @@
 /** /theory/review: every lesson quiz with its stored score, the one to do next first. */
 import { fill } from '../i18n';
 import { findLesson } from '../lessons';
-import { useTheory } from './context';
+import { useProgress, useTheory } from './context';
 import { Link } from './Link';
 import { QUIZZES, accuracy, daysSince, nextReview, type QuizRecord } from './progress';
 import { BASE, hrefFor } from './router';
 
 export function ReviewPage() {
-  const { ui, lang, progress } = useTheory();
+  const { ui, lang } = useTheory();
+  const progress = useProgress();
   const now = Date.now();
   const items = nextReview(progress, now);
 

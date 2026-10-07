@@ -414,6 +414,11 @@ function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
   };
   const next = () => {
     clock.stop();
+    // Skipping a song you never answered counts as a miss, as in every other quiz.
+    if (!solved && !missed) {
+      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
+      recordQuiz('pentatonic-shape', false);
+    }
     setQuestion((q) => quizQuestion(Math.random, q));
     setVerdict(null);
     setMissed(false);

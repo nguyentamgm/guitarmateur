@@ -349,6 +349,14 @@ describe('Theory app', () => {
       expect(first.textContent).toContain('Last practised today');
     });
 
+    it('counts a song skipped without an answer as a miss', () => {
+      render('/theory/pentatonic');
+      const section = container.querySelector('section#choose')!;
+      click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Next song')!);
+      expect(section.textContent).toContain('0 of 1');
+      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['pentatonic-shape']).toMatchObject({ right: 0, total: 1 });
+    });
+
     it('is reachable from the header and the contents', () => {
       render('/theory');
       const links = [...container.querySelectorAll('a')].filter((a) => a.getAttribute('href') === '/theory/review');

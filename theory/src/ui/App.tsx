@@ -3,10 +3,16 @@ import { createPlayer, type Player } from '../core/audio';
 import { UI, loadLang, saveLang, type Lang } from '../i18n';
 import { findLesson } from '../lessons';
 import { ContentsPage } from './ContentsPage';
-import { Ctx, type TheoryContext } from './context';
+import { Ctx, ProgressCtx, type TheoryContext } from './context';
 import { Header } from './Header';
 import { LessonPage } from './LessonPage';
-import { loadProgress, recordAnswer, saveProgress, type Progress, type QuizId } from './progress';
+import {
+  PROGRESS_STORAGE_KEY,
+  loadProgress,
+  storeAnswer,
+  type Progress,
+  type QuizId,
+} from './progress';
 import { ReviewPage } from './ReviewPage';
 import { parseRoute } from './router';
 
@@ -18,11 +24,18 @@ export function App({ player: given }: { player?: Player } = {}) {
   const [player] = useState(() => given ?? createPlayer());
   const [soundOn, setSoundState] = useState(true);
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
-  const recordQuiz = useCallback((id: QuizId, right: boolean) => {
-    setProgress((p) => recordAnswer(p, id, right, Date.now()));
+  // Each answer goes straight through storage, so another tab's answers are never overwritten.
+  const recordQuiz = useCallback(
+    (id: QuizId, right: boolean) => setProgress(storeAnswer(id, right, Date.now())),
+    [],
+  );
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === PROGRESS_STORAGE_KEY || e.key === null) setProgress(loadProgress());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
-  // Save after every change; the first run only writes back what was just read.
-  useEffect(() => saveProgress(progress), [progress]);
 
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
@@ -34,9 +47,12 @@ export function App({ player: given }: { player?: Player } = {}) {
     window.history.pushState(null, '', href);
     setPath(window.location.pathname);
     const hash = new URL(href, window.location.href).hash.slice(1);
-    if (!hash) return window.scrollTo(0, 0);
-    // The target page renders on the next frame; scroll to the step once it is there.
-    requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
+    // The target page renders on the next frame; scroll to the step once it is there, or to the top.
+    requestAnimationFrame(() => {
+      const target = hash ? document.getElementById(hash) : null;
+      if (target) target.scrollIntoView();
+      else window.scrollTo(0, 0);
+    });
   }, []);
 
   const route = parseRoute(path, isLesson);
@@ -67,22 +83,23 @@ export function App({ player: given }: { player?: Player } = {}) {
         setSoundState(on);
       },
       navigate,
-      progress,
       recordQuiz,
     }),
-    [lang, ui, player, soundOn, navigate, progress, recordQuiz],
+    [lang, ui, player, soundOn, navigate, recordQuiz],
   );
 
   return (
     <Ctx.Provider value={ctx}>
-      <Header />
-      {lesson ? (
-        <LessonPage lesson={lesson} />
-      ) : route.page === 'review' ? (
-        <ReviewPage />
-      ) : (
-        <ContentsPage missingPath={route.page === 'notFound' ? route.path : undefined} />
-      )}
+      <ProgressCtx.Provider value={progress}>
+        <Header />
+        {lesson ? (
+          <LessonPage lesson={lesson} />
+        ) : route.page === 'review' ? (
+          <ReviewPage />
+        ) : (
+          <ContentsPage missingPath={route.page === 'notFound' ? route.path : undefined} />
+        )}
+      </ProgressCtx.Provider>
     </Ctx.Provider>
   );
 }
