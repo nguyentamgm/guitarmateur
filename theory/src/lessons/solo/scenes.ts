@@ -57,7 +57,8 @@ export const BACKINGS: Readonly<Record<BackingId, BackingDef>> = {
 const isMinor = (id: BackingId) => SCALES[BACKINGS[id].scale].quality === 'minor';
 
 /** The keys to choose from, ordered by their root on string 6. */
-export const backingKeys = (id: BackingId): NoteName[] => byHomeFret(isMinor(id) ? MINOR_KEY_TONICS : MAJOR_KEY_TONICS);
+const MINOR_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
+export const backingKeys = (id: BackingId): readonly NoteName[] => (isMinor(id) ? MINOR_KEYS : byHomeFret(MAJOR_KEY_TONICS));
 
 export interface BackingBar {
   readonly chord: Chord;
@@ -212,7 +213,7 @@ export const phraseRole = (bar: number): PhraseRole => PHRASE_ROLES[bar % PHRASE
 
 /** The ear quiz uses box 1 of a minor pentatonic: A minor (frets 5–8) unless another key is picked. */
 export const EAR_TONIC: NoteName = parseNote('A');
-export const EAR_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
+export const EAR_KEYS: readonly NoteName[] = MINOR_KEYS;
 export const earWindow = (tonic: NoteName = EAR_TONIC): SoloWindow => soloWindow(tonic, 'minorPentatonic');
 
 /** Bars in an ear idea: 1 = one idea of 3–4 notes, 2 = an idea and a second one that carries on from it. */
@@ -237,12 +238,10 @@ export function earQuestion(window: SoloWindow, random: () => number, previous?:
   const make = (): LickNote[] => {
     const first = motif(size, random);
     if (bars === 1) return first;
-    const second = motif(size, random);
     const last = first.at(-1)!.index;
-    const target = last + (last >= size - 1 ? -1 : last <= 0 ? 1 : random() < 0.5 ? -1 : 1);
-    const shift = target - second[0]!.index;
-    const moved = second.map((l) => ({ ...l, index: Math.min(size - 1, Math.max(0, l.index + shift)), at: l.at + LICK_EIGHTHS }));
-    return [...first, ...moved];
+    const start = last + (last >= size - 1 ? -1 : last <= 0 ? 1 : random() < 0.5 ? -1 : 1);
+    const second = motif(size, random, start).map((l) => ({ ...l, at: l.at + LICK_EIGHTHS }));
+    return [...first, ...second];
   };
   for (let tries = 0; ; tries++) {
     const q = make().map((l) => ({ ...window.notes[l.index]!, at: l.at, length: l.length }));

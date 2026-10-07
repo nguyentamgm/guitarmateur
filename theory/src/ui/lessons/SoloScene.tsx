@@ -1,7 +1,7 @@
 /** The six scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
-import { LICK_EIGHTHS, SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
+import { LICK_EIGHTHS, SCALES, format, sameNote, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
 import { cellSeconds } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
@@ -382,16 +382,18 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
     if (!solved) settle(false);
     reset(earQuestion(box, Math.random, question, bars), help);
   };
-  // A new key or length is a new idea; leaving one you already missed counts, as "next" does.
+  // Leaving an idea you started on (any click) through a setting counts as a miss; "next" counts any.
+  const started = missed || found > start;
   const change = (k: NoteName, b: EarBars) => {
-    if (!solved && missed) settle(false);
+    if (sameNote(k, tonic) && b === bars) return;
+    if (!solved && started) settle(false);
     setTonic(k);
     setBars(b);
-    reset(earQuestion(earWindow(k), Math.random, undefined, b), help);
+    reset(earQuestion(earWindow(k), Math.random, question, b), help);
   };
   const chooseHelp = (h: EarHelp) => {
-    // Leaving an idea you already missed counts, as "next" does; switching before trying does not.
-    if (!solved && missed) settle(false);
+    if (h === help) return;
+    if (!solved && started) settle(false);
     setHelp(h);
     reset(earQuestion(box, Math.random, question, bars), h);
   };

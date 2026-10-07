@@ -191,7 +191,8 @@ describe('step 5: hear it, play it back (K7.5)', () => {
       expect(split).toBeGreaterThanOrEqual(3);
       expect(q.length - split).toBeGreaterThanOrEqual(3);
       const order = (n: { midi: number }) => box.notes.findIndex((b) => b.midi === n.midi);
-      expect(Math.abs(order(q[split]!) - order(q[split - 1]!))).toBeLessThanOrEqual(2);
+      expect(Math.abs(order(q[split]!) - order(q[split - 1]!))).toBe(1);
+      q.slice(1).forEach((n, k) => expect(n.midi).not.toBe(q[k]!.midi));
       for (const n of q) expect(n.at + n.length).toBeLessThanOrEqual(2 * LICK_EIGHTHS);
     }
   });
