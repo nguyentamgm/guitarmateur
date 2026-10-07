@@ -230,7 +230,8 @@ button { font: inherit; cursor: pointer; }
 .kink line { stroke: var(--amber); stroke-width: 2; }
 .swatch.kinkghost { border: 1.5px dashed var(--amber); }
 .shared { fill: var(--amber); fill-opacity: 0.28; stroke: var(--amber); stroke-width: 1.5; }
-.gaptag text { fill: var(--nut); font-family: var(--f-mono); font-size: 12px; font-weight: 600; dominant-baseline: middle; paint-order: stroke; stroke: var(--wood); stroke-width: 6px; }
+.gaptag rect { fill: var(--wood-edge); stroke: var(--fret); stroke-opacity: 0.5; stroke-width: 1; }
+.gaptag text { fill: var(--nut); font-family: var(--f-mono); font-size: 12px; font-weight: 600; dominant-baseline: middle; }
 .legend .gaps { font-family: var(--f-mono); color: var(--accent); }
 
 /* Blues */

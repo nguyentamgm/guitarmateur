@@ -86,6 +86,8 @@ function Frame({ g, pos, on = false }: { g: NeckGeometry; pos: Pick<Position, 'i
 type Labels = 'degrees' | 'notes' | 'fingers';
 /** Step 1 shows position 1 alone, so a short neck is enough. */
 const STRINGS_FRETS = 12;
+/** Room for a '+2 +1' tag in 12px mono, plus padding. */
+const TAG_WIDTH = 46;
 
 function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
   const { player } = useTheory();
@@ -129,9 +131,12 @@ function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
       <Fretboard geometry={g} dots={dots} label={caption} box={pos} active={seq.current === null ? [] : [posKey(order[seq.current]!)]}>
         <g className="gaptag">
           {rows.map((r) => (
-            <text key={r.string} x={tagX} y={g.y(r.string)}>
-              {r.gaps.map(signed).join(' ')}
-            </text>
+            <g key={r.string}>
+              <rect x={tagX - 5} y={g.y(r.string) - 9} width={TAG_WIDTH} height={18} rx={4} />
+              <text x={tagX} y={g.y(r.string)}>
+                {r.gaps.map(signed).join(' ')}
+              </text>
+            </g>
           ))}
         </g>
       </Fretboard>
