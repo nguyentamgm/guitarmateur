@@ -9,6 +9,7 @@ import {
   drillRun,
   fingerMap,
   keyView,
+  loopSteps,
   positionPair,
   renumber,
   rootRun,
@@ -90,6 +91,14 @@ describe('step 2: seven positions tile the neck (K2.9)', () => {
     }
   });
 
+  it('draws every pair on the neck, the moved-up next position included', () => {
+    let top = 0;
+    for (const k of MAJOR_KEYS) {
+      for (let i = 1; i <= 7; i++) top = Math.max(top, positionPair(i, k).to.maxFret, positionPair(i, k).from.maxFret);
+    }
+    expect(top).toBe(NECK_FRETS);
+  });
+
   it('crosses up one position and down the next with no gap', () => {
     const run = crossRun(positionPair(1));
     expect(run).toHaveLength(36);
@@ -124,6 +133,12 @@ describe('step 3: three notes = one beat (K1.5, K3.6)', () => {
         for (const x of run) expect(p1.notes).toContain(x);
       }
     }
+  });
+
+  it('rounds every loop up to whole bars so it restarts on "1"', () => {
+    expect(loopSteps(18, 12)).toBe(24);
+    expect(loopSteps(48, 12)).toBe(48);
+    expect(loopSteps(15, 8)).toBe(16);
   });
 
   it('draws a bar line every 12 notes', () => {

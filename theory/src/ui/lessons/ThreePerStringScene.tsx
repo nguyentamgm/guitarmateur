@@ -13,6 +13,7 @@ import {
   MAJOR_KEYS,
   NECK_FRETS,
   NOTES_PER_BEAT,
+  TRIPLET_CELLS,
   SHAPE_GAPS,
   STRING_SHAPES,
   barStarts,
@@ -21,6 +22,7 @@ import {
   drillRun,
   fingerMap,
   keyView,
+  loopSteps,
   positionPair,
   renumber,
   rootRun,
@@ -201,16 +203,17 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
   const pos = all[index - 1]!;
   const drill = useMemo(() => drillRun(pos, pattern, direction), [pos, pattern, direction]);
   const cell = cellSeconds(bpm, NOTES_PER_BEAT);
-  const clock = useClock(drill.length, cell, (i, delay) => {
-    if (countAt(i).kind === 'beat') player.click(i % (NOTES_PER_BEAT * 4) === 0, delay);
-    player.pluck(drill[i]!.midi, delay, cell * 0.9);
+  const clock = useClock(loopSteps(drill.length, TRIPLET_CELLS), cell, (i, delay) => {
+    if (countAt(i).kind === 'beat') player.click(i % TRIPLET_CELLS === 0, delay);
+    const n = drill[i];
+    if (n) player.pluck(n.midi, delay, cell * 0.9);
   });
   const change = (fn: () => void) => {
     clock.stop();
     fn();
   };
 
-  const now = clock.current === null ? null : drill[clock.current]!;
+  const now = clock.current === null ? null : drill[clock.current];
   const active = now ? [posKey(now)] : [];
   const dots = pos.notes.map((n) => dotOf(n, degreeText(n.degree), n.isTonic ? 'home' : 'plain'));
   const columns = drill.map((n): TabNote[] => [{ key: posKey(n), string: n.string, fret: n.fret, midi: n.midi }]);
@@ -244,7 +247,7 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.start}</Button>
         <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
-      <Tab columns={columns} counts={counts} barLines={barStarts(drill.length)} label={copy.tab} active={active} column={clock.current} />
+      <Tab columns={columns} counts={counts} barLines={barStarts(drill.length)} label={copy.tab} active={active} column={now ? clock.current : null} />
       <Fretboard geometry={g} dots={dots} label={idle} box={pos} active={active} />
       <p className="caption" aria-live="polite">
         {clock.playing ? fill(copy.playing, { bpm }) : idle}
@@ -268,9 +271,10 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
   const root = mode === 'major' ? view.tonic : view.relativeMinor;
   const run = useMemo(() => rootRun(pos), [pos]);
   const cell = cellSeconds(DRONE_BPM, 2);
-  const clock = useClock(run.length, cell, (i, delay) => {
+  const clock = useClock(loopSteps(run.length, DRONE_CELLS), cell, (i, delay) => {
     if (i % DRONE_CELLS === 0) player.pluck(bassMidi(root), delay, beatSeconds(DRONE_BPM) * 4 * 0.95);
-    player.pluck(run[i]!.midi, delay, cell * 1.6);
+    const n = run[i];
+    if (n) player.pluck(n.midi, delay, cell * 1.6);
   });
   const change = (fn: () => void) => {
     clock.stop();

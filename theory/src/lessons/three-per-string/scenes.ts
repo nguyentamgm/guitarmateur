@@ -29,6 +29,8 @@ import {
 } from '../../core/music';
 import { countTriplets, TRIPLET_CELLS, type TripletSyllable } from '../../core/rhythm';
 
+export { TRIPLET_CELLS };
+
 export type Mode = 'major' | 'minor';
 const SCALE_OF = { major: 'major', minor: 'naturalMinor' } as const;
 
@@ -73,8 +75,11 @@ export function sevenPositions(tonic: NoteName = EXAMPLE_TONIC, mode: Mode = 'ma
   }));
 }
 
-/** Frets drawn on every neck: enough for the highest position in any key. */
-export const NECK_FRETS = Math.max(...MAJOR_KEYS.flatMap((k) => sevenPositions(k).map((p) => p.maxFret)));
+/**
+ * Frets drawn on every neck: the highest position in any key ends at fret 18, and a next position
+ * moved up an octave beside it (step 2: G position 6 → 7 at frets 14–19) at 19. A test checks it.
+ */
+export const NECK_FRETS = 19;
 
 /** Every note of the scale from fret 0 to `maxFret`, on every string. */
 export function scaleNeck(tonic: NoteName = EXAMPLE_TONIC, mode: Mode = 'major', maxFret = NECK_FRETS): NeckNote[] {
@@ -182,8 +187,13 @@ export function drillRun(pos: Position, id: SequenceId, direction: Direction): N
 export const NOTES_PER_BEAT = 3;
 export const DRILL_BPM = 60;
 
+const TRIPLET_COUNT = countTriplets();
+
 /** The count syllable a drill note starts on: "1 trip let 2 trip let …", bar after bar. */
-export const countAt = (i: number): TripletSyllable => countTriplets()[i % TRIPLET_CELLS]!;
+export const countAt = (i: number): TripletSyllable => TRIPLET_COUNT[i % TRIPLET_CELLS]!;
+
+/** Steps in one loop of `notes` notes: rounded up to whole bars, so every loop starts on "1". */
+export const loopSteps = (notes: number, perBar: number): number => Math.ceil(notes / perBar) * perBar;
 
 /** Columns a bar line goes before: every 12 notes (four beats of triplets). */
 export const barStarts = (length: number): number[] =>

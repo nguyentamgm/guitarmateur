@@ -187,7 +187,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống.
 - (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ. Phiên 4.3 đã có bảy thế 3 nốt mỗi dây (`/theory/three-per-string`) nhưng bài solo chưa dùng chúng.
 - (4.2) Đường guide tone đi giữa các nốt trong box theo cao độ; chưa nối sang box khác khi nốt gần hơn nằm ngoài box.
-- (4.3) Bài luyện triplet (`/theory/three-per-string` bước 3) không có "tăng tốc" và không lưu tempo (cùng việc với chế độ ôn tập 5.1). Mẫu "cách một" có 32 nốt, không chia hết cho 3, nên khi lặp lại tiếng đếm bắt đầu lại từ "1" giữa chừng.
+- (4.3) Bài luyện triplet (`/theory/three-per-string` bước 3) không có "tăng tốc" và không lưu tempo (cùng việc với chế độ ôn tập 5.1). Mỗi vòng được làm tròn lên số bar chẵn bằng dấu lặng (`loopSteps()`), nên một bài 18 nốt có nửa bar nghỉ trước khi lặp lại.
 - (4.3) Ngón bấm chỉ có một cách: dây một cung–một cung là 1-2-4 với bàn tay mở rộng. Chưa có lựa chọn 1-3-4 hay dời tay giữa dây, và chưa vẽ chỗ dời tay trong các thế rộng bảy phím (thế 4 ở G).
 - (4.3) Phiên 4.3 bỏ bước "chạy một đường dọc cần đàn qua nhiều thế" (người duyệt bỏ ở dàn ý). Cùng việc với mẫu luyện ngón chạy dọc nhiều hộp (2.1).
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
