@@ -42,7 +42,7 @@ Mục tiêu: người học solo trên một vòng hợp âm mà **nghe có ch�
 
 **Cốt lõi.** Nghe một câu ngắn rồi chơi lại. Bắt đầu từ câu ngắn với nốt đầu được cho sẵn, rồi tăng dần độ khó. Nhìn hợp âm đang vang để đoán nốt.
 
-**Dạy trong Theory.** `/theory/solo` bước 5: app phát một ý 3–4 nốt (`motif()`, có nhịp) trong box 1 của A minor pentatonic; người học bấm lại trên cần theo thứ tự, đúng nốt nào sáng nốt đó. Bấm sai thì app nói nốt kế cao hơn hay thấp hơn. Trợ giúp: cho sẵn nốt đầu, hoặc không. Điểm được lưu và hiện ở `/theory/review` (bài đố `solo-ear`). Chưa có: câu dài hơn, box khác, giọng khác.
+**Dạy trong Theory.** `/theory/solo` bước 5: app phát một ý 3–4 nốt (`motif()`, có nhịp) trong box 1 của minor pentatonic ở giọng thứ người học chọn (mặc định A thứ), hoặc hai bar: ý thứ hai bắt đầu cách nốt cuối của ý thứ nhất một bậc trong box; người học bấm lại trên cần theo thứ tự, đúng nốt nào sáng nốt đó. Bấm sai thì app nói nốt kế cao hơn hay thấp hơn. Trợ giúp: cho sẵn nốt đầu, hoặc không. Điểm được lưu và hiện ở `/theory/review` (bài đố `solo-ear`). Chưa có: box khác, giọng trưởng.
 
 **Cần trước:** K3.4. **Nguồn:** ch. 19.
 

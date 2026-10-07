@@ -21,9 +21,10 @@ const pick = <T>(items: readonly T[], random: () => number): T => items[Math.min
 /**
  * An idea of 3 or 4 notes over `size` scale notes: steps mostly, now and then a skip of one note,
  * turning back at the edge of the range. It starts on beat 1 or just after it and the last note is
- * held into beat 4, so every idea leaves a little space before the next bar.
+ * held into beat 4, so every idea leaves a little space before the next bar. `start` fixes the
+ * first note (to carry on from an earlier idea); otherwise it is picked in the middle of the range.
  */
-export function motif(size: number, random: () => number): LickNote[] {
+export function motif(size: number, random: () => number, start?: number): LickNote[] {
   const count = pick([3, 4], random);
   // Onsets: a gap of one or two eighths between notes, the last no later than the "and" of 3.
   const gaps = Array.from({ length: count - 1 }, () => pick([1, 1, 2], random));
@@ -32,7 +33,8 @@ export function motif(size: number, random: () => number): LickNote[] {
   const onsets = gaps.reduce((on, g) => [...on, on.at(-1)! + g], [first]);
 
   let dir = random() < 0.5 ? 1 : -1;
-  let index = Math.floor(size / 3) + Math.floor(random() * Math.max(1, size / 3));
+  const middle = Math.floor(size / 3) + Math.floor(random() * Math.max(1, size / 3));
+  let index = start === undefined ? middle : Math.min(size - 1, Math.max(0, start));
   const indexes = [index];
   for (let i = 1; i < count; i++) {
     const step = random() < 0.25 ? 2 : 1;

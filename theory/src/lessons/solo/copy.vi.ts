@@ -45,11 +45,11 @@ export const vi: SoloCopy = {
     ear: {
       title: 'Nghe rồi chơi lại',
       body: [
-        'Tai tìm nốt giỏi lên giống như tay: bằng cách làm. Nghe một ý ngắn trong box 1 của A minor pentatonic, rồi tìm lại nó trên cần đàn, từng nốt một.',
+        'Tai tìm nốt giỏi lên giống như tay: bằng cách làm. Nghe một ý ngắn trong box 1 của một minor pentatonic (bắt đầu với A thứ), rồi tìm lại nó trên cần đàn, từng nốt một. Khi một bar đã dễ, thử hai bar: ý thứ hai đi tiếp từ chỗ ý thứ nhất dừng.',
         'Tìm trên đàn của bạn trước, rồi mới bấm các nốt ở đây: mỗi lần bấm là một câu trả lời. Bắt đầu với nốt đầu được cho sẵn. Với mỗi nốt, tự hỏi một câu: nốt kế đi lên hay đi xuống, đi liền bậc hay nhảy cách? Phần lớn ý nhạc đi liền bậc, nên nốt kế thường là nốt ngay bên cạnh trong box.',
       ],
       takeaway: 'Lên hay xuống, liền bậc hay nhảy cách: tìm một ý nhạc từng nốt một.',
-      tryIt: 'Đúng ngay lần đầu năm ý với nốt đầu cho sẵn, rồi tắt phần trợ giúp.',
+      tryIt: 'Đúng ngay lần đầu năm ý với nốt đầu cho sẵn, rồi tắt phần trợ giúp. Sau đó thử hai bar, và một giọng khác.',
     },
     record: {
       title: 'Thu lại rồi nghe lại',
@@ -122,7 +122,11 @@ export const vi: SoloCopy = {
       hear: 'Nghe',
       stop: 'Dừng',
       next: 'Ý khác',
-      neck: 'A minor pentatonic, box 1: bấm các nốt của ý nhạc theo thứ tự',
+      neck: '{key} minor pentatonic, box 1: bấm các nốt của ý nhạc theo thứ tự',
+      key: 'Giọng thứ',
+      length: 'Độ dài',
+      oneBar: 'Một bar',
+      twoBars: 'Hai bar',
       help: 'Trợ giúp',
       helpFirst: 'Cho sẵn nốt đầu',
       helpNone: 'Không trợ giúp',

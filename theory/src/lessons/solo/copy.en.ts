@@ -45,11 +45,11 @@ export const en: SoloCopy = {
     ear: {
       title: 'Hear it, play it back',
       body: [
-        'Your ear gets better at finding notes the same way your hands do: by doing it. Listen to a short idea from box 1 of A minor pentatonic, then find it on the neck, one note at a time.',
+        'Your ear gets better at finding notes the same way your hands do: by doing it. Listen to a short idea from box 1 of a minor pentatonic (A minor to start), then find it on the neck, one note at a time. Once one bar is easy, try two: a second idea that carries on from where the first one stopped.',
         'Find it on your guitar first, then click the notes here: a click is your answer. Start with the first note given. For each note, ask one question: does the next note go up or down, and by a step or a skip? Most ideas move by steps, so the next note is usually a neighbour in the box.',
       ],
       takeaway: 'Up or down, step or skip: find an idea one note at a time.',
-      tryIt: 'Get five ideas right on the first try with the first note given, then turn the help off.',
+      tryIt: 'Get five ideas right on the first try with the first note given, then turn the help off. Then try two bars, and another key.',
     },
     record: {
       title: 'Record it, hear it back',
@@ -122,7 +122,11 @@ export const en: SoloCopy = {
       hear: 'Hear it',
       stop: 'Stop',
       next: 'Next idea',
-      neck: 'A minor pentatonic, box 1: click the notes of the idea in order',
+      neck: '{key} minor pentatonic, box 1: click the notes of the idea in order',
+      key: 'Minor key',
+      length: 'Length',
+      oneBar: 'One bar',
+      twoBars: 'Two bars',
       help: 'Help',
       helpFirst: 'First note given',
       helpNone: 'No help',

@@ -407,6 +407,18 @@ describe('ideas for soloing (K7.4)', () => {
     return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
   };
 
+  it('starts an idea on a given note when asked, turning back at the edges', () => {
+    const random = seeded(9);
+    for (let n = 0; n < 200; n++) {
+      for (const start of [0, 5, 11]) {
+        const lick = motif(12, random, start);
+        expect(lick[0]!.index).toBe(start);
+        for (const l of lick) expect(l.index >= 0 && l.index < 12).toBe(true);
+        lick.slice(1).forEach((l, k) => expect(l.index).not.toBe(lick[k]!.index));
+      }
+    }
+  });
+
   it('makes ideas of 3–4 neighbouring notes inside one bar, leaving beat 4 mostly free', () => {
     const random = seeded(11);
     for (let t = 0; t < 200; t++) {
