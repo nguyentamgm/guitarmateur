@@ -1,7 +1,7 @@
 /** The four scenes of "Three Notes per String". Every position comes from lessons/three-per-string. */
 import { useMemo, useState } from 'react';
 import { bassMidi } from '../../core/audio';
-import { SEQUENCE_IDS, type Direction, type SequenceId } from '../../core/fretboard';
+import { SEQUENCE_IDS, scaleNeck, upAndDown, type Direction, type SequenceId } from '../../core/fretboard';
 import { format, type NoteName } from '../../core/music';
 import { beatSeconds, cellSeconds } from '../../core/rhythm';
 import { fill } from '../../i18n';
@@ -26,20 +26,18 @@ import {
   positionPair,
   renumber,
   rootRun,
-  scaleNeck,
   sevenPositions,
   stringRows,
-  upAndDown,
   type Mode,
   type NeckNote,
-  type Position,
   type SceneCopy,
   type StepId,
 } from '../../lessons/three-per-string';
 import { useTheory } from '../context';
+import { PositionFrame } from '../PositionFrame';
 import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { boxSpan, neckGeometry, type NeckGeometry } from '../geometry';
+import { boxSpan, neckGeometry } from '../geometry';
 import { degreeText, posKey, signed } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
@@ -68,19 +66,6 @@ const dotOf = (n: NeckNote, label: string, tone: DotTone = 'plain', dim = false)
   tone,
   dim,
 });
-
-/** An outline frame with its position number in the top-left corner. */
-function Frame({ g, pos, on = false }: { g: NeckGeometry; pos: Pick<Position, 'index' | 'minFret' | 'maxFret'>; on?: boolean }) {
-  const { left, right } = boxSpan(g, pos.minFret, pos.maxFret);
-  return (
-    <g className={on ? 'boxghost on' : 'boxghost'}>
-      <rect x={left + 2} y={g.top - 12} width={right - left - 4} height={5 * g.stringGap + 24} rx={7} />
-      <text x={left + 5} y={g.top - 5}>
-        {pos.index}
-      </text>
-    </g>
-  );
-}
 
 // --- Step 1 ---
 
@@ -154,7 +139,7 @@ function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
   const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
   const all = useMemo(() => sevenPositions(), []);
-  const neck = useMemo(() => scaleNeck(), []);
+  const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, 'major', NECK_FRETS), []);
   const [k, setK] = useState(1);
   const pair = useMemo(() => positionPair(k), [k]);
   const run = useMemo(() => crossRun(pair), [pair]);
@@ -183,8 +168,8 @@ function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
         <Button onClick={seq.toggle}>{seq.playing ? copy.stop : copy.cross}</Button>
       </div>
       <Fretboard geometry={g} dots={dots} label={caption} box={pair.from} active={seq.current === null ? [] : [posKey(run[seq.current]!)]}>
-        <Frame g={g} pos={pair.from} on />
-        <Frame g={g} pos={pair.to} on />
+        <PositionFrame g={g} span={pair.from} on />
+        <PositionFrame g={g} span={pair.to} on />
         {pair.shared.map((n) => (
           <circle key={posKey(n)} className="shared" cx={g.x(n.fret)} cy={g.y(n.string)} r={15} />
         ))}

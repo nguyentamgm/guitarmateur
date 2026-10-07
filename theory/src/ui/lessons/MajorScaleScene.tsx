@@ -1,6 +1,6 @@
 /** The five scenes of "The major scale and interval shapes". Every position comes from lessons/major-scale. */
 import { useMemo, useState } from 'react';
-import { STRINGS, midiAt, type FretPos } from '../../core/fretboard';
+import { STRINGS, midiAt, scaleNeck, type FretPos } from '../../core/fretboard';
 import { format, interval, type DegreeLabel, type NoteName } from '../../core/music';
 import { fill } from '../../i18n';
 import {
@@ -21,7 +21,6 @@ import {
   intervalTargets,
   labelsFor,
   readInterval,
-  scaleNeck,
   spellingView,
   stamp,
   type IntervalTarget,
@@ -140,7 +139,7 @@ function SpellingScene({ copy }: { copy: SceneCopy['spelling'] }) {
   const [names, setNames] = useState<'show' | 'hide'>('show');
   const tonic = keyOf(key);
   const view = useMemo(() => spellingView(tonic, misspell), [tonic, misspell]);
-  const neck = useMemo(() => scaleNeck(tonic, SPELLING_FRETS), [tonic]);
+  const neck = useMemo(() => scaleNeck(tonic, 'major', SPELLING_FRETS), [tonic]);
 
   const dots: FretDot[] = neck.map((n) => ({
     key: posKey(n),

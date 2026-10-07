@@ -1,4 +1,4 @@
-import { SEQUENCE_IDS } from '../../core/fretboard';
+import { SEQUENCE_IDS, samePos, scaleNeck } from '../../core/fretboard';
 import { MAJOR_KEY_TONICS, format, parseNote } from '../../core/music';
 import {
   MAJOR_KEYS,
@@ -13,8 +13,6 @@ import {
   positionPair,
   renumber,
   rootRun,
-  samePos,
-  scaleNeck,
   stringRows,
   sevenPositions,
 } from './scenes';
@@ -108,7 +106,7 @@ describe('step 2: seven positions tile the neck (K2.9)', () => {
 
   it('covers every scale note in a 12-fret stretch of G major, frets 3–14', () => {
     const covered = all.flatMap((p) => p.notes);
-    const neck = scaleNeck().filter((x) => x.fret >= 3 && x.fret <= 14);
+    const neck = scaleNeck(parseNote('G'), 'major', NECK_FRETS).filter((x) => x.fret >= 3 && x.fret <= 14);
     for (const x of neck) expect(covered.some((c) => samePos(c, x))).toBe(true);
   });
 });

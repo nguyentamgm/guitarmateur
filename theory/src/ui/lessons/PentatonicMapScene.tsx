@@ -1,20 +1,19 @@
 /** The five scenes of the Pentatonic Map. Every position comes from lessons/pentatonic-map. */
 import { useMemo, useRef, useState } from 'react';
-import { homeFret, midiAt } from '../../core/fretboard';
+import { homeFret, midiAt, scaleNeck, upAndDown } from '../../core/fretboard';
 import { format, sameNote, type NoteName } from '../../core/music';
 import { fill } from '../../i18n';
 import {
   EXAMPLE_TONIC,
   FINDER_KEYS,
   NECK_FRETS,
+  SCALE,
   boxes,
   formulaStrip,
   homeView,
   keyView,
-  scaleNeck,
   slide,
   stringPairs,
-  upAndDown,
   type HomeMode,
   type SceneCopy,
   type StepId,
@@ -147,7 +146,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
   const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const all = useMemo(() => boxes(), []);
-  const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC), []);
+  const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, SCALE, NECK_FRETS), []);
   const [index, setIndex] = useState(1);
   const [labels, setLabels] = useState<'degrees' | 'notes'>('degrees');
   const box = all[index - 1]!;

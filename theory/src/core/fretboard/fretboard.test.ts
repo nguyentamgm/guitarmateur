@@ -28,6 +28,10 @@ import {
   shapeAt,
   STRINGS,
   type Position,
+  neckNote,
+  samePos,
+  scaleNeck,
+  upAndDown,
 } from './index';
 
 const n = parseNote;
@@ -108,6 +112,30 @@ describe('neck (M0)', () => {
     const ctx = scaleNotes(n('F'), 'naturalMinor');
     expect(format(pitchAtPos({ string: 5, fret: 1 }, ctx))).toBe('B♭');
     expect(format(pitchAtPos({ string: 5, fret: 1 }))).toBe('A♯');
+  });
+});
+
+describe('notes on the neck', () => {
+  it('spells every note of a scale in its key and marks the tonic', () => {
+    const f = scaleNeck(parseNote('F'), 'major', 12);
+    expect(new Set(f.map((n) => n.name))).toEqual(new Set(['F', 'G', 'A', 'B♭', 'C', 'D', 'E']));
+    const tonics = f.filter((n) => n.isTonic);
+    expect(tonics.length).toBeGreaterThan(0);
+    expect(tonics.every((n) => n.name === 'F' && n.degree === '1')).toBe(true);
+    expect(f.filter((n) => n.name === 'F').every((n) => n.isTonic)).toBe(true);
+    for (const n of f) expect(n.fret).toBeLessThanOrEqual(12);
+  });
+
+  it('gives a position its sound, name and degree', () => {
+    const n = neckNote({ string: 6, fret: 8 }, parseNote('A'), scaleNotes(parseNote('A'), 'minorPentatonic'));
+    expect(n).toEqual({ string: 6, fret: 8, midi: 48, name: 'C', degree: 'b3', isTonic: false });
+  });
+
+  it('compares positions and runs up and back down', () => {
+    expect(samePos({ string: 3, fret: 5 }, { string: 3, fret: 5 })).toBe(true);
+    expect(samePos({ string: 3, fret: 5 }, { string: 4, fret: 5 })).toBe(false);
+    expect(upAndDown([1, 2, 3])).toEqual([1, 2, 3, 2, 1]);
+    expect(upAndDown([])).toEqual([]);
   });
 });
 

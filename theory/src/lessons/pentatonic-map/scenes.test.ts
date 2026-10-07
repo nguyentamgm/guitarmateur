@@ -1,16 +1,16 @@
-import { homeFret, openMidi } from '../../core/fretboard';
+import { homeFret, openMidi, scaleNeck, upAndDown } from '../../core/fretboard';
 import { format, parseNote, pc } from '../../core/music';
 import {
   FINDER_KEYS,
+  NECK_FRETS,
+  SCALE,
   boxes,
   formulaStrip,
   homeView,
   inBox,
   keyView,
-  scaleNeck,
   slide,
   stringPairs,
-  upAndDown,
 } from './scenes';
 
 describe('step 1: string pairs (K0.4)', () => {
@@ -45,7 +45,7 @@ describe('step 3: five boxes (K3.4)', () => {
   });
 
   it('has 12 notes per box, 2 per string, all inside the frame and on the 15-fret neck', () => {
-    const neck = new Set(scaleNeck(parseNote('A')).map((n) => `${n.string}:${n.fret}`));
+    const neck = new Set(scaleNeck(parseNote('A'), SCALE, NECK_FRETS).map((n) => `${n.string}:${n.fret}`));
     for (const b of all) {
       expect(b.notes).toHaveLength(12);
       for (const n of b.notes) {

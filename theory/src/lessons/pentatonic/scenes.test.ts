@@ -1,4 +1,4 @@
-import { SEQUENCE_IDS, homeFret, midiAt } from '../../core/fretboard';
+import { SEQUENCE_IDS, homeFret, midiAt, samePos, scaleNeck } from '../../core/fretboard';
 import { MAJOR_KEY_TONICS, MINOR_KEY_TONICS, format, parseNote, pc, scaleNotes } from '../../core/music';
 import {
   DRILL_BPM,
@@ -16,8 +16,6 @@ import {
   majorView,
   quizQuestion,
   quizView,
-  samePos,
-  scaleNeck,
   songChordSymbol,
   type QuizQuestion,
 } from './scenes';
@@ -46,7 +44,7 @@ describe('step 1: five boxes (K3.4)', () => {
 
   it('labels the neck with A minor pentatonic names and degrees only', () => {
     const names = new Set(scaleNotes(n('A'), 'minorPentatonic').map(format));
-    for (const x of scaleNeck(n('A'))) {
+    for (const x of scaleNeck(n('A'), 'minorPentatonic', NECK_FRETS)) {
       expect(names.has(x.name)).toBe(true);
       expect(['1', 'b3', '4', '5', 'b7']).toContain(x.degree);
     }

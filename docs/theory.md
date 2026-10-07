@@ -125,6 +125,10 @@ ui → lessons → core/fretboard → core/music
   pitch-ordered list of scale notes), never typed in.
 - A barre is drawn with `ui/BarreBar.tsx`. Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
   form is drawn with `ui/BarGrid.tsx`. Key lists for a finder come from `byHomeFret()`.
+- Notes on the neck come from `core/fretboard`: `NeckNote` (position, midi, spelled name, degree,
+  tonic), `neckNote()`, `scaleNeck(tonic, scale, maxFret)`, `samePos()`, and `upAndDown()` for a run
+  up and back. A lesson that needs more (blues: `isBlue`) extends `NeckNote`; it does not redefine it.
+  A numbered box or position outline is `ui/PositionFrame.tsx`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.
 - Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.

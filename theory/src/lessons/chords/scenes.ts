@@ -3,7 +3,7 @@
  * `chordNotes()`, stacked shapes from `triadShape()`, open shapes from `openVoicing()`. The only
  * typed lists are chord names (which open chords to show) and qualities.
  */
-import { homeFret, midiAt, openVoicing, pitchAtPos, triadShape, type FretPos, type StringNumber } from '../../core/fretboard';
+import { homeFret, midiAt, neckNote, openVoicing, pitchAtPos, triadShape, type FretPos, type StringNumber } from '../../core/fretboard';
 import {
   CHORDS,
   MAJOR_KEY_TONICS,
@@ -49,8 +49,8 @@ export interface ChordNote extends FretPos {
 }
 
 function chordNote(pos: FretPos, chord: Chord): ChordNote {
-  const pitch = pitchAtPos(pos, chordNotes(chord));
-  return { ...pos, midi: midiAt(pos), degree: degreeOf(chord.root, pitch), name: format(pitch), pitch };
+  const context = chordNotes(chord);
+  return { ...neckNote(pos, chord.root, context), pitch: pitchAtPos(pos, context) };
 }
 
 export interface Gap {

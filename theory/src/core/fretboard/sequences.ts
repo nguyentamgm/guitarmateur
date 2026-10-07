@@ -30,3 +30,8 @@ export function sequence(count: number, id: SequenceId, direction: Direction): n
   for (let start = 0; start + span < count; start++) for (const g of group) out.push(start + g);
   return direction === 'up' ? out : out.map((i) => count - 1 - i);
 }
+
+/** Up through the notes, then back down without repeating the top one. */
+export function upAndDown<T>(notes: readonly T[]): T[] {
+  return [...notes, ...notes.slice(0, -1).reverse()];
+}

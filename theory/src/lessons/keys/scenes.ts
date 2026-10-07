@@ -12,7 +12,7 @@ import {
   closestPath,
   homeFret,
   midiAt,
-  pitchAtPos,
+  neckNote,
   stackShape,
   type BarreShape,
   type FretPos,
@@ -22,7 +22,6 @@ import {
   MAJOR_KEY_TONICS,
   chordNotes,
   chordSymbol,
-  degreeOf,
   diatonicChords,
   format,
   parseNote,
@@ -99,10 +98,7 @@ function toView(slot: Slot, place: Place): ChordView {
     symbol: chordSymbol(slot.chord),
     shape: place.shape,
     fret: place.fret,
-    notes: place.notes.map((p) => {
-      const pitch = pitchAtPos(p, context);
-      return { ...p, midi: midiAt(p), degree: degreeOf(slot.chord.root, pitch), name: format(pitch) };
-    }),
+    notes: place.notes.map((p) => neckNote(p, slot.chord.root, context)),
   };
 }
 

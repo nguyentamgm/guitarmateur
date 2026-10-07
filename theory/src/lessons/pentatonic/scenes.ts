@@ -4,29 +4,30 @@
  * rules, chords from their formulas.
  */
 import {
-  allPositions,
   byHomeFret,
   homeFret,
-  midiAt,
   pitchAtPos,
   positions,
   sequence,
   type Direction,
   type FretPos,
   type SequenceId,
+  neckNote,
+  samePos,
+  scaleNeck,
+  upAndDown,
+  type NeckNote,
 } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
   chordSymbol,
-  degreeOf,
   format,
   parseNote,
   pc,
   relativeMinorTonic,
   scaleNotes,
   type Chord,
-  type DegreeLabel,
   type NoteName,
 } from '../../core/music';
 
@@ -39,25 +40,7 @@ export const NECK_FRETS = 15;
 /** Step 2 needs two more: box 4 → 5 in A minor ends at fret 17. */
 export const PAIR_FRETS = 17;
 
-export interface NeckNote extends FretPos {
-  readonly midi: number;
-  /** Spelled in the scale's context: 'C', 'B♭'. */
-  readonly name: string;
-  /** Degree over the scale's tonic. */
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
-}
-
-function neckNote(pos: FretPos, tonic: NoteName, context: readonly NoteName[]): NeckNote {
-  const pitch = pitchAtPos(pos, context);
-  return { ...pos, midi: midiAt(pos), name: format(pitch), degree: degreeOf(tonic, pitch), isTonic: pc(pitch) === pc(tonic) };
-}
-
-/** Every note of a pentatonic from fret 0 to `maxFret`, on every string. */
-export function scaleNeck(tonic: NoteName, scale: PentaScale = 'minorPentatonic', maxFret = NECK_FRETS): NeckNote[] {
-  const context = scaleNotes(tonic, scale);
-  return context.flatMap((n) => allPositions(n, maxFret)).map((pos) => neckNote(pos, tonic, context));
-}
+export type { NeckNote };
 
 export interface Box {
   /** 1–5, numbered from the minor home on string 6 even in a major key (K3.4). */
@@ -77,13 +60,6 @@ export function boxes(tonic: NoteName = EXAMPLE_TONIC, scale: PentaScale = 'mino
     notes: p.notes.map((n) => neckNote(n, tonic, context)),
   }));
 }
-
-/** Up through the notes, then back down without repeating the top one. */
-export function upAndDown<T>(notes: readonly T[]): T[] {
-  return [...notes, ...notes.slice(0, -1).reverse()];
-}
-
-export const samePos = (a: FretPos, b: FretPos): boolean => a.string === b.string && a.fret === b.fret;
 
 export const inBox = (box: Pick<Box, 'minFret' | 'maxFret'>, pos: FretPos): boolean =>
   pos.fret >= box.minFret && pos.fret <= box.maxFret;
@@ -173,7 +149,7 @@ export function majorView(tonic: NoteName): MajorView {
     minorFret,
     majorFret: minorFret + 3,
     box1,
-    notes: scaleNeck(tonic, 'majorPentatonic'),
+    notes: scaleNeck(tonic, 'majorPentatonic', NECK_FRETS),
     run: homeRun(box1),
   };
 }

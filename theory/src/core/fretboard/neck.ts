@@ -100,3 +100,6 @@ export function allPositions(name: NoteName, maxFret = 12): FretPos[] {
 
 /** Convenience: spell a note an interval above another (used by lessons for labels). */
 export const above = (n: NoteName, label: string): NoteName => transpose(n, interval(label));
+
+/** Same string and fret. */
+export const samePos = (a: FretPos, b: FretPos): boolean => a.string === b.string && a.fret === b.fret;

@@ -13,6 +13,7 @@ import {
   loopTravel,
   midiAt,
   nearestBarre,
+  neckNote,
   pitchAtPos,
   type BarreShape,
   type BarreVoicing,
@@ -23,7 +24,6 @@ import {
   MAJOR_KEY_TONICS,
   chordNotes,
   chordSymbol,
-  degreeOf,
   diatonicChords,
   format,
   majorKeyTonic,
@@ -68,10 +68,7 @@ function toView(chord: Chord, v: BarreVoicing): BarreView {
     shape: v.shape,
     fret: v.fret,
     muted: v.muted,
-    notes: v.notes.map((p) => {
-      const pitch = pitchAtPos(p, context);
-      return { ...p, midi: midiAt(p), degree: degreeOf(chord.root, pitch), name: format(pitch) };
-    }),
+    notes: v.notes.map((p) => neckNote(p, chord.root, context)),
   };
 }
 

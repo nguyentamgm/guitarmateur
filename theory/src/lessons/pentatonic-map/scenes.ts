@@ -5,19 +5,18 @@
 import {
   STRINGS,
   byHomeFret,
-  allPositions,
   gapToNextString,
   homeFret,
   keyShift,
   midiAt,
-  pitchAtPos,
   positions,
+  scaleNeck,
   type FretPos,
+  type NeckNote,
   type StringNumber,
 } from '../../core/fretboard';
 import {
   degreeOf,
-  format,
   MINOR_KEY_TONICS,
   parseNote,
   pc,
@@ -28,37 +27,13 @@ import {
   type NoteName,
 } from '../../core/music';
 
-const SCALE = 'minorPentatonic';
+export const SCALE = 'minorPentatonic';
 /** The lesson's example key: A minor pentatonic, home at fret 5 on string 6. */
 export const EXAMPLE_TONIC: NoteName = parseNote('A');
 /** Frets drawn on the full-neck scenes. */
 export const NECK_FRETS = 15;
 
-export interface NeckNote extends FretPos {
-  readonly midi: number;
-  /** Spelled name in the scale's context, e.g. 'C', 'B♭'. */
-  readonly name: string;
-  /** Degree over the tonic: '1', 'b3'… */
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
-}
-
-/** Every note of a minor pentatonic from fret 0 to `maxFret`, on every string. */
-export function scaleNeck(tonic: NoteName, maxFret = NECK_FRETS): NeckNote[] {
-  const context = scaleNotes(tonic, SCALE);
-  return context
-    .flatMap((n) => allPositions(n, maxFret))
-    .map((pos) => {
-      const pitch = pitchAtPos(pos, context);
-      return {
-        ...pos,
-        midi: midiAt(pos),
-        name: format(pitch),
-        degree: degreeOf(tonic, pitch),
-        isTonic: pc(pitch) === pc(tonic),
-      };
-    });
-}
+export type { NeckNote };
 
 // --- Step 1: the grid (K0.2, K0.4) ---
 
@@ -129,11 +104,6 @@ export function boxes(tonic: NoteName = EXAMPLE_TONIC): Box[] {
   }));
 }
 
-/** Up through the notes, then back down without repeating the top one. */
-export function upAndDown<T>(notes: readonly T[]): T[] {
-  return [...notes, ...notes.slice(0, -1).reverse()];
-}
-
 export const inBox = (box: Pick<Box, 'minFret' | 'maxFret'>, pos: FretPos): boolean =>
   pos.fret >= box.minFret && pos.fret <= box.maxFret;
 
@@ -150,7 +120,7 @@ export interface KeyView {
 }
 
 export function keyView(tonic: NoteName): KeyView {
-  return { tonic, homeFret: homeFret(tonic, 6), box1: boxes(tonic)[0]!, notes: scaleNeck(tonic) };
+  return { tonic, homeFret: homeFret(tonic, 6), box1: boxes(tonic)[0]!, notes: scaleNeck(tonic, SCALE, NECK_FRETS) };
 }
 
 /** Frets the whole shape slides from one key to another, the short way (−6…+5). */
@@ -169,7 +139,7 @@ export interface HomeView {
 
 export function homeView(mode: HomeMode, minorTonic: NoteName = EXAMPLE_TONIC): HomeView {
   const home = mode === 'minor' ? minorTonic : relativeMajorTonic(minorTonic);
-  const notes = scaleNeck(minorTonic).map((n) => {
+  const notes = scaleNeck(minorTonic, SCALE, NECK_FRETS).map((n) => {
     const name = parseNote(n.name);
     return { ...n, degree: degreeOf(home, name), isTonic: pc(name) === pc(home) };
   });

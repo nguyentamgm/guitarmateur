@@ -4,27 +4,24 @@
  * names from the core's key rules, counts from `countTriplets()`.
  */
 import {
-  allPositions,
   byHomeFret,
-  midiAt,
-  pitchAtPos,
   positions,
   sequence,
   STRINGS,
   type Direction,
-  type FretPos,
   type SequenceId,
   type StringNumber,
+  neckNote,
+  samePos,
+  scaleNeck,
+  upAndDown,
+  type NeckNote,
 } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
-  degreeOf,
-  format,
   parseNote,
-  pc,
   relativeMinorTonic,
   scaleNotes,
-  type DegreeLabel,
   type NoteName,
 } from '../../core/music';
 import { countTriplets, TRIPLET_CELLS, type TripletSyllable } from '../../core/rhythm';
@@ -40,19 +37,7 @@ export const EXAMPLE_TONIC: NoteName = parseNote('G');
 /** The 12 major keys, ordered by home fret on string 6 (E F F♯ G A♭ …). */
 export const MAJOR_KEYS: readonly NoteName[] = byHomeFret(MAJOR_KEY_TONICS);
 
-export interface NeckNote extends FretPos {
-  readonly midi: number;
-  /** Spelled in the scale's context: 'F♯', 'B♭'. */
-  readonly name: string;
-  /** Degree over the scale's tonic. */
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
-}
-
-function neckNote(pos: FretPos, tonic: NoteName, context: readonly NoteName[]): NeckNote {
-  const pitch = pitchAtPos(pos, context);
-  return { ...pos, midi: midiAt(pos), name: format(pitch), degree: degreeOf(tonic, pitch), isTonic: pc(pitch) === pc(tonic) };
-}
+export type { NeckNote };
 
 export interface Position {
   /** 1–7: position k starts on degree k of the scale on string 6. */
@@ -80,19 +65,6 @@ export function sevenPositions(tonic: NoteName = EXAMPLE_TONIC, mode: Mode = 'ma
  * moved up an octave beside it (step 2: G position 6 → 7 at frets 14–19) at 19. A test checks it.
  */
 export const NECK_FRETS = 19;
-
-/** Every note of the scale from fret 0 to `maxFret`, on every string. */
-export function scaleNeck(tonic: NoteName = EXAMPLE_TONIC, mode: Mode = 'major', maxFret = NECK_FRETS): NeckNote[] {
-  const context = scaleNotes(tonic, SCALE_OF[mode]);
-  return context.flatMap((n) => allPositions(n, maxFret)).map((pos) => neckNote(pos, tonic, context));
-}
-
-/** Up through the notes, then back down without repeating the top one. */
-export function upAndDown<T>(notes: readonly T[]): T[] {
-  return [...notes, ...notes.slice(0, -1).reverse()];
-}
-
-export const samePos = (a: FretPos, b: FretPos): boolean => a.string === b.string && a.fret === b.fret;
 
 // --- Step 1: three notes on every string ---
 
@@ -217,12 +189,12 @@ export interface KeyView {
 export function keyView(tonic: NoteName, mode: Mode): KeyView {
   const relativeMinor = relativeMinorTonic(tonic);
   const major = sevenPositions(tonic, 'major');
-  if (mode === 'major') return { tonic, relativeMinor, positions: major, neck: scaleNeck(tonic, 'major') };
-  const context = scaleNotes(relativeMinor, 'naturalMinor');
+  if (mode === 'major') return { tonic, relativeMinor, positions: major, neck: scaleNeck(tonic, SCALE_OF.major, NECK_FRETS) };
+  const context = scaleNotes(relativeMinor, SCALE_OF.minor);
   const positions = major
     .map((p) => ({ ...p, index: renumber(p.index, 'major'), notes: p.notes.map((x) => neckNote(x, relativeMinor, context)) }))
     .sort((a, b) => a.index - b.index);
-  return { tonic, relativeMinor, positions, neck: scaleNeck(relativeMinor, 'minor') };
+  return { tonic, relativeMinor, positions, neck: scaleNeck(relativeMinor, SCALE_OF.minor, NECK_FRETS) };
 }
 
 /**
