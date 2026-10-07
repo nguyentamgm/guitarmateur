@@ -199,7 +199,7 @@ function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
 // --- Step 3 ---
 
 function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
-  const { player, ui } = useTheory();
+  const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
   const all = useMemo(() => sevenPositions(), []);
   const [index, setIndex] = useState(1);
@@ -211,7 +211,7 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
   const cell = cellSeconds(bpm, NOTES_PER_BEAT);
   const steps = loopSteps(drill.length, TRIPLET_CELLS);
   const clock = useClock(steps, cell, (i, delay) => {
-    step(i, steps);
+    step(i, steps, cell);
     if (countAt(i).kind === 'beat') player.click(i % TRIPLET_CELLS === 0, delay);
     const n = drill[i];
     if (n) player.pluck(n.midi, delay, cell * 0.9);
@@ -253,7 +253,7 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
       </div>
       <div className="controls">
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.start}</Button>
-        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best ? fill(ui.tempoBest, { bpm: best }) : undefined} />
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best} />
       </div>
       <Tab columns={columns} counts={counts} barLines={barStarts(drill.length)} label={copy.tab} active={active} column={now ? clock.current : null} />
       <Fretboard geometry={g} dots={dots} label={idle} box={pos} active={active} />

@@ -211,23 +211,23 @@ function ConnectScene({ copy }: { copy: SceneCopy['connect'] }) {
 // --- Step 3 ---
 
 function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
-  const { player, ui } = useTheory();
+  const { player } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const all = useMemo(() => boxes(), []);
   const [index, setIndex] = useState(1);
   const [pattern, setPattern] = useState<SequenceId>('threes');
   const [direction, setDirection] = useState<Direction>('up');
   const [speedUp, setSpeedUp] = useState(false);
-  const { bpm, setBpm, best, step } = useStoredTempo('pentatonic-sequences', DRILL_BPM);
+  const { bpm, setBpm, nudge, best, step } = useStoredTempo('pentatonic-sequences', DRILL_BPM);
   const [round, setRound] = useState(0);
   const rounds = useRef(0);
   const box = all[index - 1]!;
   const drill = useMemo(() => drillRun(box, pattern, direction), [box, pattern, direction]);
   const cell = cellSeconds(bpm, 2);
   const clock = useClock(drill.length, cell, (i, delay) => {
-    step(i, drill.length);
+    step(i, drill.length, cell);
     if (i === 0) {
-      if (rounds.current > 0 && speedUp) setBpm((b) => clampBpm(b + SPEED_STEP));
+      if (rounds.current > 0 && speedUp) nudge((b) => clampBpm(b + SPEED_STEP));
       rounds.current += 1;
       setRound(rounds.current);
     }
@@ -274,7 +274,7 @@ function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
       </div>
       <div className="controls">
         <Button onClick={toggle}>{clock.playing ? copy.stop : copy.start}</Button>
-        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best ? fill(ui.tempoBest, { bpm: best }) : undefined} />
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best} />
         <ChipGroup<'off' | 'on'>
           label={copy.speedUp}
           items={[

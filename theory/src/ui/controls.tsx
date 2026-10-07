@@ -1,4 +1,6 @@
 import { homeFret } from '../core/fretboard';
+import { fill } from '../i18n';
+import { useTheory } from './context';
 import { format, sameNote, type NoteName } from '../core/music';
 import { MAX_BPM, MIN_BPM, clampBpm } from '../core/rhythm';
 import type { ReactNode } from 'react';
@@ -43,8 +45,9 @@ export function Button({ onClick, children, ghost }: { onClick(): void; children
   );
 }
 
-/** A tempo slider, in whole BPM within the range the lessons offer, with an optional best-tempo badge. */
-export function Tempo({ label, text, bpm, onChange, best }: { label: string; text: string; bpm: number; onChange(bpm: number): void; best?: string }) {
+/** A tempo slider, in whole BPM within the range the lessons offer; `best` (a remembered drill best) shows as a badge. */
+export function Tempo({ label, text, bpm, onChange, best = 0 }: { label: string; text: string; bpm: number; onChange(bpm: number): void; best?: number }) {
+  const { ui } = useTheory();
   return (
     <label className="tempo">
       <span>{label}</span>
@@ -57,7 +60,7 @@ export function Tempo({ label, text, bpm, onChange, best }: { label: string; tex
         onChange={(e) => onChange(clampBpm(Number(e.target.value)))}
       />
       <output>{text}</output>
-      {best !== undefined && <span className="best">{best}</span>}
+      {best > 0 && <span className="best">{fill(ui.tempoBest, { bpm: best })}</span>}
     </label>
   );
 }

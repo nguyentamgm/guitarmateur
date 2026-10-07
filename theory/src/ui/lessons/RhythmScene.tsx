@@ -66,7 +66,7 @@ export function RhythmScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 }
 
 /** Start/stop and the tempo slider, the same in every scene. */
-function Transport({ copy, playing, toggle, bpm, setBpm, best }: { copy: SceneCopy; playing: boolean; toggle(): void; bpm: number; setBpm(b: number): void; best?: string }) {
+function Transport({ copy, playing, toggle, bpm, setBpm, best }: { copy: SceneCopy; playing: boolean; toggle(): void; bpm: number; setBpm(b: number): void; best?: number }) {
   return (
     <>
       <Button onClick={toggle}>{playing ? copy.stop : copy.start}</Button>
@@ -297,7 +297,7 @@ function StrumScene({ copy }: { copy: SceneCopy }) {
 // --- Step 5 ---
 
 function FingersScene({ copy }: { copy: SceneCopy }) {
-  const { player, ui } = useTheory();
+  const { player } = useTheory();
   const c = copy.fingers;
   const { bpm, setBpm, best, step } = useStoredTempo('rhythm-fingers', DEFAULT_BPM.fingers);
   const [startFret, setStartFret] = useState(DRILL_START_FRETS[0]!);
@@ -305,7 +305,7 @@ function FingersScene({ copy }: { copy: SceneCopy }) {
   const drill = useMemo(() => fingerDrill(startFret), [startFret]);
   const cell = cellSeconds(bpm, perBeat);
   const clock = useClock(drill.length, cell, (i, delay) => {
-    step(i, drill.length);
+    step(i, drill.length, cell);
     if (isBeat(i, perBeat)) player.click(isBeat(i, perBeat * BEATS_PER_BAR), delay);
     player.pluck(drill[i]!.midi, delay, cell * 0.9);
   });
@@ -355,7 +355,7 @@ function FingersScene({ copy }: { copy: SceneCopy }) {
         />
       </div>
       <div className="controls">
-        <Transport copy={copy} playing={clock.playing} toggle={clock.toggle} bpm={bpm} setBpm={setBpm} best={best ? fill(ui.tempoBest, { bpm: best }) : undefined} />
+        <Transport copy={copy} playing={clock.playing} toggle={clock.toggle} bpm={bpm} setBpm={setBpm} best={best} />
       </div>
       <Tab columns={columns} label={c.tab} active={active} column={clock.current} />
       <Fretboard geometry={g} dots={dots} label={c.tab} active={active} />
