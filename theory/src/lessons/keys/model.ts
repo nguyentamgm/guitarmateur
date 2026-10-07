@@ -29,10 +29,16 @@ export interface SceneCopy {
     readonly listen: string;
     readonly leadIn: string;
     readonly choices: string;
-    /** {symbol} {key} */
+    /** Label of the major/minor chips. */
+    readonly mode: string;
+    /** In a major key. {symbol} {key} {last} */
     readonly right: string;
-    /** {symbol} {home} */
-    readonly vi: string;
+    /** In a minor key. {symbol} {key} {last} */
+    readonly rightMinor: string;
+    /** The vi in a major key. {symbol} {home} */
+    readonly near: string;
+    /** The III in a minor key. {symbol} {home} */
+    readonly nearMinor: string;
     /** {symbol} {roman} */
     readonly away: string;
     readonly next: string;
