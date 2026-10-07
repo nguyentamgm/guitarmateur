@@ -3,7 +3,7 @@
  * which a whole round was played. Kept under Theory's own key, like quiz progress.
  */
 import { clampBpm } from '../core/rhythm';
-import { browserStorage, type KeyValue } from './storage';
+import { browserStorage, type KeyValue } from '../platform/storage';
 
 export const DRILLS = ['rhythm-fingers', 'pentatonic-sequences', 'three-per-string-triplets'] as const;
 export type DrillId = (typeof DRILLS)[number];

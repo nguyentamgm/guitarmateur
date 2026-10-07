@@ -7,7 +7,7 @@
  */
 import { sameNote, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
-import { browserStorage, type KeyValue } from './storage';
+import { browserStorage, type KeyValue } from '../platform/storage';
 
 /** The practice app's names for Theory's scales; null = it has no such scale. */
 const SCALE_IDS: Readonly<Record<ScaleId, string | null>> = {

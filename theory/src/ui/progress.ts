@@ -3,7 +3,7 @@
  * the practice app's). Pure functions plus a storage boundary that never throws, like `lang.ts`.
  * The review page ranks quizzes with `nextReview()`.
  */
-import { browserStorage, type KeyValue } from './storage';
+import { browserStorage, type KeyValue } from '../platform/storage';
 
 /** Every quiz that records progress, in curriculum order: the lesson and the step it lives in. */
 export const QUIZZES = [

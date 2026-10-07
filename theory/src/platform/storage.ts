@@ -1,4 +1,7 @@
-/** The slice of localStorage the UI uses, and a safe way to get it. */
+/**
+ * The browser's localStorage, reached safely. The one place Theory touches it: i18n (the language)
+ * and ui (progress, tempos, the practice-app link) both go through here.
+ */
 
 export type KeyValue = Pick<Storage, 'getItem' | 'setItem'>;
 

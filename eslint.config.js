@@ -116,28 +116,33 @@ export default tseslint.config(
   },
   {
     files: ['theory/src/core/**/*.ts'],
-    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui')],
-      'theory/src/core is the lowest Theory layer: no React, no lessons, no UI.'),
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('platform')],
+      'theory/src/core is the lowest Theory layer: no React, no lessons, no UI, no browser storage.'),
+  },
+  {
+    files: ['theory/src/platform/**/*.ts'],
+    ...forbidTheory([...noReact, ...dir('core'), ...dir('i18n'), ...dir('lessons'), ...dir('ui')],
+      'theory/src/platform wraps browser APIs (localStorage) for i18n and ui: it imports nothing else in Theory.'),
   },
   {
     files: ['theory/src/core/music/**/*.ts'],
-    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('fretboard'), ...dir('audio')],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('platform'), ...dir('fretboard'), ...dir('audio')],
       'theory/src/core/music is the lowest layer: it may not import fretboard, audio, lessons, UI or React.'),
   },
   {
     files: ['theory/src/core/fretboard/**/*.ts'],
-    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('audio')],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('platform'), ...dir('audio')],
       'theory/src/core/fretboard may only import from theory/src/core/music.'),
   },
   {
     files: ['theory/src/core/rhythm/**/*.ts'],
-    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('music'), ...dir('fretboard'), ...dir('audio')],
+    ...forbidTheory([...noReact, ...dir('lessons'), ...dir('ui'), ...dir('platform'), ...dir('music'), ...dir('fretboard'), ...dir('audio')],
       'theory/src/core/rhythm is pure time arithmetic: it imports nothing else in Theory.'),
   },
   {
     files: ['theory/src/i18n/**/*.ts'],
     ...forbidTheory([...noReact, ...dir('core'), ...dir('lessons'), ...dir('ui')],
-      'theory/src/i18n holds languages and UI strings only: no core, lessons, UI or React.'),
+      'theory/src/i18n holds languages and UI strings only: no core, lessons, UI or React (platform is allowed).'),
   },
   {
     files: ['theory/src/lessons/**/*.ts'],

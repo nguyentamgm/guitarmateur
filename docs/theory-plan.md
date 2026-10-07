@@ -189,7 +189,6 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (5.1) Trang ôn tập chỉ xếp theo cả bài đố (chưa mới, hay sai, lâu chưa tập), chưa nhớ câu nào hay sai trong một bài đố. Chưa có nút xóa điểm; người học xóa dữ liệu trang trong trình duyệt nếu cần.
 - (5.1) Điểm hiện trong bài đố vẫn là điểm của lần mở trang này; điểm lưu (độ chính xác gần đây, chuỗi đúng dài nhất) chỉ hiện ở `/theory/review`.
 - (5.1) Link sang app Luyện tập tự viết định dạng chia sẻ của app đó (`/?s=v1:` + base64 JSON, chỉ `key` và `progression`) và tự đổi tên giọng sang 12 cách viết app đó nhận. Theo ý người duyệt, không có test nào bắt khi app Luyện tập đổi định dạng; nếu link mở ra trang mặc định thì xem lại `ui/trainerLink.ts`. Link đọc cài đặt đã lưu của app Luyện tập (`guitarmateur-state`, cùng tên miền) để giữ tuning, tay trái, âm lượng; chỉ thay key, vòng hợp âm và tempo. Vòng có hợp âm app đó không có (m7♭5, sus…) và giọng D♭, A♭ trưởng (app đó chỉ viết C♯, G♯) thì không hiện link.
-- (5.1) `ui/storage.ts` (đọc localStorage an toàn cho UI) vẫn trùng với phần tương tự trong `i18n/lang.ts`; `i18n` không được import `ui`, nên muốn gom thì phải đặt chỗ chung ở tầng thấp hơn.
 - (5.1) Thu một vòng solo và phát lại có đánh dấu nốt đích (K7.6) để sang một phiên riêng.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 

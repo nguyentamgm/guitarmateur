@@ -15,6 +15,7 @@ theory/
    │  ├─ fretboard/      neck grid, octave shapes, positions (boxes, 3-notes-per-string)
    │  ├─ rhythm/         time as a grid: BPM, note lengths in cells, counting, strum patterns
    │  └─ audio/          plucked-string and click synths (pure) + Web Audio player
+   ├─ platform/          browser APIs behind a safe wrapper: `browserStorage()` (localStorage)
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
@@ -34,12 +35,15 @@ site-wide service worker (`public/sw.js`) falls back to the cached `/theory` she
 ui → lessons → core/fretboard → core/music
  │      │      core/audio (→ core/music allowed)
  │      │      core/rhythm (imports nothing in Theory)
- └──────┴────→ i18n (imports nothing in Theory)
+ └──────┴────→ i18n ──→ platform (imports nothing in Theory)
+ └─────────────────────→ platform
 ```
 
 - `theory/` never imports from `src/`, and `src/` never imports from `theory/`.
 - `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music`.
-- `core/` never imports React, `lessons/` or `ui/`.
+- `core/` never imports React, `lessons/`, `ui/` or `platform/`: it stays pure.
+- `platform/` is the only code that touches localStorage (`browserStorage()`, never throws); `i18n`
+  and `ui` use it, and it imports nothing else in Theory.
 - `lessons/` is data: core and i18n only, never React or `ui/`.
 - Every user-facing string in `ui/**/*.tsx` comes from `i18n` or lesson copy (ESLint rejects
   literal JSX text and literal `aria-label`/`title`/`alt`).
@@ -102,7 +106,7 @@ ui → lessons → core/fretboard → core/music
   A new quiz adds its entry to `QUIZZES`.
 - Drill tempos are stored under `theory.tempo` by `ui/tempos.ts` through `useStoredTempo(id, fallback)`:
   the last tempo set, and the best (fastest tempo of a whole round; the scene's clock calls
-  `step(i, steps)`). `ui/storage.ts` is the safe way to reach localStorage from the UI.
+  `step(i, steps)`). localStorage is reached only through `platform/storage.ts`.
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the apps share no code). It renders nothing when the practice app lacks the
   scale or a chord.
