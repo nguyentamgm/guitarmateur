@@ -4,7 +4,7 @@ export const en: SoloCopy = {
   title: 'Soloing over the Changes: Aim for the Chord',
   summary: 'Pick the scale from the key, then let the chord playing tell you which notes to land on, and build phrases you can answer.',
   lead:
-    'Soloing over a backing comes down to two questions: which notes are safe here, and which one is best right now. The key answers the first; the chord playing answers the second. This lesson puts a backing under you (a blues, a pop loop, a rock loop or a jazz ii–V–I), lights up the notes of each chord as it comes round, and builds phrases for you to answer. Four steps. Play along on your guitar.',
+    'Soloing over a backing comes down to two questions: which notes are safe here, and which one is best right now. The key answers the first; the chord playing answers the second. This lesson puts a backing under you (a blues, a pop loop, a rock loop or a jazz ii–V–I), lights up the notes of each chord as it comes round, builds phrases for you to answer, and ends with short ideas to find by ear. Five steps. Play along on your guitar.',
   steps: {
     scale: {
       title: 'Pick the scale from the key',
@@ -41,6 +41,15 @@ export const en: SoloCopy = {
       ],
       takeaway: 'Say an idea, say it again, change the end, then leave space.',
       tryIt: 'Listen to the idea, then answer each empty bar with your own version of it.',
+    },
+    ear: {
+      title: 'Hear it, play it back',
+      body: [
+        'Your ear gets better at finding notes the same way your hands do: by doing it. Listen to a short idea from box 1 of A minor pentatonic, then find it on the neck, one note at a time.',
+        'Start with the first note given. Then ask yourself one question per note: does the next note go up or down, and by a step or a skip? Most ideas move by steps, so the next note is usually a neighbour in the box.',
+      ],
+      takeaway: 'Up or down, step or skip: find an idea one note at a time.',
+      tryIt: 'Get five ideas right on the first try with the first note given, then turn the help off.',
     },
   },
   scene: {
@@ -100,12 +109,27 @@ export const en: SoloCopy = {
         yours: 'Bar {n}: your turn. Answer it.',
       },
     },
+    ear: {
+      hear: 'Hear it',
+      stop: 'Stop',
+      next: 'Next idea',
+      help: 'Help',
+      helpFirst: 'First note given',
+      helpNone: 'No help',
+      score: 'First try: {right} of {total}',
+      idle: 'Press "Hear it", then click the notes back in order.',
+      progress: '{found} of {count} notes found.',
+      higher: 'Not {name}: the next note is higher.',
+      lower: 'Not {name}: the next note is lower.',
+      solved: 'Got it on the first try: {notes}.',
+      solvedMissed: 'Found it: {notes}. Hear it again, then try the next one.',
+    },
   },
   notYetTitle: 'What you do not need yet',
   notYetIntro: 'One box, the chord tones and one idea at a time are enough to make a solo sound intended. These come later.',
   notYet: [
-    { title: 'Playing a phrase back by ear', why: 'Hearing a phrase and finding it on the neck comes with the review mode.' },
-    { title: 'Recording your solo and hearing it back', why: 'Trying an idea and listening back comes with the review mode too.' },
+    { title: 'Recording your solo and hearing it back', why: 'Trying an idea and listening back to it, with the target notes marked, comes later.' },
+    { title: 'Longer phrases by ear, in other keys', why: 'Three or four notes in one box first. Longer lines and other boxes come once these feel easy.' },
     { title: 'Modes and a scale for every chord', why: 'Jazz players pick a scale per chord. Over a ii–V–I the major scale covers it for now.' },
     { title: 'Chromatic passing notes', why: 'Notes from outside the scale on the way to a chord tone. Learn the targets first.' },
     { title: 'Soloing across all five boxes', why: 'One box is enough to aim for chord tones. Connecting the boxes comes with scales across the whole neck.' },

@@ -212,3 +212,37 @@ export function phrase(window: SoloWindow, bars: readonly BackingBar[], random: 
 }
 
 export const phraseRole = (bar: number): PhraseRole => PHRASE_ROLES[bar % PHRASE_BARS]!;
+
+// --- Step 5: hear it, play it back (K7.5) ---
+
+/** The ear quiz stays in one place: A minor pentatonic, box 1 (frets 5–8). */
+export const EAR_TONIC: NoteName = parseNote('A');
+export const earWindow = (): SoloWindow => soloWindow(EAR_TONIC, 'minorPentatonic');
+export const EAR_BPM = 90;
+
+export interface EarNote extends SoloNote {
+  /** Eighth of the bar it starts on, and how long it lasts, from `motif()`. */
+  readonly at: number;
+  readonly length: number;
+}
+
+/**
+ * A 3–4 note idea from the box, with its rhythm. Never the same pitches as `previous`, so "next"
+ * always asks something new.
+ */
+export function earQuestion(window: SoloWindow, random: () => number, previous?: readonly EarNote[]): EarNote[] {
+  const same = (a: readonly EarNote[]) => previous !== undefined && a.length === previous.length && a.every((n, i) => n.midi === previous[i]!.midi);
+  for (let tries = 0; ; tries++) {
+    const q = motif(window.notes.length, random).map((l) => ({ ...window.notes[l.index]!, at: l.at, length: l.length }));
+    if (!same(q) || tries > 20) return q;
+  }
+}
+
+export type EarClick = { readonly kind: 'right' } | { readonly kind: 'wrong'; readonly direction: 'higher' | 'lower' };
+
+/** A click while looking for note `found` of the idea: right, or which way the right note lies. */
+export function judgeEar(question: readonly EarNote[], found: number, midi: number): EarClick {
+  const want = question[found]!.midi;
+  if (midi === want) return { kind: 'right' };
+  return { kind: 'wrong', direction: want > midi ? 'higher' : 'lower' };
+}

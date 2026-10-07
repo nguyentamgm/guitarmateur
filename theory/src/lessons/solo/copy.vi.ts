@@ -4,7 +4,7 @@ export const vi: SoloCopy = {
   title: 'Solo theo hợp âm: nhắm vào nốt của hợp âm',
   summary: 'Chọn scale theo giọng, để hợp âm đang vang chỉ cho bạn nên dừng ở nốt nào, rồi dựng những câu nhạc để bạn đáp lại.',
   lead:
-    'Solo trên một backing quy về hai câu hỏi: nốt nào an toàn ở đây, và nốt nào hay nhất lúc này. Giọng trả lời câu thứ nhất; hợp âm đang vang trả lời câu thứ hai. Bài này đặt một backing dưới tay bạn (một bài blues, một vòng pop, một vòng rock hoặc một ii–V–I jazz), làm sáng các nốt của từng hợp âm khi nó đến, và dựng các câu nhạc để bạn đáp lại. Bốn bước. Cầm đàn chơi theo nhé.',
+    'Solo trên một backing quy về hai câu hỏi: nốt nào an toàn ở đây, và nốt nào hay nhất lúc này. Giọng trả lời câu thứ nhất; hợp âm đang vang trả lời câu thứ hai. Bài này đặt một backing dưới tay bạn (một bài blues, một vòng pop, một vòng rock hoặc một ii–V–I jazz), làm sáng các nốt của từng hợp âm khi nó đến, dựng các câu nhạc để bạn đáp lại, và kết thúc bằng những ý ngắn để bạn tìm lại bằng tai. Năm bước. Cầm đàn chơi theo nhé.',
   steps: {
     scale: {
       title: 'Chọn scale theo giọng',
@@ -41,6 +41,15 @@ export const vi: SoloCopy = {
       ],
       takeaway: 'Nói một ý, nói lại, đổi đoạn kết, rồi chừa khoảng trống.',
       tryIt: 'Nghe ý nhạc, rồi đáp lại mỗi bar trống bằng một biến thể của riêng bạn.',
+    },
+    ear: {
+      title: 'Nghe rồi chơi lại',
+      body: [
+        'Tai tìm nốt giỏi lên giống như tay: bằng cách làm. Nghe một ý ngắn trong box 1 của A minor pentatonic, rồi tìm lại nó trên cần đàn, từng nốt một.',
+        'Bắt đầu với nốt đầu được cho sẵn. Rồi với mỗi nốt, tự hỏi một câu: nốt kế đi lên hay đi xuống, đi liền bậc hay nhảy cách? Phần lớn ý nhạc đi liền bậc, nên nốt kế thường là nốt ngay bên cạnh trong box.',
+      ],
+      takeaway: 'Lên hay xuống, liền bậc hay nhảy cách: tìm một ý nhạc từng nốt một.',
+      tryIt: 'Đúng ngay lần đầu năm ý liên tiếp với nốt đầu cho sẵn, rồi tắt phần trợ giúp.',
     },
   },
   scene: {
@@ -100,12 +109,27 @@ export const vi: SoloCopy = {
         yours: 'Bar {n}: tới lượt bạn. Đáp lại đi.',
       },
     },
+    ear: {
+      hear: 'Nghe',
+      stop: 'Dừng',
+      next: 'Ý khác',
+      help: 'Trợ giúp',
+      helpFirst: 'Cho sẵn nốt đầu',
+      helpNone: 'Không trợ giúp',
+      score: 'Đúng ngay lần đầu: {right}/{total}',
+      idle: 'Bấm "Nghe", rồi bấm lại các nốt theo đúng thứ tự.',
+      progress: 'Đã tìm được {found}/{count} nốt.',
+      higher: 'Không phải {name}: nốt kế cao hơn.',
+      lower: 'Không phải {name}: nốt kế thấp hơn.',
+      solved: 'Đúng ngay lần đầu: {notes}.',
+      solvedMissed: 'Đã tìm ra: {notes}. Nghe lại lần nữa, rồi thử ý tiếp theo.',
+    },
   },
   notYetTitle: 'Những gì chưa cần học',
   notYetIntro: 'Một box, nốt của hợp âm và mỗi lần một ý là đủ để câu solo nghe có chủ đích. Những phần này để sau.',
   notYet: [
-    { title: 'Nghe một câu rồi chơi lại', why: 'Nghe một câu và tìm nó trên cần đàn sẽ có trong chế độ ôn tập.' },
-    { title: 'Thu lại câu solo và nghe lại', why: 'Thử một ý rồi nghe lại cũng thuộc chế độ ôn tập.' },
+    { title: 'Thu lại câu solo và nghe lại', why: 'Thử một ý rồi nghe lại, có đánh dấu các nốt đích, là việc sau.' },
+    { title: 'Câu dài hơn, ở giọng khác', why: 'Ba bốn nốt trong một box trước đã. Câu dài và box khác đến khi những câu này đã dễ.' },
     { title: 'Mode và scale cho từng hợp âm', why: 'Dân chơi jazz chọn scale theo từng hợp âm. Trên ii–V–I, tạm thời major scale là đủ.' },
     { title: 'Nốt đi qua chromatic', why: 'Nốt ngoài scale trên đường tới một nốt của hợp âm. Học nốt đích trước.' },
     { title: 'Solo qua cả năm box', why: 'Một box là đủ để nhắm vào nốt của hợp âm. Nối các box sẽ học cùng bài scale phủ toàn cần đàn.' },

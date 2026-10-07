@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, pentatonicMap } from '../lessons';
+import { earQuestion, earWindow } from '../lessons/solo';
 import { App } from './App';
 import { PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
 
@@ -355,6 +356,24 @@ describe('Theory app', () => {
       click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Next song')!);
       expect(section.textContent).toContain('0 of 1');
       expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['pentatonic-shape']).toMatchObject({ right: 0, total: 1 });
+    });
+
+    it('records the ear quiz: a wrong note says which way, then the idea is found', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      const q = earQuestion(earWindow(), () => 0.5);
+      render('/theory/solo');
+      vi.restoreAllMocks();
+      const section = container.querySelector('section#ear')!;
+      const dot = (n: { string: number; fret: number }) =>
+        [...section.querySelectorAll('.dot')].find((d) => d.getAttribute('aria-label')!.endsWith(` ${['', 'e', 'B', 'G', 'D', 'A', 'E'][n.string]}/${n.fret}`))!;
+      const caption = () => section.querySelector('.caption')!.textContent;
+      expect(caption()).toBe(`1 of ${q.length} notes found.`);
+      const wrong = earWindow().notes.find((n) => n.midi !== q[1]!.midi)!;
+      click(dot(wrong));
+      expect(caption()).toBe(`Not ${wrong.name}: the next note is ${wrong.midi < q[1]!.midi ? 'higher' : 'lower'}.`);
+      for (const n of q.slice(1)) click(dot(n));
+      expect(caption()).toMatch(/^Found it: /);
+      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['solo-ear']).toMatchObject({ right: 0, total: 1 });
     });
 
     it('is reachable from the header and the contents', () => {

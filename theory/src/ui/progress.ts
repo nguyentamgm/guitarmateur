@@ -12,6 +12,7 @@ export const QUIZZES = [
   { id: 'chords-build', slug: 'chords', step: 'build' },
   { id: 'barre-find', slug: 'barre', step: 'find' },
   { id: 'keys-home', slug: 'keys', step: 'home' },
+  { id: 'solo-ear', slug: 'solo', step: 'ear' },
 ] as const;
 
 export type QuizId = (typeof QUIZZES)[number]['id'];
