@@ -11,6 +11,7 @@ import type * as Pentatonic from '../../lessons/pentatonic';
 import type * as PentatonicMap from '../../lessons/pentatonic-map';
 import type * as Rhythm from '../../lessons/rhythm';
 import type * as Solo from '../../lessons/solo';
+import type * as ThreePerString from '../../lessons/three-per-string';
 import { BarreScene } from './BarreScene';
 import { BluesScene } from './BluesScene';
 import { ChordTableScene } from './ChordTableScene';
@@ -23,6 +24,7 @@ import { PentatonicMapScene } from './PentatonicMapScene';
 import { PentatonicScene } from './PentatonicScene';
 import { RhythmScene } from './RhythmScene';
 import { SoloScene } from './SoloScene';
+import { ThreePerStringScene } from './ThreePerStringScene';
 
 export function LessonScene({ slug, step, copy }: { slug: string; step: string; copy: unknown }) {
   switch (slug) {
@@ -50,6 +52,8 @@ export function LessonScene({ slug, step, copy }: { slug: string; step: string; 
       return <KeysScene step={step as Keys.StepId} copy={copy as Keys.SceneCopy} />;
     case 'solo':
       return <SoloScene step={step as Solo.StepId} copy={copy as Solo.SceneCopy} />;
+    case 'three-per-string':
+      return <ThreePerStringScene step={step as ThreePerString.StepId} copy={copy as ThreePerString.SceneCopy} />;
     default:
       return null;
   }
