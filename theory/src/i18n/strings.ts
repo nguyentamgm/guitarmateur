@@ -37,6 +37,7 @@ const en = {
   reviewOpen: 'Go to the quiz',
   reviewFooter: 'Scores stay in this browser. Nothing is tracked or uploaded.',
   tempoBest: 'Best: {bpm} BPM',
+  trainerLink: 'Practise licks over this in the Guitarmateur trainer →',
 };
 
 export type UiStrings = typeof en;
@@ -74,6 +75,7 @@ const vi: UiStrings = {
   reviewOpen: 'Tới bài đố',
   reviewFooter: 'Điểm chỉ nằm trong trình duyệt này. Không theo dõi, không tải gì lên.',
   tempoBest: 'Tốt nhất: {bpm} BPM',
+  trainerLink: 'Tập lick trên vòng này trong app Luyện tập của Guitarmateur →',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };

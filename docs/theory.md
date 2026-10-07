@@ -102,6 +102,9 @@ ui → lessons → core/fretboard → core/music
 - Drill tempos are stored under `theory.tempo` by `ui/tempos.ts` through `useStoredTempo(id, fallback)`:
   the last tempo set, and the best (fastest tempo of a whole round; the scene's clock calls
   `step(i, steps)`). `ui/storage.ts` is the safe way to reach localStorage from the UI.
+- `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
+  share link by hand; the apps share no code). It renders nothing when the practice app lacks the
+  scale or a chord.
 - `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
   then under 80% right in the last 20 answers, then not practised for 7 days.
 

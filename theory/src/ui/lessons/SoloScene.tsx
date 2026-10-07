@@ -34,6 +34,7 @@ import {
 } from '../../lessons/solo';
 import { BarGrid } from '../BarGrid';
 import { useTheory } from '../context';
+import { TrainerLink } from '../TrainerLink';
 import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
@@ -154,6 +155,12 @@ function ScaleScene({ copy }: { copy: SceneCopy }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <TrainerLink
+        trainerKey={{ tonic: choice.tonic, scale: BACKINGS[choice.id].scale }}
+        chords={choice.bars.map((b) => b.chord)}
+        tempoBpm={choice.bpm}
+        progressionKey={`${format(choice.tonic)} ${choice.id}`}
+      />
     </div>
   );
 }

@@ -61,6 +61,7 @@ a { color: var(--accent); }
 .reason.weak, .reason.stale { color: var(--amber); }
 .review-card.next .reason { color: var(--accent); }
 .toc-review { display: inline-block; margin-top: 8px; font-weight: 600; }
+.trainer { display: inline-block; font-size: 0.9rem; font-weight: 600; }
 .navlink { font-size: 0.88rem; font-weight: 600; text-decoration: none; }
 .lesson-card .num { font-family: var(--f-mono); color: var(--accent); grid-row: span 3; }
 .lesson-title { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; }
