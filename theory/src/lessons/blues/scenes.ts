@@ -168,13 +168,12 @@ export interface BendView {
   readonly targetMidi: number;
 }
 
-const box1 = (tonic: NoteName = EXAMPLE_TONIC): Box => {
-  const boxes = positions({ tonic, scale: 'minorPentatonic', notesPerString: 2 });
-  return {
-    ...boxes[0]!,
-    notes: bluesNotes(boxes[0]!.notes, tonic, 'minor'),
-  };
+/** Box `index` (1–5) of the minor pentatonic on `tonic`, spelled in the minor blues. */
+export const lickBox = (tonic: NoteName = EXAMPLE_TONIC, index = 1): Box => {
+  const box = positions({ tonic, scale: 'minorPentatonic', notesPerString: 2 })[index - 1]!;
+  return { ...box, notes: bluesNotes(box.notes, tonic, 'minor') };
 };
+const box1 = (tonic: NoteName = EXAMPLE_TONIC): Box => lickBox(tonic, 1);
 
 export function bendView(def: BendDef, tonic: NoteName = EXAMPLE_TONIC): BendView {
   const at = box1(tonic).notes.filter((n) => n.degree === def.from).at(-1)!;
@@ -252,9 +251,9 @@ export interface LickNote extends NeckNote {
   readonly text: string;
 }
 
-/** Place lick events in box 1 of a key and write their tab. */
-function toLickNotes(events: readonly LickEvent[], tonic: NoteName): LickNote[] {
-  const notes = box1(tonic).notes;
+/** Place lick events in a box of a key and write their tab. */
+function toLickNotes(events: readonly LickEvent[], tonic: NoteName, box = 1): LickNote[] {
+  const notes = lickBox(tonic, box).notes;
   return events.map((event) => {
     const n = notes[event.note]!;
     const f = String(n.fret);
@@ -270,22 +269,27 @@ function toLickNotes(events: readonly LickEvent[], tonic: NoteName): LickNote[] 
   });
 }
 
-export const lickNotes = (tonic: NoteName = EXAMPLE_TONIC, events: readonly LickEvent[] = LICK): LickNote[] => toLickNotes(events, tonic);
+/** The lick's notes in box `box` of a key. `LICK` is written for box 1 only. */
+export const lickNotes = (tonic: NoteName = EXAMPLE_TONIC, events: readonly LickEvent[] = LICK, box = 1): LickNote[] => toLickNotes(events, tonic, box);
 
 /** Keys the lick can be played in: each minor pentatonic spelled from the core (C♯, not D♭), by home fret. */
 export const LICK_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
+/** The five boxes a lick can be played in. */
+export const LICK_BOXES: readonly number[] = [1, 2, 3, 4, 5];
+/** Frets drawn for a lick: the highest box of any key, plus room for a whole-step bend. */
+export const LICK_FRETS = Math.max(...LICK_KEYS.flatMap((k) => LICK_BOXES.map((b) => lickBox(k, b).maxFret))) + 1;
 
 /** Notes in box 1 of the minor pentatonic: the same in every key, lowest pitch = 0. */
 const BOX_SIZE = 12;
 
 /**
- * A new two-bar lick (K6.4, K7.4): a `motif()` idea in bar 1, a second one in bar 2 that starts a
+ * A new two-bar lick (K6.4, K7.4) in any box: a `motif()` idea in bar 1, a second one in bar 2 that starts a
  * step from where the first ended and lands on a root (`landOn()`), held to the end with vibrato.
  * The techniques follow from the notes (`decorate()`). A lick with no bend, hammer-on or pull-off
  * is made again, so every lick shows at least one.
  */
-export function generateLick(random: () => number, tonic: NoteName = EXAMPLE_TONIC): LickEvent[] {
-  const notes = box1(tonic).notes;
+export function generateLick(random: () => number, tonic: NoteName = EXAMPLE_TONIC, box = 1): LickEvent[] {
+  const notes = lickBox(tonic, box).notes;
   let events: LickEvent[] = [];
   for (let tries = 0; tries < 50; tries++) {
     const first = motif(BOX_SIZE, random);
@@ -305,6 +309,8 @@ export function generateLick(random: () => number, tonic: NoteName = EXAMPLE_TON
  * Techniques for a line of box notes, by rule:
  * - a note a whole step above the box note below it, held two eighths or more, is that lower note
  *   bent up (4 to 5, ♭7 to 1, ♭3 to 4), at most once a bar, never the last note nor an open string;
+ * - the note a bend was fretted on, right after the bend, is the release: the string comes back down,
+ *   not picked again;
  * - a note right after a one-eighth note on the same string is a hammer-on going up, a pull-off going
  *   down, unless the note before was bent;
  * - the last note is slid into from a fretted note two frets below on the same string, and shakes
@@ -321,6 +327,10 @@ export function decorate(line: readonly { index: number; at: number; length: num
     const below = notes[l.index - 1];
     const bar = Math.floor(l.at / LICK_EIGHTHS);
     const prevBent = prev !== null && bent.has(i - 1);
+    const prevEvent = prevBent ? line[i - 1]! : null;
+    if (prevEvent !== null && l.index === prevEvent.index - 1 && !final) {
+      return { ...base, technique: 'release', bend: 2 };
+    }
     if (final) {
       const slide = p !== null && !prevBent && p.fret > 0 && p.string === n.string && n.fret - p.fret === 2;
       return { ...base, technique: slide ? 'slide' : 'pick', vibrato: true };

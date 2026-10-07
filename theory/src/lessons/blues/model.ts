@@ -77,6 +77,8 @@ export interface SceneCopy {
     readonly lick: string;
     readonly key: string;
     readonly newLick: string;
+    /** Label of the box chips. */
+    readonly box: string;
     readonly playLick: string;
     readonly tab: string;
     readonly marks: string;

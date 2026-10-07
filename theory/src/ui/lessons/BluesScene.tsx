@@ -14,7 +14,9 @@ import {
   FULL_BENDS,
   LICK,
   LICK_BARS,
+  LICK_BOXES,
   LICK_CELLS,
+  LICK_FRETS,
   LICK_KEYS,
   NECK_FRETS,
   SHUFFLE_MIDI,
@@ -376,15 +378,15 @@ const DEMO_BPM = 72;
 function LegatoScene({ copy }: { copy: SceneCopy }) {
   const c = copy.legato;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useMemo(() => neckGeometry(LICK_FRETS, { fretWidth: 46 }), []);
   const [mode, setMode] = useState<DemoId | 'lick'>('hammer');
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
-  /** The hand-written lick first; New lick makes one from `generateLick()`. */
-  const [events, setEvents] = useState<readonly LickEvent[]>(LICK);
+  /** The hand-written lick in box 1 first; New lick, or another box, makes one from `generateLick()`. */
+  const [lickIn, setLickIn] = useState<{ readonly box: number; readonly events: readonly LickEvent[] }>({ box: 1, events: LICK });
   const [run, setRun] = useState(0);
   const [bpm, setBpm] = useLastTempo('blues-legato', BLUES_BPM);
   const lick = mode === 'lick';
-  const notes = useMemo(() => (lick ? lickNotes(tonic, events) : demoNotes(mode, tonic)), [lick, mode, tonic, events]);
+  const notes = useMemo(() => (lick ? lickNotes(tonic, lickIn.events, lickIn.box) : demoNotes(mode, tonic)), [lick, mode, tonic, lickIn]);
   const plans = useMemo(() => lickPlan(notes), [notes]);
   const cells = lick ? LICK_CELLS : DEMO_CELLS;
   const swing = lick ? SHUFFLE : 0;
@@ -412,9 +414,9 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
     clock.stop();
     setTonic(k);
   };
-  const newLick = () => {
+  const newLick = (box = lickIn.box) => {
     clock.stop();
-    setEvents(generateLick(Math.random, tonic));
+    setLickIn({ box, events: generateLick(Math.random, tonic, box) });
   };
 
   const cell = clock.current === null ? null : lickCellAt(clock.current);
@@ -436,12 +438,13 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
           value={mode}
           onChange={choose}
         />
+        {lick && <ChipGroup<number> label={c.box} items={LICK_BOXES.map((b) => ({ value: b, text: String(b) }))} value={lickIn.box} onChange={newLick} />}
       </div>
       <div className="controls">
         {lick ? (
           <>
             <Button onClick={clock.toggle}>{clock.playing ? copy.stop : c.playLick}</Button>
-            <Button onClick={newLick} ghost>
+            <Button onClick={() => newLick()} ghost>
               {c.newLick}
             </Button>
             <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
