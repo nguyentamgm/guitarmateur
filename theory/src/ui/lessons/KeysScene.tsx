@@ -36,6 +36,7 @@ import {
 import { BarGrid } from '../BarGrid';
 import { BarreBar } from '../BarreBar';
 import { useTheory } from '../context';
+import { TrainerLink } from '../TrainerLink';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
@@ -211,6 +212,7 @@ function NumbersScene({ copy }: { copy: SceneCopy }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <TrainerLink trainerKey={{ tonic, scale: 'major' }} chords={path.map((v) => v.chord)} />
     </div>
   );
 }
