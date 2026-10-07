@@ -3,6 +3,7 @@
  * the practice app's). Pure functions plus a storage boundary that never throws, like `lang.ts`.
  * The review page ranks quizzes with `nextReview()`.
  */
+import { browserStorage, type KeyValue } from './storage';
 
 /** Every quiz that records progress, in curriculum order: the lesson and the step it lives in. */
 export const QUIZZES = [
@@ -110,15 +111,6 @@ export function nextReview(progress: Progress, now: number): ReviewItem[] {
 
 export const PROGRESS_STORAGE_KEY = 'theory.progress';
 
-type KeyValue = Pick<Storage, 'getItem' | 'setItem'>;
-
-function defaultStorage(): KeyValue | null {
-  try {
-    return typeof localStorage === 'undefined' ? null : localStorage;
-  } catch {
-    return null; // Accessing localStorage itself throws when site data is blocked.
-  }
-}
 
 const isCount = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0;
 
@@ -146,7 +138,7 @@ function readRaw(storage: KeyValue | null): Record<string, unknown> {
 }
 
 /** Stored progress; unknown quizzes and broken records are left out. Never throws. */
-export function loadProgress(storage: KeyValue | null = defaultStorage()): Progress {
+export function loadProgress(storage: KeyValue | null = browserStorage()): Progress {
   const raw = readRaw(storage);
   const out: Partial<Record<QuizId, QuizRecord>> = {};
   for (const id of QUIZ_IDS) {
@@ -161,7 +153,7 @@ export function loadProgress(storage: KeyValue | null = defaultStorage()): Progr
  * answers saved meanwhile by another tab are kept, and it leaves entries this build does not know
  * (a quiz from a newer version) untouched. A storage failure only means it is not remembered.
  */
-export function storeAnswer(id: QuizId, right: boolean, now: number, storage: KeyValue | null = defaultStorage()): Progress {
+export function storeAnswer(id: QuizId, right: boolean, now: number, storage: KeyValue | null = browserStorage()): Progress {
   const next = recordAnswer(loadProgress(storage), id, right, now);
   try {
     storage?.setItem(PROGRESS_STORAGE_KEY, JSON.stringify({ ...readRaw(storage), [id]: next[id] }));

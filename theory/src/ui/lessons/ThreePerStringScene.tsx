@@ -43,6 +43,7 @@ import { boxSpan, neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey, signed } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
+import { useStoredTempo } from '../useStoredTempo';
 import { useSequence } from '../useSequence';
 
 export function ThreePerStringScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
@@ -198,17 +199,19 @@ function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
 // --- Step 3 ---
 
 function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
-  const { player } = useTheory();
+  const { player, ui } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
   const all = useMemo(() => sevenPositions(), []);
   const [index, setIndex] = useState(1);
   const [pattern, setPattern] = useState<SequenceId>('straight');
   const [direction, setDirection] = useState<Direction>('up');
-  const [bpm, setBpm] = useState(DRILL_BPM);
+  const { bpm, setBpm, best, step } = useStoredTempo('three-per-string-triplets', DRILL_BPM);
   const pos = all[index - 1]!;
   const drill = useMemo(() => drillRun(pos, pattern, direction), [pos, pattern, direction]);
   const cell = cellSeconds(bpm, NOTES_PER_BEAT);
-  const clock = useClock(loopSteps(drill.length, TRIPLET_CELLS), cell, (i, delay) => {
+  const steps = loopSteps(drill.length, TRIPLET_CELLS);
+  const clock = useClock(steps, cell, (i, delay) => {
+    step(i, steps);
     if (countAt(i).kind === 'beat') player.click(i % TRIPLET_CELLS === 0, delay);
     const n = drill[i];
     if (n) player.pluck(n.midi, delay, cell * 0.9);
@@ -250,7 +253,7 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
       </div>
       <div className="controls">
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.start}</Button>
-        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best ? fill(ui.tempoBest, { bpm: best }) : undefined} />
       </div>
       <Tab columns={columns} counts={counts} barLines={barStarts(drill.length)} label={copy.tab} active={active} column={now ? clock.current : null} />
       <Fretboard geometry={g} dots={dots} label={idle} box={pos} active={active} />

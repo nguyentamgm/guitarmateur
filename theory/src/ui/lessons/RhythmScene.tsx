@@ -47,6 +47,7 @@ import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
+import { useStoredTempo } from '../useStoredTempo';
 
 
 export function RhythmScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
@@ -65,11 +66,11 @@ export function RhythmScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 }
 
 /** Start/stop and the tempo slider, the same in every scene. */
-function Transport({ copy, playing, toggle, bpm, setBpm }: { copy: SceneCopy; playing: boolean; toggle(): void; bpm: number; setBpm(b: number): void }) {
+function Transport({ copy, playing, toggle, bpm, setBpm, best }: { copy: SceneCopy; playing: boolean; toggle(): void; bpm: number; setBpm(b: number): void; best?: string }) {
   return (
     <>
       <Button onClick={toggle}>{playing ? copy.stop : copy.start}</Button>
-      <Tempo label={copy.tempo.label} text={fill(copy.tempo.value, { bpm })} bpm={bpm} onChange={setBpm} />
+      <Tempo label={copy.tempo.label} text={fill(copy.tempo.value, { bpm })} bpm={bpm} onChange={setBpm} best={best} />
     </>
   );
 }
@@ -296,14 +297,15 @@ function StrumScene({ copy }: { copy: SceneCopy }) {
 // --- Step 5 ---
 
 function FingersScene({ copy }: { copy: SceneCopy }) {
-  const { player } = useTheory();
+  const { player, ui } = useTheory();
   const c = copy.fingers;
-  const [bpm, setBpm] = useState<number>(DEFAULT_BPM.fingers);
+  const { bpm, setBpm, best, step } = useStoredTempo('rhythm-fingers', DEFAULT_BPM.fingers);
   const [startFret, setStartFret] = useState(DRILL_START_FRETS[0]!);
   const [perBeat, setPerBeat] = useState<1 | 2>(1);
   const drill = useMemo(() => fingerDrill(startFret), [startFret]);
   const cell = cellSeconds(bpm, perBeat);
   const clock = useClock(drill.length, cell, (i, delay) => {
+    step(i, drill.length);
     if (isBeat(i, perBeat)) player.click(isBeat(i, perBeat * BEATS_PER_BAR), delay);
     player.pluck(drill[i]!.midi, delay, cell * 0.9);
   });
@@ -353,7 +355,7 @@ function FingersScene({ copy }: { copy: SceneCopy }) {
         />
       </div>
       <div className="controls">
-        <Transport copy={copy} playing={clock.playing} toggle={clock.toggle} bpm={bpm} setBpm={setBpm} />
+        <Transport copy={copy} playing={clock.playing} toggle={clock.toggle} bpm={bpm} setBpm={setBpm} best={best ? fill(ui.tempoBest, { bpm: best }) : undefined} />
       </div>
       <Tab columns={columns} label={c.tab} active={active} column={clock.current} />
       <Fretboard geometry={g} dots={dots} label={c.tab} active={active} />

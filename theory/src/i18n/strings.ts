@@ -36,6 +36,7 @@ const en = {
   reviewLastDays: 'Last practised {days} days ago',
   reviewOpen: 'Go to the quiz',
   reviewFooter: 'Scores stay in this browser. Nothing is tracked or uploaded.',
+  tempoBest: 'Best: {bpm} BPM',
 };
 
 export type UiStrings = typeof en;
@@ -72,6 +73,7 @@ const vi: UiStrings = {
   reviewLastDays: 'Tập lần cuối {days} ngày trước',
   reviewOpen: 'Tới bài đố',
   reviewFooter: 'Điểm chỉ nằm trong trình duyệt này. Không theo dõi, không tải gì lên.',
+  tempoBest: 'Tốt nhất: {bpm} BPM',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };

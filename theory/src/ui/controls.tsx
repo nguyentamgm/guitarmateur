@@ -43,8 +43,8 @@ export function Button({ onClick, children, ghost }: { onClick(): void; children
   );
 }
 
-/** A tempo slider, in whole BPM within the range the lessons offer. */
-export function Tempo({ label, text, bpm, onChange }: { label: string; text: string; bpm: number; onChange(bpm: number): void }) {
+/** A tempo slider, in whole BPM within the range the lessons offer, with an optional best-tempo badge. */
+export function Tempo({ label, text, bpm, onChange, best }: { label: string; text: string; bpm: number; onChange(bpm: number): void; best?: string }) {
   return (
     <label className="tempo">
       <span>{label}</span>
@@ -57,6 +57,7 @@ export function Tempo({ label, text, bpm, onChange }: { label: string; text: str
         onChange={(e) => onChange(clampBpm(Number(e.target.value)))}
       />
       <output>{text}</output>
+      {best !== undefined && <span className="best">{best}</span>}
     </label>
   );
 }
