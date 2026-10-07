@@ -2,27 +2,18 @@
  * Theory's languages. English is the primary language and always the default; Vietnamese is
  * chosen explicitly and remembered under Theory's own storage key (never the practice app's).
  */
+import { browserStorage, type KeyValue } from '../platform/storage';
 
 export type Lang = 'en' | 'vi';
 export const LANGS: readonly Lang[] = ['en', 'vi'];
 export const DEFAULT_LANG: Lang = 'en';
 export const LANG_STORAGE_KEY = 'theory.lang';
 
-/** The slice of Storage used here; `null` when storage is unavailable. */
-type KeyValue = Pick<Storage, 'getItem' | 'setItem'>;
-
-function defaultStorage(): KeyValue | null {
-  try {
-    return typeof localStorage === 'undefined' ? null : localStorage;
-  } catch {
-    return null; // Accessing localStorage itself throws when site data is blocked.
-  }
-}
 
 export const isLang = (v: unknown): v is Lang => LANGS.includes(v as Lang);
 
 /** The remembered language, or English. Never throws. */
-export function loadLang(storage: KeyValue | null = defaultStorage()): Lang {
+export function loadLang(storage: KeyValue | null = browserStorage()): Lang {
   try {
     const v = storage?.getItem(LANG_STORAGE_KEY);
     return isLang(v) ? v : DEFAULT_LANG;
@@ -32,7 +23,7 @@ export function loadLang(storage: KeyValue | null = defaultStorage()): Lang {
 }
 
 /** Remember a language. A storage failure only means it is not remembered. */
-export function saveLang(lang: Lang, storage: KeyValue | null = defaultStorage()): void {
+export function saveLang(lang: Lang, storage: KeyValue | null = browserStorage()): void {
   try {
     storage?.setItem(LANG_STORAGE_KEY, lang);
   } catch {
