@@ -119,7 +119,10 @@ describe('notes on the neck', () => {
   it('spells every note of a scale in its key and marks the tonic', () => {
     const f = scaleNeck(parseNote('F'), 'major', 12);
     expect(new Set(f.map((n) => n.name))).toEqual(new Set(['F', 'G', 'A', 'B♭', 'C', 'D', 'E']));
-    expect(f.filter((n) => n.isTonic).every((n) => n.name === 'F' && n.degree === '1')).toBe(true);
+    const tonics = f.filter((n) => n.isTonic);
+    expect(tonics.length).toBeGreaterThan(0);
+    expect(tonics.every((n) => n.name === 'F' && n.degree === '1')).toBe(true);
+    expect(f.filter((n) => n.name === 'F').every((n) => n.isTonic)).toBe(true);
     for (const n of f) expect(n.fret).toBeLessThanOrEqual(12);
   });
 

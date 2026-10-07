@@ -6,11 +6,11 @@
  */
 import { EIGHTHS_PER_BAR, semisAt, type Glide, type PitchPoint } from '../../core/audio';
 import {
-  allPositions,
   byHomeFret,
   midiAt,
   neckNote,
   positions,
+  scaleNeck,
   type FretPos,
   type NeckNote as CoreNeckNote,
 } from '../../core/fretboard';
@@ -49,18 +49,22 @@ const SCALE_OF = { minor: 'minorBlues', major: 'majorBlues' } as const;
 export const bluesTonic = (kind: BluesKind, minorTonic: NoteName = EXAMPLE_TONIC): NoteName =>
   kind === 'minor' ? minorTonic : relativeMajorTonic(minorTonic);
 
-function bluesNote(pos: FretPos, tonic: NoteName, kind: BluesKind): NeckNote {
-  const scale = SCALE_OF[kind];
-  const note = neckNote(pos, tonic, scaleNotes(tonic, scale));
-  return { ...note, isBlue: decorationDegrees(scale).includes(note.degree) };
+/** Marks the blue note of a blues scale on notes spelled in it. */
+function markBlue(kind: BluesKind): (note: CoreNeckNote) => NeckNote {
+  const blue = decorationDegrees(SCALE_OF[kind]);
+  return (note) => ({ ...note, isBlue: blue.includes(note.degree) });
+}
+
+/** Notes at these positions in the blues scale of `kind` on `tonic`; the scale is spelled once. */
+function bluesNotes(cells: readonly FretPos[], tonic: NoteName, kind: BluesKind): NeckNote[] {
+  const context = scaleNotes(tonic, SCALE_OF[kind]);
+  return cells.map((p) => neckNote(p, tonic, context)).map(markBlue(kind));
 }
 
 /** Every note of the blues scale from fret 0 to `maxFret`, blue notes flagged. */
 export function bluesNeck(kind: BluesKind, maxFret = NECK_FRETS): NeckNote[] {
   const tonic = bluesTonic(kind);
-  return scaleNotes(tonic, SCALE_OF[kind])
-    .flatMap((n) => allPositions(n, maxFret))
-    .map((pos) => bluesNote(pos, tonic, kind));
+  return scaleNeck(tonic, SCALE_OF[kind], maxFret).map(markBlue(kind));
 }
 
 export interface Box {
@@ -77,7 +81,7 @@ export function bluesBoxes(kind: BluesKind): Box[] {
     index: p.index,
     minFret: p.minFret,
     maxFret: p.maxFret,
-    notes: p.notes.map((n) => bluesNote(n, tonic, kind)),
+    notes: bluesNotes(p.notes, tonic, kind),
   }));
 }
 
@@ -164,7 +168,7 @@ const box1 = (tonic: NoteName = EXAMPLE_TONIC): Box => {
   const boxes = positions({ tonic, scale: 'minorPentatonic', notesPerString: 2 });
   return {
     ...boxes[0]!,
-    notes: boxes[0]!.notes.map((n) => bluesNote(n, tonic, 'minor')),
+    notes: bluesNotes(boxes[0]!.notes, tonic, 'minor'),
   };
 };
 

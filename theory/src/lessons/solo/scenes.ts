@@ -5,7 +5,7 @@
  * `landOn()`. The only typed data is which scale and style go with which backing.
  */
 import type { BackingStyle } from '../../core/audio';
-import { STRINGS, byHomeFret, closestPath, midiAt, openMidi, pitchAtPos, positions, type FretPos } from '../../core/fretboard';
+import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
@@ -13,7 +13,6 @@ import {
   bluesChord,
   chordSymbol,
   chordToneDegree,
-  degreeOf,
   format,
   landOn,
   mod,
@@ -76,13 +75,8 @@ export function backingBars(id: BackingId, tonic: NoteName): BackingBar[] {
 
 // --- The box under the hand ---
 
-export interface SoloNote extends FretPos {
-  readonly midi: number;
+export interface SoloNote extends NeckNote {
   readonly pitch: NoteName;
-  readonly name: string;
-  /** Degree over the scale's tonic. */
-  readonly degree: DegreeLabel;
-  readonly isTonic: boolean;
   /** Added to the pentatonic: the blues ♭5, or the 4 and 7 of the major scale. */
   readonly isAdded: boolean;
 }
@@ -113,7 +107,7 @@ export function soloWindow(tonic: NoteName, scale: ScaleId): SoloWindow {
       .filter((p) => pcs.has(mod(openMidi(p.string) + p.fret, 12)))
       .map((p): SoloNote => {
         const pitch = pitchAtPos(p, context);
-        return { ...p, midi: midiAt(p), pitch, name: format(pitch), degree: degreeOf(tonic, pitch), isTonic: pc(pitch) === pc(tonic), isAdded: !basePcs.has(pc(pitch)) };
+        return { ...neckNote(p, tonic, context), pitch, isAdded: !basePcs.has(pc(pitch)) };
       }),
   ).sort((a, b) => a.midi - b.midi);
   return { tonic, scale, minFret: box.minFret, maxFret: box.maxFret, notes };

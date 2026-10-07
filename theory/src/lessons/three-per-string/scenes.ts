@@ -189,12 +189,12 @@ export interface KeyView {
 export function keyView(tonic: NoteName, mode: Mode): KeyView {
   const relativeMinor = relativeMinorTonic(tonic);
   const major = sevenPositions(tonic, 'major');
-  if (mode === 'major') return { tonic, relativeMinor, positions: major, neck: scaleNeck(tonic, 'major', NECK_FRETS) };
-  const context = scaleNotes(relativeMinor, 'naturalMinor');
+  if (mode === 'major') return { tonic, relativeMinor, positions: major, neck: scaleNeck(tonic, SCALE_OF.major, NECK_FRETS) };
+  const context = scaleNotes(relativeMinor, SCALE_OF.minor);
   const positions = major
     .map((p) => ({ ...p, index: renumber(p.index, 'major'), notes: p.notes.map((x) => neckNote(x, relativeMinor, context)) }))
     .sort((a, b) => a.index - b.index);
-  return { tonic, relativeMinor, positions, neck: scaleNeck(relativeMinor, 'naturalMinor', NECK_FRETS) };
+  return { tonic, relativeMinor, positions, neck: scaleNeck(relativeMinor, SCALE_OF.minor, NECK_FRETS) };
 }
 
 /**
