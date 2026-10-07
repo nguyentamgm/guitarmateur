@@ -51,6 +51,7 @@ import { Tab, type TabNote } from '../Tab';
 import { useBacking } from '../useBacking';
 import { useClock } from '../useClock';
 import { useSequence } from '../useSequence';
+import { useLastTempo } from '../useStoredTempo';
 
 export function BluesScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -146,11 +147,14 @@ function BlueNoteScene({ copy }: { copy: SceneCopy }) {
 
 // --- Step 2 ---
 
+/** The shuffle demo starts a little slower than the 12-bar backing. */
+const SHUFFLE_BPM = 80;
+
 function ShuffleScene({ copy }: { copy: SceneCopy }) {
   const c = copy.shuffle;
   const { player } = useTheory();
   const [swing, setSwing] = useState(SHUFFLE);
-  const [bpm, setBpm] = useState(80);
+  const [bpm, setBpm] = useLastTempo('blues-shuffle', SHUFFLE_BPM);
   const bar = useMemo(() => swingBar(swing), [swing]);
   const clock = useClock(EIGHTHS, beatSeconds(bpm) / 2, (i, delay) => {
     if (i % 2 === 0) player.click(i === 0, delay);
@@ -210,7 +214,7 @@ function TwelveBarScene({ copy }: { copy: SceneCopy }) {
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
   const [quickChange, setQuickChange] = useState(false);
   const [turnaround, setTurnaround] = useState(false);
-  const [bpm, setBpm] = useState(BLUES_BPM);
+  const [bpm, setBpm] = useLastTempo('blues-twelve-bar', BLUES_BPM);
   const form = useMemo(() => bluesForm(tonic, { quickChange, turnaround }), [tonic, quickChange, turnaround]);
   const clock = useBacking(form, 'shuffle', bpm);
   const bar = clock.bar;
@@ -371,7 +375,7 @@ function LegatoScene({ copy }: { copy: SceneCopy }) {
   const g = useMemo(() => neckGeometry(10, { fretWidth: 52 }), []);
   const [mode, setMode] = useState<DemoId | 'lick'>('hammer');
   const [run, setRun] = useState(0);
-  const [bpm, setBpm] = useState(BLUES_BPM);
+  const [bpm, setBpm] = useLastTempo('blues-legato', BLUES_BPM);
   const lick = mode === 'lick';
   const notes = useMemo(() => (lick ? lickNotes() : demoNotes(mode)), [lick, mode]);
   const plans = useMemo(() => lickPlan(notes), [notes]);

@@ -54,6 +54,7 @@ import { Tab, type TabNote } from '../Tab';
 import { useBacking, type Backing } from '../useBacking';
 import { useClock } from '../useClock';
 import { forgetTakeParam, initialTake, storeTake, takeLink } from '../savedTake';
+import { loadTempo, saveTempo } from '../tempos';
 
 export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -74,18 +75,25 @@ export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 
 const useNeck = () => useMemo(() => neckGeometry(SOLO_FRETS, { fretWidth: 46 }), []);
 
-/** The backing, key and tempo a scene plays: picking a backing resets its key and tempo. */
+/** Where each backing's tempo is remembered, shared by every step that plays it. */
+const backingTempo = (id: BackingId) => loadTempo(`solo-${id}`, BACKINGS[id].bpm).last;
+
+/**
+ * The backing, key and tempo a scene plays: picking a backing resets its key, and its tempo to the
+ * one last set for it. A tempo the learner sets is remembered; one from a shared take is not.
+ */
 function useBackingChoice(initial?: { readonly id: BackingId; readonly tonic: NoteName; readonly bpm: number }) {
   const [id, setId] = useState<BackingId>(initial?.id ?? 'blues');
   const [tonic, setTonic] = useState<NoteName>(initial?.tonic ?? BACKINGS.blues.tonic);
-  const [bpm, setBpm] = useState(initial?.bpm ?? BACKINGS.blues.bpm);
+  const [bpm, setLocalBpm] = useState(() => initial?.bpm ?? backingTempo('blues'));
   const bars = useMemo(() => backingBars(id, tonic), [id, tonic]);
   const box = useMemo(() => backingWindow(id, tonic), [id, tonic]);
   const choose = (next: BackingId) => {
     setId(next);
     setTonic(BACKINGS[next].tonic);
-    setBpm(BACKINGS[next].bpm);
+    setLocalBpm(backingTempo(next));
   };
+  const setBpm = (next: number) => setLocalBpm(saveTempo(`solo-${id}`, (t) => ({ ...t, last: next }), BACKINGS[id].bpm).last);
   return { id, tonic, setTonic, bpm, setBpm, bars, box, choose };
 }
 type BackingChoice = ReturnType<typeof useBackingChoice>;

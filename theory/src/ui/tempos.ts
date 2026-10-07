@@ -1,12 +1,36 @@
 /**
- * Drill tempos remembered across visits: the last tempo set and the best, the fastest tempo at
- * which a whole round was played. Kept under Theory's own key, like quiz progress.
+ * Tempos remembered across visits. A drill keeps the last tempo set and the best, the fastest tempo
+ * at which a whole round was played; any other scene that plays in time keeps only the last tempo.
+ * Kept under Theory's own key, like quiz progress.
  */
 import { clampBpm } from '../core/rhythm';
 import { browserStorage, type KeyValue } from '../platform/storage';
 
 export const DRILLS = ['rhythm-fingers', 'pentatonic-sequences', 'three-per-string-triplets'] as const;
 export type DrillId = (typeof DRILLS)[number];
+
+/** Scenes that play in time but are not drills: lesson slug and step, or the solo backing. */
+export const PLAYERS = [
+  'rhythm-beat',
+  'rhythm-lengths',
+  'rhythm-counting',
+  'rhythm-strum',
+  'blues-shuffle',
+  'blues-twelve-bar',
+  'blues-legato',
+  'electric-mute',
+  'electric-boogie',
+  'barre-changes',
+  'keys-numbers',
+  'keys-two-five',
+  'keys-relative',
+  'solo-blues',
+  'solo-pop',
+  'solo-rock',
+  'solo-jazz',
+] as const;
+export type PlayerId = (typeof PLAYERS)[number];
+export type TempoId = DrillId | PlayerId;
 
 export interface DrillTempo {
   readonly last: number;
@@ -28,8 +52,8 @@ function readAll(storage: KeyValue | null): Record<string, unknown> {
 
 const isBpm = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && clampBpm(v) === v;
 
-/** The stored tempo of a drill, or `fallback` with no best. Never throws. */
-export function loadTempo(id: DrillId, fallback: number, storage: KeyValue | null = browserStorage()): DrillTempo {
+/** The stored tempo of a drill or scene, or `fallback` with no best. Never throws. */
+export function loadTempo(id: TempoId, fallback: number, storage: KeyValue | null = browserStorage()): DrillTempo {
   const r = readAll(storage)[id] as Record<string, unknown> | undefined;
   return {
     last: isBpm(r?.last) ? r.last : fallback,
@@ -37,8 +61,8 @@ export function loadTempo(id: DrillId, fallback: number, storage: KeyValue | nul
   };
 }
 
-/** Change a drill's stored tempo, keeping every other entry (other drills, other tabs, newer builds). */
-export function saveTempo(id: DrillId, change: (t: DrillTempo) => DrillTempo, fallback: number, storage: KeyValue | null = browserStorage()): DrillTempo {
+/** Change a stored tempo, keeping every other entry (other scenes, other tabs, newer builds). */
+export function saveTempo(id: TempoId, change: (t: DrillTempo) => DrillTempo, fallback: number, storage: KeyValue | null = browserStorage()): DrillTempo {
   const next = change(loadTempo(id, fallback, storage));
   try {
     storage?.setItem(TEMPO_STORAGE_KEY, JSON.stringify({ ...readAll(storage), [id]: next }));

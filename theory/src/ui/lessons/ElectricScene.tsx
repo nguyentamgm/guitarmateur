@@ -37,6 +37,7 @@ import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useClock } from '../useClock';
 import { useSequence } from '../useSequence';
+import { useLastTempo } from '../useStoredTempo';
 
 export function ElectricScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -145,7 +146,7 @@ function MuteScene({ copy }: { copy: SceneCopy }) {
   const g = useMemo(() => neckGeometry(9, { fretWidth: 56 }), []);
   const chords = useMemo(() => riffChords(), []);
   const [palm, setPalm] = useState(true);
-  const [bpm, setBpm] = useState(RIFF_BPM);
+  const [bpm, setBpm] = useLastTempo('electric-mute', RIFF_BPM);
   const cell = beatSeconds(bpm) / 2;
   const clock = useClock(RIFF_CELLS, cell, (i, delay) => {
     if (i % 2 === 0) player.click(i % EIGHTHS === 0, delay);
@@ -336,7 +337,7 @@ function BoogieScene({ copy }: { copy: SceneCopy }) {
   const [quickChange, setQuickChange] = useState(false);
   const [turnaround, setTurnaround] = useState(false);
   const [palm, setPalm] = useState(true);
-  const [bpm, setBpm] = useState(BOOGIE_BPM);
+  const [bpm, setBpm] = useLastTempo('electric-boogie', BOOGIE_BPM);
   const form = useMemo(() => boogieForm(tonic, { quickChange, turnaround }), [tonic, quickChange, turnaround]);
   const clock = useClock(form.length * EIGHTHS, beatSeconds(bpm) / 2, (i, delay) => {
     const e = i % EIGHTHS;
