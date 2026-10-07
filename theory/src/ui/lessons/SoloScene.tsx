@@ -482,7 +482,8 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const [recorded, setRecorded] = useState(false);
   const [version, setVersion] = useState<'yours' | 'fixed'>('yours');
   // Read by the clock: its first step runs before React re-renders with the new state.
-  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[] }>({ mode: 'idle', take: [] });
+  // `take` mirrors the recorded take (clicks add to it); `playback` is the version being played back.
+  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[]; playback: readonly TakeNote[] }>({ mode: 'idle', take: [], playback: [] });
   /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
   const times = useRef(new Map<number, number>());
   const backing = useBacking(
@@ -492,7 +493,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     (s) => {
       times.current.set(s.step, performance.now() / 1000 + s.at);
       if (live.current.mode !== 'playing') return;
-      for (const t of live.current.take) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
+      for (const t of live.current.playback) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
     },
     false,
   );
@@ -504,14 +505,14 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     setTake(next);
     setVersion('yours');
   };
-  const fixed = useMemo(() => fixLandings(take, choice.bars, choice.box), [take, choice.bars, choice.box]);
-  const fixedCount = fixed.filter((t, i) => t !== take[i]).length;
-  /** The version shown, marked and played back. */
-  const shown = version === 'fixed' ? fixed : take;
+  const { take: fixed, fixed: fixedCount } = useMemo(() => fixLandings(take, choice.bars, choice.box), [take, choice.bars, choice.box]);
+  /** The version shown, marked and played back: yours unless a fixed version exists and is picked. */
+  const shownVersion = fixedCount > 0 ? version : 'yours';
+  const shown = shownVersion === 'fixed' ? fixed : take;
   const run = (m: 'recording' | 'playing') => {
     if (backing.playing) return backing.stop();
     live.current.mode = m;
-    if (m === 'playing') live.current.take = shown;
+    if (m === 'playing') live.current.playback = shown;
     times.current.clear();
     if (m === 'recording') {
       keep([]);
@@ -557,7 +558,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
       : active === 'playing'
         ? fill(c.playing, { n: barIndex + 1, symbol: bar.symbol })
         : take.length > 0
-          ? `${fill(c.summary, { ...sum })}${version === 'fixed' ? ` ${fill(c.fixedNote, { count: fixedCount })}` : ''}`
+          ? `${fill(c.summary, { ...sum })}${shownVersion === 'fixed' ? ` ${fill(c.fixedNote, { count: fixedCount })}` : ''}`
           : recorded
             ? c.empty
             : c.idle;
@@ -584,7 +585,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
               { value: 'yours', text: c.yours },
               { value: 'fixed', text: c.fixed },
             ]}
-            value={version}
+            value={shownVersion}
             onChange={setVersion}
           />
         )}

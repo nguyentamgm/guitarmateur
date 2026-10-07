@@ -327,23 +327,37 @@ export function takeSummary(take: readonly TakeNote[], bars: readonly BackingBar
 }
 
 /**
- * The take with every off-chord landing moved to the nearest chord tone in the box (by pitch; a
- * tie goes down, the gentler resolution). Only each bar's first note changes; everything else is
- * kept as played, so the learner hears their own phrase with better landings (K7.4, K7.2).
+ * The take with every off-chord landing moved to the nearest chord tone in the box: nearest in
+ * pitch, then nearest on the neck, then the lower one (the gentler resolution). Only each bar's
+ * first note changes; everything else is kept as played, so the learner hears their own phrase
+ * with better landings (K7.4, K7.2). A moved note that would double a note already on the same
+ * eighth is dropped. `fixed` counts the landings that moved.
  */
-export function fixLandings(take: readonly TakeNote[], bars: readonly BackingBar[], window: SoloWindow): TakeNote[] {
+export function fixLandings(take: readonly TakeNote[], bars: readonly BackingBar[], window: SoloWindow): { take: TakeNote[]; fixed: number } {
   const marks = landings(take, bars);
-  return take.map((t) => {
+  const tonesOf = new Map<string, SoloNote[]>();
+  const tones = (chord: Chord) => {
+    const key = chordSymbol(chord);
+    if (!tonesOf.has(key)) tonesOf.set(key, window.notes.filter((n) => toneIn(n, chord) !== null));
+    return tonesOf.get(key)!;
+  };
+  let fixed = 0;
+  const moved = take.map((t) => {
     const mark = marks[barOf(t)]!;
     if (mark.kind !== 'off' || mark.note !== t) return t;
-    const chord = bars[barOf(t)]!.chord;
-    const tones = window.notes.filter((n) => toneIn(n, chord) !== null);
-    if (tones.length === 0) return t;
-    const best = tones.reduce((a, b) => {
-      const da = Math.abs(a.midi - t.note.midi);
-      const db = Math.abs(b.midi - t.note.midi);
-      return db < da || (db === da && b.midi < a.midi) ? b : a;
-    });
+    const near = (n: SoloNote) => [Math.abs(n.midi - t.note.midi), Math.abs(n.string - t.note.string) + Math.abs(n.fret - t.note.fret), n.midi] as const;
+    const best = [...tones(bars[barOf(t)]!.chord)].sort((a, b) => {
+      const [x, y] = [near(a), near(b)];
+      return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
+    })[0];
+    if (!best) return t;
+    fixed += 1;
     return { ...t, note: best };
   });
+  const seen = new Set<string>();
+  const out = moved.filter((t) => {
+    const key = `${t.step}:${t.note.midi}`;
+    return !seen.has(key) && !!seen.add(key);
+  });
+  return { take: out, fixed };
 }

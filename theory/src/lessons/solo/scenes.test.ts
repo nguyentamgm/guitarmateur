@@ -254,7 +254,8 @@ describe('step 6: record it, hear it back (K7.6)', () => {
     take = recordNote(take, note('D'), at(0, 0)); // A7: D is off; the box holds A, E and G of A7
     take = recordNote(take, note('C'), at(0, 2)); // not a landing: kept
     take = recordNote(take, note('G'), at(1, 0)); // A7: G is the ♭7, already a tone
-    const fixed = fixLandings(take, bars, box);
+    const { take: fixed, fixed: count } = fixLandings(take, bars, box);
+    expect(count).toBe(1);
     expect(fixed[1]).toBe(take[1]);
     expect(fixed[2]).toBe(take[2]);
     expect(fixed[0]!.step).toBe(take[0]!.step);
@@ -262,6 +263,16 @@ describe('step 6: record it, hear it back (K7.6)', () => {
     const moved = Math.abs(fixed[0]!.note.midi - take[0]!.note.midi);
     const nearest = Math.min(...box.notes.filter((n) => ['A', 'E', 'G'].includes(n.name)).map((n) => Math.abs(n.midi - take[0]!.note.midi)));
     expect(moved).toBe(nearest);
+  });
+
+  it('never doubles a note on the same eighth when a landing moves onto it', () => {
+    let take: TakeNote[] = [];
+    take = recordNote(take, note('D'), at(0, 0));
+    // The landing D (off A7) moves to its nearest chord tone, which is also played on that eighth.
+    const target = fixLandings(take, bars, box).take[0]!.note;
+    take = recordNote(take, target, at(0, 0));
+    const fixed = fixLandings(take, bars, box).take;
+    expect(fixed.filter((t) => t.step === at(0, 0))).toHaveLength(1);
   });
 
   it('judges each bar by its first note: a chord tone, a note off the chord, or a rest', () => {
