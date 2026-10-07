@@ -2,7 +2,7 @@ import type { ScaleId } from '../../core/music';
 import type { LessonCopy } from '../types';
 import type { BackingId, PhraseRole } from './scenes';
 
-export type StepId = 'scale' | 'tones' | 'guide' | 'phrase';
+export type StepId = 'scale' | 'tones' | 'guide' | 'phrase' | 'ear';
 
 /** Strings the scenes of this lesson show. `{name}` placeholders are filled by the UI. */
 export interface SceneCopy {
@@ -62,6 +62,28 @@ export interface SceneCopy {
     readonly idle: string;
     /** {n} {name} {degree} {symbol} for 'idea' and 'change'; {n} for the others. */
     readonly roles: Readonly<Record<PhraseRole, string>>;
+  };
+  readonly ear: {
+    readonly hear: string;
+    readonly stop: string;
+    readonly next: string;
+    /** Accessible name of the neck. */
+    readonly neck: string;
+    readonly help: string;
+    readonly helpFirst: string;
+    readonly helpNone: string;
+    /** {right} {total} */
+    readonly score: string;
+    readonly idle: string;
+    /** {found} {count} */
+    readonly progress: string;
+    /** {name}: the next note is higher / lower than the one clicked. */
+    readonly higher: string;
+    readonly lower: string;
+    /** {notes}: the idea as degrees. */
+    readonly solved: string;
+    /** {notes} */
+    readonly solvedMissed: string;
   };
 }
 

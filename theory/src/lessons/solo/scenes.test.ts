@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EIGHTHS_PER_BAR } from '../../core/audio';
+import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
 import { LICK_EIGHTHS, chordNotes, format, parseNote, pc, scaleNotes } from '../../core/music';
 import {
   BACKINGS,
@@ -19,6 +19,9 @@ import {
   uniqueChords,
   wrongScale,
   type BackingId,
+  earQuestion,
+  earWindow,
+  judgeEar,
 } from './scenes';
 
 const n = parseNote;
@@ -150,5 +153,45 @@ describe('step 4: say it, say it again, change it (K7.4)', () => {
     expect([0, 1, 2, 3, 4].map(phraseRole)).toEqual(['idea', 'again', 'change', 'yours', 'idea']);
     // Ideas are timed in the same eighths the backing plays.
     expect(LICK_EIGHTHS).toBe(EIGHTHS_PER_BAR);
+  });
+});
+
+describe('step 5: hear it, play it back (K7.5)', () => {
+  const box = earWindow();
+
+  it('asks in A minor pentatonic, box 1 at frets 5–8', () => {
+    expect([box.minFret, box.maxFret]).toEqual([5, 8]);
+    expect(new Set(box.notes.map((n) => n.name))).toEqual(new Set(['A', 'C', 'D', 'E', 'G']));
+  });
+
+  it('asks 3 or 4 notes from the box, with a rhythm inside one bar', () => {
+    const random = seededRandom(7);
+    for (let i = 0; i < 200; i++) {
+      const q = earQuestion(box, random);
+      expect([3, 4]).toContain(q.length);
+      for (const n of q) {
+        expect(box.notes.some((b) => b.midi === n.midi && b.string === n.string && b.fret === n.fret)).toBe(true);
+        expect(n.at + n.length).toBeLessThanOrEqual(LICK_EIGHTHS);
+      }
+      q.slice(1).forEach((n, k) => expect(n.at).toBeGreaterThan(q[k]!.at));
+    }
+  });
+
+  it('never asks the same idea twice in a row', () => {
+    const random = seededRandom(3);
+    let q = earQuestion(box, random);
+    for (let i = 0; i < 100; i++) {
+      const next = earQuestion(box, random, q);
+      expect(next.map((n) => n.midi)).not.toEqual(q.map((n) => n.midi));
+      q = next;
+    }
+  });
+
+  it('says which way the next note lies after a wrong click', () => {
+    const q = earQuestion(box, seededRandom(11));
+    const want = q[1]!.midi;
+    expect(judgeEar(q, 1, want)).toEqual({ kind: 'right' });
+    expect(judgeEar(q, 1, want - 2)).toEqual({ kind: 'wrong', direction: 'higher' });
+    expect(judgeEar(q, 1, want + 3)).toEqual({ kind: 'wrong', direction: 'lower' });
   });
 });

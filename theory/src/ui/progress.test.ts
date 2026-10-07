@@ -86,6 +86,7 @@ describe('nextReview', () => {
       ['keys-home', 'stale'],
       ['pentatonic-shape', 'fresh'],
       ['barre-find', 'fresh'],
+      ['solo-ear', 'fresh'],
     ]);
   });
 

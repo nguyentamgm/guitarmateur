@@ -1,17 +1,22 @@
-/** The four scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
+/** The five scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
 import { useMemo, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
-import { SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
+import { LICK_EIGHTHS, SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
+import { cellSeconds } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
   BACKINGS,
   BACKING_IDS,
+  EAR_BPM,
   PHRASE_BARS,
   SOLO_FRETS,
   backingBars,
   backingKeys,
   backingWindow,
+  earQuestion,
+  earWindow,
   guideLine,
+  judgeEar,
   outsideNotes,
   phrase,
   phraseRole,
@@ -21,6 +26,7 @@ import {
   wrongScale,
   type BackingBar,
   type BackingId,
+  type EarNote,
   type SceneCopy,
   type SoloNote,
   type SoloWindow,
@@ -34,6 +40,7 @@ import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useBacking, type Backing } from '../useBacking';
+import { useClock } from '../useClock';
 
 export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -45,6 +52,8 @@ export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
       return <GuideScene copy={copy} />;
     case 'phrase':
       return <PhraseScene copy={copy} />;
+    case 'ear':
+      return <EarScene copy={copy.ear} />;
   }
 }
 
@@ -308,6 +317,110 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
       <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} />
       <p className="caption" aria-live="polite">
         {caption}
+      </p>
+    </div>
+  );
+}
+
+// --- Step 5 ---
+
+type EarHelp = 'first' | 'none';
+
+function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
+  const { player, recordQuiz } = useTheory();
+  const g = useNeck();
+  const box = useMemo(() => earWindow(), []);
+  const [question, setQuestion] = useState<EarNote[]>(() => earQuestion(box, Math.random));
+  const [help, setHelp] = useState<EarHelp>('first');
+  const start = help === 'first' ? 1 : 0;
+  const [found, setFound] = useState(start);
+  const [missed, setMissed] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [score, setScore] = useState({ right: 0, total: 0 });
+  const solved = found >= question.length;
+
+  const cell = cellSeconds(EAR_BPM, 2);
+  const clock = useClock(
+    LICK_EIGHTHS,
+    cell,
+    (i, delay) => {
+      for (const n of question) if (n.at === i) player.pluck(n.midi, delay, n.length * cell * 0.95);
+    },
+    false,
+  );
+
+  const settle = (right: boolean) => {
+    setScore((s) => ({ right: s.right + (right ? 1 : 0), total: s.total + 1 }));
+    recordQuiz('solo-ear', right);
+  };
+  const reset = (q: EarNote[], h: EarHelp) => {
+    clock.stop();
+    setQuestion(q);
+    setFound(h === 'first' ? 1 : 0);
+    setMissed(false);
+    setMessage(null);
+  };
+  const next = () => {
+    // Skipping an idea you have not found counts as a miss, as in every quiz.
+    if (!solved) settle(false);
+    reset(earQuestion(box, Math.random, question), help);
+  };
+  const chooseHelp = (h: EarHelp) => {
+    // Leaving an idea you already missed counts, as "next" does; switching before trying does not.
+    if (!solved && missed) settle(false);
+    setHelp(h);
+    reset(earQuestion(box, Math.random, question), h);
+  };
+  const click = (d: FretDot) => {
+    if (solved) return;
+    const r = judgeEar(question, found, d.midi);
+    // Notes already found (or given) just play again: hearing them is not an answer.
+    if (r.kind === 'wrong' && question.slice(0, found).some((n) => n.midi === d.midi)) return;
+    if (r.kind === 'wrong') {
+      setMissed(true);
+      return setMessage(fill(r.direction === 'higher' ? copy.higher : copy.lower, { name: d.label ?? '' }));
+    }
+    const now = found + 1;
+    setFound(now);
+    if (now < question.length) return setMessage(fill(copy.progress, { found: now, count: question.length }));
+    settle(!missed);
+    const notes = question.map((n) => degreeText(n.degree)).join(' ');
+    setMessage(fill(missed ? copy.solvedMissed : copy.solved, { notes }));
+  };
+
+  const shown = new Set(question.slice(0, found).map(posKey));
+  const dots = box.notes.map((n): FretDot => ({
+    key: posKey(n),
+    string: n.string,
+    fret: n.fret,
+    midi: n.midi,
+    label: n.name,
+    tone: shown.has(posKey(n)) ? 'home' : 'plain',
+  }));
+  // While playing, light the notes only once the idea is found: lighting them earlier gives it away.
+  const sounding = solved && clock.current !== null ? question.filter((n) => n.at <= clock.current! && clock.current! < n.at + n.length) : [];
+
+  return (
+    <div className="board">
+      <div className="controls">
+        <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.hear}</Button>
+        <Button onClick={next} ghost>
+          {copy.next}
+        </Button>
+        <ChipGroup<EarHelp>
+          label={copy.help}
+          items={[
+            { value: 'first', text: copy.helpFirst },
+            { value: 'none', text: copy.helpNone },
+          ]}
+          value={help}
+          onChange={chooseHelp}
+        />
+        <span className="muted small">{fill(copy.score, score)}</span>
+      </div>
+      <Fretboard geometry={g} dots={dots} label={copy.neck} box={box} active={sounding.map(posKey)} onDot={click} />
+      <p className={solved ? 'caption good' : 'caption'} aria-live="polite">
+        {message ?? (start > 0 ? fill(copy.progress, { found, count: question.length }) : copy.idle)}
       </p>
     </div>
   );
