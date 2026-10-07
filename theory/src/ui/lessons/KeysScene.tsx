@@ -37,10 +37,11 @@ import { BarGrid } from '../BarGrid';
 import { BarreBar } from '../BarreBar';
 import { useQuizScore } from '../useQuizScore';
 import { TrainerLink } from '../TrainerLink';
-import { Button, ChipGroup, KeyFinder } from '../controls';
+import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
+import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useSequence } from '../useSequence';
 import { useStrum } from '../useStrum';
 
@@ -59,8 +60,7 @@ export function KeysScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   }
 }
 
-/** Seconds between chords of a loop, and of a lead-in. */
-const LOOP_MS = 1500;
+/** Seconds between chords of a lead-in. */
 const LEAD_MS = 1100;
 
 const useNeck = () => useMemo(() => neckGeometry(KEYS_FRETS, { fretWidth: 46 }), []);
@@ -185,11 +185,11 @@ const progressionText = (id: ProgressionId) => id.replaceAll('-', '–');
 
 function NumbersScene({ copy }: { copy: SceneCopy }) {
   const c = copy.numbers;
-  const strum = useStrum();
   const [tonic, setTonic] = useState<NoteName>(NUMBERS_TONIC);
   const [id, setId] = useState<ProgressionId>('I-V-vi-IV');
+  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
   const path = useMemo(() => progressionViews(tonic, id), [tonic, id]);
-  const seq = useSequence(path.length, LOOP_MS, (i) => strum(path[i]!), true);
+  const seq = useStrumLoop(path, bpm);
   const caption = fill(c.caption, { key: format(tonic), chords: symbols(path), travel: loopTravel(path.map((v) => v.fret)) });
   const pick = (next: ProgressionId) => {
     seq.stop();
@@ -206,9 +206,10 @@ function NumbersScene({ copy }: { copy: SceneCopy }) {
       <div className="controls">
         <ChipGroup<ProgressionId> label={c.progression} items={NUMBER_PROGRESSIONS.map((p) => ({ value: p, text: progressionText(p) }))} value={id} onChange={pick} />
         <Button onClick={seq.toggle}>{seq.playing ? copy.stop : copy.playLoop}</Button>
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
-      <BarGrid label={c.grid} bars={bars(path)} current={seq.current} />
-      <LoopNeck path={path} current={seq.current} label={caption} />
+      <BarGrid label={c.grid} bars={bars(path)} current={seq.bar} />
+      <LoopNeck path={path} current={seq.bar} label={caption} />
       <p className="caption" aria-live="polite">
         {caption}
       </p>
@@ -317,8 +318,9 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
   const [resolved, setResolved] = useState<boolean | null>(null);
   const hang = useSequence(3, LEAD_MS, (i) => strum(pull[i]!));
   const resolve = useSequence(4, LEAD_MS, (i) => strum(pull[i]!));
+  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
   const path = useMemo(() => approachLoop(tonic, target), [tonic, target]);
-  const loop = useSequence(path.length, LOOP_MS, (i) => strum(path[i]!), true);
+  const loop = useStrumLoop(path, bpm);
 
   const stopAll = () => [hang, resolve, loop].forEach((s) => s.stop());
   const playPull = (home: boolean) => {
@@ -335,10 +337,9 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
     setTarget(a);
   };
   const playLoop = () => {
-    if (loop.playing) return loop.stop();
     hang.stop();
     resolve.stop();
-    loop.start();
+    loop.toggle();
   };
   const playing = hang.playing ? hang.current : resolve.current;
   const v7 = pull[2]!.symbol;
@@ -376,9 +377,10 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
       <div className="controls">
         <ChipGroup<Approach> label={c.approach} items={APPROACHES.map((a) => ({ value: a, text: targetText[a] }))} value={target} onChange={choose} />
         <Button onClick={playLoop}>{loop.playing ? copy.stop : copy.playLoop}</Button>
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
-      <BarGrid label={c.grid} bars={bars(path)} current={loop.current} />
-      <LoopNeck path={path} current={loop.current} label={caption} />
+      <BarGrid label={c.grid} bars={bars(path)} current={loop.bar} />
+      <LoopNeck path={path} current={loop.bar} label={caption} />
       <p className="caption" aria-live="polite">
         {caption}
       </p>
@@ -390,18 +392,18 @@ function TwoFiveScene({ copy }: { copy: SceneCopy }) {
 
 function RelativeScene({ copy }: { copy: SceneCopy }) {
   const c = copy.relative;
-  const strum = useStrum();
   const g = useNeck();
   const [tonic, setTonic] = useState<NoteName>(RELATIVE_TONIC);
   const [home, setHome] = useState<Mode>('major');
+  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
   const chords = useMemo(() => relativeChords(tonic), [tonic]);
   const path = useMemo(() => relativeLoop(tonic, home), [tonic, home]);
   const scale = useMemo(() => homePentatonic(tonic, home), [tonic, home]);
-  const seq = useSequence(path.length, LOOP_MS, (i) => strum(path[i]!), true);
+  const seq = useStrumLoop(path, bpm);
   const root = format(homeTonic(tonic, home));
   const majorRoot = format(tonic);
   const minorRoot = format(homeTonic(tonic, 'minor'));
-  const now = seq.current === null ? null : path[seq.current]!;
+  const now = seq.bar === null ? null : path[seq.bar]!;
   const caption = fill(c.caption, {
     chords: symbols(path),
     root,
@@ -438,6 +440,7 @@ function RelativeScene({ copy }: { copy: SceneCopy }) {
           onChange={choose}
         />
         <Button onClick={seq.toggle}>{seq.playing ? copy.stop : copy.playLoop}</Button>
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
       <div className="scroll">
         <table className="numerals">
@@ -467,7 +470,7 @@ function RelativeScene({ copy }: { copy: SceneCopy }) {
       </div>
       <ol className="chordpath">
         {path.map((v, i) => (
-          <li key={i} className={seq.current === i ? 'on' : undefined}>
+          <li key={i} className={seq.bar === i ? 'on' : undefined}>
             {`${v.roman} · ${v.symbol}`}
           </li>
         ))}

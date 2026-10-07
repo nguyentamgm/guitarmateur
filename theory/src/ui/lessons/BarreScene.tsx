@@ -26,11 +26,11 @@ import {
 } from '../../lessons/barre';
 import { BarreBar } from '../BarreBar';
 import { useQuizScore } from '../useQuizScore';
-import { Button, ChipGroup, KeyFinder } from '../controls';
+import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
-import { useSequence } from '../useSequence';
+import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useStrum } from '../useStrum';
 
 export function BarreScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
@@ -244,13 +244,13 @@ function FindScene({ copy }: { copy: SceneCopy }) {
 
 function ChangesScene({ copy }: { copy: SceneCopy }) {
   const c = copy.changes;
-  const strum = useStrum();
   const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
   const [tonic, setTonic] = useState<NoteName>(PROGRESSION_TONIC);
   const [mode, setMode] = useState<PathMode>('near');
+  const [bpm, setBpm] = useState(STRUM_LOOP_BPM);
   const path = useMemo(() => chordPath(progressionChords(tonic), mode), [tonic, mode]);
-  const seq = useSequence(path.length, 1500, (i) => strum(path[i]!), true);
-  const now = path[seq.current ?? 0]!;
+  const seq = useStrumLoop(path, bpm);
+  const now = path[seq.bar ?? 0]!;
   const caption = fill(c.caption, { chords: path.map((v) => v.symbol).join(' → '), travel: travel(path) });
 
   return (
@@ -267,10 +267,11 @@ function ChangesScene({ copy }: { copy: SceneCopy }) {
           onChange={setMode}
         />
         <Button onClick={seq.toggle}>{seq.playing ? copy.stop : c.play}</Button>
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
       <ol className="chordpath">
         {path.map((v, i) => (
-          <li key={i} className={seq.current === i ? 'on' : undefined}>
+          <li key={i} className={seq.bar === i ? 'on' : undefined}>
             {fill(c.chordItem, { symbol: v.symbol, shape: v.shape, fret: v.fret })}
           </li>
         ))}

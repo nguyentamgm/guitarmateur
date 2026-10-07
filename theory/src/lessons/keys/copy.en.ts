@@ -56,6 +56,8 @@ export const en: KeysCopy = {
     stop: 'Stop',
     key: 'Key',
     playLoop: 'Play the loop',
+    tempo: 'Tempo',
+    bpm: '{bpm} BPM',
     quality: { major: 'Major', minor: 'Minor', dim: 'Diminished' },
     family: {
       size: 'Chords',

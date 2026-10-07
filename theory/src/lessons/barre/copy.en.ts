@@ -55,6 +55,8 @@ export const en: BarreCopy = {
   scene: {
     strum: 'Strum',
     stop: 'Stop',
+    tempo: 'Tempo',
+    bpm: '{bpm} BPM',
     root: 'Root',
     labels: 'Labels',
     degrees: 'Degrees',

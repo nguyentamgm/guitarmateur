@@ -6,6 +6,9 @@ export type StepId = 'slide' | 'eShape' | 'aShape' | 'find' | 'changes';
 export interface SceneCopy {
   readonly strum: string;
   readonly stop: string;
+  readonly tempo: string;
+  /** Tempo readout: {bpm}. */
+  readonly bpm: string;
   readonly root: string;
   readonly labels: string;
   readonly degrees: string;

@@ -55,6 +55,8 @@ export const vi: BarreCopy = {
   scene: {
     strum: 'Quạt',
     stop: 'Dừng',
+    tempo: 'Tempo',
+    bpm: '{bpm} BPM',
     root: 'Root',
     labels: 'Nhãn',
     degrees: 'Bậc',

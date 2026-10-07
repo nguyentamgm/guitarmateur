@@ -86,6 +86,8 @@ ui → lessons → core/fretboard → core/music
   `core/audio/backing.ts` (styles `shuffle`, `strum`, `rock`, `comp`; `bassMidi()` and `chordMidis()`
   voice it). Its `onEighth` callback gets the same swung delay, so a melody over it stays in time.
   Do not write a per-lesson backing. `useBacking(…, loop = false)` plays the form once (a recorded take, K7.6).
+  A bar may carry `midis` (its voicing, low to high), so a strum or comp sounds the shape a scene draws;
+  `useStrumLoop(views, bpm)` strums a loop of drawn chord shapes, one bar each (`/theory/barre`, `/theory/keys`).
   `BarGrid` takes optional `marks` per bar (a short text, good or not, and a spoken description).
 - Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
   time with its exact delay, so timer jitter moves only the cursor, never the sound. `useSequence`
