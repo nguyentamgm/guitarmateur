@@ -1,5 +1,5 @@
-/** The five scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
-import { useMemo, useState, type ReactNode } from 'react';
+/** The six scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
 import { LICK_EIGHTHS, SCALES, format, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
 import { cellSeconds } from '../../core/rhythm';
@@ -13,14 +13,19 @@ import {
   backingBars,
   backingKeys,
   backingWindow,
+  barOf,
   earQuestion,
   earWindow,
   guideLine,
   judgeEar,
+  landings,
+  nearestStep,
   outsideNotes,
   phrase,
   phraseRole,
+  recordNote,
   soloWindow,
+  takeSummary,
   toneIn,
   uniqueChords,
   wrongScale,
@@ -31,8 +36,9 @@ import {
   type SoloNote,
   type SoloWindow,
   type StepId,
+  type TakeNote,
 } from '../../lessons/solo';
-import { BarGrid } from '../BarGrid';
+import { BarGrid, type BarMark } from '../BarGrid';
 import { useTheory } from '../context';
 import { useQuizScore } from '../useQuizScore';
 import { TrainerLink } from '../TrainerLink';
@@ -56,6 +62,8 @@ export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
       return <PhraseScene copy={copy} />;
     case 'ear':
       return <EarScene copy={copy.ear} />;
+    case 'record':
+      return <RecordScene copy={copy} />;
   }
 }
 
@@ -77,7 +85,7 @@ function useBackingChoice() {
 }
 type BackingChoice = ReturnType<typeof useBackingChoice>;
 
-function BackingControls({ copy, choice, backing, children }: { copy: SceneCopy; choice: BackingChoice; backing: Backing; children?: ReactNode }) {
+function BackingControls({ copy, choice, backing, children, hidePlay = false }: { copy: SceneCopy; choice: BackingChoice; backing: Backing; children?: ReactNode; hidePlay?: boolean }) {
   const change = (fn: () => void) => {
     backing.stop();
     fn();
@@ -94,7 +102,7 @@ function BackingControls({ copy, choice, backing, children }: { copy: SceneCopy;
       </div>
       <KeyFinder keys={backingKeys(choice.id)} label={copy.key} value={choice.tonic} onChange={(k) => change(() => choice.setTonic(k))} />
       <div className="controls">
-        <Button onClick={backing.toggle}>{backing.playing ? copy.stop : copy.play}</Button>
+        {!hidePlay && <Button onClick={backing.toggle}>{backing.playing ? copy.stop : copy.play}</Button>}
         <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm: choice.bpm })} bpm={choice.bpm} onChange={choice.setBpm} />
         {children}
       </div>
@@ -296,7 +304,7 @@ function PhraseScene({ copy }: { copy: SceneCopy }) {
     for (const x of notes) {
       columnOf.set(`${k}:${x.at}`, columns.length);
       columns.push([{ key: `${k}:${x.at}`, string: x.note.string, fret: x.note.fret, midi: x.note.midi }]);
-      counts.push(x.at % 2 === 0 ? String(x.at / 2 + 1) : fill(c.offbeat, { n: Math.floor(x.at / 2) + 1 }));
+      counts.push(countWord(x.at, c.offbeat));
     }
   });
   const eighth = backing.current === null ? null : backing.current % EIGHTHS_PER_BAR;
@@ -425,6 +433,140 @@ function EarScene({ copy }: { copy: SceneCopy['ear'] }) {
       <Fretboard geometry={g} dots={dots} label={copy.neck} box={box} active={sounding.map(posKey)} onDot={click} />
       <p className={solved ? 'caption good' : 'caption'} aria-live="polite">
         {message ?? (start > 0 ? fill(copy.progress, { found, count: question.length }) : copy.idle)}
+      </p>
+    </div>
+  );
+}
+
+// --- Step 6 ---
+
+/** The count word an eighth of the bar starts on: '1', '1&' (with the lesson's off-beat word). */
+function countWord(eighth: number, offbeat: string): string {
+  return eighth % 2 === 0 ? String(eighth / 2 + 1) : fill(offbeat, { n: Math.floor(eighth / 2) + 1 });
+}
+
+type TakeMode = 'idle' | 'recording' | 'playing';
+
+function RecordScene({ copy }: { copy: SceneCopy }) {
+  const c = copy.record;
+  const { player } = useTheory();
+  const g = useNeck();
+  const choice = useBackingChoice();
+  const [take, setTake] = useState<TakeNote[]>([]);
+  const [mode, setMode] = useState<TakeMode>('idle');
+  const [recorded, setRecorded] = useState(false);
+  // Read by the clock: its first step runs before React re-renders with the new state.
+  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[] }>({ mode: 'idle', take: [] });
+  /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
+  const times = useRef(new Map<number, number>());
+  const backing = useBacking(
+    choice.bars,
+    BACKINGS[choice.id].style,
+    choice.bpm,
+    (s) => {
+      times.current.set(s.step, performance.now() / 1000 + s.at);
+      if (live.current.mode !== 'playing') return;
+      for (const t of live.current.take) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
+    },
+    false,
+  );
+  // A pass that ran to the end stops the backing: the scene is idle again.
+  const active: TakeMode = backing.playing ? mode : 'idle';
+
+  const keep = (next: TakeNote[]) => {
+    live.current.take = next;
+    setTake(next);
+  };
+  const run = (m: 'recording' | 'playing') => {
+    if (backing.playing) return backing.stop();
+    live.current.mode = m;
+    times.current.clear();
+    if (m === 'recording') {
+      keep([]);
+      setRecorded(true);
+    }
+    setMode(m);
+    backing.toggle();
+  };
+  // A new backing or key makes the old take meaningless.
+  const reset = () => {
+    keep([]);
+    setRecorded(false);
+  };
+  const click = (d: FretDot) => {
+    if (active !== 'recording') return;
+    const n = choice.box.notes.find((x) => posKey(x) === d.key);
+    const step = nearestStep(times.current, performance.now() / 1000);
+    if (n && step !== null) keep(recordNote(live.current.take, n, step));
+  };
+
+  const barIndex = backing.bar ?? 0;
+  const bar = choice.bars[barIndex]!;
+  const sounding = active === 'playing' && backing.current !== null ? take.filter((t) => t.step === backing.current) : [];
+  const dots = choice.box.notes.map((n): FretDot => {
+    const d = toneIn(n, bar.chord);
+    return d ? { ...quietDot(n), dim: false, label: degreeText(d), tone: d === '1' ? 'home' : 'plain' } : { ...quietDot(n), dim: false };
+  });
+  const marks = useMemo(
+    () =>
+      landings(take, choice.bars).map((m): BarMark | null =>
+        m.kind === 'rest' ? null : m.kind === 'tone' ? { text: `✓ ${degreeText(m.degree)}`, good: true, description: fill(c.landedOn, { degree: degreeText(m.degree) }) } : { text: '✗', good: false, description: c.missed },
+      ),
+    [take, choice.bars, c],
+  );
+  const columns = take.map((t): TabNote[] => [{ key: `${t.step}:${t.note.midi}`, string: t.note.string, fret: t.note.fret, midi: t.note.midi }]);
+  const counts = take.map((t) => countWord(t.step % EIGHTHS_PER_BAR, copy.phrase.offbeat));
+  const barLines = take.flatMap((t, i) => (i > 0 && barOf(t) !== barOf(take[i - 1]!) ? [i] : []));
+  const column = sounding.length > 0 ? take.indexOf(sounding[0]!) : null;
+  const sum = useMemo(() => takeSummary(take, choice.bars), [take, choice.bars]);
+  const caption =
+    active === 'recording'
+      ? fill(c.recording, { n: barIndex + 1, symbol: bar.symbol })
+      : active === 'playing'
+        ? fill(c.playing, { n: barIndex + 1, symbol: bar.symbol })
+        : take.length > 0
+          ? fill(c.summary, { ...sum })
+          : recorded
+            ? c.empty
+            : c.idle;
+
+  return (
+    <div className="board">
+      <BackingControls copy={copy} choice={{
+          ...choice,
+          choose: (b) => {
+            reset();
+            choice.choose(b);
+          },
+          setTonic: (k) => {
+            reset();
+            choice.setTonic(k);
+          },
+        }} backing={backing} hidePlay>
+        {active !== 'playing' && <Button onClick={() => run('recording')}>{active === 'recording' ? copy.stop : c.record}</Button>}
+        {active === 'playing' && <Button onClick={() => run('playing')}>{copy.stop}</Button>}
+        {active === 'idle' && take.length > 0 && (
+          <>
+            <Button onClick={() => run('playing')} ghost>
+              {c.hearBack}
+            </Button>
+            <Button
+              onClick={() => {
+                backing.stop();
+                reset();
+              }}
+              ghost
+            >
+              {c.clear}
+            </Button>
+          </>
+        )}
+      </BackingControls>
+      <Fretboard geometry={g} dots={dots} box={choice.box} label={fill(copy.neck, { scale: scaleName(copy, BACKINGS[choice.id].scale, choice.tonic) })} active={sounding.map((t) => posKey(t.note))} onDot={click} />
+      <BarGrid label={copy.grid} bars={choice.bars} current={backing.bar} marks={marks} />
+      {take.length > 0 && <Tab columns={columns} counts={counts} barLines={barLines} column={column} active={sounding.map((t) => `${t.step}:${t.note.midi}`)} label={c.tab} />}
+      <p className="caption" aria-live="polite">
+        {caption}
       </p>
     </div>
   );

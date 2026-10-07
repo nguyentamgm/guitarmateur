@@ -2,7 +2,7 @@ import type { ScaleId } from '../../core/music';
 import type { LessonCopy } from '../types';
 import type { BackingId, PhraseRole } from './scenes';
 
-export type StepId = 'scale' | 'tones' | 'guide' | 'phrase' | 'ear';
+export type StepId = 'scale' | 'tones' | 'guide' | 'phrase' | 'ear' | 'record';
 
 /** Strings the scenes of this lesson show. `{name}` placeholders are filled by the UI. */
 export interface SceneCopy {
@@ -84,6 +84,25 @@ export interface SceneCopy {
     readonly solved: string;
     /** {notes} */
     readonly solvedMissed: string;
+  };
+  readonly record: {
+    readonly record: string;
+    readonly hearBack: string;
+    readonly clear: string;
+    readonly tab: string;
+    /** Under the tab, before anything was recorded. */
+    readonly idle: string;
+    /** {n} {symbol} while recording. */
+    readonly recording: string;
+    /** {n} {symbol} while playing back. */
+    readonly playing: string;
+    /** {landed} {played} {tones} {notes} */
+    readonly summary: string;
+    /** The take had no notes. */
+    readonly empty: string;
+    /** Accessible text of a bar's mark: {degree}; and when its first note was off the chord. */
+    readonly landedOn: string;
+    readonly missed: string;
   };
 }
 

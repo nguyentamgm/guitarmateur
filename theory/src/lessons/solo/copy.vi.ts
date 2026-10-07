@@ -4,7 +4,7 @@ export const vi: SoloCopy = {
   title: 'Solo theo hợp âm: nhắm vào nốt của hợp âm',
   summary: 'Chọn scale theo giọng, để hợp âm đang vang chỉ cho bạn nên dừng ở nốt nào, rồi dựng những câu nhạc để bạn đáp lại.',
   lead:
-    'Solo trên một backing quy về hai câu hỏi: nốt nào an toàn ở đây, và nốt nào hay nhất lúc này. Giọng trả lời câu thứ nhất; hợp âm đang vang trả lời câu thứ hai. Bài này đặt một backing dưới tay bạn (một bài blues, một vòng pop, một vòng rock hoặc một ii–V–I jazz), làm sáng các nốt của từng hợp âm khi nó đến, dựng các câu nhạc để bạn đáp lại, và kết thúc bằng những ý ngắn để bạn tìm lại bằng tai. Năm bước. Cầm đàn chơi theo nhé.',
+    'Solo trên một backing quy về hai câu hỏi: nốt nào an toàn ở đây, và nốt nào hay nhất lúc này. Giọng trả lời câu thứ nhất; hợp âm đang vang trả lời câu thứ hai. Bài này đặt một backing dưới tay bạn (một bài blues, một vòng pop, một vòng rock hoặc một ii–V–I jazz), làm sáng các nốt của từng hợp âm khi nó đến, dựng các câu nhạc để bạn đáp lại, đưa ra những ý ngắn để bạn tìm lại bằng tai, và kết thúc bằng việc thu câu solo của chính bạn để nghe nó dừng ở đâu. Sáu bước. Cầm đàn chơi theo nhé.',
   steps: {
     scale: {
       title: 'Chọn scale theo giọng',
@@ -50,6 +50,15 @@ export const vi: SoloCopy = {
       ],
       takeaway: 'Lên hay xuống, liền bậc hay nhảy cách: tìm một ý nhạc từng nốt một.',
       tryIt: 'Đúng ngay lần đầu năm ý với nốt đầu cho sẵn, rồi tắt phần trợ giúp.',
+    },
+    record: {
+      title: 'Thu lại rồi nghe lại',
+      body: [
+        'Tai học chọn nốt bằng cách nghe kết quả. Bấm thu, backing chạy một lượt. Bấm các nốt trên box như khi bạn chơi. Rồi nghe lại bản thu trên đúng backing đó.',
+        'Mỗi bar cho thấy câu của bạn gặp hợp âm của nó thế nào: dấu tích kèm bậc khi nốt đầu tiên bạn chơi trong bar là một nốt của hợp âm, dấu chéo khi không phải. Dấu chéo không có nghĩa là sai, đó là một nốt nghe chỏi. Nghe lại rồi quyết định: giữ độ chỏi, hay dời nốt một bậc sang nốt của hợp âm ngay bên cạnh.',
+      ],
+      takeaway: 'Thử một ý, nghe lại, giữ cái nghe hay và dời cái không hợp.',
+      tryIt: 'Thu một lượt blues. Rồi thu lại, và ở mỗi bar bị dấu chéo, đáp vào một nốt của hợp âm ngay đầu bar.',
     },
   },
   scene: {
@@ -125,11 +134,24 @@ export const vi: SoloCopy = {
       solved: 'Đúng ngay lần đầu: {notes}.',
       solvedMissed: 'Đã tìm ra: {notes}. Nghe lại lần nữa, rồi thử ý tiếp theo.',
     },
+    record: {
+      record: 'Thu',
+      hearBack: 'Nghe lại',
+      clear: 'Xóa',
+      tab: 'Bản thu của bạn, kèm chữ đếm nơi mỗi nốt bắt đầu',
+      idle: 'Bấm Thu, rồi bấm các nốt trên box trong lúc backing chạy một lượt.',
+      recording: 'Đang thu · bar {n}, {symbol}. Bấm các nốt trên box.',
+      playing: 'Đang phát lại · bar {n}, {symbol}.',
+      summary: '{landed}/{played} bar đáp vào nốt của hợp âm · {tones}/{notes} nốt là nốt của hợp âm.',
+      empty: 'Chưa thu được gì: bấm các nốt trên box trong lúc backing chạy.',
+      landedOn: 'đáp vào bậc {degree}',
+      missed: 'nốt đầu không thuộc hợp âm',
+    },
   },
   notYetTitle: 'Những gì chưa cần học',
   notYetIntro: 'Một box, nốt của hợp âm và mỗi lần một ý là đủ để câu solo nghe có chủ đích. Những phần này để sau.',
   notYet: [
-    { title: 'Thu lại câu solo và nghe lại', why: 'Thử một ý rồi nghe lại, có đánh dấu các nốt đích, là việc sau.' },
+    { title: 'Lưu bản thu, hoặc thu từ đàn của bạn', why: 'Bản thu chỉ còn khi trang đang mở, và nốt được bấm trên màn hình chứ không thu qua micro.' },
     { title: 'Câu dài hơn, ở giọng khác', why: 'Ba bốn nốt trong một box trước đã. Câu dài và box khác đến khi những câu này đã dễ.' },
     { title: 'Mode và scale cho từng hợp âm', why: 'Dân chơi jazz chọn scale theo từng hợp âm. Trên ii–V–I, tạm thời major scale là đủ.' },
     { title: 'Nốt đi qua chromatic', why: 'Nốt ngoài scale trên đường tới một nốt của hợp âm. Học nốt đích trước.' },

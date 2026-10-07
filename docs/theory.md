@@ -85,7 +85,8 @@ ui → lessons → core/fretboard → core/music
 - A backing track is `ui/useBacking.ts` over `backingAt(chord, style, eighth)` from
   `core/audio/backing.ts` (styles `shuffle`, `strum`, `rock`, `comp`; `bassMidi()` and `chordMidis()`
   voice it). Its `onEighth` callback gets the same swung delay, so a melody over it stays in time.
-  Do not write a per-lesson backing.
+  Do not write a per-lesson backing. `useBacking(…, loop = false)` plays the form once (a recorded take, K7.6).
+  `BarGrid` takes optional `marks` per bar (a short text, good or not, and a spoken description).
 - Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
   time with its exact delay, so timer jitter moves only the cursor, never the sound. `useSequence`
   stays for short demos where a few ms do not matter.

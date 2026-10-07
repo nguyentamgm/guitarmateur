@@ -34,7 +34,7 @@ Mục tiêu: người học solo trên một vòng hợp âm mà **nghe có ch�
 
 **Cốt lõi.** Mẫu luyện ngón (K3.6) là điểm khởi đầu, nhưng một chuỗi mẫu không thành câu solo. Câu hay thường bắt đầu từ một ý nhỏ (2–4 nốt), lặp lại, rồi biến đổi nhịp, cao độ hoặc kết thúc. Khoảng lặng là một phần của câu: chừa chỗ trống cho ý vừa chơi được nghe rõ.
 
-**Dạy trong Theory.** `/theory/solo` bước 4: mỗi nhóm bốn bar là ý nhạc (3–4 nốt, `motif()`), lặp lại, đổi đoạn kết sang một nốt của hợp âm bar thứ ba (`landOn()`), rồi một bar trống để người học đáp. Tab có chữ đếm dưới mỗi nốt. Phần app biến đổi câu của người học cần thu câu chơi, để chung với K7.6 ở phiên 5.1.
+**Dạy trong Theory.** `/theory/solo` bước 4: mỗi nhóm bốn bar là ý nhạc (3–4 nốt, `motif()`), lặp lại, đổi đoạn kết sang một nốt của hợp âm bar thứ ba (`landOn()`), rồi một bar trống để người học đáp. Tab có chữ đếm dưới mỗi nốt. Phần app biến đổi chính câu người học vừa chơi (từ bản thu ở bước 6, K7.6) chưa làm.
 
 **Cần trước:** K7.2, K1.2. **Nguồn:** ch. 19.
 
@@ -50,6 +50,6 @@ Mục tiêu: người học solo trên một vòng hợp âm mà **nghe có ch�
 
 **Cốt lõi.** Tai học chọn nốt bằng cách nghe kết quả: thử một ý, nghe lại, giữ cái nghe hay và bỏ cái không hợp. Một nốt nghe chói thường chỉ cần đổi chỗ dừng hoặc đi tiếp sang nốt bên cạnh.
 
-**Dạy trong Theory.** (Để phiên 5.1.) Cho phép thu lại một vòng solo (lưu nốt đã bấm, không cần microphone) và phát lại cùng vòng đệm, kèm đánh dấu những nốt đã rơi đúng nốt đích.
+**Dạy trong Theory.** `/theory/solo` bước 6: bấm Thu, backing chạy đúng một lượt; mỗi nốt bấm trên box được lưu với phách móc đơn nó rơi vào (không cần micro). Nghe lại thì backing chạy lại kèm bản thu, nốt nào đang vang sáng trên cần. Mỗi bar của lưới hợp âm được đánh dấu theo **nốt đầu tiên** chơi trong bar: ✓ kèm bậc nếu là nốt của hợp âm, ✗ nếu không, để trống nếu nghỉ (K7.2). Dưới lưới là tab của bản thu và tổng kết (bao nhiêu bar đáp vào nốt của hợp âm, bao nhiêu nốt là nốt của hợp âm). Bản thu không được lưu khi rời trang.
 
 **Nguồn:** ch. 19.

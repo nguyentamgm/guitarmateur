@@ -29,13 +29,14 @@ const RING = 0.85;
 /**
  * A backing track over one chord per bar, in a style from core/audio, swung when the style swings
  * (K1.5). `onEighth` runs on every eighth with the same timing, so a melody over the backing stays
- * in time with it and swings with it.
+ * in time with it and swings with it. With `loop` false it plays the form once and stops.
  */
 export function useBacking(
   bars: readonly { readonly chord: Chord }[],
   style: BackingStyle,
   bpm: number,
   onEighth?: (step: BackingStep) => void,
+  loop = true,
 ): Backing {
   const { player } = useTheory();
   const swing = STYLE_SWINGS[style] ? 1 : 0;
@@ -51,7 +52,7 @@ export function useBacking(
       else for (const m of hit.midis) player.pluck(m, at, length);
     }
     onEighth?.({ step, bar, eighth, delay, at, seconds });
-  });
+  }, loop);
   const bar = clock.current === null ? null : Math.floor(clock.current / EIGHTHS_PER_BAR);
   return { ...clock, bar };
 }
