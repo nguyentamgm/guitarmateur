@@ -13,7 +13,7 @@ export function initialTake(search: string = window.location.search, storage: Ke
   try {
     const shared = new URLSearchParams(search).get(TAKE_PARAM);
     const fromLink = shared ? decodeTake(shared) : null;
-    if (fromLink) return { saved: fromLink, from: 'link' };
+    if (fromLink && fromLink.take.length > 0) return { saved: fromLink, from: 'link' };
     const stored = storage?.getItem(TAKE_STORAGE_KEY);
     const fromStore = stored ? decodeTake(stored) : null;
     return fromStore && fromStore.take.length > 0 ? { saved: fromStore, from: 'stored' } : null;
@@ -28,6 +28,21 @@ export function storeTake(saved: SavedTake | null, storage: KeyValue | null = br
     storage?.setItem(TAKE_STORAGE_KEY, saved && saved.take.length > 0 ? encodeTake(saved) : '');
   } catch {
     // Private mode, full or blocked storage: the take lasts for this visit only.
+  }
+}
+
+/**
+ * Drop `?take=` from the address once the shared take is open, so a reload shows your own saved
+ * take again instead of the link's. The #step stays.
+ */
+export function forgetTakeParam(): void {
+  try {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(TAKE_PARAM)) return;
+    url.searchParams.delete(TAKE_PARAM);
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+  } catch {
+    // The address keeps the link: harmless.
   }
 }
 

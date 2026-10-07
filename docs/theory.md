@@ -111,8 +111,9 @@ ui → lessons → core/fretboard → core/music
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the apps share no code). It renders nothing when the practice app lacks the
   scale or a chord.
-- A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, and a
-  link `/theory/solo?take=<encodeTake()>#record`. `decodeTake()` rejects any code that is not a
+- A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, written
+  when a recording pass ends (and emptied by Clear), and a link `/theory/solo?take=<encodeTake()>#record`.
+  Opening a link never saves over your own take, and `?take=` is dropped from the address once read. `decodeTake()` rejects any code that is not a
   take of a known backing, key, tempo and box. A page opened with a `#step` scrolls to it.
 - `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
   then under 80% right in the last 20 answers, then not practised for 7 days.

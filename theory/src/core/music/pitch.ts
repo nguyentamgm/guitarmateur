@@ -40,6 +40,11 @@ export function parseNote(text: string): NoteName {
   return { letter: m[1] as Letter, alter: alterByAcc[acc]! };
 }
 
+/** A spelled name in plain ASCII, the inverse of `parseNote`: 'A', 'Bb', 'F#', 'Cbb', 'Gx' → 'G##'. */
+export function asciiName(n: NoteName): string {
+  return n.letter + (n.alter < 0 ? 'b'.repeat(-n.alter) : '#'.repeat(n.alter));
+}
+
 /** Pitch class 0..11 (C = 0). */
 export function pc(n: NoteName): number {
   return mod(LETTER_PC[n.letter] + n.alter, 12);

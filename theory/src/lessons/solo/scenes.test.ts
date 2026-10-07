@@ -324,5 +324,8 @@ describe('saving and sharing a take', () => {
     expect(decodeTake('1.blues.A.900.')).toBeNull();
     expect(decodeTake('1.blues.A.84.0-6-1')).toBeNull(); // fret 1 is outside box 1
     expect(decodeTake('1.blues.A.84.999-6-5')).toBeNull(); // past the end of the form
+    expect(decodeTake('1.blues.A.84.-6-5')).toBeNull();
+    expect(decodeTake('1.blues.A.84.0-6-5-junk')).toBeNull();
+    expect(decodeTake('1.blues.A.0x54.0-6-5')).toBeNull();
   });
 });

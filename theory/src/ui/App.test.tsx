@@ -357,6 +357,8 @@ describe('Theory app', () => {
       click(off);
       advance(9000);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+      // The finished pass is kept in this browser.
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toMatch(/^1\.pop\.G\.92\./);
       expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', '✗']);
       expect(section.querySelector('[aria-label="Your take, with the count each note starts on"]')).not.toBeNull();
       expect(inSection('Clear')).toBeDefined();
@@ -382,8 +384,13 @@ describe('Theory app', () => {
     const box = backingWindow('pop', parseNote('G'));
     const code = encodeTake({ id: 'pop', tonic: parseNote('G'), bpm: 92, take: recordNote([], box.notes[4]!, 0) });
 
-    it('opens a shared link on its backing and take, ready to hear', () => {
+    it('opens a shared link on its backing and take, without touching your own saved take', () => {
+      const mine = encodeTake({ id: 'blues', tonic: parseNote('A'), bpm: 84, take: recordNote([], backingWindow('blues', parseNote('A')).notes[2]!, 0) });
+      localStorage.setItem(TAKE_STORAGE_KEY, mine);
       render(`/theory/solo?take=${encodeURIComponent(code)}#record`);
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe(mine);
+      expect(window.location.search).toBe('');
+      expect(window.location.hash).toBe('#record');
       const section = container.querySelector('section#record')!;
       expect(section.querySelector('.caption')!.textContent).toBe('A shared take. Press Hear it back to hear it over its backing.');
       expect([...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back')).toBe(true);

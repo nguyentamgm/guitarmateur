@@ -19,6 +19,7 @@ import {
   landOn,
   mod,
   motif,
+  asciiName,
   parseNote,
   sameNote,
   pc,
@@ -373,15 +374,13 @@ export interface SavedTake {
   readonly take: readonly TakeNote[];
 }
 
-const ascii = (n: NoteName): string => n.letter + (n.alter < 0 ? 'b'.repeat(-n.alter) : '#'.repeat(n.alter));
-
 /**
  * A take as short URL-safe text: `1.blues.A.84.0-6-5_2-5-7` (version, backing, key, BPM, then each
  * note as eighth-string-fret). Positions, not pitches: the box spells them again on the way back.
  */
 export function encodeTake(saved: SavedTake): string {
   const notes = saved.take.map((t) => `${t.step}-${t.note.string}-${t.note.fret}`).join('_');
-  return ['1', saved.id, ascii(saved.tonic), String(saved.bpm), notes].join('.');
+  return ['1', saved.id, asciiName(saved.tonic), String(saved.bpm), notes].join('.');
 }
 
 /**
@@ -401,15 +400,18 @@ export function decodeTake(code: string): SavedTake | null {
     return null;
   }
   if (!backingKeys(id).some((k) => sameNote(k, tonic))) return null;
+  if (!/^\d{1,3}$/.test(rawBpm)) return null;
   const bpm = Number(rawBpm);
-  if (!Number.isInteger(bpm) || bpm < MIN_BPM || bpm > MAX_BPM) return null;
+  if (bpm < MIN_BPM || bpm > MAX_BPM) return null;
   const box = backingWindow(id, tonic);
   const steps = backingBars(id, tonic).length * EIGHTHS_PER_BAR;
   let take: TakeNote[] = [];
   for (const raw of rawNotes === '' ? [] : rawNotes.split('_')) {
-    const [step, string, fret] = raw.split('-').map(Number) as [number, number, number];
+    const m = /^(\d{1,4})-([1-6])-(\d{1,2})$/.exec(raw);
+    if (!m) return null;
+    const [step, string, fret] = [Number(m[1]), Number(m[2]), Number(m[3])];
     const note = box.notes.find((n) => n.string === string && n.fret === fret);
-    if (!note || !Number.isInteger(step) || step < 0 || step >= steps) return null;
+    if (!note || step >= steps) return null;
     take = recordNote(take, note, step);
   }
   return { id, tonic, bpm, take };

@@ -31,6 +31,7 @@ describe('saved takes', () => {
     const search = link.slice(link.indexOf('?'), link.indexOf('#'));
     expect(initialTake(search, store)).toMatchObject({ from: 'link', saved: { bpm: 84 } });
     expect(initialTake('?take=garbage', store)).toMatchObject({ from: 'stored', saved: { bpm: 70 } });
+    expect(initialTake('?take=1.blues.A.84.', store)).toMatchObject({ from: 'stored' }); // a link with no notes
   });
 
   it('never throws when storage does', () => {
