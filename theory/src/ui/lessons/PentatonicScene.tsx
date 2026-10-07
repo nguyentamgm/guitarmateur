@@ -366,7 +366,7 @@ interface Score {
 }
 
 function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
-  const { player } = useTheory();
+  const { player, recordQuiz } = useTheory();
   const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [verdict, setVerdict] = useState<{ kind: Verdict; fret: number } | null>(null);
@@ -400,10 +400,16 @@ function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
     setVerdict({ kind, fret: d.fret });
     // A question counts once, on its first answer.
     if (kind === 'right') {
-      if (!missed) setScore((s) => ({ right: s.right + 1, total: s.total + 1, streak: s.streak + 1 }));
+      if (!missed) {
+        setScore((s) => ({ right: s.right + 1, total: s.total + 1, streak: s.streak + 1 }));
+        recordQuiz('pentatonic-shape', true);
+      }
       return;
     }
-    if (!missed) setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
+    if (!missed) {
+      setScore((s) => ({ ...s, total: s.total + 1, streak: 0 }));
+      recordQuiz('pentatonic-shape', false);
+    }
     setMissed(true);
   };
   const next = () => {

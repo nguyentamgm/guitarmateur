@@ -6,6 +6,8 @@ import { ContentsPage } from './ContentsPage';
 import { Ctx, type TheoryContext } from './context';
 import { Header } from './Header';
 import { LessonPage } from './LessonPage';
+import { loadProgress, recordAnswer, saveProgress, type Progress, type QuizId } from './progress';
+import { ReviewPage } from './ReviewPage';
 import { parseRoute } from './router';
 
 const isLesson = (slug: string) => findLesson(slug) !== undefined;
@@ -15,6 +17,12 @@ export function App({ player: given }: { player?: Player } = {}) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [player] = useState(() => given ?? createPlayer());
   const [soundOn, setSoundState] = useState(true);
+  const [progress, setProgress] = useState<Progress>(() => loadProgress());
+  const recordQuiz = useCallback((id: QuizId, right: boolean) => {
+    setProgress((p) => recordAnswer(p, id, right, Date.now()));
+  }, []);
+  // Save after every change; the first run only writes back what was just read.
+  useEffect(() => saveProgress(progress), [progress]);
 
   useEffect(() => {
     const onPop = () => setPath(window.location.pathname);
@@ -25,7 +33,10 @@ export function App({ player: given }: { player?: Player } = {}) {
   const navigate = useCallback((href: string) => {
     window.history.pushState(null, '', href);
     setPath(window.location.pathname);
-    window.scrollTo(0, 0);
+    const hash = new URL(href, window.location.href).hash.slice(1);
+    if (!hash) return window.scrollTo(0, 0);
+    // The target page renders on the next frame; scroll to the step once it is there.
+    requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
   }, []);
 
   const route = parseRoute(path, isLesson);
@@ -34,8 +45,12 @@ export function App({ player: given }: { player?: Player } = {}) {
 
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.title = lesson ? `${lesson.copy[lang].title} · ${ui.appName}` : ui.appName;
-  }, [lang, lesson, ui]);
+    document.title = lesson
+      ? `${lesson.copy[lang].title} · ${ui.appName}`
+      : route.page === 'review'
+        ? `${ui.reviewTitle} · ${ui.appName}`
+        : ui.appName;
+  }, [lang, lesson, ui, route.page]);
 
   const ctx = useMemo<TheoryContext>(
     () => ({
@@ -52,8 +67,10 @@ export function App({ player: given }: { player?: Player } = {}) {
         setSoundState(on);
       },
       navigate,
+      progress,
+      recordQuiz,
     }),
-    [lang, ui, player, soundOn, navigate],
+    [lang, ui, player, soundOn, navigate, progress, recordQuiz],
   );
 
   return (
@@ -61,6 +78,8 @@ export function App({ player: given }: { player?: Player } = {}) {
       <Header />
       {lesson ? (
         <LessonPage lesson={lesson} />
+      ) : route.page === 'review' ? (
+        <ReviewPage />
       ) : (
         <ContentsPage missingPath={route.page === 'notFound' ? route.path : undefined} />
       )}

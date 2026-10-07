@@ -23,7 +23,7 @@ theory/
 ```
 
 Theory is a second Vite page: `theory/index.html` builds to `dist/theory/index.html`. Routes are
-`/theory` (contents) and `/theory/<slug>`; `vercel.json` (production, rewrite destination `/theory`:
+`/theory` (contents), `/theory/review` and `/theory/<slug>`; `vercel.json` (production, rewrite destination `/theory`:
 with `cleanUrls`, a destination ending in `.html` is not served) and the `theory-routes`
 plugin in `vite.config.ts` (dev, preview) serve the Theory page for every `/theory/*` path. The
 site-wide service worker (`public/sw.js`) falls back to the cached `/theory` shell offline.
@@ -91,6 +91,16 @@ ui → lessons → core/fretboard → core/music
 - **English is the primary language and always the default.** Vietnamese is chosen with the
   EN/VI switch and remembered in `localStorage` under `theory.lang` (never the practice app's key).
 - Slugs and code are English. Copy is written in English first, then Vietnamese.
+
+## Progress and review
+
+- Quiz scores are stored under `theory.progress` (never the practice app's key) by `ui/progress.ts`:
+  one record per quiz in `QUIZZES` (lesson slug + step), pure `recordAnswer()` / `nextReview()`,
+  and a storage boundary that never throws and drops broken records.
+- A quiz scene reports each settled question once with `recordQuiz(id, right)` from `useTheory()`,
+  next to its own session score. A new quiz adds its entry to `QUIZZES`.
+- `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
+  then under 80% right in the last 20 answers, then not practised for 7 days.
 
 ## Lessons
 

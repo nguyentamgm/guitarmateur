@@ -162,14 +162,12 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (0.3) `App.test.tsx` in log `Not implemented: navigation to another Document` của jsdom khi chạy cả file (chạy từng test thì không). Test vẫn pass; chưa tìm ra test nào gây ra.
 - (1.2, 2.2, 4.2) `Tab` đã có chữ đếm dưới mỗi cột và vạch nhịp (`counts`, `barLines`, dùng ở `/theory/solo` bước 4), nhưng chưa vẽ độ dài nốt: nốt dài và nốt ngắn trông như nhau. Ghép `Tab` với `BeatGrid` nếu một bài cần đọc độ dài.
 - (1.2) Tempo của mỗi cảnh không được nhớ giữa các lần mở trang. Nếu người học cần, lưu vào localStorage của Theory với khóa riêng.
-- (1.1, 2.1) Bài đố nốt nhà và bài đố chọn hình (`/theory/pentatonic` bước 5) không lưu kết quả; tempo cao nhất của mẫu luyện ngón cũng vậy. Chế độ ôn tập chung thuộc phiên 5.1.
+- (1.1, 2.1) Tempo cao nhất của mẫu luyện ngón không được lưu (phiên 5.1, PR 3). Điểm các bài đố đã được lưu từ phiên 5.1.
 - (2.2) Chữ đếm liên ba tiếng Việt là "1 trí-ô" (từ *triolet*), do phiên 2.2 tự chọn; chưa có cách đếm chuẩn được thống nhất. Nếu người học thấy lạ, đổi trong `lessons/blues/copy.vi.ts`.
 - (2.2) Âm thanh nhéo, trượt, rung chỉ đổi `playbackRate` của tiếng gảy: đúng cao độ (đo trong Chrome: D nhéo +2 tới 331,6 Hz, E là 329,6 Hz) nhưng tiếng tắt nhanh hơn khi nhéo cao và không có tiếng "rít" của dây. Chỉnh âm sắc khi cần.
 - (2.2) Câu mẫu blues là một câu cố định ghi theo vị trí trong hộp 1, chỉ ở giọng A. Lõi đã sinh được ý nhạc (`motif()`, phiên 4.2) nhưng câu blues chưa chuyển sang dùng nó.
-- (2.2) Bài kiểm tra tai nhéo dây không lưu điểm (cùng việc với chế độ ôn tập 5.1).
 - (2.3) Tiếng chặn chỉ là tiếng gảy mềm hơn và tắt nhanh, chưa có tiếng méo (distortion). Power chord nghe hơi "sạch" so với rock thật; thêm méo vào `core/audio` nếu cần, kèm test.
 - (2.3) Riff của bài là một riff cố định ở giọng E (ghi bằng bậc). Chưa cho đổi giọng hay tự sửa riff.
-- (3.1) Bài đố dựng hợp âm không lưu điểm (cùng việc với chế độ ôn tập 5.1).
 - (3.2, 4.1) Vòng hợp âm (`/theory/barre` bước 5, `/theory/keys` bước 2, 4, 5) vẫn phát mỗi hợp âm một lần quạt. Lõi đã có kiểu quạt pop (`backingAt(chord, 'strum')`) và `ui/useBacking.ts` từ phiên 4.2; chuyển các vòng này sang đó là việc nhỏ, nhưng đổi nhịp độ đọc của bài nên để một PR riêng.
 - (3.3) Bảng hợp âm chưa có hợp âm 13 và nốt biến (♭9, ♯9, ♯11). Thêm vào `CHORDS` khi phiên 4.x (jazz, II–V–I) cần, kèm test chính tả.
 - (3.3) Hợp âm có bass ngoài hợp âm (F/G, D/C) chưa dạy; `openVoicing({ bass })` đã nhận được nốt bất kỳ nhưng chưa có test cho trường hợp này.
@@ -178,7 +176,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
 - (2.1, 4.3) `scaleNeck`, `upAndDown`, `samePos` và kiểu `NeckNote` giờ có ba bản gần giống nhau (Bản đồ Pentatonic, Pentatonic đầy đủ, 3 nốt mỗi dây; blues có `NeckNote` riêng), cộng `Frame` vẽ khung có số ở `PentatonicScene` và `ThreePerStringScene`. Đã tới ngưỡng "bài thứ ba": gom vào `core/fretboard` (và `ui/`) bằng một PR riêng, vì phải sửa bốn bài.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
-- (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3) không lưu điểm (cùng việc với chế độ ôn tập 5.1). Đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
+- (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3): đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
 - (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.
 - (4.1) ii–V chỉ dẫn vào hợp âm trưởng (I, IV). Dẫn vào hợp âm thứ cần m7♭5 và V7 (K5.5); thêm khi phiên jazz cần.
 - (4.1) Bảy hợp âm và vòng hợp âm được neo ở hợp âm I shape E tại phím nhà (`loopViews()`); giọng E nên I là hợp âm E dây buông. Nếu người học thấy lạ khi vòng nằm quá thấp, cho chọn vùng cần đàn.
@@ -190,6 +188,9 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.3) Bài luyện triplet (`/theory/three-per-string` bước 3) không có "tăng tốc" và không lưu tempo (cùng việc với chế độ ôn tập 5.1). Mỗi vòng được làm tròn lên số bar chẵn bằng dấu lặng (`loopSteps()`), nên một bài 18 nốt có nửa bar nghỉ trước khi lặp lại.
 - (4.3) Ngón bấm chỉ có một cách: dây một cung–một cung là 1-2-4 với bàn tay mở rộng. Chưa có lựa chọn 1-3-4 hay dời tay giữa dây, và chưa vẽ chỗ dời tay trong các thế rộng bảy phím (thế 4 ở G).
 - (4.3) Phiên 4.3 bỏ bước "chạy một đường dọc cần đàn qua nhiều thế" (người duyệt bỏ ở dàn ý). Cùng việc với mẫu luyện ngón chạy dọc nhiều hộp (2.1).
+- (5.1) Trang ôn tập chỉ xếp theo cả bài đố (chưa mới, hay sai, lâu chưa tập), chưa nhớ câu nào hay sai trong một bài đố. Chưa có nút xóa điểm; người học xóa dữ liệu trang trong trình duyệt nếu cần.
+- (5.1) Điểm hiện trong bài đố vẫn là điểm của lần mở trang này; điểm lưu (độ chính xác gần đây, chuỗi đúng dài nhất) chỉ hiện ở `/theory/review`.
+- (5.1) Thu một vòng solo và phát lại có đánh dấu nốt đích (K7.6) để sang một phiên riêng.
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -251,4 +252,4 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 4.1 | Giọng và vòng hợp âm: gia đình 7 hợp âm, số La Mã, tìm hợp âm nhà bằng tai, V7 → I và ii–V, relative minor. Bài `/theory/keys` (en + vi), lõi `progression()`, `PROGRESSIONS`, `twoFive()`, `barreOptions()`, `closestPath()` | Ch. 8, 13, 18 | Xong |
 | 4.2 | Solo theo hợp âm: chọn scale theo giọng, nốt của hợp âm sáng theo backing, đường guide tone, ý nhạc lặp rồi đổi đoạn kết. Bài `/theory/solo` (en + vi), lõi `backingAt()` (4 kiểu đệm), `motif()`/`landOn()`, `closestPath()` chạy bằng quy hoạch động; `ui/useBacking.ts`, `Tab` có chữ đếm | Ch. 19 | Xong |
 | 4.3 | Scale 3 nốt mỗi dây: ba shape trên một dây và ngón bấm, bảy thế nối nhau (chung hai nốt mỗi dây), triplet một dây một phách, đổi giọng và relative minor cùng phím. Bài `/theory/three-per-string` (en + vi), dùng `positions({ notesPerString: 3 })` có sẵn; `stringRows()`, `positionPair()`, `keyView()`/`renumber()` trong bài | Ch. 17 | Xong |
-| 5.1 | Chế độ đố và ôn tập xuyên các bài, liên kết với app Luyện tập | Tất cả | Chưa làm |
+| 5.1 | Chế độ đố và ôn tập xuyên các bài, liên kết với app Luyện tập. Chia bốn PR: (1) lưu điểm sáu bài đố + trang `/theory/review` xếp bài cần ôn (`ui/progress.ts`, `nextReview()`); (2) câu đố nghe rồi chơi lại K7.5; (3) nhớ tempo các bài luyện; (4) link sang app Luyện tập. Bỏ vòng đố trộn (người duyệt cắt) | Tất cả | Đang làm (PR 1/4) |
