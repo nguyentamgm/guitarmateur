@@ -107,6 +107,11 @@ export interface SceneCopy {
     /** Accessible text of a bar's mark: {degree}; and when its first note was off the chord. */
     readonly landedOn: string;
     readonly missed: string;
+    readonly version: string;
+    readonly yours: string;
+    readonly fixed: string;
+    /** {count}: bars whose first note was moved, shown with the fixed version. */
+    readonly fixedNote: string;
   };
 }
 

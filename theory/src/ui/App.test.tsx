@@ -359,6 +359,15 @@ describe('Theory app', () => {
       expect(section.querySelector('[aria-label="Your take, with the count each note starts on"]')).not.toBeNull();
       expect(inSection('Clear')).toBeDefined();
 
+      // Bar 2's crossed first note, moved to the nearest D chord tone.
+      click(inSection('Landings fixed'));
+      expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', expect.stringMatching(/^✓ /)]);
+      expect(caption()).toBe(
+        '2 of 2 bars landed on a chord tone · 2 of 2 notes were chord tones. Landings fixed: 1, each crossed first note moved to the nearest chord tone. Hear both and compare.',
+      );
+      click(inSection('Your take'));
+      expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
+
       const before = plucked.length;
       click(inSection('Hear it back'));
       advance(11000);

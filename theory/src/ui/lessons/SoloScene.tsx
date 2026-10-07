@@ -20,6 +20,7 @@ import {
   earWindow,
   guideLine,
   judgeEar,
+  fixLandings,
   landings,
   nearestStep,
   outsideNotes,
@@ -479,8 +480,10 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const [take, setTake] = useState<TakeNote[]>([]);
   const [mode, setMode] = useState<TakeMode>('idle');
   const [recorded, setRecorded] = useState(false);
+  const [version, setVersion] = useState<'yours' | 'fixed'>('yours');
   // Read by the clock: its first step runs before React re-renders with the new state.
-  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[] }>({ mode: 'idle', take: [] });
+  // `take` mirrors the recorded take (clicks add to it); `playback` is the version being played back.
+  const live = useRef<{ mode: TakeMode; take: readonly TakeNote[]; playback: readonly TakeNote[] }>({ mode: 'idle', take: [], playback: [] });
   /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
   const times = useRef(new Map<number, number>());
   const backing = useBacking(
@@ -490,7 +493,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     (s) => {
       times.current.set(s.step, performance.now() / 1000 + s.at);
       if (live.current.mode !== 'playing') return;
-      for (const t of live.current.take) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
+      for (const t of live.current.playback) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
     },
     false,
   );
@@ -500,10 +503,16 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const keep = (next: TakeNote[]) => {
     live.current.take = next;
     setTake(next);
+    setVersion('yours');
   };
+  const { take: fixed, fixed: fixedCount } = useMemo(() => fixLandings(take, choice.bars, choice.box), [take, choice.bars, choice.box]);
+  /** The version shown, marked and played back: yours unless a fixed version exists and is picked. */
+  const shownVersion = fixedCount > 0 ? version : 'yours';
+  const shown = shownVersion === 'fixed' ? fixed : take;
   const run = (m: 'recording' | 'playing') => {
     if (backing.playing) return backing.stop();
     live.current.mode = m;
+    if (m === 'playing') live.current.playback = shown;
     times.current.clear();
     if (m === 'recording') {
       keep([]);
@@ -526,30 +535,30 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
 
   const barIndex = backing.bar ?? 0;
   const bar = choice.bars[barIndex]!;
-  const sounding = active === 'playing' && backing.current !== null ? take.filter((t) => t.step === backing.current) : [];
+  const sounding = active === 'playing' && backing.current !== null ? shown.filter((t) => t.step === backing.current) : [];
   const dots = choice.box.notes.map((n): FretDot => {
     const d = toneIn(n, bar.chord);
     return d ? { ...quietDot(n), dim: false, label: degreeText(d), tone: d === '1' ? 'home' : 'plain' } : { ...quietDot(n), dim: false };
   });
   const marks = useMemo(
     () =>
-      landings(take, choice.bars).map((m): BarMark | null =>
+      landings(shown, choice.bars).map((m): BarMark | null =>
         m.kind === 'rest' ? null : m.kind === 'tone' ? { text: `✓ ${degreeText(m.degree)}`, good: true, description: fill(c.landedOn, { degree: degreeText(m.degree) }) } : { text: '✗', good: false, description: c.missed },
       ),
-    [take, choice.bars, c],
+    [shown, choice.bars, c],
   );
-  const columns = take.map((t): TabNote[] => [{ key: `${t.step}:${t.note.midi}`, string: t.note.string, fret: t.note.fret, midi: t.note.midi }]);
-  const counts = take.map((t) => countWord(t.step % EIGHTHS_PER_BAR, copy.phrase.offbeat));
-  const barLines = take.flatMap((t, i) => (i > 0 && barOf(t) !== barOf(take[i - 1]!) ? [i] : []));
-  const column = sounding.length > 0 ? take.indexOf(sounding[0]!) : null;
-  const sum = useMemo(() => takeSummary(take, choice.bars), [take, choice.bars]);
+  const columns = shown.map((t): TabNote[] => [{ key: `${t.step}:${t.note.midi}`, string: t.note.string, fret: t.note.fret, midi: t.note.midi }]);
+  const counts = shown.map((t) => countWord(t.step % EIGHTHS_PER_BAR, copy.phrase.offbeat));
+  const barLines = shown.flatMap((t, i) => (i > 0 && barOf(t) !== barOf(shown[i - 1]!) ? [i] : []));
+  const column = sounding.length > 0 ? shown.indexOf(sounding[0]!) : null;
+  const sum = useMemo(() => takeSummary(shown, choice.bars), [shown, choice.bars]);
   const caption =
     active === 'recording'
       ? fill(c.recording, { n: barIndex + 1, symbol: bar.symbol })
       : active === 'playing'
         ? fill(c.playing, { n: barIndex + 1, symbol: bar.symbol })
         : take.length > 0
-          ? fill(c.summary, { ...sum })
+          ? `${fill(c.summary, { ...sum })}${shownVersion === 'fixed' ? ` ${fill(c.fixedNote, { count: fixedCount })}` : ''}`
           : recorded
             ? c.empty
             : c.idle;
@@ -569,6 +578,17 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
         }} backing={backing} hidePlay>
         {active !== 'playing' && <Button onClick={() => run('recording')}>{active === 'recording' ? copy.stop : c.record}</Button>}
         {active === 'playing' && <Button onClick={() => run('playing')}>{copy.stop}</Button>}
+        {active === 'idle' && fixedCount > 0 && (
+          <ChipGroup<'yours' | 'fixed'>
+            label={c.version}
+            items={[
+              { value: 'yours', text: c.yours },
+              { value: 'fixed', text: c.fixed },
+            ]}
+            value={shownVersion}
+            onChange={setVersion}
+          />
+        )}
         {active === 'idle' && take.length > 0 && (
           <>
             <Button onClick={() => run('playing')} ghost>
