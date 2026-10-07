@@ -75,6 +75,8 @@ export interface SceneCopy {
     readonly demos: Readonly<Record<DemoId, string>>;
     readonly captions: Readonly<Record<DemoId, string>>;
     readonly lick: string;
+    readonly key: string;
+    readonly newLick: string;
     readonly playLick: string;
     readonly tab: string;
     readonly marks: string;

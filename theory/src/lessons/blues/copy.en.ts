@@ -49,7 +49,7 @@ export const en: BluesCopy = {
         'Vibrato shakes a held note evenly around its pitch, usually on the last note of a phrase. Put them together and a box of twelve notes starts to talk. Tab writes them as h, p, / and ~, and a bend as b.',
       ],
       takeaway: 'Pick once, then let the fretting hand move the pitch: that is the electric guitar voice.',
-      tryIt: 'Play the lick slowly over the 12-bar. Pick the plain numbers and the bend; h, p, r and / are not picked.',
+      tryIt: 'Play the lick slowly over the 12-bar. Pick the plain numbers and the bend; h, p, r and / are not picked. Then press New lick, or change key, and read the new tab.',
     },
   },
   scene: {
@@ -116,6 +116,8 @@ export const en: BluesCopy = {
         bendRelease: 'Bend up a whole step, hold it, then let the string back down to where it started.',
       },
       lick: 'The lick',
+      key: 'Key',
+      newLick: 'New lick',
       playLick: 'Lick over the 12-bar',
       tab: 'Tab of the lick',
       marks: 'h hammer-on · p pull-off · / slide · b bend · r release · ~ vibrato',

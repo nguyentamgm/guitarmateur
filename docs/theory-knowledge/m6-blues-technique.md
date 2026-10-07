@@ -54,7 +54,7 @@ Kiểm tra: nốt đích nằm 2 phím trên (một cung) hoặc 1 phím trên (
 
 **Dữ liệu.** Ký hiệu trên tab: h (luyến lên), p (luyến xuống), / và \ (trượt lên, xuống), b (nhéo), r (nhả), ~ (rung), t (tapping).
 
-**Dạy trong Theory.** Bài `/theory/blues` bước 5: mỗi kỹ thuật có đường cong cao độ riêng (bậc thang cho luyến, dốc liền cho trượt, sóng cho rung) và âm thanh tương ứng: nốt sau của luyến, trượt, nhả là cùng một tiếng gảy đổi cao độ, không gảy lại. Kết thúc bằng một câu mẫu hai ô (ghi theo vị trí trong hộp 1, nên đổi giọng thì câu đi theo) chạy trên nền blues 12 ô, tab ghi h p / b r ~. Tapping chưa dạy.
+**Dạy trong Theory.** Bài `/theory/blues` bước 5: mỗi kỹ thuật có đường cong cao độ riêng (bậc thang cho luyến, dốc liền cho trượt, sóng cho rung) và âm thanh tương ứng: nốt sau của luyến, trượt, nhả là cùng một tiếng gảy đổi cao độ, không gảy lại. Kết thúc bằng một lick hai ô chạy trên nền blues 12 ô, tab ghi h p / b r ~, đổi được giọng (12 giọng minor pentatonic, hộp 1). Lick đầu là câu mẫu viết sẵn; nút "Lick mới" sinh câu khác bằng `motif()` (K7.4): ô 1 một ý, ô 2 một ý nối tiếp, đáp xuống root, giữ tới hết ô với vibrato. Kỹ thuật do nốt quyết định (`decorate()`): nốt cao hơn nốt bên dưới một cung và ngân từ hai móc đơn là nốt dưới được nhéo lên (tối đa một lần mỗi ô, không nhéo dây buông); nốt cùng dây ngay sau một móc đơn là luyến lên hoặc luyến xuống; root cuối được trượt vào nếu nốt trước nằm cùng dây, thấp hơn hai phím. Lick sinh ra chưa có nhả (r). Tapping chưa dạy.
 
 **Nguồn:** ch. 14.
 
