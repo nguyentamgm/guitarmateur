@@ -1,0 +1,108 @@
+import type { ThreePerStringCopy } from './model';
+
+export const en: ThreePerStringCopy = {
+  title: 'Three Notes per String',
+  summary: 'The full major scale in seven positions of three notes per string: three hand shapes, a chain along the neck, triplets, and every key.',
+  lead:
+    'The pentatonic boxes put two notes on each string. A seven-note scale fits three on each string, and that gives seven positions that cover the whole neck. Each string uses one of only three hand shapes, so it is quicker to learn than it looks. Four steps, in G major until step 4. Click any note to hear it.',
+  steps: {
+    strings: {
+      title: 'Three notes on every string',
+      body: [
+        'Start on G at fret 3 of string 6 and go up the G major scale, taking exactly three notes on each string before moving to the next one. Six strings, eighteen notes, a bit over two octaves, all between frets 3 and 8.',
+        'The gaps between the three notes on a string can only be whole–whole (+2 +2), whole–half (+2 +1) or half–whole (+1 +2). The scale never has two half steps in a row, so there is no fourth shape. Learn three hand shapes and you can play every string of every position.',
+        'Fingering follows the gaps: a half step goes to the next finger. Whole–half is 1-3-4, half–whole is 1-2-4, and whole–whole is 1-2-4 with the hand stretched across five frets.',
+      ],
+      takeaway: 'Three notes on every string, and each string is one of three shapes: +2 +2, +2 +1 or +1 +2.',
+      tryIt: 'Switch the labels to fingers and play position 1 slowly up and down, saying the shape of each string out loud.',
+    },
+    tile: {
+      title: 'Seven positions tile the neck',
+      body: [
+        'Position 1 starts on the 1st degree of the scale on string 6. Position 2 starts on the 2nd degree, position 3 on the 3rd, and so on up to 7. Each one drops the lowest note on every string and adds the next scale note on top.',
+        'So neighbouring positions share two of the three notes on each string, twelve in all. You add only six new notes to learn the next position. Position 7 sits just below position 1, and after it the chain starts again 12 frets up.',
+        'Some positions reach across seven frets, such as position 4 in G (frets 8–14). That is normal for three notes per string: let your hand shift a little on the whole–whole strings instead of forcing the stretch.',
+      ],
+      takeaway: 'Each position shares two notes per string with the next one; seven positions cover the neck.',
+      tryIt: 'Play up position 1 and down position 2 without stopping, then 2→3, until you reach 7→1.',
+    },
+    triplets: {
+      title: 'Three notes, one beat',
+      body: [
+        'Play the notes as triplets, three to a beat, counting "1 trip-let 2 trip-let". With three notes on every string, each beat starts on a new string, so the count and the strings line up.',
+        'Alternate picking (down, up, down) on three notes means the next string starts on an up stroke, then a down stroke again. Practise slowly until the change of string is as even as the notes on one string.',
+        'The sequences from the pentatonic lesson work here too. Groups of 3 in triplets put each group on one beat; groups of 4 move across the beat, which is good practice for keeping your place.',
+      ],
+      takeaway: 'Three notes per string fits triplets: one string per beat.',
+      tryIt: 'Play position 1 straight up in triplets at 60 BPM. When every beat lands on a new string, raise the tempo by 5.',
+    },
+    keys: {
+      title: 'Every key, and the relative minor',
+      body: [
+        'Changing key slides all seven positions together; their shapes never change. Find the major root on string 6, put position 1 there, and the rest follow along the neck.',
+        'The relative minor uses the same notes, so it uses the same positions. Only the numbering and the root change: minor position 1 starts on the minor root, which is degree 6 of the major key. G major position 6 is E minor position 1.',
+      ],
+      takeaway: 'Slide the shapes to change key. For the relative minor, keep the frets and move the root.',
+      tryIt: 'Pick A, find position 1 at fret 5, then switch to F♯ minor and play the same frets from the new root.',
+    },
+  },
+  scene: {
+    strings: {
+      labels: 'Labels',
+      degrees: 'Degrees',
+      notes: 'Notes',
+      fingers: 'Fingers',
+      play: 'Play the position',
+      stop: 'Stop',
+      shapes: { ww: 'whole–whole', wh: 'whole–half', hw: 'half–whole' },
+      gaps: 'Beside each string: the frets between its notes, +2 = whole step, +1 = half step',
+      caption: '{key} major, position 1: frets {min}–{max}, three notes on each string.',
+    },
+    tile: {
+      position: 'Position',
+      cross: 'Up one, down the next',
+      stop: 'Stop',
+      caption: 'Position {n}: frets {min}–{max}, starts on degree {degree} on string 6. It shares {count} notes with position {next}.',
+      playing: 'Up position {n}, down position {next}.',
+    },
+    triplets: {
+      position: 'Position',
+      pattern: 'Pattern',
+      patterns: { straight: 'Straight', threes: 'Groups of 3', fours: 'Groups of 4', skip: 'Skip one' },
+      direction: 'Direction',
+      up: 'Up',
+      down: 'Down',
+      start: 'Start',
+      stop: 'Stop',
+      tempo: 'Tempo',
+      bpm: '{bpm} BPM',
+      tab: 'Tab of the drill, counted in triplets',
+      trip: 'trip',
+      let: 'let',
+      idle: '{pattern} in position {n}: {count} notes, three to a beat. Press start.',
+      playing: 'Triplets at {bpm} BPM: "1 trip-let 2 trip-let".',
+    },
+    keys: {
+      key: 'Major key',
+      scale: 'Scale',
+      major: '{key} major',
+      minor: '{key} minor',
+      position: 'Position',
+      play: 'Root to root over a drone',
+      stop: 'Stop',
+      legendRoot: 'Root',
+      caption: '{scale}, position {n}: frets {min}–{max}. The same frets are {other} position {m}.',
+      playing: 'From {root} to {root} and back in {scale}, over a low {root}.',
+    },
+  },
+  notYetTitle: 'What you do not need yet',
+  notYetIntro: 'Seven positions of one scale are plenty to practise. These can wait.',
+  notYet: [
+    { title: 'Modes (Dorian, Mixolydian…)', why: 'Starting the major scale from another degree has its own names and sounds. Learn the positions first; the modes reuse them.' },
+    { title: 'Harmonic and melodic minor', why: 'They change one or two notes of the minor scale. The natural minor is enough for now.' },
+    { title: 'Economy and sweep picking', why: 'Other ways to cross strings faster. Strict alternate picking first.' },
+    { title: 'Legato runs', why: 'Hammer-ons and pull-offs suit three notes per string well, but they come after the picking is even.' },
+    { title: 'Soloing with these positions', why: 'The soloing lesson still uses box 1. Mixing the full scale into solos comes later.' },
+    { title: 'CAGED', why: 'Another way to cut the neck into shapes. One system at a time.' },
+  ],
+};

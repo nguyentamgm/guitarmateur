@@ -1,0 +1,108 @@
+import type { ThreePerStringCopy } from './model';
+
+export const vi: ThreePerStringCopy = {
+  title: 'Scale 3 nốt mỗi dây',
+  summary: 'Major scale đầy đủ trong bảy thế 3 nốt mỗi dây: ba shape bàn tay, một chuỗi dọc cần đàn, triplet và mọi giọng.',
+  lead:
+    'Các box pentatonic đặt hai nốt trên mỗi dây. Scale bảy nốt thì xếp được ba nốt mỗi dây, và như vậy có bảy thế (position) phủ kín cần đàn. Mỗi dây chỉ dùng một trong ba shape bàn tay, nên học nhanh hơn vẻ ngoài của nó. Bốn bước, giọng G trưởng cho tới bước 4. Bấm vào nốt nào cũng nghe được.',
+  steps: {
+    strings: {
+      title: 'Ba nốt trên mỗi dây',
+      body: [
+        'Bắt đầu từ G ở phím 3 dây 6 và đi lên theo G major scale, lấy đúng ba nốt trên mỗi dây rồi mới sang dây kế. Sáu dây, mười tám nốt, hơn hai quãng 8 một chút, tất cả nằm giữa phím 3 và phím 8.',
+        'Khoảng cách giữa ba nốt trên một dây chỉ có thể là một cung–một cung (+2 +2), một cung–nửa cung (+2 +1) hoặc nửa cung–một cung (+1 +2). Scale không bao giờ có hai nửa cung liền nhau, nên không có shape thứ tư. Thuộc ba shape bàn tay là chơi được mọi dây của mọi thế.',
+        'Ngón bấm đi theo khoảng cách: nửa cung thì dùng ngón kế bên. Một cung–nửa cung là 1-3-4, nửa cung–một cung là 1-2-4, còn một cung–một cung là 1-2-4 với bàn tay mở rộng qua năm phím.',
+      ],
+      takeaway: 'Ba nốt trên mỗi dây, và mỗi dây là một trong ba shape: +2 +2, +2 +1 hoặc +1 +2.',
+      tryIt: 'Đổi nhãn sang ngón bấm và chơi thế 1 thật chậm lên rồi xuống, đọc to shape của từng dây.',
+    },
+    tile: {
+      title: 'Bảy thế lát kín cần đàn',
+      body: [
+        'Thế 1 bắt đầu từ bậc 1 của scale trên dây 6. Thế 2 bắt đầu từ bậc 2, thế 3 từ bậc 3, cứ thế tới 7. Mỗi thế bỏ nốt thấp nhất trên từng dây và thêm nốt kế tiếp của scale ở phía trên.',
+        'Vì thế hai thế kề nhau dùng chung hai trong ba nốt trên mỗi dây, tổng cộng mười hai nốt. Muốn học thế kế tiếp, bạn chỉ cần thêm sáu nốt mới. Thế 7 nằm ngay dưới thế 1, và sau nó chuỗi lặp lại ở 12 phím cao hơn.',
+        'Có thế trải rộng tới bảy phím, như thế 4 ở giọng G (phím 8–14). Với 3 nốt mỗi dây thì đó là bình thường: trên các dây một cung–một cung, để bàn tay dời đi một chút thay vì cố với.',
+      ],
+      takeaway: 'Mỗi thế dùng chung hai nốt mỗi dây với thế kế tiếp; bảy thế phủ kín cần đàn.',
+      tryIt: 'Chơi thế 1 đi lên rồi thế 2 đi xuống, không dừng, rồi 2→3, cho tới 7→1.',
+    },
+    triplets: {
+      title: 'Ba nốt, một phách',
+      body: [
+        'Chơi các nốt theo triplet, ba nốt một phách, đếm "1 trip-let 2 trip-let". Vì dây nào cũng có ba nốt, mỗi phách bắt đầu trên một dây mới, nên tiếng đếm và các dây khớp với nhau.',
+        'Alternate picking (xuống, lên, xuống) trên ba nốt nghĩa là dây kế tiếp bắt đầu bằng nhát lên, rồi lại nhát xuống. Tập chậm cho tới khi lúc đổi dây cũng đều như các nốt trên cùng một dây.',
+        'Các sequence trong bài pentatonic cũng dùng được ở đây. Bộ 3 chơi theo triplet thì mỗi bộ nằm gọn trong một phách; bộ 4 thì trượt qua các phách, rất tốt để tập giữ chỗ khi đếm.',
+      ],
+      takeaway: '3 nốt mỗi dây khớp với triplet: mỗi phách một dây.',
+      tryIt: 'Chơi thế 1 đi thẳng lên theo triplet ở 60 BPM. Khi phách nào cũng rơi vào một dây mới, tăng tempo thêm 5.',
+    },
+    keys: {
+      title: 'Mọi giọng, và relative minor',
+      body: [
+        'Đổi giọng là trượt cả bảy thế cùng lúc; shape của chúng không bao giờ đổi. Tìm root trưởng trên dây 6, đặt thế 1 ở đó, các thế còn lại theo sau dọc cần đàn.',
+        'Relative minor (giọng thứ dùng cùng bộ nốt) dùng đúng các nốt đó, nên cũng dùng đúng các thế đó. Chỉ có cách đánh số và root là đổi: thế 1 của giọng thứ bắt đầu từ root thứ, tức bậc 6 của giọng trưởng. Thế 6 của G trưởng là thế 1 của E thứ.',
+      ],
+      takeaway: 'Trượt shape để đổi giọng. Với relative minor, giữ nguyên phím và dời root.',
+      tryIt: 'Chọn A, tìm thế 1 ở phím 5, rồi đổi sang F♯ thứ và chơi đúng các phím đó từ root mới.',
+    },
+  },
+  scene: {
+    strings: {
+      labels: 'Nhãn',
+      degrees: 'Bậc',
+      notes: 'Tên nốt',
+      fingers: 'Ngón bấm',
+      play: 'Phát thế này',
+      stop: 'Dừng',
+      shapes: { ww: 'một cung–một cung', wh: 'một cung–nửa cung', hw: 'nửa cung–một cung' },
+      gaps: 'Cạnh mỗi dây: số phím giữa các nốt, +2 = một cung, +1 = nửa cung',
+      caption: '{key} trưởng, thế 1: phím {min}–{max}, ba nốt trên mỗi dây.',
+    },
+    tile: {
+      position: 'Thế',
+      cross: 'Lên thế này, xuống thế kế',
+      stop: 'Dừng',
+      caption: 'Thế {n}: phím {min}–{max}, bắt đầu từ bậc {degree} trên dây 6. Dùng chung {count} nốt với thế {next}.',
+      playing: 'Lên thế {n}, xuống thế {next}.',
+    },
+    triplets: {
+      position: 'Thế',
+      pattern: 'Mẫu',
+      patterns: { straight: 'Thẳng', threes: 'Bộ 3', fours: 'Bộ 4', skip: 'Cách một' },
+      direction: 'Chiều',
+      up: 'Lên',
+      down: 'Xuống',
+      start: 'Bắt đầu',
+      stop: 'Dừng',
+      tempo: 'Tempo',
+      bpm: '{bpm} BPM',
+      tab: 'Tab của bài luyện, đếm theo triplet',
+      trip: 'trip',
+      let: 'let',
+      idle: '{pattern} trong thế {n}: {count} nốt, ba nốt một phách. Bấm bắt đầu.',
+      playing: 'Triplet ở {bpm} BPM: "1 trip-let 2 trip-let".',
+    },
+    keys: {
+      key: 'Giọng trưởng',
+      scale: 'Scale',
+      major: '{key} trưởng',
+      minor: '{key} thứ',
+      position: 'Thế',
+      play: 'Từ root tới root trên drone',
+      stop: 'Dừng',
+      legendRoot: 'Root',
+      caption: '{scale}, thế {n}: phím {min}–{max}. Cũng các phím đó là {other} thế {m}.',
+      playing: 'Từ {root} tới {root} rồi xuống lại trong {scale}, trên nốt {root} trầm.',
+    },
+  },
+  notYetTitle: 'Chưa cần học lúc này',
+  notYetIntro: 'Bảy thế của một scale là quá đủ để tập. Những thứ này để sau.',
+  notYet: [
+    { title: 'Mode (Dorian, Mixolydian…)', why: 'Bắt đầu major scale từ một bậc khác có tên và màu riêng. Học các thế trước; mode dùng lại chúng.' },
+    { title: 'Harmonic minor và melodic minor', why: 'Chúng đổi một hai nốt của scale thứ. Natural minor là đủ cho lúc này.' },
+    { title: 'Economy picking và sweep picking', why: 'Những cách khác để qua dây nhanh hơn. Alternate picking đều tay trước đã.' },
+    { title: 'Chạy legato', why: 'Hammer-on và pull-off rất hợp với 3 nốt mỗi dây, nhưng để sau khi tay gảy đã đều.' },
+    { title: 'Solo bằng các thế này', why: 'Bài solo vẫn dùng box 1. Đưa scale đầy đủ vào câu solo là việc sau.' },
+    { title: 'CAGED', why: 'Một cách khác để chia cần đàn thành shape. Mỗi lúc một hệ thống thôi.' },
+  ],
+};

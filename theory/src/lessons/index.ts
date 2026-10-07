@@ -12,6 +12,7 @@ import { majorScale } from './major-scale';
 import { pentatonic } from './pentatonic';
 import { pentatonicMap } from './pentatonic-map';
 import { rhythm } from './rhythm';
+import { threePerString } from './three-per-string';
 
 export * from './types';
 export { barre } from './barre';
@@ -26,6 +27,7 @@ export { majorScale } from './major-scale';
 export { pentatonic } from './pentatonic';
 export { pentatonicMap } from './pentatonic-map';
 export { rhythm } from './rhythm';
+export { threePerString } from './three-per-string';
 
 export const LESSONS: readonly Lesson[] = [
   fretboard as Lesson,
@@ -40,6 +42,7 @@ export const LESSONS: readonly Lesson[] = [
   chordTable as Lesson,
   keys as Lesson,
   solo as Lesson,
+  threePerString as Lesson,
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);

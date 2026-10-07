@@ -176,7 +176,7 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (2.1) Mẫu luyện ngón chỉ chạy trong một hộp, một chiều mỗi lần. Chưa có mẫu chạy lên rồi xuống trong một vòng, hay chạy dọc qua nhiều hộp. Thêm vào `sequence()` khi một bài cần.
 - (2.3) `boogieShape` (electric) vẫn nằm trong bài: nó vẽ vị trí bấm trên cần, không phải âm thanh, nên không gom vào `core/audio/backing.ts` như `vampVoicing`, `shuffleNotes` và `bassMidi` (đã gom ở phiên 4.2).
 - (2.1) `positions()` chỉ dời hộp xuống một quãng 8 khi cả hộp nằm trên phím 12, nên ở A thứ phím 0–1 không có khung nào (hộp 4 chỉ hiện ở 12–15, không hiện ở 0–3). Nếu người học thấy thiếu, cho cảnh vẽ thêm bản sao 12 phím dưới.
-- (2.1) Các bài Bản đồ Pentatonic và Pentatonic đầy đủ có `scaleNeck`, `boxes`, `upAndDown` gần giống nhau, mỗi bài một bản. Nếu bài thứ ba cần, chuyển chúng vào `core/fretboard`.
+- (2.1, 4.3) `scaleNeck`, `upAndDown`, `samePos` và kiểu `NeckNote` giờ có ba bản gần giống nhau (Bản đồ Pentatonic, Pentatonic đầy đủ, 3 nốt mỗi dây; blues có `NeckNote` riêng), cộng `Frame` vẽ khung có số ở `PentatonicScene` và `ThreePerStringScene`. Đã tới ngưỡng "bài thứ ba": gom vào `core/fretboard` (và `ui/`) bằng một PR riêng, vì phải sửa bốn bài.
 - (1.1) `App.test.tsx` còn in thêm `Not implemented: Window's scrollTo()` của jsdom (từ `App.tsx` khi chuyển trang). Vô hại, cùng loại với log navigation ở trên.
 - (4.1) Bài đố "hợp âm nào là nhà" (`/theory/keys` bước 3) không lưu điểm (cùng việc với chế độ ôn tập 5.1). Đoạn dẫn luôn dừng ở V7 và chỉ ở giọng trưởng; chưa đố giọng thứ.
 - (4.1) Giọng thứ dùng natural minor nên hợp âm v là thứ. V7 mượn từ harmonic minor chưa dạy; `diatonicChords()` chỉ biết major và natural minor.
@@ -185,8 +185,11 @@ Những điều các phiên trước phát hiện nhưng chưa làm. Phiên sau 
 - (4.1) Hợp âm viiø7 (m7♭5) ở bước 1 của `/theory/keys` dùng shape chặn dời từ hợp âm dây buông (`x 2 3 2 3 5` cho Bm7♭5): đủ nốt nhưng phải với ngón út. Shape thường dùng `x 2 3 2 3 x` chưa dạy; thêm khi phiên jazz cần, kèm test.
 - (4.2) Thu lại câu solo và phát lại (K7.6) và câu đố nghe rồi chơi lại (K7.5) chuyển sang chế độ ôn tập (5.1).
 - (4.2) Ý nhạc chỉ đổi nốt cuối; chưa biến đổi nhịp hay hướng đi, chưa có nhéo, vuốt, rung trong câu. Nhóm bốn bar luôn là ý, lặp, đổi đoạn kết, bar trống.
-- (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ (phiên 4.3).
+- (4.2) Solo chỉ trong box 1. Với jazz, major scale được lấy trong khung phím của box 1 major pentatonic nên dây 3 và dây 4 thiếu bậc 4 hoặc 7; đủ nốt đích cho ii–V–I nhưng chưa phải một thế bấm major scale đầy đủ. Phiên 4.3 đã có bảy thế 3 nốt mỗi dây (`/theory/three-per-string`) nhưng bài solo chưa dùng chúng.
 - (4.2) Đường guide tone đi giữa các nốt trong box theo cao độ; chưa nối sang box khác khi nốt gần hơn nằm ngoài box.
+- (4.3) Bài luyện triplet (`/theory/three-per-string` bước 3) không có "tăng tốc" và không lưu tempo (cùng việc với chế độ ôn tập 5.1). Mỗi vòng được làm tròn lên số bar chẵn bằng dấu lặng (`loopSteps()`), nên một bài 18 nốt có nửa bar nghỉ trước khi lặp lại.
+- (4.3) Ngón bấm chỉ có một cách: dây một cung–một cung là 1-2-4 với bàn tay mở rộng. Chưa có lựa chọn 1-3-4 hay dời tay giữa dây, và chưa vẽ chỗ dời tay trong các thế rộng bảy phím (thế 4 ở G).
+- (4.3) Phiên 4.3 bỏ bước "chạy một đường dọc cần đàn qua nhiều thế" (người duyệt bỏ ở dàn ý). Cùng việc với mẫu luyện ngón chạy dọc nhiều hộp (2.1).
 - (1.3) Bước quãng của `/theory/major-scale` cố định nốt nhà C trên dây 5 và chỉ đổi tính chất trong một dấu hóa (không có quãng 1 tăng, quãng 8 giảm, quãng kép). Nếu người học cần, cho đổi nốt nhà.
 
 Prompt mẫu để mở một phiên. Bạn chỉ cần thay mã phiên và chương:
@@ -247,5 +250,5 @@ Mỗi dòng là một phiên. Làm theo thứ tự từ trên xuống, nhưng sa
 | 3.3 | Bảng công thức hợp âm tương tác, hợp âm 7, hợp âm 7 và m11 dây buông, thế đảo, rút gọn hợp âm. Bài `/theory/chord-table` (en + vi), `openVoicing` thành phép tìm có nốt thiết yếu và bass, `stackShape`, `simplifyChord` | Ch. 17, 20 | Xong |
 | 4.1 | Giọng và vòng hợp âm: gia đình 7 hợp âm, số La Mã, tìm hợp âm nhà bằng tai, V7 → I và ii–V, relative minor. Bài `/theory/keys` (en + vi), lõi `progression()`, `PROGRESSIONS`, `twoFive()`, `barreOptions()`, `closestPath()` | Ch. 8, 13, 18 | Xong |
 | 4.2 | Solo theo hợp âm: chọn scale theo giọng, nốt của hợp âm sáng theo backing, đường guide tone, ý nhạc lặp rồi đổi đoạn kết. Bài `/theory/solo` (en + vi), lõi `backingAt()` (4 kiểu đệm), `motif()`/`landOn()`, `closestPath()` chạy bằng quy hoạch động; `ui/useBacking.ts`, `Tab` có chữ đếm | Ch. 19 | Xong |
-| 4.3 | Âm giai 3 nốt mỗi dây, phủ toàn cần đàn | Ch. 17 | Chưa làm |
+| 4.3 | Scale 3 nốt mỗi dây: ba shape trên một dây và ngón bấm, bảy thế nối nhau (chung hai nốt mỗi dây), triplet một dây một phách, đổi giọng và relative minor cùng phím. Bài `/theory/three-per-string` (en + vi), dùng `positions({ notesPerString: 3 })` có sẵn; `stringRows()`, `positionPair()`, `keyView()`/`renumber()` trong bài | Ch. 17 | Xong |
 | 5.1 | Chế độ đố và ôn tập xuyên các bài, liên kết với app Luyện tập | Tất cả | Chưa làm |

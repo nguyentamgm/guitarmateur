@@ -128,6 +128,11 @@ Khi hình đi qua dây G→B, phần nằm trên dây B dời thêm +1 phím.
 
 **Dữ liệu.** 7 thế, mỗi thế bắt đầu từ một bậc khác nhau trên dây 6. Mỗi dây 3 nốt liên tiếp của âm giai. Lõi sinh ra bằng thuật toán, không dùng bảng hình cứng.
 
-**Dạy trong Theory.** Như 5 hộp của pentatonic: các thế nối nhau như gạch lát, trượt cả hình để đổi giọng.
+Thêm vài dữ kiện mà bài dạy dựa vào (đều có test):
+- Ba nốt trên một dây chỉ có ba kiểu khoảng cách: +2 +2, +2 +1, +1 +2 (scale trưởng không có hai nửa cung liền nhau). Ngón bấm: +2 +1 là 1-3-4, +1 +2 là 1-2-4, +2 +2 là 1-2-4 với bàn tay mở rộng qua năm phím.
+- Thế k bắt đầu từ bậc k trên dây 6. Hai thế kề nhau dùng chung hai nốt mỗi dây (12 nốt). Ở G trưởng: 3–8, 5–10, 7–12, 8–14, 10–15, 12–17, 2–7; có thế rộng bảy phím (thế 4).
+- Relative minor dùng đúng các phím đó, chỉ đánh số lại từ root thứ: thế 1 của giọng thứ là thế 6 của giọng trưởng.
+
+**Dạy trong Theory.** Bài `/theory/three-per-string`: bước 1 là thế 1 của G trưởng, cạnh mỗi dây ghi khoảng cách (+2 +2…), nhãn bậc / tên nốt / ngón bấm. Bước 2: chọn thế 1–7, khung thế đang chọn và thế kế tiếp, các nốt chung được khoanh. Bước 3: chạy thế theo triplet với metronome, tab có chữ đếm "1 trip-let", mỗi phách một dây; dùng lại `sequence()` (K3.6). Bước 4: 12 giọng trưởng, bật qua lại giọng trưởng và relative minor mà không chấm nào di chuyển; chú thích cho biết số thế ở cách đánh số kia. Lõi: `positions({ notesPerString: 3 })`. Chưa dạy: mode, harmonic/melodic minor, economy/sweep picking, chạy dọc qua nhiều thế.
 
 **Cần trước:** K2.1, K3.4. **Nguồn:** ch. 17.
