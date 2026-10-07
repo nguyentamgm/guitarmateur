@@ -99,6 +99,9 @@ ui → lessons → core/fretboard → core/music
   and a storage boundary that never throws and drops broken records.
 - A quiz scene reports each settled question once with `recordQuiz(id, right)` from `useTheory()`,
   next to its own session score. A new quiz adds its entry to `QUIZZES`.
+- Drill tempos are stored under `theory.tempo` by `ui/tempos.ts` through `useStoredTempo(id, fallback)`:
+  the last tempo set, and the best (fastest tempo of a whole round; the scene's clock calls
+  `step(i, steps)`). `ui/storage.ts` is the safe way to reach localStorage from the UI.
 - `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
   then under 80% right in the last 20 answers, then not practised for 7 days.
 

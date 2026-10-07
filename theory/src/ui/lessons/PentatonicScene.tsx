@@ -43,6 +43,7 @@ import { boxSpan, neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
+import { useStoredTempo } from '../useStoredTempo';
 import { useSequence } from '../useSequence';
 
 export function PentatonicScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
@@ -217,15 +218,16 @@ function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
   const [pattern, setPattern] = useState<SequenceId>('threes');
   const [direction, setDirection] = useState<Direction>('up');
   const [speedUp, setSpeedUp] = useState(false);
-  const [bpm, setBpm] = useState(DRILL_BPM);
+  const { bpm, setBpm, nudge, best, step } = useStoredTempo('pentatonic-sequences', DRILL_BPM);
   const [round, setRound] = useState(0);
   const rounds = useRef(0);
   const box = all[index - 1]!;
   const drill = useMemo(() => drillRun(box, pattern, direction), [box, pattern, direction]);
   const cell = cellSeconds(bpm, 2);
   const clock = useClock(drill.length, cell, (i, delay) => {
+    step(i, drill.length, cell);
     if (i === 0) {
-      if (rounds.current > 0 && speedUp) setBpm((b) => clampBpm(b + SPEED_STEP));
+      if (rounds.current > 0 && speedUp) nudge((b) => clampBpm(b + SPEED_STEP));
       rounds.current += 1;
       setRound(rounds.current);
     }
@@ -272,7 +274,7 @@ function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
       </div>
       <div className="controls">
         <Button onClick={toggle}>{clock.playing ? copy.stop : copy.start}</Button>
-        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
+        <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} best={best} />
         <ChipGroup<'off' | 'on'>
           label={copy.speedUp}
           items={[

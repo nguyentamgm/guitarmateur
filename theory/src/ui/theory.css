@@ -194,6 +194,7 @@ button { font: inherit; cursor: pointer; }
 .tempo > span { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 .tempo input { width: min(220px, 40vw); accent-color: var(--accent); }
 .tempo output { min-width: 5.5em; font-variant-numeric: tabular-nums; }
+.tempo > span.best { color: var(--accent); text-transform: none; letter-spacing: 0; }
 .beatgrid .lane { fill: var(--bg); }
 .beatgrid .now { fill: var(--accent); fill-opacity: 0.16; }
 .beatgrid .cellline { stroke: var(--line); stroke-width: 1; }

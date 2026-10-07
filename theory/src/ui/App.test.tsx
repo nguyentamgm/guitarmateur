@@ -389,6 +389,20 @@ describe('Theory app', () => {
     });
   });
 
+  it('remembers a drill tempo across visits', () => {
+    render('/theory/three-per-string');
+    const slider = container.querySelector('section#triplets input[type="range"]') as HTMLInputElement;
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(slider, '84');
+      slider.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(container.querySelector('section#triplets')!.textContent).toContain('84 BPM');
+    act(() => root.unmount());
+    root = createRoot(container);
+    render('/theory/three-per-string');
+    expect((container.querySelector('section#triplets input[type="range"]') as HTMLInputElement).value).toBe('84');
+  });
+
   it('shows the contents with a notice for an unknown lesson', () => {
     render('/theory/nope');
     expect(text()).toContain('There is no lesson at “/theory/nope”');
