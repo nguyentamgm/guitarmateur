@@ -15,6 +15,7 @@ import { rhythm } from './rhythm';
 import { threePerString } from './three-per-string';
 
 export * from './types';
+export { CONCEPT_NAMES, conceptName } from './concepts';
 export { barre } from './barre';
 export { blues } from './blues';
 export { chordTable } from './chord-table';

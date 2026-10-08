@@ -147,8 +147,9 @@ ui → lessons → core/fretboard → core/music
   redefine them in a scene file.
 - Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.
 
-- Each lesson lists the concept IDs it teaches (`K3.4`…). If teaching differs from the knowledge
-  base, update the knowledge base in the same PR.
+- Each lesson lists the concept IDs it teaches (`K3.4`…); the page shows them by name from
+  `lessons/concepts.ts` (en + vi), and a test fails when a knowledge-base ID has no name. If
+  teaching differs from the knowledge base, update the knowledge base in the same PR.
 - Every lesson ships **vi and en together**; a test checks both have the same steps and keys.
   Use the glossary in `theory-knowledge/README.md`: Vietnamese copy prefers the English term (root, box, bend…) unless the Vietnamese word is already plain.
 - Write copy in our own words. No quotes, exercises, diagrams or transcriptions from the book;
