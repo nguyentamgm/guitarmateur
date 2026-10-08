@@ -91,6 +91,7 @@ a { color: var(--accent); }
 .board { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-width: 0; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
 .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.group > .globe { color: var(--muted); margin-right: 2px; }
 .group > span { font-size: 0.78rem; color: var(--muted); margin-right: 2px; font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
 button { font: inherit; cursor: pointer; }
 .chip { font-family: var(--f-mono); font-size: 0.82rem; padding: 5px 10px; min-width: 34px; border-radius: 7px; border: 1px solid var(--line); background: transparent; color: var(--ink); }

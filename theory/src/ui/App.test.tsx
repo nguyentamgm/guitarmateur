@@ -80,6 +80,12 @@ describe('Theory app', () => {
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
   });
 
+  it('marks the language switcher with a globe', () => {
+    render('/theory');
+    const group = container.querySelector('[role="group"][aria-label="Language"]')!;
+    expect(group.querySelector('svg.globe[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it('lists the lessons in order, the fretboard first', () => {
     render('/theory');
     const cards = [...container.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));

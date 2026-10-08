@@ -20,6 +20,12 @@ describe('App', () => {
     expect(container.innerHTML).toContain('Fretboard Trainer');
     expect(container.innerHTML).toContain('Pentatonic Practice');
 
+    const theory = container.querySelector<HTMLAnchorElement>('header a[href="/theory"]');
+    expect(theory?.textContent).toBe('Theory');
+    const language = container.querySelector('header select[aria-label="Language"]');
+    expect(theory?.nextElementSibling?.contains(language)).toBe(true);
+    expect(language?.parentElement?.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+
     await act(async () => {
       root.unmount();
     });

@@ -13,6 +13,7 @@
   "common.normal": "Normal",
   "common.share": "Share",
   "common.shareCopied": "Copied!",
+  "common.theory": "Theory",
   "error.message": "The app encountered an error. Your practice state is saved in localStorage and will persist.",
   "error.reload": "Reload",
   "error.title": "Something went wrong",
