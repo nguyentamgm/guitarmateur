@@ -80,6 +80,15 @@ describe('Theory app', () => {
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
   });
 
+  it('links back to the practice app, just before the language switcher', () => {
+    render('/theory/fretboard');
+    const practice = [...container.querySelectorAll('header a')].find((a) => a.getAttribute('href') === '/')!;
+    expect(practice.textContent).toBe('Practice');
+    expect(practice.nextElementSibling?.getAttribute('aria-label')).toBe('Language');
+    click(button('Tiếng Việt'));
+    expect(practice.textContent).toBe('Luyện tập');
+  });
+
   it('marks the language switcher with a globe', () => {
     render('/theory');
     const group = container.querySelector('[role="group"][aria-label="Language"]')!;
