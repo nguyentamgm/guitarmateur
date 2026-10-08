@@ -24,6 +24,7 @@ const en = {
   notYetEyebrow: 'Not yet',
   lessonFooter: 'Sound is synthesized in your browser. Nothing is tracked or uploaded.',
   navReview: 'Review',
+  navPractice: 'Practice',
   tocReview: 'Review: which quiz to do next →',
   reviewTitle: 'Review',
   reviewLead:
@@ -62,6 +63,7 @@ const vi: UiStrings = {
   notYetEyebrow: 'Tạm gác lại',
   lessonFooter: 'Âm thanh được tổng hợp ngay trong trình duyệt. Không theo dõi, không tải gì lên.',
   navReview: 'Ôn tập',
+  navPractice: 'Luyện tập',
   tocReview: 'Ôn tập: nên làm bài đố nào tiếp →',
   reviewTitle: 'Ôn tập',
   reviewLead:

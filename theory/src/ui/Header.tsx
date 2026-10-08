@@ -18,6 +18,10 @@ export function Header() {
         <button type="button" className="btn ghost" aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)}>
           {soundOn ? ui.soundOn : ui.soundOff}
         </button>
+        {/* The practice app is a different page, not a Theory route: a plain link loads it. */}
+        <a href="/" className="navlink">
+          {ui.navPractice}
+        </a>
         <div className="group" role="group" aria-label={ui.langLabel}>
           <GlobeIcon />
           {LANGS.map((l) => (
