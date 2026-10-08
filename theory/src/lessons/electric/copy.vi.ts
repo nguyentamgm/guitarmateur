@@ -107,6 +107,5 @@ export const vi: ElectricCopy = {
     { title: 'Hợp âm chặn', why: 'Shape trưởng và thứ đầy đủ đến cùng bài hợp âm, dựng trên chính các dây root này.' },
     { title: 'Bend double stop và chicken pickin\'', why: 'Kỹ thuật country, dựng trên những gì bạn vừa học.' },
     { title: 'Tự viết riff', why: 'Trước hết hãy thay các root của riff này bằng các bậc pentatonic khác.' },
-    { title: 'Lưu tiến độ', why: 'Chế độ ôn tập chung đến ở cuối lộ trình.' },
   ],
 };

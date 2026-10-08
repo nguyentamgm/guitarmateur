@@ -23,7 +23,7 @@ export interface ScaleDef {
 
 /**
  * Scale registry. Adding a scale is adding a row here (plus a harmony row) — never an `if` in an
- * engine. A future `majorBlues` = majorPentatonic + ♭3 is one entry decorated on majorPentatonic.
+ * engine.
  */
 export const SCALES: Record<ScaleId, ScaleDef> = {
   minorPentatonic: {

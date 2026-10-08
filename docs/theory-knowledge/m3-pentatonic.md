@@ -1,6 +1,6 @@
 # M3 · Pentatonic
 
-Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bài **Bản đồ Pentatonic** (`/theory/pentatonic-map`, phiên 0.3, dựng từ bản demo [`docs/prototypes/ban-do-pentatonic.html`](../prototypes/ban-do-pentatonic.html)) đã dạy K3.1–K3.5 cùng K0.2, K0.4, K0.7. Bài đầy đủ **Pentatonic trên toàn cần đàn** (`/theory/pentatonic`, phiên 2.1) mở rộng từ đó và dạy thêm K3.6, K3.7. "Bước N" dưới đây là bước của Bản đồ Pentatonic; "bài đầy đủ, bước N" là bước của bài sau.
+Mục tiêu: người học chơi được pentatonic ở mọi giọng trên toàn cần đàn, và hiểu vì sao cùng một hình dùng được cho cả giọng trưởng lẫn thứ. Bài **Bản đồ Pentatonic** (`/theory/pentatonic-map`) đã dạy K3.1–K3.5 cùng K0.2, K0.4, K0.7. Bài đầy đủ **Pentatonic trên toàn cần đàn** (`/theory/pentatonic`) mở rộng từ đó và dạy thêm K3.6, K3.7. "Bước N" dưới đây là bước của Bản đồ Pentatonic; "bài đầy đủ, bước N" là bước của bài sau.
 
 ---
 

@@ -28,9 +28,9 @@ export interface Lick {
 export interface LickParams {
   level: 1 | 2 | 3 | 4 | 5;
   targetRole: 'R' | '3' | '5' | '7';
-  /** Land on the *next* chord's target at the bar line (M4). */
+  /** Land on the *next* chord's target at the bar line. */
   resolveToNext: boolean;
   seed: number;
-  /** Bars the lick spans (× 4 beats); optional for back-compat, defaults to 1 (M5). */
+  /** Bars the lick spans (× 4 beats); defaults to 1. */
   bars?: 1 | 2;
 }

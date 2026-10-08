@@ -13,7 +13,7 @@ import tseslint from 'typescript-eslint';
 const noReact = ['react', 'react/*', 'react-dom', 'react-dom/*'];
 
 /**
- * The Theory app (theory/) and the practice app (src/) share no code (docs/theory-plan.md).
+ * The Theory app (theory/) and the practice app (src/) share no code.
  * Every src/ block carries `fromTheory`, every theory/ block carries `fromSrc`, because a later
  * block's `no-restricted-imports` replaces an earlier one's instead of merging with it.
  */

@@ -15,7 +15,7 @@ describe('chordNotes / toneRole', () => {
   });
 
   it('toneRole does not throw on theoretical-key (double-flat) chord tonics', () => {
-    // F𝄫 (F double-flat, pc 3) — transpose(F𝄫, m7) requires alter -3 and used to throw RangeError.
+    // F𝄫 (F double-flat, pc 3) — transpose(F𝄫, m7) requires alter -3, outside the spellable range.
     // dom7 chord-tone pitch classes above pc 3: R=3, 3=7, 5=10, 7=1.
     const chord: Chord = { tonic: note('F', -2), quality: 'dom7' };
     expect(toneRole(note('F', -2), chord)).toBe('R'); // pc 3

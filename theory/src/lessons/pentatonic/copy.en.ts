@@ -122,7 +122,6 @@ export const en: PentatonicCopy = {
     { title: 'Licks and phrasing', why: 'Sequences train the hand. Shaping phrases comes once you hear chords change under you.' },
     { title: 'Target notes on chord changes', why: 'Landing on the chord\'s own notes needs the chords first.' },
     { title: 'Three notes per string', why: 'Another way to cover the neck, with the full seven-note scale. It comes later.' },
-    { title: 'Saving your top tempo and score', why: 'Write it down for now. A review mode across lessons comes at the end.' },
     { title: 'CAGED and other box systems', why: 'Five pentatonic boxes already cover the whole neck; one system at a time.' },
   ],
 };

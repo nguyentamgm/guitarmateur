@@ -61,7 +61,7 @@ describe('generateLick — integration', () => {
     expect(a.notes).not.toEqual(b.notes);
   });
 
-  it('bars sets lengthBeats = bars * 4 and keeps notes within the span (M5)', () => {
+  it('bars sets lengthBeats = bars * 4 and keeps notes within the span', () => {
     for (const bars of [1, 2] as const) {
       for (let seed = 0; seed < 30; seed++) {
         const lick = generateLick(box, chord, null, { level: 3, targetRole: 'R', resolveToNext: false, seed, bars });

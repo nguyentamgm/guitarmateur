@@ -2,8 +2,7 @@
 
 Theory is a separate app in this repo: visual, animated music-theory lessons for electric guitar,
 served at `/theory`. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) with the practice
-app in `src/` but **no code**. Plan and progress: [`theory-plan.md`](theory-plan.md). What to
-teach: [`theory-knowledge/`](theory-knowledge/README.md).
+app in `src/` but **no code**. What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
 
 ## Layout
 
@@ -161,7 +160,3 @@ ui → lessons → core/fretboard → core/music
 
 Same as the rest of the repo: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`
 (CI order). `npx vitest run theory` runs only Theory tests.
-
-Ending a session (self-review, PR to `main`, self-merge once CI is green, check production): follow
-the checklist in [`theory-plan.md`](theory-plan.md#checklist-kết-thúc-phiên). Open follow-ups from
-earlier sessions live in its "Việc còn treo" section.

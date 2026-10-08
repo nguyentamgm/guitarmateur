@@ -9,7 +9,7 @@ export interface Key {
 
 /**
  * The 12 practical tonics offered by the key picker, covering all 12 pitch classes with
- * conventional minor-key spellings. A first, to match the mockup's UI order.
+ * conventional minor-key spellings, starting from A.
  */
 export const TONICS: NoteName[] = [
   note('A'),

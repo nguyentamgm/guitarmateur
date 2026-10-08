@@ -1,7 +1,6 @@
 /**
- * Plucked-string synthesis (Karplus-Strong), ported from the prototype in
- * docs/prototypes/ban-do-pentatonic.html. Pure functions: no AudioContext here, so the sound can
- * be unit-tested and tuned without a browser.
+ * Plucked-string synthesis (Karplus-Strong). Pure functions: no AudioContext here, so the sound
+ * can be unit-tested and tuned without a browser.
  */
 
 export const midiToFrequency = (m: number): number => 440 * Math.pow(2, (m - 69) / 12);
@@ -18,7 +17,7 @@ export function seededRandom(seed: number): () => number {
   };
 }
 
-/** Feedback per period: low strings ring longer, as in the prototype. */
+/** Feedback per period: low strings ring longer. */
 export const decayFactor = (m: number): number => (m < 52 ? 0.997 : 0.995);
 
 export interface PluckOptions {
@@ -28,8 +27,8 @@ export interface PluckOptions {
   readonly durationSec?: number;
   readonly seed?: number;
   /**
-   * Smoothing of the initial noise burst (0..1). Higher = darker, rounder attack. The
-   * prototype used 0.45.
+   * Smoothing of the initial noise burst (0..1). Higher = darker, rounder attack. Default 0.45
+   * (0.8 muted).
    */
   readonly softness?: number;
   /**
