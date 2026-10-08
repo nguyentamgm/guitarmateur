@@ -1,5 +1,6 @@
 import { LANGS } from '../i18n';
 import { useTheory } from './context';
+import { GlobeIcon } from './GlobeIcon';
 import { Link } from './Link';
 import { BASE, hrefFor } from './router';
 
@@ -18,6 +19,7 @@ export function Header() {
           {soundOn ? ui.soundOn : ui.soundOff}
         </button>
         <div className="group" role="group" aria-label={ui.langLabel}>
+          <GlobeIcon />
           {LANGS.map((l) => (
             <button
               key={l}

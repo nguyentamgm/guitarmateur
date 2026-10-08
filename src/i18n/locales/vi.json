@@ -13,6 +13,7 @@
   "common.normal": "Bình thường",
   "common.share": "Chia sẻ",
   "common.shareCopied": "Đã sao chép!",
+  "common.theory": "Theory",
   "error.message": "Ứng dụng đã gặp lỗi. Trạng thái luyện tập của bạn được lưu trong localStorage và sẽ không bị mất.",
   "error.reload": "Tải lại",
   "error.title": "Đã có lỗi xảy ra",

@@ -6,6 +6,7 @@ import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
 import { InstallPrompt } from './components/InstallPrompt';
+import { GlobeIcon } from './components/primitives';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useT } from './useT';
 
@@ -169,18 +170,36 @@ export function App() {
           >
             {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
           </button>
-          <select
-            aria-label={t('common.language')}
-            value={state.language}
-            onChange={(e) => dispatch({ type: 'setLanguage', language: e.target.value as LocaleId })}
-            style={btnStyle}
+          <a
+            href="/theory"
+            style={{
+              ...btnStyle,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
           >
-            {Object.values(LOCALES).map((locale) => (
-              <option key={locale.id} value={locale.id}>
-                {locale.endonym}
-              </option>
-            ))}
-          </select>
+            {t('common.theory')}
+          </a>
+          <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+            <GlobeIcon
+              style={{ position: 'absolute', left: 11, color: theme.accent, pointerEvents: 'none' }}
+            />
+            <select
+              aria-label={t('common.language')}
+              value={state.language}
+              onChange={(e) =>
+                dispatch({ type: 'setLanguage', language: e.target.value as LocaleId })
+              }
+              style={{ ...btnStyle, paddingLeft: 30 }}
+            >
+              {Object.values(LOCALES).map((locale) => (
+                <option key={locale.id} value={locale.id}>
+                  {locale.endonym}
+                </option>
+              ))}
+            </select>
+          </span>
           <input
             ref={fileInputRef}
             type="file"
