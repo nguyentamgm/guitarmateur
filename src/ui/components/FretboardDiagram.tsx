@@ -24,11 +24,11 @@ export interface FretboardDiagramProps {
 }
 
 /**
- * Pure presentational fretboard renderer. Geometry and note styling are ported from the mockup's
- * `fb()` — pixels, not logic. Note *states*: tonic = accent ring, decoration (♭5) = dashed faint
- * ring, other scale notes = faint ring; when `highlight` is set, the target chord tone gets a
- * solid accent fill and other chord tones get an accent ring + translucent fill, overriding the
- * plain scale-note/tonic styling; `landing` adds a dashed accent halo around one note.
+ * Pure presentational fretboard renderer. Note *states*: tonic = accent ring, decoration (♭5) =
+ * dashed faint ring, other scale notes = faint ring; when `highlight` is set, the target chord
+ * tone gets a solid accent fill and other chord tones get an accent ring + translucent fill,
+ * overriding the plain scale-note/tonic styling; `landing` adds a dashed accent halo around one
+ * note.
  */
 export function FretboardDiagram({
   box,

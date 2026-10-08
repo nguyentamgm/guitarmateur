@@ -107,6 +107,5 @@ export const en: ElectricCopy = {
     { title: 'Barre chords', why: 'Full major and minor shapes come with chords, built from the same root strings.' },
     { title: 'Double-stop bends and chicken pickin\'', why: 'Country technique, built on what you just learned.' },
     { title: 'Writing your own riffs', why: 'Swap the roots of this riff for other pentatonic degrees first.' },
-    { title: 'Saving your progress', why: 'A review mode across lessons comes at the end.' },
   ],
 };

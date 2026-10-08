@@ -133,7 +133,6 @@ export const vi: BluesCopy = {
     { title: 'Tapping', why: 'Là hammer-on bằng tay phải. Cần hammer-on và pull-off sạch trước đã.' },
     { title: 'Đổi nốt theo từng hợp âm', why: 'Nhắm vào nốt của D7 khi đang ở D7 thuộc về bài solo theo hợp âm.' },
     { title: 'Swing ngoài shuffle', why: 'Swing trong jazz đổi tỉ lệ dài–ngắn theo tempo và phong cách. Shuffle theo triplet là chuẩn của blues.' },
-    { title: 'Lưu điểm bài kiểm tra tai', why: 'Chế độ ôn tập chung đến ở cuối lộ trình.' },
     { title: 'Tự viết lick', why: 'Trước hết hãy nghe và chơi tốt một câu; cách xây câu đến cùng bài solo.' },
   ],
 };

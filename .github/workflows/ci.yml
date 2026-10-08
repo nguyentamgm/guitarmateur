@@ -7,8 +7,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      # Sessions merge their own PRs; a PR stacked on another branch gets merged there and never
-      # reaches main (lost #120). Every PR must target main.
+      # Every PR must target main: a PR stacked on another branch merges there and never reaches main.
       - if: github.event_name == 'pull_request' && github.base_ref != 'main'
         run: |
           echo "::error::PRs must target main (this one targets '${{ github.base_ref }}'). Retarget it: gh pr edit --base main"

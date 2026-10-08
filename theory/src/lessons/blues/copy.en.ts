@@ -133,7 +133,6 @@ export const en: BluesCopy = {
     { title: 'Tapping', why: 'A right-hand hammer-on. It needs clean legato first.' },
     { title: 'Changing notes on each chord', why: 'Targeting the notes of D7 over D7 comes with soloing over changes.' },
     { title: 'Swing beyond the shuffle', why: 'Jazz swing changes the long–short ratio with tempo and style. The triplet shuffle is the blues standard.' },
-    { title: 'Saving your ear-check score', why: 'A review mode across lessons comes at the end.' },
     { title: 'Writing your own licks', why: 'First learn to hear and play one well; phrasing comes with soloing.' },
   ],
 };

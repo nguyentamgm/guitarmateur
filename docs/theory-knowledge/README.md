@@ -1,32 +1,32 @@
 # Kho kiến thức Theory
 
-Đây là nguồn kiến thức chuẩn cho app Theory. Các phiên làm bài đọc những file này thay vì đọc sách. Kho được dựng từ cuốn *Learn & Master Guitar* (Steve Krenz, bản dịch tiếng Việt của lazyguitar), nhưng **viết lại hoàn toàn bằng lời của dự án**: không trích câu, không chép bài tập, không chép bản nhạc. Thứ được giữ lại là kiến thức nhạc lý (công thức, quan hệ, thứ tự học), vốn là kiến thức chung.
+Đây là nguồn kiến thức chuẩn cho app Theory. Kho được dựng từ cuốn *Learn & Master Guitar* (Steve Krenz, bản dịch tiếng Việt của lazyguitar), nhưng **viết lại hoàn toàn bằng lời của dự án**: không trích câu, không chép bài tập, không chép bản nhạc. Thứ được giữ lại là kiến thức nhạc lý (công thức, quan hệ, thứ tự học), vốn là kiến thức chung.
 
 Kho được sắp theo lộ trình học của Theory, không theo thứ tự chương của sách. Mỗi khái niệm có một mã (`K3.2`…) để bài học, test và PR tham chiếu.
 
-## Cách dùng trong một phiên
+## Cách dùng
 
 1. Đọc file này để nắm mã khái niệm, thuật ngữ và các chỗ sách in sai.
-2. Đọc file module mà phiên đó cần (bảng bên dưới). Không cần đọc các module khác.
+2. Đọc file module của bài đang làm (bảng bên dưới). Không cần đọc các module khác.
 3. Mỗi bài học ghi rõ nó dạy những mã nào. Nếu bài cần một khái niệm chưa có, thêm khái niệm vào đúng module trong cùng PR.
 4. Nếu dạy khác với ghi chú ở đây (thứ tự, cách minh họa), sửa file kiến thức trong cùng PR để kho luôn khớp với app.
 
 ## Các module
 
-| Module | File | Phiên dùng | Nội dung |
-| --- | --- | --- | --- |
-| M0 Cần đàn | [m0-fretboard.md](m0-fretboard.md) | 1.1 | Dây, phím, tab, nửa cung, shape quãng 8, nốt trên dây 6 và 5 |
-| M1 Nhịp | [m1-rhythm.md](m1-rhythm.md) | 1.2 | Phách, giá trị nốt, đếm, quạt dây, swing |
-| M2 Âm giai và quãng | [m2-scales-intervals.md](m2-scales-intervals.md) | 1.3, 4.3 | Âm giai trưởng, đánh vần, quãng, hình quãng, âm giai thứ, giọng song song, 3 nốt mỗi dây |
-| M3 Pentatonic | [m3-pentatonic.md](m3-pentatonic.md) | 0.3, 2.1 | Major/minor pentatonic, 5 box, đổi root, sequence |
-| M4 Hợp âm | [m4-chords.md](m4-chords.md) | 2.3, 3.1–3.3 | Hợp âm ba, power chord, hợp âm 7, mở rộng, dây buông, chặn di động, đảo |
-| M5 Giọng và tiến trình | [m5-keys-progressions.md](m5-keys-progressions.md) | 2.2, 4.1 | Hợp âm thuận, số La Mã, blues 12 ô, V–I, II–V–I |
-| M6 Blues và kỹ thuật guitar điện | [m6-blues-technique.md](m6-blues-technique.md) | 2.2, 2.3 | Blues scale, blue note, bend, hammer-on/pull-off, slide, palm mute, double stop, quãng 8 |
-| M7 Solo | [m7-soloing.md](m7-soloing.md) | 4.2 | Chọn âm giai, nốt đích theo hợp âm, xây câu, luyện tai |
+| Module | File | Nội dung |
+| --- | --- | --- |
+| M0 Cần đàn | [m0-fretboard.md](m0-fretboard.md) | Dây, phím, tab, nửa cung, shape quãng 8, nốt trên dây 6 và 5 |
+| M1 Nhịp | [m1-rhythm.md](m1-rhythm.md) | Phách, giá trị nốt, đếm, quạt dây, swing |
+| M2 Âm giai và quãng | [m2-scales-intervals.md](m2-scales-intervals.md) | Âm giai trưởng, đánh vần, quãng, hình quãng, âm giai thứ, giọng song song, 3 nốt mỗi dây |
+| M3 Pentatonic | [m3-pentatonic.md](m3-pentatonic.md) | Major/minor pentatonic, 5 box, đổi root, sequence |
+| M4 Hợp âm | [m4-chords.md](m4-chords.md) | Hợp âm ba, power chord, hợp âm 7, mở rộng, dây buông, chặn di động, đảo |
+| M5 Giọng và tiến trình | [m5-keys-progressions.md](m5-keys-progressions.md) | Hợp âm thuận, số La Mã, blues 12 ô, V–I, II–V–I |
+| M6 Blues và kỹ thuật guitar điện | [m6-blues-technique.md](m6-blues-technique.md) | Blues scale, blue note, bend, hammer-on/pull-off, slide, palm mute, double stop, quãng 8 |
+| M7 Solo | [m7-soloing.md](m7-soloing.md) | Chọn âm giai, nốt đích theo hợp âm, xây câu, luyện tai |
 
 ## Thứ tự học
 
-Mũi tên nghĩa là "cần học trước". Thứ tự này khớp với lộ trình trong [`docs/theory-plan.md`](../theory-plan.md): pentatonic và blues đến sớm, hợp âm và giọng đến sau.
+Mũi tên nghĩa là "cần học trước". Pentatonic và blues đến sớm, hợp âm và giọng đến sau.
 
 ```mermaid
 flowchart LR

@@ -1,5 +1,5 @@
 /**
- * Design tokens — the one dark theme from the mockup (`Pentatonic Practice.dc.html`).
+ * Design tokens — the one dark theme.
  * Single source of truth for colors/typography; components read from here rather than hardcoding
  * hex values. No Tailwind, no CSS-in-JS runtime (see AGENTS.md).
  */

@@ -122,7 +122,6 @@ export const vi: PentatonicCopy = {
     { title: 'Lick và cách xây câu', why: 'Sequence rèn tay. Xây câu đến khi bạn nghe được hợp âm đổi bên dưới.' },
     { title: 'Nốt đích khi đổi hợp âm', why: 'Muốn đáp vào nốt của hợp âm thì cần học hợp âm trước.' },
     { title: 'Scale 3 nốt mỗi dây', why: 'Một cách khác để phủ cần đàn, với đủ bảy nốt. Học sau.' },
-    { title: 'Lưu tempo cao nhất và điểm số', why: 'Tạm thời hãy ghi ra giấy. Chế độ ôn tập chung đến ở cuối lộ trình.' },
     { title: 'CAGED và các hệ thống box khác', why: 'Năm box pentatonic đã phủ kín cần đàn; mỗi lúc một hệ thống thôi.' },
   ],
 };

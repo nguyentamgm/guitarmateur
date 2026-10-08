@@ -174,9 +174,7 @@ describe('defaultProgression', () => {
         // Every key/scale pair the pickers can offer must derive a progression whose first chord
         // is the tonic. `transpose` throws on spellings outside double-flat..double-sharp, and a
         // throw here crashes the app on every key/scale change (`resetForKey` runs
-        // `defaultProgression` on each dispatch) — the class of bug fixed in #78. The scale-wise
-        // tests above only exercise blues/major/dorian/mixolydian/natural-minor/major-blues on
-        // single golden tonics, so 72 of these 96 pairs were previously untested.
+        // `defaultProgression` on each dispatch).
         const chords = defaultProgression(key(t, scaleId));
         expect(chords.length).toBeGreaterThan(0);
         expectTonic(chords[0]!, t);

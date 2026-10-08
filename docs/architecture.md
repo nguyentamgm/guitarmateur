@@ -23,8 +23,6 @@ everything the user does persists in `localStorage`.
 /
 ├─ docs/
 │  └─ architecture.md           # this file
-├─ Pentatonic Practice.dc.html  # visual mockup (style reference only)
-├─ support.js                   # mockup preview runtime (not shipped)
 ├─ index.html                   # Vite entry: title, meta, fonts, theme-color #0c0e0d
 ├─ public/                      # favicon, robots.txt, og image
 ├─ src/

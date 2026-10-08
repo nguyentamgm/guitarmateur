@@ -3,10 +3,8 @@ import { act, createElement, useState, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 
 /**
- * Regression test: clearing the last chord while the transport is playing used to leave
- * audio running with no visible stop control, because `PlaybackControls` only renders
- * inside the non-empty-progression branch. The fix stops the transport whenever the
- * progression becomes empty, independent of whether `PlaybackControls` is mounted.
+ * Clearing the last chord while the transport is playing must stop it: `PlaybackControls` only
+ * renders inside the non-empty-progression branch, so there would be no visible stop control.
  */
 
 const T = { isPlaying: false, playCalls: 0, stopCalls: 0 };

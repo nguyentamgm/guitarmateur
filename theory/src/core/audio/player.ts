@@ -22,7 +22,7 @@ export interface MiniAudioContext {
 export interface PlayerOptions {
   /** Defaults to `new AudioContext()`. */
   readonly createContext?: () => MiniAudioContext;
-  /** Output level, 0..1. The prototype used 0.32. */
+  /** Output level, 0..1. Default 0.32. */
   readonly gain?: number;
 }
 

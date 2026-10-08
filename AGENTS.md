@@ -34,12 +34,7 @@ merges. Match that order locally before pushing.
   carries the design intent (dependency rule, conventions, invariants) that this file only points at.
 - Respect the layer dependency rule; don't reach for a new dependency to avoid it — an ESLint rule
   fails the build on a bad cross-layer import.
-- [`Pentatonic Practice.dc.html`](Pentatonic%20Practice.dc.html) is an early visual mockup —
-  authoritative for **look & feel only** (colors, type, spacing, page rhythm), **not** for logic.
-  Its embedded script has known flaws (hardcoded box shapes, pitch-class-only theory, rhythmless
-  random-walk licks) that the real engines exist to avoid. Port pixels, not algorithms.
-- `support.js` is the mockup's throwaway preview runtime. **Never shipped, never imported, never edited.**
 - Keep new code stylistically consistent with the layer it lives in; colocate its `*.test.ts`.
 - **Working on the Theory app (`theory/`)?** It is a separate app with its own rules: read
-  [`docs/theory.md`](docs/theory.md) and [`docs/theory-plan.md`](docs/theory-plan.md) first.
+  [`docs/theory.md`](docs/theory.md) and [`docs/theory-knowledge/`](docs/theory-knowledge/README.md) first.
 - **Adding a language?** Follow [`docs/i18n.md`](docs/i18n.md) — a non-developer guide for shipping a new locale.

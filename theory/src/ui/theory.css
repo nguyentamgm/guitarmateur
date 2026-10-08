@@ -1,4 +1,4 @@
-/* Theory's look, ported from docs/prototypes/ban-do-pentatonic.html: one reading column, each
+/* Theory's look: one reading column, each
    step = text above a full-width rosewood neck. Light and dark follow the system. */
 :root {
   --bg: #e9edf0; --surface: #f6f8f9; --ink: #121a21; --muted: #54606b; --line: #c9d1d8;
