@@ -1,5 +1,5 @@
 import { fill } from '../i18n';
-import type { Lesson } from '../lessons';
+import { conceptName, type Lesson } from '../lessons';
 import { useTheory } from './context';
 import { LessonScene } from './lessons/LessonScene';
 import { Link } from './Link';
@@ -33,7 +33,7 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
           <section key={s.id} id={s.id} className="step">
             <div className="step-head prose">
               <span className="num">
-                {fill(ui.stepLabel, { n: i + 1 })} · {s.concepts.join(' · ')}
+                {[fill(ui.stepLabel, { n: i + 1 }), ...s.concepts.map((id) => conceptName(id, lang))].join(' · ')}
               </span>
               <h2>{step.title}</h2>
             </div>

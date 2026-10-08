@@ -15,7 +15,7 @@ const en = {
   tocLead:
     'Short visual lessons where every idea is a picture you can play. Click any note to hear it. Shapes come first; names come later, when you need them.',
   tocLessons: 'Lessons',
-  tocConcepts: 'Covers {ids}',
+  tocConcepts: 'Covers {names}',
   notFound: 'There is no lesson at “{path}”. Here is everything that exists so far.',
   backToContents: '← All lessons',
   stepLabel: 'Step {n}',
@@ -53,7 +53,7 @@ const vi: UiStrings = {
   tocLead:
     'Những bài ngắn, mỗi ý là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được. Shape đi trước, tên gọi đến sau, khi bạn thật sự cần.',
   tocLessons: 'Các bài',
-  tocConcepts: 'Khái niệm {ids}',
+  tocConcepts: 'Khái niệm: {names}',
   notFound: 'Không có bài nào ở “{path}”. Dưới đây là tất cả các bài hiện có.',
   backToContents: '← Tất cả các bài',
   stepLabel: 'Bước {n}',

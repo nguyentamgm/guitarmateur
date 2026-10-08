@@ -1,6 +1,6 @@
 import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
-import { LESSONS, findLesson, lessonConcepts } from '.';
+import { CONCEPT_NAMES, LESSONS, conceptName, findLesson, lessonConcepts } from '.';
 
 /** Concept IDs defined as headings (`## K3.4 …`) in docs/theory-knowledge. */
 const knowledge = import.meta.glob('../../../docs/theory-knowledge/m*.md', {
@@ -15,6 +15,15 @@ const KNOWN_IDS = new Set(
 describe('lesson registry', () => {
   it('reads the knowledge base', () => {
     expect(KNOWN_IDS.size).toBe(57);
+  });
+
+  it('names every concept of the knowledge base, in every language', () => {
+    for (const lang of LANGS) {
+      expect(Object.keys(CONCEPT_NAMES[lang]).sort()).toEqual([...KNOWN_IDS].sort());
+      expect(emptyStrings(CONCEPT_NAMES[lang])).toEqual([]);
+    }
+    expect(conceptName('K3.4', 'en')).toBe('The five pentatonic boxes');
+    expect(conceptName('K3.4', 'vi')).toBe('Năm box pentatonic');
   });
 
   it('has unique, English, URL-safe slugs', () => {

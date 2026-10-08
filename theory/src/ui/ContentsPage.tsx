@@ -1,5 +1,5 @@
 import { fill } from '../i18n';
-import { LESSONS, lessonConcepts } from '../lessons';
+import { LESSONS, conceptName, lessonConcepts } from '../lessons';
 import { useTheory } from './context';
 import { Link } from './Link';
 import { hrefFor } from './router';
@@ -32,7 +32,7 @@ export function ContentsPage({ missingPath }: { missingPath?: string }) {
                   <b className="num">{String(i + 1).padStart(2, '0')}</b>
                   <span className="lesson-title">{copy.title}</span>
                   <span className="lesson-summary">{copy.summary}</span>
-                  <span className="lesson-ids">{fill(ui.tocConcepts, { ids: lessonConcepts(lesson).join(' · ') })}</span>
+                  <span className="lesson-ids">{fill(ui.tocConcepts, { names: lessonConcepts(lesson).map((id) => conceptName(id, lang)).join(' · ') })}</span>
                 </Link>
               </li>
             );
