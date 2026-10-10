@@ -80,6 +80,15 @@ describe('Theory app', () => {
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
   });
 
+  it('follows a language changed in the practice app in another tab', () => {
+    render('/theory');
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: LANG_STORAGE_KEY }));
+    });
+    expect(document.documentElement.lang).toBe('vi');
+  });
+
   it('links back to the practice app, just before the language switcher', () => {
     render('/theory/fretboard');
     const practice = [...container.querySelectorAll('header a')].find((a) => a.getAttribute('href') === '/')!;
