@@ -26,7 +26,7 @@ import {
 } from '../../lessons/barre';
 import { BarreBar } from '../BarreBar';
 import { useQuizScore } from '../useQuizScore';
-import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
+import { Button, ChipGroup, KeyFinder, Slider, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
@@ -88,11 +88,7 @@ function SlideScene({ copy }: { copy: SceneCopy }) {
   return (
     <div className="board">
       <div className="controls">
-        <label className="tempo">
-          <span>{copy.slide.fret}</span>
-          <input type="range" min={0} max={12} step={1} value={fret} onChange={(e) => setFret(Number(e.target.value))} />
-          <output>{fret}</output>
-        </label>
+        <Slider label={copy.slide.fret} value={fret} min={0} max={12} text={fret} onChange={setFret} />
         <Button onClick={() => strum(view)}>{copy.strum}</Button>
       </div>
       <p className="power-symbol" aria-hidden="true">

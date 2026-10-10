@@ -3,80 +3,18 @@ import { fill } from '../i18n';
 import { useTheory } from './context';
 import { format, sameNote, type NoteName } from '../core/music';
 import { MAX_BPM, MIN_BPM, clampBpm } from '../core/rhythm';
-import type { ReactNode } from 'react';
+import { Slider } from '@shared/ui/controls';
 
-export function Chip({ pressed, onClick, children }: { pressed: boolean; onClick(): void; children: ReactNode }) {
-  return (
-    <button type="button" className="chip" aria-pressed={pressed} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
-
-/** A labelled row of chips, one pressed. */
-export function ChipGroup<T extends string | number>({
-  label,
-  items,
-  value,
-  onChange,
-}: {
-  label: string;
-  items: readonly { value: T; text: ReactNode }[];
-  value: T;
-  onChange(v: T): void;
-}) {
-  return (
-    <div className="group" role="group" aria-label={label}>
-      <span aria-hidden="true">{label}</span>
-      {items.map((it) => (
-        <Chip key={it.value} pressed={it.value === value} onClick={() => onChange(it.value)}>
-          {it.text}
-        </Chip>
-      ))}
-    </div>
-  );
-}
-
-export function Button({ onClick, children, ghost }: { onClick(): void; children: ReactNode; ghost?: boolean }) {
-  return (
-    <button type="button" className={ghost ? 'btn ghost' : 'btn'} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
+// The generic controls are shared with the practice app; Theory adds its tempo slider and key finder.
+export { Button, Chip, ChipGroup, OnOff, Slider } from '@shared/ui/controls';
 
 /** A tempo slider, in whole BPM within the range the lessons offer; `best` (a remembered drill best) shows as a badge. */
 export function Tempo({ label, text, bpm, onChange, best = 0 }: { label: string; text: string; bpm: number; onChange(bpm: number): void; best?: number }) {
   const { ui } = useTheory();
   return (
-    <label className="tempo">
-      <span>{label}</span>
-      <input
-        type="range"
-        min={MIN_BPM}
-        max={MAX_BPM}
-        step={1}
-        value={bpm}
-        onChange={(e) => onChange(clampBpm(Number(e.target.value)))}
-      />
-      <output>{text}</output>
+    <Slider label={label} value={bpm} min={MIN_BPM} max={MAX_BPM} text={text} onChange={(v) => onChange(clampBpm(v))}>
       {best > 0 && <span className="best">{fill(ui.tempoBest, { bpm: best })}</span>}
-    </label>
-  );
-}
-
-/** Two chips, off and on. */
-export function OnOff({ label, on, off, value, onChange }: { label: string; on: string; off: string; value: boolean; onChange(v: boolean): void }) {
-  return (
-    <ChipGroup<'on' | 'off'>
-      label={label}
-      items={[
-        { value: 'off', text: off },
-        { value: 'on', text: on },
-      ]}
-      value={value ? 'on' : 'off'}
-      onChange={(v) => onChange(v === 'on')}
-    />
+    </Slider>
   );
 }
 

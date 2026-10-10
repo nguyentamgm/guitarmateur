@@ -48,7 +48,7 @@ import { BarGrid } from '../BarGrid';
 import { BeatGrid, type Block } from '../BeatGrid';
 import { useTheory } from '../context';
 import { useQuizScore } from '../useQuizScore';
-import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
+import { Button, ChipGroup, KeyFinder, OnOff, Slider, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
@@ -191,11 +191,7 @@ function ShuffleScene({ copy }: { copy: SceneCopy }) {
           value={swing}
           onChange={setSwing}
         />
-        <label className="tempo">
-          <span>{c.swing}</span>
-          <input type="range" min={0} max={100} step={1} value={pct} onChange={(e) => setSwing(Number(e.target.value) / 100)} />
-          <output>{`${pct}%`}</output>
-        </label>
+        <Slider label={c.swing} value={pct} min={0} max={100} text={`${pct}%`} onChange={(v) => setSwing(v / 100)} />
         <Tempo label={copy.tempo} text={fill(copy.bpm, { bpm })} bpm={bpm} onChange={setBpm} />
       </div>
       <BeatGrid

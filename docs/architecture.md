@@ -37,7 +37,8 @@ everything the user does persists in `localStorage`.
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
 ├─ shared/                      # code both apps use, imported as @shared/… — see below
 │  ├─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
-│  └─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
+│  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
+│  └─ ui/                       # the shared look: tokens.css, base.css, controls.css + controls.tsx
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -91,8 +92,18 @@ src/  ──→ shared/ ←──  theory/        shared/ imports neither app
 
 Today it holds `shared/i18n/language.ts` — the `gm.lang` key, carrying an old per-app choice over,
 and the browser-language rule — — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
-and by `theory/src/i18n/lang.ts` in Theory; and `shared/platform/storage.ts`, the localStorage
-accessor both apps use.
+and by `theory/src/i18n/lang.ts` in Theory; `shared/platform/storage.ts`, the localStorage
+accessor both apps use; and the shared look in `shared/ui/` (Theory's, the reference):
+
+- `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
+  own `--accent`: Theory's blue by default, Practice's lime under `<html data-app="practice">`.
+  Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
+- `base.css` — element styles (body type, headings, links, focus ring, reduced motion).
+- `controls.css` + `controls.tsx` — the site header, card (`.board`), segmented control
+  (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider` and the "Takeaway / Try it" hint panel
+  (`.takeaways`). Components take their text from the caller: no copy lives in `shared/`.
+
+An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, then its own).
 
 ## Tech stack
 
