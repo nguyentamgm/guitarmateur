@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react';
 import { defaultNextSeed, defaultState, reducer, type Action, type AppState } from './appState';
-import { loadLanguage, loadState, saveState } from './persistence';
+import { LANG_STORAGE_KEY, loadLanguage, loadState, saveLanguage, saveState } from './persistence';
 
 /**
  * `.tsx` (not `.ts`) is deliberate: the layer-boundary ESLint rule bans importing React from
@@ -25,6 +25,20 @@ export function useAppState(): [AppState, (action: Action) => void] {
   useEffect(() => {
     saveState(state);
   }, [state]);
+
+  // The language is shared with Theory: save it when it changes, and follow a change in another tab.
+  useEffect(() => {
+    saveLanguage(state.language);
+  }, [state.language]);
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== LANG_STORAGE_KEY && e.key !== null) return;
+      const language = loadLanguage();
+      dispatch({ type: 'setLanguage', language });
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   return [state, dispatch];
 }

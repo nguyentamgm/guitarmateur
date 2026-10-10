@@ -14,7 +14,7 @@ theory/
    │  ├─ fretboard/      neck grid, octave shapes, positions (boxes, 3-notes-per-string)
    │  ├─ rhythm/         time as a grid: BPM, note lengths in cells, counting, strum patterns
    │  └─ audio/          plucked-string and click synths (pure) + Web Audio player
-   ├─ platform/          browser APIs behind a safe wrapper: `browserStorage()` (localStorage)
+   ├─ platform/          browser APIs behind a safe wrapper: `browserStorage()` (localStorage), `browserLanguages()`
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
@@ -98,8 +98,10 @@ ui → lessons → core/fretboard → core/music
   languages decide (`vi-VN` → Vietnamese, anything unknown → English); the EN/VI switch changes it.
 - **One language setting for both apps:** `localStorage` key `gm.lang`, read and written by Theory
   (`i18n/lang.ts`) and the practice app (`src/state/persistence.ts`), each with its own code. It is
-  the only key the two apps share. On a first load without it, the old choice is carried over: the
-  practice app's `guitarmateur-state.language` first, then Theory's old `theory.lang`.
+  the only key the two apps share, written only when the language changes; each app follows a
+  change made in another tab (`storage` event). On a first load without it, the old choice is
+  carried over: Theory's old `theory.lang` first (only ever stored on an explicit choice), then the
+  practice app's `guitarmateur-state.language`. Both apps detect the browser's language the same way.
 - Slugs and code are English. Copy is written in English first, then Vietnamese.
 
 ## Progress and review

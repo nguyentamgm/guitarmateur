@@ -1,9 +1,11 @@
 /**
  * Theory's languages. One language setting is shared with the practice app: both read and write
  * `gm.lang` (each with its own code — the apps share none). Before that key existed each app kept its
- * own, so a first load copies the old choice over, the practice app's first, then Theory's.
+ * own, so a first load copies the old choice over: Theory's first (it was only ever stored on an
+ * explicit choice), then the practice app's (which also stored its detected default).
  * With nothing stored, the browser's languages decide; English is the fallback.
  */
+import { browserLanguages } from '../platform/languages';
 import { browserStorage, type KeyValue } from '../platform/storage';
 
 export type Lang = 'en' | 'vi';
@@ -17,23 +19,16 @@ export const LEGACY_PRACTICE_STATE_KEY = 'guitarmateur-state';
 
 export const isLang = (v: unknown): v is Lang => LANGS.includes(v as Lang);
 
-/** The browser's preferred languages, most preferred first. Never throws. */
-function browserLanguages(): readonly string[] {
-  try {
-    if (typeof navigator === 'undefined') return [];
-    return navigator.languages?.length ? navigator.languages : [navigator.language];
-  } catch {
-    return [];
-  }
-}
-
-/** The first of the browser's languages Theory has (`vi-VN` → `vi`), or English. */
+/**
+ * Pick a language from the browser's, most preferred first, the way the practice app does so both
+ * agree: an exact tag anywhere in the list wins over a regional one (`vi-VN` → `vi`); else English.
+ */
 export function detectLang(preferred: readonly string[] = browserLanguages()): Lang {
-  for (const tag of preferred) {
-    const primary = String(tag).toLowerCase().split('-')[0];
-    if (isLang(primary)) return primary;
-  }
-  return DEFAULT_LANG;
+  const tags = preferred.map((t) => String(t).toLowerCase());
+  const exact = tags.find(isLang);
+  if (exact) return exact;
+  const regional = tags.map((t) => t.split('-')[0]).find(isLang);
+  return regional ?? DEFAULT_LANG;
 }
 
 /** The language the practice app kept inside its saved state, if any. */
@@ -60,7 +55,7 @@ export function loadLang(
     const shared = storage.getItem(LANG_STORAGE_KEY);
     if (isLang(shared)) return shared;
     const theory = storage.getItem(LEGACY_THEORY_LANG_KEY);
-    const old = practiceLang(storage) ?? (isLang(theory) ? theory : null);
+    const old = (isLang(theory) ? theory : null) ?? practiceLang(storage);
     if (old) {
       saveLang(old, storage);
       return old;

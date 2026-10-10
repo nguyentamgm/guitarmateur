@@ -24,7 +24,7 @@ const broken = {
 describe('language choice', () => {
   it('follows the browser when nothing is stored, else English', () => {
     expect(DEFAULT_LANG).toBe('en');
-    expect(loadLang(memory(), ['vi-VN', 'en'])).toBe('vi');
+    expect(loadLang(memory(), ['vi-VN', 'fr'])).toBe('vi');
     expect(loadLang(memory(), ['fr-FR', 'en-GB'])).toBe('en');
     expect(loadLang(memory(), ['fr'])).toBe('en');
     expect(loadLang(null, ['vi'])).toBe('vi');
@@ -43,7 +43,13 @@ describe('language choice', () => {
     expect(loadLang(memory({ 'gm.lang': 'en' }), ['vi'])).toBe('en');
   });
 
-  it('carries an old choice over to the shared key, the practice app first', () => {
+  it('detects like the practice app: an exact tag anywhere wins over a regional one', () => {
+    expect(detectLang(['vi-VN', 'en'])).toBe('en');
+    expect(detectLang(['vi-VN', 'fr'])).toBe('vi');
+    expect(detectLang(['VI'])).toBe('vi');
+  });
+
+  it("carries an old choice over to the shared key, Theory's first", () => {
     const theoryOnly = memory({ 'theory.lang': 'vi' });
     expect(loadLang(theoryOnly, ['en'])).toBe('vi');
     expect(theoryOnly.data['gm.lang']).toBe('vi');
@@ -53,11 +59,12 @@ describe('language choice', () => {
     expect(practiceOnly.data['gm.lang']).toBe('vi');
 
     const both = memory({ 'theory.lang': 'vi', 'guitarmateur-state': JSON.stringify({ language: 'en' }) });
-    expect(loadLang(both, ['vi'])).toBe('en');
-    expect(both.data['gm.lang']).toBe('en');
+    // Theory only ever stored an explicit choice; the practice app also stored its detected default.
+    expect(loadLang(both, ['en'])).toBe('vi');
+    expect(both.data['gm.lang']).toBe('vi');
 
-    // A broken practice state falls back to Theory's old key.
-    expect(loadLang(memory({ 'theory.lang': 'vi', 'guitarmateur-state': '{oops' }), ['en'])).toBe('vi');
+    // A broken practice state is skipped.
+    expect(loadLang(memory({ 'guitarmateur-state': '{oops' }), ['vi'])).toBe('vi');
   });
 
   it('ignores unknown values and never throws on blocked storage', () => {

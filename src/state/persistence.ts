@@ -173,7 +173,6 @@ export function saveState(state: AppState): void {
   };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
-    localStorage.setItem(LANG_STORAGE_KEY, language);
   } catch {
     // ignore — nothing the user can act on
   }
@@ -188,26 +187,54 @@ export function loadFromUrl(language?: LocaleId): AppState | null {
   }
 }
 
+/** Read one localStorage item; null when it is missing or storage is blocked. */
+function readItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+/** The language inside this app's saved state, if it is readable and valid. */
+function savedStateLanguage(): LocaleId | null {
+  try {
+    const item = readItem(STORAGE_KEY);
+    const language = item ? (JSON.parse(item) as Record<string, unknown> | null)?.language : undefined;
+    return isLocaleId(language) ? language : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * The UI language: the one shared with Theory (`gm.lang`); before that key existed, the one in this
- * app's saved state, then Theory's old `theory.lang`; otherwise the browser's languages. Never throws.
+ * The UI language: the one shared with Theory (`gm.lang`). Before that key existed: Theory's old
+ * `theory.lang` (only ever stored on an explicit choice), then the one in this app's saved state
+ * (which also held the detected default). Otherwise the browser's languages. Never throws.
  */
 export function loadLanguage(): LocaleId {
-  try {
-    const shared = localStorage.getItem(LANG_STORAGE_KEY);
-    if (isLocaleId(shared)) return shared;
-    const item = localStorage.getItem(STORAGE_KEY);
-    const persisted = item ? (JSON.parse(item) as Record<string, unknown> | null)?.language : undefined;
-    if (isLocaleId(persisted)) return persisted;
-    const theory = localStorage.getItem(LEGACY_THEORY_LANG_KEY);
-    if (isLocaleId(theory)) return theory;
-  } catch {
-    // fall through to detection
-  }
+  const shared = readItem(LANG_STORAGE_KEY);
+  if (isLocaleId(shared)) return shared;
+  const theory = readItem(LEGACY_THEORY_LANG_KEY);
+  if (isLocaleId(theory)) return theory;
+  const saved = savedStateLanguage();
+  if (saved) return saved;
   try {
     return detectLocale(navigator.languages ?? [navigator.language]);
   } catch {
     return DEFAULT_LOCALE;
+  }
+}
+
+/**
+ * Remember the UI language for both apps. Written only when it changes (not on every state save),
+ * so a tab still showing an old language never overwrites one just chosen in another tab.
+ */
+export function saveLanguage(language: LocaleId): void {
+  try {
+    if (localStorage.getItem(LANG_STORAGE_KEY) !== language) localStorage.setItem(LANG_STORAGE_KEY, language);
+  } catch {
+    // ignore — the choice lasts for this visit only
   }
 }
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPlayer, type Player } from '../core/audio';
-import { UI, loadLang, saveLang, type Lang } from '../i18n';
+import { LANG_STORAGE_KEY, UI, loadLang, saveLang, type Lang } from '../i18n';
 import { findLesson } from '../lessons';
 import { ContentsPage } from './ContentsPage';
 import { Ctx, ProgressCtx, type TheoryContext } from './context';
@@ -41,6 +41,8 @@ export function App({ player: given }: { player?: Player } = {}) {
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === PROGRESS_STORAGE_KEY || e.key === null) setProgress(loadProgress());
+      // The language is shared with the practice app: a change in another tab shows here too.
+      if (e.key === LANG_STORAGE_KEY || e.key === null) setLangState(loadLang());
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
