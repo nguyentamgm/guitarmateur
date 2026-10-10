@@ -36,7 +36,8 @@ everything the user does persists in `localStorage`.
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
 ├─ shared/                      # code both apps use, imported as @shared/… — see below
-│  └─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
+│  ├─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
+│  └─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -82,14 +83,16 @@ src/  ──→ shared/ ←──  theory/        shared/ imports neither app
 ```
 
 - `shared/core/` and `shared/i18n/` are pure TypeScript: no React, no browser globals (storage is
-  passed in). `shared/ui/` is for React components and design tokens both apps render.
+  passed in; `shared/platform/` has the safe `browserStorage()` accessor). `shared/ui/` is for React
+  components and design tokens both apps render.
 - ESLint enforces it: `shared/**` may not import `src/` or `theory/`; `shared/core` and
-  `shared/i18n` may not import React.
+  `shared/i18n` may not import React. The apps' own layer rules never apply to `@shared/…` imports.
 - Tests are colocated (`shared/**/*.test.ts`) and run with the rest.
 
-Today it holds `shared/i18n/language.ts`: the `gm.lang` key, carrying an old per-app choice over,
-and the browser-language rule — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
-and by `theory/src/i18n/lang.ts` in Theory.
+Today it holds `shared/i18n/language.ts` — the `gm.lang` key, carrying an old per-app choice over,
+and the browser-language rule — — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
+and by `theory/src/i18n/lang.ts` in Theory; and `shared/platform/storage.ts`, the localStorage
+accessor both apps use.
 
 ## Tech stack
 

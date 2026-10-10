@@ -3,9 +3,11 @@ import { TUNINGS, areAdjacent, positions, recommendedPosition, type TuningId } f
 import { DEFAULT_LOCALE, detectLocale, isLocaleId, type LocaleId } from '../i18n';
 import { clampBpm, defaultState, type AppState, type Bars, type ProgressionEntry } from './appState';
 import { decodeState } from './share';
-import { LANG_STORAGE_KEY, loadStoredLanguage, saveStoredLanguage, type KeyValue } from '@shared/i18n/language';
+import { LANG_STORAGE_KEY, PRACTICE_STATE_KEY, loadStoredLanguage, saveStoredLanguage } from '@shared/i18n/language';
+import { browserStorage as storage } from '@shared/platform/storage';
 
-const STORAGE_KEY = 'guitarmateur-state';
+/** Where this app saves its state; Theory reads it too (its trainer link keeps your settings). */
+const STORAGE_KEY = PRACTICE_STATE_KEY;
 /** The UI language, shared with the Theory app: see shared/i18n/language.ts. */
 export { LANG_STORAGE_KEY };
 
@@ -181,15 +183,6 @@ export function loadFromUrl(language?: LocaleId): AppState | null {
   try {
     const raw = new URLSearchParams(window.location.search).get('s');
     return raw ? decodeState(raw, language) : null;
-  } catch {
-    return null;
-  }
-}
-
-/** localStorage, or null when there is none or site data is blocked. Never throws. */
-function storage(): KeyValue | null {
-  try {
-    return typeof localStorage === 'undefined' ? null : localStorage;
   } catch {
     return null;
   }

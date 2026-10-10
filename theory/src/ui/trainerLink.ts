@@ -9,6 +9,7 @@
  */
 import { sameNote, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
+import { PRACTICE_STATE_KEY } from '@shared/i18n/language';
 import { browserStorage, type KeyValue } from '../platform/storage';
 
 /** The practice app's names for Theory's scales; null = it has no such scale. */
@@ -43,7 +44,7 @@ const KEY_SPELLINGS: readonly NoteName[] = (
 ).map(([letter, alter]) => ({ letter, alter }));
 
 /** Where the practice app keeps its settings in this browser. */
-export const PRACTICE_STORAGE_KEY = 'guitarmateur-state';
+export const PRACTICE_STORAGE_KEY = PRACTICE_STATE_KEY;
 
 export interface TrainerKey {
   readonly tonic: NoteName;

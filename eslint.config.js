@@ -29,15 +29,18 @@ const fromSrc = {
 const fromApps = [
   { group: ['**/src/**', '**/theory/**'], message: 'shared/ imports neither app (src/, theory/): it is what they share.' },
 ];
+// The layer globs below name folders (ui, core, i18n…), which shared/ also has: they never apply
+// to an `@shared/...` import (shared/ has its own rules), so every group ends with this negation.
+const allowShared = '!@shared/**';
 const forbid = (group, why) => ({
   rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromTheory] }],
+    'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromTheory] }],
   },
 });
 const dir = (name) => [`**/${name}`, `**/${name}/**`];
 const forbidTheory = (group, why) => ({
   rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromSrc] }],
+    'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromSrc] }],
   },
 });
 
@@ -82,7 +85,7 @@ export default tseslint.config(
   {
     files: ['src/lick/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
+      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**', allowShared], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
       'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from ./rng instead of Math.random.' }],
     },
   },

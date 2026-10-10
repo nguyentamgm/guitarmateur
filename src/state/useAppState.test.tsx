@@ -29,6 +29,25 @@ describe("useAppState and a link's ?lang=", () => {
     expect(app.get().language).toBe('vi');
     expect(localStorage.getItem('gm.lang')).toBe('en');
     expect(window.location.search).toBe('');
+    app.unmount();
+  });
+
+  it('a link visit never leaks into the remembered language on a later visit', () => {
+    // Nothing remembered yet; the browser says English.
+    window.history.replaceState(null, '', '/?lang=vi');
+    const first = mount();
+    expect(first.get().language).toBe('vi');
+    first.unmount();
+    expect(localStorage.getItem('gm.lang')).toBe('en');
+    const later = mount();
+    expect(later.get().language).toBe('en');
+    later.unmount();
+  });
+
+  it('picking a language after a link visit is remembered', () => {
+    localStorage.setItem('gm.lang', 'en');
+    window.history.replaceState(null, '', '/?lang=vi');
+    const app = mount();
 
     // Picking a language is remembered as usual.
     app.dispatch({ type: 'setLanguage', language: 'en' });
