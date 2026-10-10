@@ -1,0 +1,43 @@
+/* Controls both apps use (shared/ui/controls.tsx renders most of them), on the shared tokens. */
+
+/* Site header (Header in theory/, SiteHeader in src/): brand · Lessons · Review · Practice · sound · language */
+.topbar { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding-block: 16px; border-bottom: 1px solid var(--line); }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
+.topbar-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.navlink { font-size: var(--t-small); font-weight: 600; text-decoration: none; }
+.topnav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.navlink[aria-current='page'] { color: var(--ink); text-decoration: underline 2px var(--accent); text-underline-offset: 6px; }
+
+/* Card: a surface holding a scene or a set of controls; `.controls` is a row of them. */
+.board { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-board); padding: var(--s-4); min-width: 0; }
+.controls { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; }
+
+/* Segmented control: a labelled group of chips, one pressed (ChipGroup, OnOff). */
+.group { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.group > .globe { color: var(--muted); margin-right: 2px; }
+.group > span { font-size: var(--t-label); color: var(--muted); margin-right: 2px; font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.chip { font-family: var(--f-mono); font-size: var(--t-chip); padding: 5px 10px; min-width: 34px; border-radius: var(--r-chip); border: 1px solid var(--line); background: transparent; color: var(--ink); }
+.chip:hover { border-color: var(--muted); }
+.chip[aria-pressed='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Button; `.ghost` is the outlined one. */
+.btn { font-size: var(--t-small); font-weight: 600; padding: 7px 14px; border-radius: var(--r-btn); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:hover { filter: brightness(1.07); }
+
+/* Slider: label, range, value (Slider); `.best` is an optional badge after it. */
+.slider { display: inline-flex; align-items: center; gap: var(--s-3); font-family: var(--f-mono); font-size: var(--t-chip); }
+.slider > span { font-size: var(--t-label); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.slider input { width: min(220px, 40vw); accent-color: var(--accent); }
+.slider output { min-width: 5.5em; font-variant-numeric: tabular-nums; }
+.slider > span.best { color: var(--accent); text-transform: none; letter-spacing: 0; }
+
+/* Hint panel: "Takeaway" / "Try it" (Ghi nhớ / Tự thử) as a two-column list. */
+.takeaways { display: grid; gap: 10px; margin: 0; }
+.takeaways div { display: grid; grid-template-columns: 7.5em 1fr; gap: 12px; }
+.takeaways dt { font-family: var(--f-mono); font-size: var(--t-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.takeaways dd { margin: 0; }
+.takeaways div:first-child dd { font-weight: 600; }
+@media (max-width: 560px) {
+  .takeaways div { grid-template-columns: 1fr; gap: 2px; }
+}

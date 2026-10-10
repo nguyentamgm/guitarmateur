@@ -1,0 +1,34 @@
+/* Design tokens both apps use (from Theory, the reference look). Light and dark follow the system;
+   `data-theme="light"` on <html> forces light. Each app has its own accent: Theory's blue is the
+   default, Practice sets `data-app="practice"` on <html> for lime. Fonts: each page's index.html
+   loads Bricolage Grotesque, Be Vietnam Pro (covers Vietnamese) and JetBrains Mono. */
+:root {
+  --bg: #e9edf0; --surface: #f6f8f9; --ink: #121a21; --muted: #54606b; --line: #c9d1d8;
+  --accent: #2f64f0; --accent-ink: #ffffff; --amber: #e0951a; --amber-ink: #1e1407;
+  --wood: #2b211b; --wood-edge: #1c1511; --fret: #aeb4ba; --nut: #e7e1d3; --string: #cfc8b8;
+  --inlay: #4a3b30; --dot: #ece6d9; --dot-ink: #1a1511; --fretnum: #6b7680;
+  --f-display: 'Bricolage Grotesque', 'Be Vietnam Pro', system-ui, sans-serif;
+  --f-body: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* Radius: chips, buttons, panels, boards. */
+  --r-chip: 7px; --r-btn: 8px; --r-panel: 12px; --r-board: 14px;
+  /* Spacing steps. */
+  --s-1: 4px; --s-2: 6px; --s-3: 10px; --s-4: 14px; --s-5: 18px; --s-6: 24px;
+  /* Type scale: labels and chips, small text, body. */
+  --t-label: 0.78rem; --t-chip: 0.82rem; --t-small: 0.88rem; --t-body: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1317; --surface: #151c22; --ink: #e5eaee; --muted: #94a1ac; --line: #26313a;
+    --accent: #5a8bff; --accent-ink: #06102a; --amber: #f1b13c; --amber-ink: #1e1407;
+    --wood: #251c17; --wood-edge: #3a2e26; --fret: #8e959c; --nut: #cfc8b8; --string: #b8b1a2;
+    --inlay: #3e3229; --dot: #e3dccd; --dot-ink: #17120e; --fretnum: #7d8994;
+    color-scheme: dark;
+  }
+}
+/* Practice's accent (after the dark block, so it wins in both schemes). */
+:root[data-app='practice'] { --accent: #4d7c0f; --accent-ink: #ffffff; }
+@media (prefers-color-scheme: dark) {
+  :root[data-app='practice']:not([data-theme='light']) { --accent: #c3f04b; --accent-ink: #0c0e0d; }
+}

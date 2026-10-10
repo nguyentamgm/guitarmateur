@@ -19,7 +19,8 @@ theory/
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
-   ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx
+   ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx; theory.css
+   │                     (the generic look and controls come from shared/ui, see below)
    └─ main.tsx           entry of theory/index.html
 ```
 
@@ -49,6 +50,10 @@ ui → lessons → core/fretboard → core/music
 - Every user-facing string in `ui/**/*.tsx` comes from `i18n` or lesson copy (ESLint rejects
   literal JSX text and literal `aria-label`/`title`/`alt`).
 - `tsconfig.theory.json` typechecks `theory/src`; Vitest picks up `theory/**/*.test.ts`.
+- The look is shared with the practice app: `main.tsx` imports `@shared/ui/tokens.css`, `base.css`
+  and `controls.css` before `ui/theory.css`, and `ui/controls.tsx` re-exports the shared `Button`,
+  `Chip`, `ChipGroup`, `OnOff` and `Slider` next to Theory's own `Tempo` and `KeyFinder`. A new
+  generic control or token goes in `shared/ui/`; what only Theory draws stays in `theory.css`.
 
 ## Music invariants
 
