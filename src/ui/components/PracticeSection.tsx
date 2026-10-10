@@ -19,10 +19,13 @@ export function PracticeSection({
   state,
   dispatch,
   soundOn = true,
+  onPlay,
 }: {
   state: AppState;
   dispatch: (action: Action) => void;
   soundOn?: boolean;
+  /** Called when playback starts. */
+  onPlay?: () => void;
 }) {
   const t = useT(state.language);
   const licks = useMemo(() => licksForState(state), [state]);
@@ -39,6 +42,11 @@ export function PracticeSection({
       cardRefs.current[active.entryIndex]!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [active?.entryIndex]);
+
+  const { isPlaying } = transport;
+  useEffect(() => {
+    if (isPlaying) onPlay?.();
+  }, [isPlaying, onPlay]);
 
   const { stop } = transport;
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppState, encodeState, exportStateToJson, importStateFromJson } from '../state';
 import { LOCALES } from '../i18n';
 import { theme, font } from './theme';
@@ -41,6 +41,9 @@ export function App() {
   const t = useT(state.language);
   // Like Theory's sound toggle: for this visit only, never stored.
   const [soundOn, setSoundOn] = useState(true);
+  // First playback this visit: one of the signs of engagement before offering to install.
+  const [played, setPlayed] = useState(false);
+  const markPlayed = useCallback(() => setPlayed(true), []);
   const [copied, setCopied] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +184,7 @@ export function App() {
             >
               {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
             </button>
+            <InstallPrompt language={state.language} played={played} buttonStyle={btnStyle} />
             <input
               ref={fileInputRef}
               type="file"
@@ -194,9 +198,8 @@ export function App() {
         <ErrorBoundary t={t}>
           <ScalePositionSection state={state} dispatch={dispatch} />
           <ProgressionSection state={state} dispatch={dispatch} />
-          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} />
-          <InstallPrompt language={state.language} />
-        </ErrorBoundary>
+          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} onPlay={markPlayed} />
+          </ErrorBoundary>
       </div>
     </>
   );

@@ -6,3 +6,5 @@ export { encodeState, exportStateToJson, importStateFromJson } from './share';
 export { licksForState } from './selectors';
 
 export { useAppState } from './useAppState';
+
+export { recordVisit, rememberInstallDone, shouldOfferInstall, type InstallMemory } from './install';

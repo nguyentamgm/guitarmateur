@@ -135,7 +135,8 @@ backing up your practice setups or moving them between devices/browsers.
 ## Offline use
 
 Guitarmateur is installable as a Progressive Web App (PWA) — add it to your home screen or install
-it from your browser's install prompt. Once installed, it keeps working without a network
+it from your browser's install prompt (once you've played something or come back, an **Install**
+button also appears next to Share / Export). Once installed, it keeps working without a network
 connection.
 
 # Contributing

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import type { LocaleId } from '../../i18n';
-import { theme, font } from '../theme';
+import { recordVisit, rememberInstallDone, shouldOfferInstall } from '../../state';
+import { theme } from '../theme';
 import { useT } from '../useT';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -8,86 +9,69 @@ interface BeforeInstallPromptEvent extends Event {
   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export function InstallPrompt({ language }: { language: LocaleId }) {
+/**
+ * "Install" in the page's action row — in the flow, so it never covers the fretboard. Offered
+ * only when the browser can install the app and the learner is engaged (a second visit, or after
+ * the first playback: `played`); once dismissed or answered it never comes back.
+ */
+export function InstallPrompt({
+  language,
+  played,
+  buttonStyle,
+}: {
+  language: LocaleId;
+  played: boolean;
+  buttonStyle: CSSProperties;
+}) {
   const t = useT(language);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [memory, setMemory] = useState(recordVisit);
 
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       setPrompt(e as BeforeInstallPromptEvent);
     };
+    const installed = () => setMemory(rememberInstallDone());
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', installed);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', installed);
+    };
   }, []);
 
-  if (!prompt || dismissed) return null;
+  if (!prompt || !shouldOfferInstall(memory, played)) return null;
 
   async function handleInstall() {
     if (!prompt) return;
     await prompt.prompt();
-    const { outcome } = await prompt.userChoice;
-    if (outcome === 'accepted' || outcome === 'dismissed') setDismissed(true);
+    await prompt.userChoice;
+    // Either answer is final: the browser will not offer this prompt object again.
+    setMemory(rememberInstallDone());
   }
 
   return (
-    <div
-      role="banner"
-      style={{
-        position: 'fixed',
-        bottom: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: '#1a1d1b',
-        border: `1px solid #2a2e2b`,
-        borderRadius: 12,
-        padding: '12px 18px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
-        zIndex: 9999,
-        maxWidth: 'calc(100vw - 40px)',
-        fontFamily: font.mono,
-      }}
-    >
-      <span style={{ fontSize: 13, color: theme.text, whiteSpace: 'nowrap' }}>
-        {t('install.title')}
-      </span>
-      <button
-        onClick={handleInstall}
-        style={{
-          background: theme.accent,
-          color: theme.accentText,
-          border: 'none',
-          borderRadius: 8,
-          padding: '5px 14px',
-          fontSize: 12,
-          fontFamily: font.mono,
-          fontWeight: 600,
-          cursor: 'pointer',
-          letterSpacing: '.04em',
-          whiteSpace: 'nowrap',
-        }}
-      >
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+      <button onClick={handleInstall} style={{ ...buttonStyle, borderColor: theme.accent }}>
         {t('install.button')}
       </button>
       <button
-        onClick={() => setDismissed(true)}
+        onClick={() => setMemory(rememberInstallDone())}
         aria-label={t('install.dismissAria')}
+        title={t('install.dismissAria')}
         style={{
           background: 'none',
           border: 'none',
           color: theme.muted,
           fontSize: 16,
           cursor: 'pointer',
-          padding: '0 2px',
+          padding: '0 6px',
           lineHeight: 1,
         }}
       >
         ×
       </button>
-    </div>
+    </span>
   );
 }
