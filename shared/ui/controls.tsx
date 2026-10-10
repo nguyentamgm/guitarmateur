@@ -2,7 +2,7 @@
  * Controls both apps use, styled by shared/ui/controls.css on the shared tokens. Text comes from
  * the caller (each app has its own i18n), so nothing here holds copy.
  */
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
 export function Chip({ pressed, onClick, children }: { pressed: boolean; onClick(): void; children: ReactNode }) {
   return (
@@ -79,10 +79,20 @@ export function Slider({
   onChange(value: number): void;
   children?: ReactNode;
 }) {
+  // Named by its label only: the shown value and a badge are not part of the range's name.
+  const labelId = useId();
   return (
     <label className="slider">
-      <span>{label}</span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+      <span id={labelId}>{label}</span>
+      <input
+        type="range"
+        aria-labelledby={labelId}
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
       <output>{text}</output>
       {children}
     </label>

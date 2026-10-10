@@ -96,12 +96,14 @@ and by `theory/src/i18n/lang.ts` in Theory; `shared/platform/storage.ts`, the lo
 accessor both apps use; and the shared look in `shared/ui/` (Theory's, the reference):
 
 - `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
-  own `--accent`: Theory's blue by default, Practice's lime under `<html data-app="practice">`.
+  own `--accent`: Theory's blue by default; `<html data-app="practice">` switches to Practice's
+  lime (ready for Practice's restyle, which adopts the shared look).
   Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
 - `base.css` — element styles (body type, headings, links, focus ring, reduced motion).
 - `controls.css` + `controls.tsx` — the site header, card (`.board`), segmented control
   (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider` and the "Takeaway / Try it" hint panel
-  (`.takeaways`). Components take their text from the caller: no copy lives in `shared/`.
+  (`.takeaways`). Components take their text from the caller: no copy lives in `shared/` (ESLint
+  rejects literal JSX text and literal `aria-label`/`title`/`alt` in `shared/ui/**/*.tsx`).
 
 An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, then its own).
 

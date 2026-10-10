@@ -1,13 +1,19 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { Button, ChipGroup, OnOff, Slider } from './controls';
 
+const roots: Root[] = [];
 function render(el: ReactElement) {
   const container = document.createElement('div');
-  act(() => createRoot(container).render(el));
+  const root = createRoot(container);
+  roots.push(root);
+  act(() => root.render(el));
   return container;
 }
+afterEach(() => {
+  for (const root of roots.splice(0)) act(() => root.unmount());
+});
 
 describe('shared controls', () => {
   it('ChipGroup: a labelled group, one chip pressed', () => {
@@ -38,5 +44,8 @@ describe('shared controls', () => {
     expect([input.min, input.max, input.step, input.value]).toEqual(['40', '200', '1', '90']);
     expect(c.querySelector('output')!.textContent).toBe('90 BPM');
     expect(c.querySelector('.best')).not.toBeNull();
+    // Named by the label alone, not the changing value or the badge.
+    const id = input.getAttribute('aria-labelledby')!;
+    expect([...c.querySelectorAll('[id]')].find((el) => el.id === id)!.textContent).toBe('Tempo');
   });
 });

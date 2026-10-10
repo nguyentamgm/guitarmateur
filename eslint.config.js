@@ -177,9 +177,10 @@ export default tseslint.config(
     ...forbidTheory([...noReact, ...dir('ui')],
       'theory/src/lessons is data: it may use core and i18n, never UI or React.'),
   },
-  // Every user-facing string in Theory's UI comes from i18n or lesson copy, in both languages.
+  // Every user-facing string in Theory's UI comes from i18n or lesson copy, in both languages;
+  // shared/ui holds no copy at all (its components take their text from the calling app).
   {
-    files: ['theory/src/ui/**/*.tsx'],
+    files: ['theory/src/ui/**/*.tsx', 'shared/ui/**/*.tsx'],
     rules: {
       'no-restricted-syntax': [
         'error',
