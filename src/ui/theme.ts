@@ -11,9 +11,12 @@ export const theme = {
   border: 'var(--line)',
   text: 'var(--ink)',
   muted: 'var(--muted)',
-  subtle: 'var(--muted)',
-  line: 'var(--line)',
-  faintStroke: 'var(--fret)',
+  /** Dimmer than muted: secondary numbers and notes. */
+  subtle: 'color-mix(in srgb, var(--muted) 72%, var(--bg))',
+  /** Strings, frets, tab lines: drawn on the page background, so stronger than a border. */
+  line: 'color-mix(in srgb, var(--muted) 55%, var(--bg))',
+  /** Plain scale-note rings. */
+  faintStroke: 'var(--muted)',
   accent: 'var(--accent)',
   accentText: 'var(--accent-ink)',
   /** Translucent accent tint for selected surfaces. */

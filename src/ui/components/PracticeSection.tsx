@@ -122,17 +122,8 @@ export function PracticeSection({
           </div>
           <button
             type="button"
+            className="btn ghost"
             onClick={() => dispatch({ type: 'rerollAll' })}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: `1px solid ${theme.border}`,
-              background: 'transparent',
-              color: theme.text,
-              fontSize: 13,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
           >
             {t('practice.regenerate')}
           </button>

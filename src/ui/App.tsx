@@ -152,13 +152,14 @@ export function App() {
                   ? t('common.importInvalid')
                   : t('common.import')}
             </button>
+            {/* An on/off setting rather than an action: a chip, pressed while it is on. */}
             <button
               type="button"
-              className="btn ghost"
+              className="chip text"
               aria-pressed={state.leftHanded}
               onClick={() => dispatch({ type: 'setLeftHanded', value: !state.leftHanded })}
             >
-              {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
+              {t('common.leftHanded')}
             </button>
             <InstallPrompt language={state.language} played={played} />
             <input

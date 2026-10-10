@@ -82,7 +82,7 @@ export function FretboardDiagram({
     );
     if (!mini) {
       els.push(
-        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} textAnchor="end" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL - 9)} style={{ fill: theme.muted }}>
+        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} textAnchor="end" transform={unmirror(padL - 9)} style={{ fill: theme.muted, fontFamily: font.mono }}>
           {stringLabels[numStrings - 1 - row]}
         </text>,
       );
@@ -100,7 +100,7 @@ export function FretboardDiagram({
   if (!mini) {
     for (let i = 0; i < count; i++) {
       els.push(
-        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL + (i + 0.5) * colW)} style={{ fill: theme.muted }}>
+        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} textAnchor="middle" transform={unmirror(padL + (i + 0.5) * colW)} style={{ fill: theme.muted, fontFamily: font.mono }}>
           {box.minFret + i}
         </text>,
       );

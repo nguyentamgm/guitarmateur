@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { Chip } from '@shared/ui/controls';
 import { font, theme } from '../theme';
 
 /** Label above a section: the shared sans font (mono stays for numbers), readable with accents. */
@@ -27,10 +28,7 @@ export function Panel({ children, style }: { children: ReactNode; style?: CSSPro
   );
 }
 
-/**
- * One option of a segmented control: the shared chip (shared/ui/controls.css), pressed = ink.
- * `wide` is for words (sans, padded); short values (notes, numbers) stay mono.
- */
+/** One option of a segmented control: the shared `Chip`. `wide` is for words (sans); short values stay mono. */
 export function PillButton({
   selected,
   onClick,
@@ -45,15 +43,9 @@ export function PillButton({
   ariaLabel?: string;
 }) {
   return (
-    <button
-      type="button"
-      className={wide ? 'chip text' : 'chip'}
-      aria-pressed={selected}
-      aria-label={ariaLabel}
-      onClick={onClick}
-    >
+    <Chip pressed={selected} onClick={onClick} words={wide} ariaLabel={ariaLabel}>
       {children}
-    </button>
+    </Chip>
   );
 }
 
