@@ -10,7 +10,7 @@ import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, upright as uprightAt, type 
 /**
  * How a dot is drawn. `home`/`homeMajor`: the root (blue / amber); `blue`: a blue note (♭5);
  * `soft`: a quiet chord note; `chord`: a tone of the chord being played (ring + tint);
- * `target`: the note to aim for (filled accent).
+ * `target`: the note to aim for (filled amber, apart from the root).
  */
 export type DotTone = 'plain' | 'home' | 'homeMajor' | 'blue' | 'soft' | 'chord' | 'target';
 
@@ -111,15 +111,15 @@ export function Fretboard({
         aria-label={label}
       >
         <g transform={mirror}>
-          <rect className="wood" x={g.nutX} y={woodTop} width={g.frets * g.fretWidth} height={woodHeight} rx={3} />
-          {INLAYS.filter((f) => f <= g.frets).map((f) => (
+          <rect className="wood" x={g.nutX} y={woodTop} width={(g.frets - g.from) * g.fretWidth} height={woodHeight} rx={3} />
+          {INLAYS.filter((f) => f > g.from && f <= g.frets).map((f) => (
             <circle key={f} className="inlay" cx={g.x(f)} cy={mid(3, 4)} r={6} />
           ))}
-          {DOUBLE_INLAYS.filter((f) => f <= g.frets).flatMap((f) => [
+          {DOUBLE_INLAYS.filter((f) => f > g.from && f <= g.frets).flatMap((f) => [
             <circle key={`${f}a`} className="inlay" cx={g.x(f)} cy={mid(2, 3)} r={6} />,
             <circle key={`${f}b`} className="inlay" cx={g.x(f)} cy={mid(4, 5)} r={6} />,
           ])}
-          {Array.from({ length: g.frets }, (_, i) => i + 1).map((f) => (
+          {Array.from({ length: g.frets - g.from }, (_, i) => g.from + i + 1).map((f) => (
             <g key={f}>
               <line className="fretline" x1={g.wireX(f)} x2={g.wireX(f)} y1={woodTop} y2={woodTop + woodHeight} />
               <text className="fnum" x={g.x(f)} y={g.y(6) + 32} transform={upright(g.x(f))}>
@@ -127,7 +127,12 @@ export function Fretboard({
               </text>
             </g>
           ))}
-          <rect className="nutbar" x={g.nutX - 5} y={woodTop} width={6} height={woodHeight} />
+          {/* The nut, or on a window of the neck the wire it starts at. */}
+          {g.from === 0 ? (
+            <rect className="nutbar" x={g.nutX - 5} y={woodTop} width={6} height={woodHeight} />
+          ) : (
+            <line className="fretline" x1={g.nutX} x2={g.nutX} y1={woodTop} y2={woodTop + woodHeight} />
+          )}
           {STRINGS.map((s) => (
             <g key={s}>
               <line className="str" x1={g.nutX - 2} x2={g.wireX(g.frets)} y1={g.y(s)} y2={g.y(s)} strokeWidth={STRING_WIDTH[s]} />

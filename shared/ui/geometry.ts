@@ -7,6 +7,11 @@ import { STANDARD_STRING_NAMES, type StringNames, type StringNumber } from '../c
 export interface NeckGeometry {
   /** Highest fret drawn; fret 0 (open) sits left of the nut. */
   readonly frets: number;
+  /**
+   * The fret wire the drawing starts at: 0 = the nut (the whole neck from the head); above 0, a
+   * window of frets `from + 1`…`frets` with no nut (a box in the middle of the neck).
+   */
+  readonly from: number;
   readonly width: number;
   readonly height: number;
   readonly nutX: number;
@@ -20,7 +25,8 @@ export interface NeckGeometry {
   y(string: StringNumber): number;
 }
 
-export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGap?: number } = {}): NeckGeometry {
+export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGap?: number; from?: number } = {}): NeckGeometry {
+  const from = Math.max(0, Math.min(opts.from ?? 0, frets - 1));
   const fretWidth = opts.fretWidth ?? 52;
   const stringGap = opts.stringGap ?? 26;
   const nutX = 44;
@@ -29,14 +35,15 @@ export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGa
   const bottom = 40;
   return {
     frets,
-    width: nutX + frets * fretWidth + right,
+    from,
+    width: nutX + (frets - from) * fretWidth + right,
     height: top + 5 * stringGap + bottom,
     nutX,
     fretWidth,
     top,
     stringGap,
-    x: (f) => (f === 0 ? nutX - 18 : nutX + (f - 0.5) * fretWidth),
-    wireX: (f) => nutX + f * fretWidth,
+    x: (f) => (f === 0 ? nutX - 18 : nutX + (f - from - 0.5) * fretWidth),
+    wireX: (f) => nutX + (f - from) * fretWidth,
     y: (s) => top + (s - 1) * stringGap,
   };
 }

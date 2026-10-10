@@ -114,6 +114,10 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   (♭5), `soft`, `chord` (chord tone), `target`; plus `halo` (landing note) and `mark` (role).
   `stringNames` follows the tuning (`DROP_D_STRING_NAMES` in `shared/core/neck.ts`) and
   `leftHanded` mirrors the neck with its text kept upright. A merged box is one `box` span.
+  `neckGeometry(frets, { from })` draws a window of the neck (frets `from + 1`…`frets`, no nut),
+  as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
+  Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
+  clicked note through `src/ui/notePlayer.ts` (muted with the header's sound toggle).
 
 An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, `fretboard`,
 then its own).

@@ -2,13 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Lick } from '../lick';
 import {
   Transport,
-  createEngine,
   isAudioSupported,
   setMuted,
   type AudioEngine,
   type PlayOptions,
   type Position,
 } from '../audio';
+import { getEngine, peekEngine } from './audioEngine';
 
 export interface UseTransport {
   supported: boolean;
@@ -39,7 +39,7 @@ export function useTransport(muted = false): UseTransport {
   const ensureTransport = useCallback((): Transport | null => {
     if (!supported) return null;
     if (!transportRef.current) {
-      const engine = createEngine();
+      const engine = getEngine();
       engineRef.current = engine;
       if (mutedRef.current) setMuted(engine, true);
       transportRef.current = new Transport(engine, {
@@ -70,13 +70,15 @@ export function useTransport(muted = false): UseTransport {
 
   useEffect(() => {
     mutedRef.current = muted;
-    if (engineRef.current) setMuted(engineRef.current, muted);
+    // The engine may exist already from a note clicked on a neck: mute that too.
+    const engine = engineRef.current ?? peekEngine();
+    if (engine) setMuted(engine, muted);
   }, [muted]);
 
   useEffect(() => {
     return () => {
+      // The engine is the page's (audioEngine.ts): stop playing, but leave it to the clicked notes.
       transportRef.current?.stop();
-      void engineRef.current?.ctx.close();
       transportRef.current = null;
       engineRef.current = null;
     };

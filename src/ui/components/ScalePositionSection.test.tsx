@@ -55,13 +55,39 @@ describe('ScalePositionSection legend', () => {
   });
 });
 
-describe('ScalePositionSection left-handed mode', () => {
-  it('mirrors every fretboard diagram, including the position cards', async () => {
+describe('ScalePositionSection neck', () => {
+  it('draws one whole neck, mirrored for a left-handed player', async () => {
     const { container, unmount } = await mount('minorPentatonic', true);
-    const svgs = Array.from(container.querySelectorAll('svg')).filter((svg) => svg.querySelector('title'));
-    expect(svgs).toHaveLength(6);
-    const unmirrored = svgs.filter((svg) => !(svg.getAttribute('style') ?? '').includes('scaleX(-1)'));
-    expect(unmirrored).toHaveLength(0);
+    const necks = container.querySelectorAll('svg[role="group"]');
+    expect(necks).toHaveLength(1);
+    expect(necks[0]!.querySelector(':scope > g')!.getAttribute('transform')).toMatch(/scale\(-1 1\)/);
+    await unmount();
+  });
+
+  it('frames every box on the neck, one chip per box, the selected one highlighted', async () => {
+    const { container, unmount } = await mount('minorPentatonic');
+    expect(container.querySelectorAll('g.boxghost')).toHaveLength(5);
+    expect(container.querySelectorAll('g.boxghost.on')).toHaveLength(1);
+    const chips = [...container.querySelectorAll('button.chip.text')].filter((b) => b.textContent?.startsWith('Box'));
+    expect(chips).toHaveLength(5);
+    expect(chips.filter((b) => b.getAttribute('aria-pressed') === 'true')).toHaveLength(1);
+    expect(container.querySelector('rect.boxrect')).not.toBeNull();
+    await unmount();
+  });
+
+  it('labels the dots with degrees, the root as home', async () => {
+    const { container, unmount } = await mount('minorPentatonic');
+    const labels = new Set([...container.querySelectorAll('g.dot > text')].map((t) => t.textContent));
+    expect([...labels].sort()).toEqual(['1', '4', '5', '♭3', '♭7'].sort());
+    expect([...container.querySelectorAll('g.dot.home > text')].every((t) => t.textContent === '1')).toBe(true);
+    await unmount();
+  });
+
+  it('marks the blues ♭5 as a blue note', async () => {
+    const { container, unmount } = await mount('blues');
+    const blue = [...container.querySelectorAll('g.dot.blue > text')].map((t) => t.textContent);
+    expect(blue.length).toBeGreaterThan(0);
+    expect(new Set(blue)).toEqual(new Set(['♭5']));
     await unmount();
   });
 });

@@ -4,6 +4,7 @@ import { App } from './ui/App';
 import '@shared/ui/tokens.css';
 import '@shared/ui/base.css';
 import '@shared/ui/controls.css';
+import '@shared/ui/fretboard.css';
 import './ui/global.css';
 import { registerServiceWorker } from './sw';
 

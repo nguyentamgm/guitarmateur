@@ -19,6 +19,7 @@ vi.mock('../audio', () => ({
 }));
 
 const { useTransport } = await import('./useTransport');
+const { resetEngineForTests } = await import('./audioEngine');
 
 function mount() {
   let current!: UseTransport;
@@ -34,6 +35,7 @@ function mount() {
 describe('useTransport mute (the header sound toggle)', () => {
   beforeEach(() => {
     muteCalls.length = 0;
+    resetEngineForTests();
   });
 
   it('a muted toggle before the first play mutes the engine as soon as it exists', () => {
