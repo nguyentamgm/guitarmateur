@@ -5,7 +5,7 @@
  */
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STANDARD_STRING_NAMES, STRINGS, type StringNames, type StringNumber } from '../core/neck';
-import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, type NeckGeometry } from './geometry';
+import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, upright as uprightAt, type NeckGeometry } from './geometry';
 
 /**
  * How a dot is drawn. `home`/`homeMajor`: the root (blue / amber); `blue`: a blue note (♭5);
@@ -95,9 +95,10 @@ export function Fretboard({
   const woodHeight = 5 * g.stringGap + 28;
   const mid = (a: StringNumber, b: StringNumber) => (g.y(a) + g.y(b)) / 2;
   const span = box ? boxSpan(g, box.minFret, box.maxFret) : { left: 0, right: 0 };
-  // Left-handed: the neck is mirrored as a whole, and each text is mirrored back around its own x.
+  // Left-handed: the neck is mirrored as a whole, and each text is mirrored back around its own x
+  // (text a caller draws in `children` uses `upright` from geometry.ts the same way).
   const mirror = leftHanded ? `translate(${g.width} 0) scale(-1 1)` : undefined;
-  const upright = (x: number) => (leftHanded ? `translate(${2 * x} 0) scale(-1 1)` : undefined);
+  const upright = (x: number) => uprightAt(x, leftHanded);
 
   return (
     <div className="scroll">
@@ -155,7 +156,11 @@ export function Fretboard({
               .join(' ');
             const cx = g.x(d.fret);
             const cy = g.y(d.string);
-            return (
+            // The mark sits at the dot's top right as seen, so on a mirrored neck it is drawn left.
+            const markX = leftHanded ? cx - 11 : cx + 11;
+            return [
+              // The landing halo is not part of the dot's look (tone, faint, hit): drawn on its own.
+              d.halo && <circle key={`${d.key}-halo`} className="halo" cx={cx} cy={cy} r={16} />,
               <g
                 key={d.key}
                 className={cls}
@@ -165,7 +170,6 @@ export function Fretboard({
                 onClick={() => play(d)}
                 onKeyDown={(e) => onKey(e, d)}
               >
-                {d.halo && <circle className="halo" cx={cx} cy={cy} r={16} />}
                 <circle cx={cx} cy={cy} r={11} />
                 {text !== undefined && (
                   <text x={cx} y={cy} transform={upright(cx)}>
@@ -173,12 +177,12 @@ export function Fretboard({
                   </text>
                 )}
                 {d.mark !== undefined && (
-                  <text className="mark" x={cx + 11} y={cy - 9} transform={upright(cx + 11)}>
+                  <text className="mark" x={markX} y={cy - 9} transform={upright(markX)}>
                     {d.mark}
                   </text>
                 )}
-              </g>
-            );
+              </g>,
+            ];
           })}
         </g>
       </svg>

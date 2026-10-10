@@ -90,7 +90,7 @@ src/  ──→ shared/ ←──  theory/        shared/ imports neither app
   components and design tokens both apps render.
 - ESLint enforces it: `shared/**` may not import `src/` or `theory/`; `shared/core` and
   `shared/i18n` may not import React. The apps' own layer rules never apply to `@shared/…` imports.
-- Tests are colocated (`shared/**/*.test.ts`) and run with the rest.
+- Tests are colocated (`shared/**/*.test.{ts,tsx}`) and run with the rest.
 
 Today it holds `shared/i18n/language.ts` — the `gm.lang` key, carrying an old per-app choice over,
 and the browser-language rule — — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here

@@ -50,5 +50,12 @@ export function boxSpan(g: NeckGeometry, minFret: number, maxFret: number): { le
 export const INLAYS: readonly number[] = [3, 5, 7, 9, 15, 17, 19, 21];
 export const DOUBLE_INLAYS: readonly number[] = [12, 24];
 
+/**
+ * Keeps a text at `x` readable on a left-handed (mirrored) neck: the transform that mirrors it back
+ * around its own x, or none. Callers drawing text in a Fretboard's `children` use it too.
+ */
+export const upright = (x: number, leftHanded: boolean): string | undefined =>
+  leftHanded ? `translate(${2 * x} 0) scale(-1 1)` : undefined;
+
 /** A string's name in a tuning (standard by default): 'e' for the thinnest, capitals elsewhere. */
 export const stringName = (s: StringNumber, names: StringNames = STANDARD_STRING_NAMES): string => names[s];

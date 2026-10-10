@@ -40,6 +40,5 @@
 .dot.chord text { fill: var(--dot-ink); }
 .dot.target circle { fill: var(--accent); stroke: none; }
 .dot.target text { fill: var(--accent-ink); }
-.dot circle.halo { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
-.dot.hit circle.halo { transform: none; }
+.halo { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
 .dot text.mark { fill: var(--accent); font-size: 9px; font-weight: 700; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }

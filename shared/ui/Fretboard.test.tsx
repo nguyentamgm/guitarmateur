@@ -33,11 +33,13 @@ describe('shared Fretboard', () => {
   it('draws every Practice marker: target, chord tone, landing halo, blue note, role mark', () => {
     const c = render({ dots });
     expect(dot(c, 'e').getAttribute('class')).toBe('dot target');
-    expect(dot(c, 'e').querySelector('circle.halo')).not.toBeNull();
+    // The halo is drawn just before its dot, outside it (so the dot's tone never styles it).
+    const halo = c.querySelector('circle.halo')!;
+    expect(halo.nextElementSibling).toBe(dot(c, 'e'));
+    expect(c.querySelectorAll('circle.halo')).toHaveLength(1);
     expect(dot(c, 'c').getAttribute('class')).toBe('dot chord');
     expect(dot(c, 'c').querySelector('text.mark')!.textContent).toBe('3');
     expect(dot(c, 'eb').getAttribute('class')).toBe('dot blue');
-    expect(dot(c, 'd').querySelector('circle.halo')).toBeNull();
   });
 
   it('labels dots with degrees by default, note names on request; an explicit label wins', () => {
@@ -70,6 +72,8 @@ describe('shared Fretboard', () => {
     const label = dot(c, 'a').querySelector('text')!;
     expect(label.getAttribute('transform')).toBe(`translate(${2 * g.x(5)} 0) scale(-1 1)`);
     expect(c.querySelector('text.sname')!.getAttribute('text-anchor')).toBe('end');
+    // The role mark stays at the dot's top right as seen: drawn left of it before mirroring.
+    expect(dot(c, 'c').querySelector('text.mark')!.getAttribute('x')).toBe(String(g.x(8) - 11));
     // Right-handed: no transforms at all.
     expect(render({ dots }).querySelector('svg > g')!.getAttribute('transform')).toBeNull();
   });
@@ -85,5 +89,18 @@ describe('shared Fretboard', () => {
     // Silent without `play`.
     const silent = render({ dots });
     expect(() => act(() => (dot(silent, 'a') as SVGGElement).dispatchEvent(new MouseEvent('click', { bubbles: true })))).not.toThrow();
+  });
+});
+
+describe('PositionFrame', () => {
+  it('keeps its number upright on a left-handed neck', async () => {
+    const { PositionFrame } = await import('./PositionFrame');
+    const g = neckGeometry(12);
+    const c = document.createElement('div');
+    const root = createRoot(c);
+    roots.push(root);
+    act(() => root.render(createElement('svg', null, createElement(PositionFrame, { g, span: { index: 2, minFret: 5, maxFret: 8 }, leftHanded: true }))));
+    const x = g.wireX(4) + 5;
+    expect(c.querySelector('text')!.getAttribute('transform')).toBe(`translate(${2 * x} 0) scale(-1 1)`);
   });
 });

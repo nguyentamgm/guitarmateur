@@ -42,7 +42,8 @@ ui → lessons → core/fretboard → core/music
 
 - `theory/` never imports from `src/`, and `src/` never imports from `theory/`. Both may import
   `shared/` as `@shared/…`; `shared/` imports neither.
-- `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music`.
+- `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music` (and
+  `@shared/core`, for string numbering).
 - `core/` never imports React, `lessons/`, `ui/` or `platform/`: it stays pure.
 - `platform/` is the only code that touches localStorage (`browserStorage()`, never throws); `i18n`
   and `ui` use it, and it imports nothing else in Theory.
