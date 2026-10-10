@@ -94,8 +94,12 @@ ui → lessons → core/fretboard → core/music
 
 ## Languages
 
-- **English is the primary language and always the default.** Vietnamese is chosen with the
-  EN/VI switch and remembered in `localStorage` under `theory.lang` (never the practice app's key).
+- **English is the primary language and the fallback.** With nothing stored, the browser's
+  languages decide (`vi-VN` → Vietnamese, anything unknown → English); the EN/VI switch changes it.
+- **One language setting for both apps:** `localStorage` key `gm.lang`, read and written by Theory
+  (`i18n/lang.ts`) and the practice app (`src/state/persistence.ts`), each with its own code. It is
+  the only key the two apps share. On a first load without it, the old choice is carried over: the
+  practice app's `guitarmateur-state.language` first, then Theory's old `theory.lang`.
 - Slugs and code are English. Copy is written in English first, then Vietnamese.
 
 ## Progress and review

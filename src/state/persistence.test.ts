@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TONICS, romanNumeral } from '../music';
 import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
-import { migrate, saveState, loadState } from './persistence';
+import { LANG_STORAGE_KEY, loadLanguage, migrate, saveState, loadState } from './persistence';
 import { encodeState } from './share';
 
 const STORAGE_KEY = 'guitarmateur-state';
@@ -221,6 +221,30 @@ describe('persistence', () => {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
     expect(raw.language).toBe('en');
     expect(loadState()!.language).toBe('en');
+  });
+
+  it('shares the language with the Theory app under gm.lang', () => {
+    expect(LANG_STORAGE_KEY).toBe('gm.lang');
+    saveState({ ...defaultState(() => 0), language: 'vi' });
+    expect(localStorage.getItem('gm.lang')).toBe('vi');
+  });
+
+  it('a language changed in Theory wins over the one in the saved state', () => {
+    saveState({ ...defaultState(() => 0), language: 'en' });
+    localStorage.setItem('gm.lang', 'vi');
+    expect(loadLanguage()).toBe('vi');
+    expect(loadState()!.language).toBe('vi');
+  });
+
+  it('keeps an existing language when the shared key is missing: saved state first, then Theory', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: 7, language: 'en' }));
+    localStorage.setItem('theory.lang', 'vi');
+    expect(loadLanguage()).toBe('en');
+    localStorage.removeItem(STORAGE_KEY);
+    expect(loadLanguage()).toBe('vi');
+    // Garbage in the shared key is ignored.
+    localStorage.setItem('gm.lang', 'klingon');
+    expect(loadLanguage()).toBe('vi');
   });
 
   it('migrate keeps a persisted valid language', () => {
