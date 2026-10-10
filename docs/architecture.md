@@ -36,9 +36,11 @@ everything the user does persists in `localStorage`.
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
 ├─ shared/                      # code both apps use, imported as @shared/… — see below
+│  ├─ core/                     # pure: string numbering and names per tuning (neck.ts)
 │  ├─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
 │  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
-│  └─ ui/                       # the shared look: tokens.css, base.css, controls.css + controls.tsx
+│  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
+│                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -105,7 +107,16 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   (`.takeaways`). Components take their text from the caller: no copy lives in `shared/` (ESLint
   rejects literal JSX text and literal `aria-label`/`title`/`alt` in `shared/ui/**/*.tsx`).
 
-An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, then its own).
+- `Fretboard.tsx` + `geometry.ts` + `PositionFrame.tsx` + `fretboard.css` — the neck both apps
+  draw (Theory's): wood, frets, inlays, an optional box frame, clickable note dots. Sound is a
+  `play(midi)` prop (each app has its own audio). Dots carry a `degree` and a `name` (`labels`
+  picks which shows; an explicit `label` wins) and a tone: `home`/`homeMajor` (root), `blue`
+  (♭5), `soft`, `chord` (chord tone), `target`; plus `halo` (landing note) and `mark` (role).
+  `stringNames` follows the tuning (`DROP_D_STRING_NAMES` in `shared/core/neck.ts`) and
+  `leftHanded` mirrors the neck with its text kept upright. A merged box is one `box` span.
+
+An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, `fretboard`,
+then its own).
 
 ## Tech stack
 

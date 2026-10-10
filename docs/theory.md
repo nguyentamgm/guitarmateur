@@ -52,7 +52,10 @@ ui → lessons → core/fretboard → core/music
 - `tsconfig.theory.json` typechecks `theory/src`; Vitest picks up `theory/**/*.test.ts`.
 - The look is shared with the practice app: `main.tsx` imports `@shared/ui/tokens.css`, `base.css`
   and `controls.css` before `ui/theory.css`, and `ui/controls.tsx` re-exports the shared `Button`,
-  `Chip`, `ChipGroup`, `OnOff` and `Slider` next to Theory's own `Tempo` and `KeyFinder`. A new
+  `Chip`, `ChipGroup`, `OnOff` and `Slider` next to Theory's own `Tempo` and `KeyFinder`. The neck is
+  shared too: `ui/Fretboard.tsx` wraps `@shared/ui/Fretboard` with Theory's player, and
+  `ui/geometry.ts` / `ui/PositionFrame.tsx` re-export the shared ones (it also takes `leftHanded`
+  and `stringNames`, unused by the lessons so far). A new
   generic control or token goes in `shared/ui/`; what only Theory draws stays in `theory.css`.
 
 ## Music invariants

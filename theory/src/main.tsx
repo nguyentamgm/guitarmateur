@@ -4,6 +4,7 @@ import { App } from './ui/App';
 import '@shared/ui/tokens.css';
 import '@shared/ui/base.css';
 import '@shared/ui/controls.css';
+import '@shared/ui/fretboard.css';
 import './ui/theory.css';
 
 // The site-wide service worker (public/sw.js) also serves Theory's shell offline.

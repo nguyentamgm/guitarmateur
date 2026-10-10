@@ -45,8 +45,6 @@ body { padding: 0 16px 64px; }
 .text { display: grid; gap: 12px; }
 
 /* Boards and controls */
-.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.scroll svg { display: block; width: 100%; height: auto; margin-inline: auto; }
 .caption { font-family: var(--f-mono); font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.4em; }
 
 .formula { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--f-mono); font-size: 1.05rem; }
@@ -66,26 +64,6 @@ body { padding: 0 16px 64px; }
 .swatch.plain { background: var(--dot); border: 1px solid var(--line); }
 
 /* Fretboard SVG */
-.wood { fill: var(--wood); stroke: var(--wood-edge); }
-.fretline { stroke: var(--fret); stroke-width: 2; }
-.nutbar { fill: var(--nut); }
-.str { stroke: var(--string); }
-.inlay { fill: var(--inlay); }
-.fnum { fill: var(--fretnum); font-family: var(--f-mono); font-size: 11px; text-anchor: middle; }
-.sname { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; dominant-baseline: middle; }
-.boxrect { fill: var(--accent); fill-opacity: 0.16; stroke: var(--accent); stroke-opacity: 0.7; stroke-width: 1.5; transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.45s cubic-bezier(0.3, 0.7, 0.2, 1); }
-.dot { cursor: pointer; transition: opacity 0.3s; outline: none; }
-.dot circle { fill: var(--dot); stroke: var(--wood-edge); stroke-width: 1; transform-box: fill-box; transform-origin: center; transition: transform 0.16s ease-out; }
-.dot text { fill: var(--dot-ink); font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-.dot.home circle { fill: var(--accent); stroke: none; }
-.dot.home text { fill: var(--accent-ink); }
-.dot.homeMajor circle { fill: var(--amber); stroke: none; }
-.dot.homeMajor text { fill: var(--amber-ink); }
-.dot.dim { opacity: 0.22; }
-.dot.faint circle { fill: var(--dot); opacity: 0.35; transform: scale(0.6); }
-.dot.faint:hover circle, .dot.faint:focus-visible circle { opacity: 1; }
-.dot.hit circle { transform: scale(1.4); }
-.dot:hover circle, .dot:focus-visible circle { stroke: var(--accent); stroke-width: 2; }
 
 .pair { fill: none; stroke: var(--fret); stroke-width: 1.5; stroke-dasharray: 4 4; transition: opacity 0.3s; }
 .pair.odd { stroke: var(--amber); }
@@ -172,10 +150,6 @@ body { padding: 0 16px 64px; }
 
 
 /* Pentatonic, the whole neck */
-.boxghost rect { fill: none; stroke: var(--fret); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 4; }
-.boxghost text { fill: var(--fretnum); font-family: var(--f-mono); font-size: 10px; font-weight: 600; dominant-baseline: central; }
-.boxghost.on rect { stroke: var(--accent); stroke-opacity: 0.9; stroke-dasharray: none; }
-.boxghost.on text { fill: var(--accent); }
 .kink circle { fill: none; stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 3 3; }
 .kink line { stroke: var(--amber); stroke-width: 2; }
 .swatch.kinkghost { border: 1.5px dashed var(--amber); }
@@ -185,8 +159,6 @@ body { padding: 0 16px 64px; }
 .legend .gaps { font-family: var(--f-mono); color: var(--accent); }
 
 /* Blues */
-.dot.blue circle { fill: var(--surface); stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 3 2.5; }
-.dot.blue text { fill: var(--accent); }
 .swatch.blue { background: var(--surface); border: 1.5px dashed var(--accent); }
 .bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }
 .bars .bar text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-mono); }
@@ -222,7 +194,6 @@ body { padding: 0 16px 64px; }
 .chordpath li.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
 /* Chord formula table */
-.dot.soft circle { fill: var(--string); opacity: 0.75; }
 .swatch.soft { background: var(--string); opacity: 0.75; }
 .formula-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--f-mono); }
 .formula-row span { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); }
