@@ -27,8 +27,9 @@
     color-scheme: dark;
   }
 }
-/* Practice's accent (after the dark block, so it wins in both schemes). */
-:root[data-app='practice'] { --accent: #4d7c0f; --accent-ink: #ffffff; }
+/* Practice's accent (after the dark block, so it wins in both schemes). The light page's lime is
+   dark for contrast on the light background; on the dark wood the neck uses a brighter one. */
+:root[data-app='practice'] { --accent: #4d7c0f; --accent-ink: #ffffff; --neck-accent: #b5e04a; --neck-accent-ink: #18210a; }
 @media (prefers-color-scheme: dark) {
-  :root[data-app='practice']:not([data-theme='light']) { --accent: #c3f04b; --accent-ink: #0c0e0d; }
+  :root[data-app='practice']:not([data-theme='light']) { --accent: #c3f04b; --accent-ink: #0c0e0d; --neck-accent: #c3f04b; --neck-accent-ink: #0c0e0d; }
 }

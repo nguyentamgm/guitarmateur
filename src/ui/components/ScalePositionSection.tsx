@@ -1,11 +1,15 @@
 import { useMemo } from 'react';
 import { format, SCALE_IDS, SCALES, TONICS, type NoteName } from '../../music';
 import { mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
-import type { LocaleId } from '../../i18n';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker } from './primitives';
-import { FretboardDiagram } from './FretboardDiagram';
+import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
+import { PositionFrame } from '@shared/ui/PositionFrame';
+import { neckGeometry } from '@shared/ui/geometry';
+import { ChipGroup } from '@shared/ui/controls';
+import { boxDots, tuningNames } from '../neck';
+import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
 import { useT } from '../useT';
@@ -13,7 +17,21 @@ import { useT } from '../useT';
 const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
 /** Step 1 — pick key, scale, and position(s); see spelled notes on the fretboard. */
-export function ScalePositionSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
+export function ScalePositionSection({
+  state,
+  dispatch,
+  soundOn = true,
+  labels = 'degree',
+  onLabels = () => {},
+}: {
+  state: AppState;
+  dispatch: (action: Action) => void;
+  /** The header's sound toggle: notes clicked on the neck sound only while it is on. */
+  soundOn?: boolean;
+  /** What the neck's dots show: degrees or note names (shared with the lick cards). */
+  labels?: LabelMode;
+  onLabels?: (mode: LabelMode) => void;
+}) {
   const t = useT(state.language);
   const { key } = state;
   const pos = useMemo(() => positions(TUNINGS[state.tuningId], key), [state.tuningId, key]);
@@ -24,7 +42,11 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
   const title = combined
     ? t('scalebox.titleCombined', { tonic: format(key.tonic), scale: scaleName, min: box.minFret, max: box.maxFret })
     : t('scalebox.title', { tonic: format(key.tonic), scale: scaleName });
-  const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
+  const tuning = TUNINGS[state.tuningId];
+  const names = useMemo(() => tuningNames(tuning), [tuning]);
+  // Up to the highest box, at least 12 frets, as Theory draws the whole neck.
+  const geometry = useMemo(() => neckGeometry(Math.max(12, ...pos.map((p) => p.maxFret)), { fretWidth: 46 }), [pos]);
+  const dots = useMemo(() => boxDots(box, key), [box, key]);
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -60,27 +82,42 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
           ))}
         </Row>
 
-        {/* Position cards */}
+        {/* Boxes: one chip per position, on the neck as numbered frames */}
         <Label style={{ marginTop: 18 }}>{t('scalebox.boxes')}</Label>
-        <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6 }}>
+        <Row>
           {pos.map((p, i) => (
-            <PositionCard
+            <button
               key={p.index}
-              displayNumber={i + 1}
-              range={t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}
-              language={state.language}
-              recommended={p.index === rec}
-              selected={state.positions.includes(p.index)}
+              type="button"
+              className="chip text"
+              aria-pressed={state.positions.includes(p.index)}
               onClick={() => dispatch({ type: 'togglePosition', index: p.index })}
-              box={{ notes: p.notes, minFret: p.minFret, maxFret: p.maxFret }}
-              leftHanded={state.leftHanded}
-            />
+            >
+              {t('scalebox.boxLabel', { n: i + 1 })}{' '}
+              <span style={{ fontFamily: font.mono, opacity: 0.75 }}>{t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}</span>
+              {p.index === rec && (
+                <span style={{ marginLeft: 6, fontWeight: 700, color: 'var(--accent)' }} title={t('scalebox.recommendedAria')}>
+                  {t('scalebox.recommended')}
+                </span>
+              )}
+            </button>
           ))}
-        </div>
+        </Row>
 
-        {/* Merged / selected diagram */}
+        {/* The whole neck: every box framed, the selected one(s) highlighted with their notes */}
         <div style={{ marginTop: 20 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 10 }}>{title}</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>{title}</div>
+            <ChipGroup<LabelMode>
+              label={t('scalebox.labels')}
+              items={[
+                { value: 'degree', text: t('scalebox.labelDegrees') },
+                { value: 'name', text: t('scalebox.labelNames') },
+              ]}
+              value={labels}
+              onChange={onLabels}
+            />
+          </div>
           <Legend
             items={[
               { type: 'tonic', label: t('legend.root') },
@@ -91,8 +128,27 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
               })) ?? []),
             ]}
           />
-          <div style={{ overflowX: 'auto', marginTop: 12 }}>
-            <FretboardDiagram box={box} title={title} stringLabels={stringLabels} leftHanded={state.leftHanded} />
+          <div style={{ marginTop: 12 }}>
+            <Fretboard
+              geometry={geometry}
+              dots={dots}
+              label={title}
+              box={box}
+              labels={labels}
+              stringNames={names}
+              leftHanded={state.leftHanded}
+              play={notePlayer(soundOn)}
+            >
+              {pos.map((p, i) => (
+                <PositionFrame
+                  key={p.index}
+                  g={geometry}
+                  span={{ index: i + 1, minFret: p.minFret, maxFret: p.maxFret }}
+                  on={state.positions.includes(p.index)}
+                  leftHanded={state.leftHanded}
+                />
+              ))}
+            </Fretboard>
           </div>
         </div>
       </Panel>
@@ -108,56 +164,4 @@ function Label({ children, style }: { children: React.ReactNode; style?: React.C
 
 function Row({ children }: { children: React.ReactNode }) {
   return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{children}</div>;
-}
-
-function PositionCard({
-  displayNumber,
-  range,
-  recommended,
-  selected,
-  onClick,
-  box,
-  language,
-  leftHanded,
-}: {
-  displayNumber: number;
-  range: string;
-  recommended: boolean;
-  selected: boolean;
-  onClick: () => void;
-  box: { notes: import('../../fretboard').FretNote[]; minFret: number; maxFret: number };
-  language: LocaleId;
-  leftHanded?: boolean;
-}) {
-  const t = useT(language);
-  const count = box.maxFret - box.minFret + 1;
-  const width = Math.round((7 + count * 15 + 7) * 1.9) + 20;
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onClick}
-      style={{
-        flexShrink: 0,
-        width,
-        textAlign: 'left',
-        display: 'block',
-        border: `1px solid ${selected ? theme.accent : theme.border}`,
-        background: selected ? theme.accentTint : theme.card,
-        borderRadius: 11,
-        padding: 10,
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: theme.text }}>{t('scalebox.boxLabel', { n: displayNumber })}</span>
-        {recommended && (
-          <span style={{ fontSize: 11, fontWeight: 700, color: theme.accent }}>{t('scalebox.recommended')}</span>
-        )}
-      </div>
-      <FretboardDiagram box={box} mini title={t('scalebox.boxTitle', { n: displayNumber, range })} leftHanded={leftHanded} />
-      <div style={{ fontSize: 11, color: theme.muted, marginTop: 6, fontFamily: font.mono }}>{range}</div>
-    </button>
-  );
 }

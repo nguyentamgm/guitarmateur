@@ -7,6 +7,7 @@ import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
 import { InstallPrompt } from './components/InstallPrompt';
 import { SiteHeader } from './components/SiteHeader';
+import type { LabelMode } from '@shared/ui/Fretboard';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useT } from './useT';
 
@@ -44,6 +45,8 @@ export function App() {
   // First playback this visit: one of the signs of engagement before offering to install.
   const [played, setPlayed] = useState(false);
   const markPlayed = useCallback(() => setPlayed(true), []);
+  // Degrees or note names on every neck; for this visit.
+  const [labels, setLabels] = useState<LabelMode>('degree');
   const [copied, setCopied] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,9 +176,9 @@ export function App() {
         </div>
 
         <ErrorBoundary t={t}>
-          <ScalePositionSection state={state} dispatch={dispatch} />
+          <ScalePositionSection state={state} dispatch={dispatch} soundOn={soundOn} labels={labels} onLabels={setLabels} />
           <ProgressionSection state={state} dispatch={dispatch} />
-          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} onPlay={markPlayed} />
+          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} onPlay={markPlayed} labels={labels} />
         </ErrorBoundary>
       </div>
     </>

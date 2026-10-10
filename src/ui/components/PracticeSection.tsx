@@ -5,7 +5,10 @@ import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker, Toggle } from './primitives';
-import { FretboardDiagram } from './FretboardDiagram';
+import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
+import { neckGeometry } from '@shared/ui/geometry';
+import { boxDots, tuningNames } from '../neck';
+import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
 import { PlaybackControls } from './PlaybackControls';
@@ -20,12 +23,15 @@ export function PracticeSection({
   dispatch,
   soundOn = true,
   onPlay,
+  labels = 'degree',
 }: {
   state: AppState;
   dispatch: (action: Action) => void;
   soundOn?: boolean;
   /** Called when playback starts. */
   onPlay?: () => void;
+  /** What the necks' dots show: degrees or note names (chosen in Step 1). */
+  labels?: LabelMode;
 }) {
   const t = useT(state.language);
   const licks = useMemo(() => licksForState(state), [state]);
@@ -62,6 +68,12 @@ export function PracticeSection({
   }, [state.tuningId, stateKey, state.positions]);
 
   const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
+  const names = useMemo(() => tuningNames(TUNINGS[state.tuningId]), [state.tuningId]);
+  // Each card shows just the box's frets: a window of the neck (with the nut when the box starts at 0).
+  const cardGeometry = useMemo(
+    () => neckGeometry(box.maxFret, { from: box.minFret > 0 ? box.minFret - 1 : 0, fretWidth: 50 }),
+    [box.minFret, box.maxFret],
+  );
 
   const chordMap = useMemo(() => {
     const m = new Map<string, (typeof stateProgression)[number]>();
@@ -228,13 +240,18 @@ export function PracticeSection({
                     </div>
 
                     {/* Fretboard with chord highlighting + landing */}
-                    <FretboardDiagram
-                      box={box}
-                      highlight={{ chord, targetRole: state.targetRole }}
-                      landing={lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined}
-                      title={t('practice.diagramTitle', { chord: targetTone, role: targetLabel })}
-                      stringLabels={stringLabels}
+                    <Fretboard
+                      geometry={cardGeometry}
+                      dots={boxDots(box, state.key, {
+                        highlight: { chord, targetRole: state.targetRole },
+                        landing: lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined,
+                        from: cardGeometry.from,
+                      })}
+                      label={t('practice.diagramTitle', { chord: targetTone, role: targetLabel })}
+                      labels={labels}
+                      stringNames={names}
                       leftHanded={state.leftHanded}
+                      play={notePlayer(soundOn)}
                     />
 
                     {/* Lick header */}
