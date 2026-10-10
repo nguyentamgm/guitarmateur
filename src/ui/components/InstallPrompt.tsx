@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { LocaleId } from '../../i18n';
 import { recordVisit, rememberInstallDone, shouldOfferInstall } from '../../state';
 import { theme } from '../theme';
@@ -26,6 +26,7 @@ export function InstallPrompt({
   const t = useT(language);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [memory, setMemory] = useState(recordVisit);
+  const asking = useRef(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -44,16 +45,26 @@ export function InstallPrompt({
   if (!prompt || !shouldOfferInstall(memory, played)) return null;
 
   async function handleInstall() {
-    if (!prompt) return;
-    await prompt.prompt();
-    await prompt.userChoice;
-    // Either answer is final: the browser will not offer this prompt object again.
-    setMemory(rememberInstallDone());
+    // The browser's dialog can be shown once per event: a double-click must not ask twice.
+    if (!prompt || asking.current) return;
+    asking.current = true;
+    try {
+      await prompt.prompt();
+      await prompt.userChoice;
+      // Either answer is final: the browser will not offer this prompt object again.
+      setMemory(rememberInstallDone());
+    } catch {
+      setPrompt(null); // the event is spent; the browser's own install menu still works
+    }
   }
 
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-      <button onClick={handleInstall} style={{ ...buttonStyle, borderColor: theme.accent }}>
+      <button
+        onClick={handleInstall}
+        title={t('install.title')}
+        style={{ ...buttonStyle, borderColor: theme.accent }}
+      >
         {t('install.button')}
       </button>
       <button

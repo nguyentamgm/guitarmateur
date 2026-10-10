@@ -60,6 +60,24 @@ describe('InstallPrompt', () => {
     again.unmount();
   });
 
+  it('asks the browser once, however often Install is clicked', async () => {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    act(() => root.render(createElement(InstallPrompt, { language: 'en', played: true, buttonStyle: {} })));
+    const e = installEvent();
+    act(() => {
+      window.dispatchEvent(e);
+    });
+    const button = installButton(container)!;
+    await act(async () => {
+      button.click();
+      button.click();
+    });
+    expect(e.prompt).toHaveBeenCalledTimes(1);
+    expect(container.innerHTML).toBe('');
+    act(() => root.unmount());
+  });
+
   it('shows nothing when the browser cannot install', () => {
     const container = document.createElement('div');
     const root = createRoot(container);

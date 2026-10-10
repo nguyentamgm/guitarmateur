@@ -199,7 +199,7 @@ export function App() {
           <ScalePositionSection state={state} dispatch={dispatch} />
           <ProgressionSection state={state} dispatch={dispatch} />
           <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} onPlay={markPlayed} />
-          </ErrorBoundary>
+        </ErrorBoundary>
       </div>
     </>
   );

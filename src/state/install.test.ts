@@ -15,10 +15,12 @@ describe('install offer', () => {
     expect(shouldOfferInstall({ visits: 5, done: true }, true)).toBe(false);
   });
 
-  it('counts each page load once', () => {
+  it('counts each visit once: a reload in the same session is not a second visit', () => {
     expect(recordVisit()).toEqual({ visits: 1, done: false });
     expect(recordVisit()).toEqual({ visits: 1, done: false }); // same load
-    resetVisitCountForTests(); // next load
+    resetVisitCountForTests({ newSession: false }); // a reload, or Theory and back
+    expect(recordVisit()).toEqual({ visits: 1, done: false });
+    resetVisitCountForTests(); // coming back another time
     expect(recordVisit()).toEqual({ visits: 2, done: false });
     expect(JSON.parse(localStorage.getItem(INSTALL_STORAGE_KEY)!)).toEqual({ visits: 2, done: false });
   });

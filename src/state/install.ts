@@ -5,9 +5,11 @@
  */
 
 export const INSTALL_STORAGE_KEY = 'guitarmateur-install';
+/** Marks this browser session as counted, so a reload or a trip to Theory and back is not a new visit. */
+const SESSION_KEY = 'guitarmateur-install-session';
 
 export interface InstallMemory {
-  /** Page loads so far, this one included. */
+  /** Visits (browser sessions) so far, this one included. */
   readonly visits: number;
   /** Dismissed, installed, or the browser's own dialog answered. */
   readonly done: boolean;
@@ -39,13 +41,24 @@ function write(memory: InstallMemory): void {
   }
 }
 
+/** True the first time it is asked in a browser session (or always, when sessionStorage is blocked). */
+function newSession(): boolean {
+  try {
+    if (sessionStorage.getItem(SESSION_KEY)) return false;
+    sessionStorage.setItem(SESSION_KEY, '1');
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 let counted: InstallMemory | null = null;
 
-/** Count this page load (once, however often it is called) and return the memory. */
+/** Count this visit (once per browser session, however often it is called) and return the memory. */
 export function recordVisit(): InstallMemory {
   if (!counted) {
     const before = read();
-    counted = { ...before, visits: before.visits + 1 };
+    counted = newSession() ? { ...before, visits: before.visits + 1 } : before;
     write(counted);
   }
   return counted;
@@ -53,13 +66,13 @@ export function recordVisit(): InstallMemory {
 
 /** Never offer again: dismissed or installed. */
 export function rememberInstallDone(): InstallMemory {
-  const memory = { ...read(), done: true };
-  counted = counted ? { ...counted, done: true } : null;
-  write(memory);
-  return memory;
+  counted = { ...(counted ?? read()), done: true };
+  write(counted);
+  return counted;
 }
 
-/** Test hook: forget that this page load was counted. */
-export function resetVisitCountForTests(): void {
+/** Test hook: forget that this page load was counted; `newSession` also starts a new browser session. */
+export function resetVisitCountForTests({ newSession = true } = {}): void {
   counted = null;
+  if (newSession) sessionStorage.removeItem(SESSION_KEY);
 }
