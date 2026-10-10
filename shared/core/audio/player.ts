@@ -126,7 +126,10 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     },
     now() {
       try {
-        return context()?.currentTime ?? null;
+        const c = context();
+        // A suspended context's clock stands still: wake it, or nothing scheduled on it would play.
+        if (c && c.state === 'suspended') void c.resume();
+        return c?.currentTime ?? null;
       } catch {
         return null;
       }

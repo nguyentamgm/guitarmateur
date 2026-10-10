@@ -5,6 +5,7 @@ import { Sequencer, type Pass, type SeqEvent, type SequencerDeps } from './seque
 /** A player on a clock the test moves, recording what is handed to it and with which delay. */
 function rig(audio = true) {
   let time = 10;
+  let clockLost = false;
   const heard: string[] = [];
   const player: Player = {
     pluck: (midi, delay = 0, length) => heard.push(`p${midi}@${(time + delay).toFixed(2)}${length ? `~${length.toFixed(2)}` : ''}`),
@@ -12,7 +13,7 @@ function rig(audio = true) {
     click: (accent = false, delay = 0) => heard.push(`${accent ? 'C' : 'c'}@${(time + delay).toFixed(2)}`),
     setEnabled: () => {},
     enabled: true,
-    now: () => (audio ? time : null),
+    now: () => (audio && !clockLost ? time : null),
     setLevels: () => {},
   };
   let tick: (() => void) | null = null;
@@ -35,7 +36,11 @@ function rig(audio = true) {
       tick?.();
     }
   };
-  return { player, deps, heard, run, ticking: () => tick !== null };
+  /** Jump the clock without ticking: a stalled timer (a background tab). */
+  const stall = (sec: number) => {
+    time += sec;
+  };
+  return { player, deps, heard, run, stall, ticking: () => tick !== null, loseClock: () => (clockLost = true) };
 }
 
 const pass: Pass<string> = {
@@ -89,5 +94,47 @@ describe('Sequencer', () => {
     const seq2 = new Sequencer(r2.player, {}, r2.deps);
     seq2.play({ events: [], durationSec: 1 });
     expect(seq2.isPlaying).toBe(false);
+  });
+
+  it('ends a loop whose next pass takes no time, and never spins on an empty pass', () => {
+    const r = rig();
+    let ended = 0;
+    const seq = new Sequencer(r.player, { onEnd: () => ended++ }, r.deps);
+    seq.play(pass, () => ({ events: [], durationSec: 0 }));
+    r.run(2);
+    expect(seq.isPlaying).toBe(false);
+    expect(ended).toBe(1);
+
+    const r2 = rig();
+    const seq2 = new Sequencer(r2.player, {}, r2.deps);
+    seq2.play(pass, () => ({ events: [], durationSec: 2 }));
+    r2.run(5); // returns: an empty pass still moves the loop on
+    expect(seq2.isPlaying).toBe(true);
+    seq2.stop();
+  });
+
+  it('skips what a stalled timer missed instead of playing it in a burst', () => {
+    const r = rig();
+    const seq = new Sequencer(r.player, {}, r.deps);
+    seq.play(pass, () => pass);
+    r.run(0.2); // the first beat is heard
+    r.stall(1.2); // the timer sleeps through the second beat and the next pass's first
+    r.run(0.1);
+    expect(r.heard.filter((h) => h.endsWith('@10.60'))).toEqual([]);
+    expect(r.heard.filter((h) => h.endsWith('@11.10') || h.startsWith('p57@11.10'))).toEqual([]);
+    r.run(1);
+    expect(r.heard).toContain('p57@12.10~0.40');
+    seq.stop();
+  });
+
+  it('stops when the audio clock is lost', () => {
+    const r = rig();
+    const seq = new Sequencer(r.player, {}, r.deps);
+    seq.play(pass, () => pass);
+    r.run(0.3);
+    r.loseClock();
+    r.run(0.1);
+    expect(seq.isPlaying).toBe(false);
+    expect(r.ticking()).toBe(false);
   });
 });

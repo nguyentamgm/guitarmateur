@@ -54,6 +54,8 @@ export interface SequencerCallbacks<Tag> {
 
 /** Head start before the first event, so it is never scheduled in the past. */
 const LEAD_SEC = 0.1;
+/** An event this late (a stalled timer, a background tab) is skipped, not played in a burst. */
+const LATE_SEC = 0.05;
 
 const browserTimers: SequencerDeps = {
   setInterval: (fn, ms) => setInterval(fn, ms),
@@ -123,17 +125,27 @@ export class Sequencer<Tag = unknown> {
   }
 
   private pump(windowEnd: number): void {
-    // Keep a loop fed: append the next pass before the window overtakes the last event.
-    while (this.next) {
-      const last = this.events[this.events.length - 1];
-      if (last && last.timeSec > windowEnd + 1) break;
+    const now = this.player.now();
+    // The audio clock is gone (the context closed or failed): nothing more can sound.
+    if (now === null) {
+      this.stop();
+      return;
+    }
+    // Keep a loop fed: append passes until the next one starts beyond the window. A pass that
+    // takes no time cannot loop: the loop ends there.
+    while (this.next && this.nextPassAt <= windowEnd + 1) {
       const pass = this.next();
-      if (pass.durationSec <= 0) break;
+      if (pass.durationSec <= 0) {
+        this.next = null;
+        break;
+      }
       this.events.push(...shift(pass.events, this.nextPassAt));
       this.nextPassAt += pass.durationSec;
     }
 
-    this.cursor = drainDue(this.events, this.cursor, windowEnd, (e) => this.fire(e));
+    this.cursor = drainDue(this.events, this.cursor, windowEnd, (e) => {
+      if (e.timeSec >= now - LATE_SEC) this.fire(e, now);
+    });
 
     // Drop fired events, so an endless loop does not grow without bound.
     if (this.cursor > 256) {
@@ -141,12 +153,11 @@ export class Sequencer<Tag = unknown> {
       this.cursor = 0;
     }
 
-    const now = this.player.now() ?? 0;
     if (!this.next && this.cursor >= this.events.length && now >= this.nextPassAt) this.stop();
   }
 
-  private fire(e: SeqEvent<Tag>): void {
-    const delay = Math.max(0, e.timeSec - (this.player.now() ?? e.timeSec));
+  private fire(e: SeqEvent<Tag>, now: number): void {
+    const delay = Math.max(0, e.timeSec - now);
     if (e.kind === 'click') this.player.click(e.accent, delay);
     else if (e.muted) this.player.mute(e.midi, delay);
     else this.player.pluck(e.midi, delay, e.lengthSec, e.glide);

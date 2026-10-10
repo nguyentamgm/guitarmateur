@@ -25,6 +25,21 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     expect(notes.map((e) => e.kind === 'note' && e.lengthSec)).toEqual([1, 1.6, 3.2]);
   });
 
+  it('damps the last note of a pass by the next pass on a loop, and a glide by the next pick', () => {
+    const lick: Lick = { lengthBeats: 2, difficulty: 1, notes: [n(0, A4), n(1, B4, { durationBeats: 4 })] };
+    const looped = lickPasses([lick], { tempoBpm: 60, metronome: false }, true);
+    const lastLooped = looped.next().events.at(-1)!;
+    expect(lastLooped.kind === 'note' && lastLooped.lengthSec).toBe(1); // next pass picks string 1 at 2 s
+    const once = lickPasses([lick], { tempoBpm: 60, metronome: false });
+    const lastOnce = once.first.events.at(-1)!;
+    expect(lastOnce.kind === 'note' && lastOnce.lengthSec).toBeCloseTo(6.4);
+
+    // A sixteenth bend followed at once by a pick on the same string stops there, glide or not.
+    const fast: Lick = { lengthBeats: 1, difficulty: 1, notes: [n(0, A4, { durationBeats: 0.25 }), n(0.25, B4, { durationBeats: 0.25, technique: 'bendFull' }), n(0.5, A4, { durationBeats: 0.25 })] };
+    const ev = toSeqEvents(compileProgression([fast], { tempoBpm: 240, metronome: false }).events);
+    expect(ev[1]!.kind === 'note' && ev[1]!.lengthSec).toBeCloseTo(0.0625);
+  });
+
   it('turns a technique into a glide from the previous pitch that ends on the note', () => {
     for (const technique of ['hammer', 'pull', 'slide', 'bendFull'] as const) {
       const g = glideInto(technique, -2)!;
