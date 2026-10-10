@@ -34,6 +34,9 @@ everything the user does persists in `localStorage`.
 │  ├─ audio/                    # metronome + lick playback via Web Audio synthesis
 │  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
+├─ theory/                      # the Theory app (/theory) — see docs/theory.md
+├─ shared/                      # code both apps use, imported as @shared/… — see below
+│  └─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -53,7 +56,7 @@ Dependency rule (strictly one-directional):
 
 ```
 ui → state → (lick → fretboard → music)      audio → lick/state
-ui, state → i18n                              i18n imports nothing
+ui, state → i18n                              i18n imports nothing in src/ (only @shared)
 ```
 
 Lower layers **never** import from higher ones. `music`, `fretboard`, `lick`, and `state` must
@@ -67,6 +70,26 @@ the rest of the app (not even `music`) and is never imported by `music`, `fretbo
 and `state` may both import `i18n` (`state` only for the `LocaleId` type and validation, since it
 persists the preference but never renders). See [`docs/i18n.md`](i18n.md) for the contributor-facing
 guide to adding a new language.
+
+## Shared code (`shared/`)
+
+The practice app (`src/`) and the Theory app (`theory/`) never import each other. What both use
+lives in `shared/` and is imported through the `@shared/*` alias (`paths` in `tsconfig.app.json`
+and `tsconfig.theory.json`, `resolve.alias` in `vite.config.ts`, which Vitest also uses):
+
+```
+src/  ──→ shared/ ←──  theory/        shared/ imports neither app
+```
+
+- `shared/core/` and `shared/i18n/` are pure TypeScript: no React, no browser globals (storage is
+  passed in). `shared/ui/` is for React components and design tokens both apps render.
+- ESLint enforces it: `shared/**` may not import `src/` or `theory/`; `shared/core` and
+  `shared/i18n` may not import React.
+- Tests are colocated (`shared/**/*.test.ts`) and run with the rest.
+
+Today it holds `shared/i18n/language.ts`: the `gm.lang` key, carrying an old per-app choice over,
+and the browser-language rule — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
+and by `theory/src/i18n/lang.ts` in Theory.
 
 ## Tech stack
 
