@@ -224,3 +224,33 @@ describe('glides (K6.3, K6.4)', () => {
     expect(calls.at(-1)![2]).toBeCloseTo(1.8);
   });
 });
+
+describe('player: clock and levels (for a sequencer)', () => {
+  it('tells the audio time, creating the context on first ask', () => {
+    const make = vi.fn(() => fakeContext().ctx);
+    const p = createPlayer({ createContext: make });
+    expect(p.now()).toBe(1);
+    expect(make).toHaveBeenCalledTimes(1);
+  });
+
+  it('mixes notes and clicks by their own levels, 1 by default (unchanged sound)', () => {
+    const f = fakeContext();
+    const gains: { value: number }[] = [];
+    const ctx: MiniAudioContext = {
+      ...f.ctx,
+      createGain: () => {
+        const gain = { value: 0 };
+        gains.push(gain);
+        return { connect: vi.fn(), gain } as unknown as GainNode;
+      },
+    };
+    const p = createPlayer({ createContext: () => ctx, gain: 0.5 });
+    p.pluck(60);
+    p.setLevels({ note: 0.5, click: 0.2 });
+    p.pluck(60);
+    p.click();
+    p.setLevels({ note: 7 });
+    p.mute(60);
+    expect(gains.map((g) => g.value)).toEqual([0.5, 0.25, 0.1, 0.5]);
+  });
+});

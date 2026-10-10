@@ -26,6 +26,8 @@ function fakePlayer() {
     setEnabled: (on) => {
       enabled = on;
     },
+    now: () => 0,
+    setLevels: () => {},
     get enabled() {
       return enabled;
     },

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { Scheduler, drainDue } from './scheduler';
-import type { AudioEvent } from './compile';
+import { Scheduler, drainDue, type Timed } from './scheduler';
 
+type AudioEvent = Timed & { readonly kind: 'click'; readonly accented: boolean };
 const click = (timeSec: number): AudioEvent => ({ timeSec, kind: 'click', accented: false });
 
 describe('drainDue', () => {

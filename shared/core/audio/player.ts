@@ -39,6 +39,13 @@ export interface Player {
   click(accent?: boolean, delaySec?: number): void;
   setEnabled(on: boolean): void;
   readonly enabled: boolean;
+  /**
+   * Seconds on the audio clock: what a sequencer schedules against. Creates the AudioContext if
+   * there is none yet (so call it from a user gesture, like `pluck`); null when there is no audio.
+   */
+  now(): number | null;
+  /** Levels, 0..1, for the notes (pluck, mute) and the click: a mix. Both default to 1. */
+  setLevels(levels: { readonly note?: number; readonly click?: number }): void;
 }
 
 export function isAudioSupported(): boolean {
@@ -50,6 +57,7 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
   const make = opts.createContext ?? (() => new AudioContext() as unknown as MiniAudioContext);
   let ctx: MiniAudioContext | null = null;
   let enabled = true;
+  const levels = { note: 1, click: 1 };
   const cache = new Map<string, AudioBuffer>();
 
   const bufferFor = (c: MiniAudioContext, key: string, render: () => Float32Array): AudioBuffer => {
@@ -63,19 +71,31 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     return buf;
   };
 
-  const play = (key: string, render: (sampleRate: number) => Float32Array, delaySec: number, lengthSec?: number, glide?: Glide) => {
+  const context = (): MiniAudioContext | null => {
+    if (!ctx) {
+      if (!opts.createContext && !isAudioSupported()) return null;
+      ctx = make();
+    }
+    return ctx;
+  };
+
+  const play = (
+    key: string,
+    render: (sampleRate: number) => Float32Array,
+    delaySec: number,
+    lengthSec?: number,
+    glide?: Glide,
+    level = 1,
+  ) => {
     if (!enabled) return;
     try {
-      if (!ctx) {
-        if (!opts.createContext && !isAudioSupported()) return;
-        ctx = make();
-      }
-      const c = ctx;
+      const c = context();
+      if (!c) return;
       if (c.state === 'suspended') void c.resume();
       const src = c.createBufferSource();
       src.buffer = bufferFor(c, key, () => render(c.sampleRate));
       const g = c.createGain();
-      g.gain.value = gainLevel;
+      g.gain.value = gainLevel * level;
       src.connect(g);
       g.connect(c.destination);
       const at = c.currentTime + Math.max(0, delaySec);
@@ -104,14 +124,29 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     setEnabled(on) {
       enabled = on;
     },
+    now() {
+      try {
+        const c = context();
+        // A suspended context's clock stands still: wake it, or nothing scheduled on it would play.
+        if (c && c.state === 'suspended') void c.resume();
+        return c?.currentTime ?? null;
+      } catch {
+        return null;
+      }
+    },
+    setLevels(next) {
+      const clamp = (v: number) => Math.min(1, Math.max(0, v));
+      if (next.note !== undefined) levels.note = clamp(next.note);
+      if (next.click !== undefined) levels.click = clamp(next.click);
+    },
     pluck(midi, delaySec = 0, lengthSec, glide) {
-      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide);
+      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels.note);
     },
     mute(midi, delaySec = 0) {
-      play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec);
+      play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec, undefined, undefined, levels.note);
     },
     click(accent = false, delaySec = 0) {
-      play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec);
+      play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec, undefined, undefined, levels.click);
     },
   };
 }
