@@ -7,7 +7,7 @@ import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker, Toggle } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { neckGeometry } from '@shared/ui/geometry';
-import { boxDots, tuningNames } from '../neck';
+import { boxDots, stringNumber, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
@@ -67,8 +67,9 @@ export function PracticeSection({
     return mergedBox(pos, state.positions);
   }, [state.tuningId, stateKey, state.positions]);
 
-  const stringLabels = TUNINGS[state.tuningId].strings.map((p) => p.letter);
   const names = useMemo(() => tuningNames(TUNINGS[state.tuningId]), [state.tuningId]);
+  // The tab names its strings as the neck does (low → high here): one source, 'e' for the thinnest.
+  const stringLabels = TUNINGS[state.tuningId].strings.map((_, i) => names[stringNumber(i)]);
   // Each card shows just the box's frets: a window of the neck (with the nut when the box starts at 0).
   const cardGeometry = useMemo(
     () => neckGeometry(box.maxFret, { from: box.minFret > 0 ? box.minFret - 1 : 0, fretWidth: 50 }),
@@ -251,7 +252,7 @@ export function PracticeSection({
                       labels={labels}
                       stringNames={names}
                       leftHanded={state.leftHanded}
-                      play={notePlayer(soundOn)}
+                      play={notePlayer(soundOn, state.noteGain)}
                     />
 
                     {/* Lick header */}

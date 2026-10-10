@@ -96,7 +96,7 @@ export function ScalePositionSection({
               {t('scalebox.boxLabel', { n: i + 1 })}{' '}
               <span style={{ fontFamily: font.mono, opacity: 0.75 }}>{t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}</span>
               {p.index === rec && (
-                <span style={{ marginLeft: 6, fontWeight: 700, color: 'var(--accent)' }} title={t('scalebox.recommendedAria')}>
+                <span style={{ marginLeft: 6, fontWeight: 700 }} title={t('scalebox.recommendedAria')}>
                   {t('scalebox.recommended')}
                 </span>
               )}
@@ -137,7 +137,7 @@ export function ScalePositionSection({
               labels={labels}
               stringNames={names}
               leftHanded={state.leftHanded}
-              play={notePlayer(soundOn)}
+              play={notePlayer(soundOn, state.noteGain)}
             >
               {pos.map((p, i) => (
                 <PositionFrame

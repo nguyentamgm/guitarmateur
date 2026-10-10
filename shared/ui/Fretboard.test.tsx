@@ -104,3 +104,27 @@ describe('PositionFrame', () => {
     expect(c.querySelector('text')!.getAttribute('transform')).toBe(`translate(${2 * x} 0) scale(-1 1)`);
   });
 });
+
+describe('a window of the neck (from > 0)', () => {
+  it('starts at the given wire with no nut: frets from+1…frets, numbered as on the neck', () => {
+    const g = neckGeometry(8, { from: 4, fretWidth: 50 });
+    expect(g.from).toBe(4);
+    expect(g.wireX(4)).toBe(g.nutX);
+    expect(g.x(5)).toBe(g.nutX + 25);
+    expect(g.width).toBe(g.nutX + 4 * 50 + 14);
+    const c = render({ dots: [{ key: 'a', string: 6, fret: 5, midi: 45 }], geometry: g });
+    expect(c.querySelector('rect.nutbar')).toBeNull();
+    expect([...c.querySelectorAll('text.fnum')].map((t) => t.textContent)).toEqual(['5', '6', '7', '8']);
+    // The 5th and 7th fret inlays only; none from frets outside the window.
+    expect(c.querySelectorAll('circle.inlay')).toHaveLength(2);
+  });
+
+  it('keeps the whole neck from the nut by default', () => {
+    const g = neckGeometry(12);
+    expect(g.from).toBe(0);
+    const c = render({ dots: [] });
+    expect(c.querySelector('rect.nutbar')).not.toBeNull();
+    expect(c.querySelectorAll('text.fnum')).toHaveLength(12);
+    expect(g.wireX(0)).toBe(g.nutX);
+  });
+});

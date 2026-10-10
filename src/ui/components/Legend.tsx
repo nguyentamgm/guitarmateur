@@ -3,7 +3,10 @@ import { theme } from '../theme';
 
 export type LegendType = 'scaleNote' | 'tonic' | 'decoration' | 'chordTone' | 'target' | 'landing';
 
-/** Each entry drawn with the neck's own dot styles (shared/ui/fretboard.css), so they always match. */
+/**
+ * Each entry drawn with the neck's own dot styles (shared/ui/fretboard.css) on a scrap of the neck's
+ * wood, so they match the dots exactly (the neck may use its own, lighter accent on the wood).
+ */
 const TONE: Record<Exclude<LegendType, 'landing'>, DotTone> = {
   scaleNote: 'plain',
   tonic: 'home',
@@ -18,7 +21,8 @@ export function Legend({ items }: { items: { type: LegendType; label: string }[]
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center' }}>
       {items.map((it) => (
         <div key={it.type} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: theme.muted }}>
-          <svg width={22} height={22} viewBox="0 0 22 22" aria-hidden="true" style={{ overflow: 'visible' }}>
+          <svg width={22} height={22} viewBox="0 0 22 22" aria-hidden="true">
+            <rect className="wood" x={0.5} y={0.5} width={21} height={21} rx={5} />
             {it.type === 'landing' ? (
               <circle className="halo" cx={11} cy={11} r={9} />
             ) : (
