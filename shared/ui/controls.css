@@ -41,3 +41,12 @@
 @media (max-width: 560px) {
   .takeaways div { grid-template-columns: 1fr; gap: 2px; }
 }
+
+/* A chip holding words rather than a short value: the body font. */
+.chip.text { font-family: var(--f-body); padding: 5px 12px; }
+
+/* Switch (Practice's Toggle): a track and a thumb; on = accent. */
+.toggle { position: relative; width: 34px; height: 20px; padding: 0; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); flex-shrink: 0; transition: background-color 0.15s ease, border-color 0.15s ease; }
+.toggle--on { background: var(--accent); border-color: var(--accent); }
+.toggle__thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform 0.15s ease, background-color 0.15s ease; }
+.toggle--on .toggle__thumb { transform: translateX(14px); background: var(--accent-ink); }

@@ -47,7 +47,7 @@ export function SiteHeader({
             {soundOn ? t('common.soundOn') : t('common.soundOff')}
           </button>
           <div className="group" role="group" aria-label={t('common.language')}>
-            <GlobeIcon size={16} style={{ marginRight: 2 }} />
+            <GlobeIcon size={16} />
             {Object.values(LOCALES).map((locale) => (
               <button
                 key={locale.id}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppState, encodeState, exportStateToJson, importStateFromJson } from '../state';
 import { LOCALES } from '../i18n';
-import { theme, font } from './theme';
+import { theme } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
@@ -116,18 +116,6 @@ export function App() {
     e.target.value = '';
   }
 
-  const btnStyle: React.CSSProperties = {
-    background: '#2a2e2b',
-    color: theme.accent,
-    border: `1px solid ${theme.border}`,
-    borderRadius: 20,
-    padding: '4px 14px',
-    fontSize: 12,
-    fontFamily: font.mono,
-    cursor: 'pointer',
-    letterSpacing: '.05em',
-  };
-
   return (
     <>
       <SiteHeader
@@ -139,36 +127,25 @@ export function App() {
       {/* Same 1000px column as the site header (and Theory's pages). */}
       <div style={{ maxWidth: 1032, margin: '0 auto', padding: '30px 16px 70px' }}>
         <div style={{ marginBottom: 34 }}>
-          <div
-            style={{
-              fontSize: 12,
-              letterSpacing: '.18em',
-              textTransform: 'uppercase',
-              color: theme.muted,
-              fontWeight: 600,
-              fontFamily: font.mono,
-            }}
-          >
-            {t('app.kicker')}
-          </div>
-          <h1 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 6px', letterSpacing: '-0.01em' }}>
+          <div style={{ fontSize: 14, color: theme.muted, fontWeight: 600 }}>{t('app.kicker')}</div>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 4.2vw, 2.5rem)', margin: '6px 0 8px' }}>
             {t('app.title')}
           </h1>
-          <p style={{ margin: 0, color: theme.muted, fontSize: 15, maxWidth: 620, lineHeight: 1.5 }}>
+          <p style={{ margin: 0, color: theme.muted, fontSize: 16, maxWidth: 620, lineHeight: 1.5 }}>
             {t('app.subtitle')}
           </p>
-          <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
+          <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 14 }}>
             {t('app.playAlongNote')}
           </p>
           {/* This page's own actions, in the page rather than the site header. */}
-          <div role="group" aria-label={t('common.actions')} style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={handleShare} style={btnStyle}>
+          <div role="group" aria-label={t('common.actions')} style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button onClick={handleShare} type="button" className="btn ghost">
               {copied ? t('common.shareCopied') : t('common.share')}
             </button>
-            <button onClick={handleExport} style={btnStyle}>
+            <button onClick={handleExport} type="button" className="btn ghost">
               {t('common.export')}
             </button>
-            <button onClick={handleImportClick} style={btnStyle}>
+            <button onClick={handleImportClick} type="button" className="btn ghost">
               {importStatus === 'ok'
                 ? t('common.importLoaded')
                 : importStatus === 'err'
@@ -176,15 +153,14 @@ export function App() {
                   : t('common.import')}
             </button>
             <button
+              type="button"
+              className="btn ghost"
+              aria-pressed={state.leftHanded}
               onClick={() => dispatch({ type: 'setLeftHanded', value: !state.leftHanded })}
-              style={{
-                ...btnStyle,
-                borderColor: state.leftHanded ? theme.accent : theme.border,
-              }}
             >
               {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
             </button>
-            <InstallPrompt language={state.language} played={played} buttonStyle={btnStyle} />
+            <InstallPrompt language={state.language} played={played} />
             <input
               ref={fileInputRef}
               type="file"

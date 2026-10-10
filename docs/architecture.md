@@ -23,7 +23,7 @@ everything the user does persists in `localStorage`.
 /
 ├─ docs/
 │  └─ architecture.md           # this file
-├─ index.html                   # Vite entry: title, meta, fonts, theme-color #0c0e0d
+├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)
 ├─ public/                      # favicon, robots.txt, og image
 ├─ src/
 │  ├─ main.tsx
@@ -96,8 +96,8 @@ and by `theory/src/i18n/lang.ts` in Theory; `shared/platform/storage.ts`, the lo
 accessor both apps use; and the shared look in `shared/ui/` (Theory's, the reference):
 
 - `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
-  own `--accent`: Theory's blue by default; `<html data-app="practice">` switches to Practice's
-  lime (ready for Practice's restyle, which adopts the shared look).
+  own `--accent`: Theory's blue by default; `<html data-app="practice">` (Practice's
+  `index.html`) switches to lime.
   Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
 - `base.css` — element styles (body type, headings, links, focus ring, reduced motion).
 - `controls.css` + `controls.tsx` — the site header, card (`.board`), segmented control
@@ -173,8 +173,13 @@ handler (browsers require a user gesture) — never at module load.
 - **Licks are deterministic:** the same seed reproduces the same lick. State persists licks via
   seeds, not expanded note lists.
 - **State is versioned** with a migration path; it must survive reload.
-- **Styling:** plain CSS + design tokens in `src/ui/theme.ts`. No Tailwind, no CSS-in-JS runtime.
-  One dark theme (base `#0c0e0d`, text `#e8ece9`, accent `#c3f04b`).
+- **Styling:** plain CSS + the shared design tokens (`shared/ui/tokens.css`, imported in
+  `src/main.tsx` before `src/ui/global.css`). Inline styles read them through `src/ui/theme.ts`,
+  whose values are CSS variables (`var(--surface)`…); SVG paint goes in `style`, not the
+  `fill`/`stroke` attributes. Light and dark follow the system, like Theory; only the accent
+  differs (lime). Labels use the shared sans font; mono is for numbers (BPM, frets, tab, numerals).
+  Segmented options are the shared `.chip` (`PillButton`, `wide` = words), cards the shared
+  `.board` (`Panel`), buttons `.btn`. No Tailwind, no CSS-in-JS runtime.
 - **Zero budget / free tiers only.** No paid APIs; audio is synthesized, not sampled.
 
 ## Deployment

@@ -120,7 +120,7 @@ export function PlaybackControls({
 
       {/* Tempo */}
       <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{t('playback.tempo')}</span>
+        <span style={{ fontSize: 13, color: theme.muted, fontWeight: 600 }}>{t('playback.tempo')}</span>
         <input
           type="range"
           min={MIN_BPM}
@@ -232,7 +232,7 @@ function MixSlider({
 }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{label}</span>
+      <span style={{ fontSize: 13, color: theme.muted, fontWeight: 600 }}>{label}</span>
       <input
         type="range"
         min={0}
