@@ -24,11 +24,10 @@ export function Legend({ items }: { items: { type: LegendType; label: string }[]
                 cx={9}
                 cy={9}
                 r={6}
-                fill={s.fill ?? 'none'}
                 fillOpacity={s.fillOpacity}
-                stroke={s.stroke}
                 strokeWidth={s.sw}
                 strokeDasharray={s.dash}
+                style={{ fill: s.fill ?? 'none', stroke: s.stroke }}
               />
             </svg>
             <span>{it.label}</span>

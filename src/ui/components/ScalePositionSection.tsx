@@ -34,7 +34,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
         <Label style={{ marginTop: 0 }}>{t('scalebox.tuning')}</Label>
         <Row>
           {(Object.keys(TUNINGS) as TuningId[]).map((tuningId) => (
-            <PillButton key={tuningId} selected={tuningId === state.tuningId} onClick={() => dispatch({ type: 'setTuning', tuningId })}>
+            <PillButton key={tuningId} selected={tuningId === state.tuningId} wide onClick={() => dispatch({ type: 'setTuning', tuningId })}>
               {t(`tuning.${tuningId}`)}
             </PillButton>
           ))}
@@ -102,7 +102,7 @@ export function ScalePositionSection({ state, dispatch }: { state: AppState; dis
 
 function Label({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ fontSize: 12, color: theme.muted, marginBottom: 8, fontFamily: font.mono, ...style }}>{children}</div>
+    <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 8, ...style }}>{children}</div>
   );
 }
 
@@ -153,7 +153,7 @@ function PositionCard({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: theme.text }}>{t('scalebox.boxLabel', { n: displayNumber })}</span>
         {recommended && (
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.1em', color: theme.accent, fontFamily: font.mono }}>{t('scalebox.recommended')}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: theme.accent }}>{t('scalebox.recommended')}</span>
         )}
       </div>
       <FretboardDiagram box={box} mini title={t('scalebox.boxTitle', { n: displayNumber, range })} leftHanded={leftHanded} />

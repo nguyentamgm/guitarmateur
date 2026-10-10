@@ -1,17 +1,16 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { Chip } from '@shared/ui/controls';
 import { font, theme } from '../theme';
 
-/** Uppercase, letter-spaced mono label used above sections and cards. */
+/** Label above a section: the shared sans font (mono stays for numbers), readable with accents. */
 export function SectionKicker({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
     <div
       style={{
-        fontSize: 12,
-        letterSpacing: '.18em',
-        textTransform: 'uppercase',
+        fontSize: 14,
         color: theme.muted,
         fontWeight: 600,
-        fontFamily: font.mono,
+        fontFamily: font.sans,
         ...style,
       }}
     >
@@ -20,24 +19,16 @@ export function SectionKicker({ children, style }: { children: ReactNode; style?
   );
 }
 
-/** Panel card: panel bg, 1px border, 14px radius, 18px padding. */
+/** Panel card: the shared card (`.board` in shared/ui/controls.css). */
 export function Panel({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <div
-      style={{
-        background: theme.panel,
-        border: `1px solid ${theme.border}`,
-        borderRadius: 14,
-        padding: 18,
-        ...style,
-      }}
-    >
+    <div className="board" style={{ display: 'block', padding: 18, ...style }}>
       {children}
     </div>
   );
 }
 
-/** Pill/segmented button. Selected = accent bg + dark text; unselected = bordered transparent. */
+/** One option of a segmented control: the shared `Chip`. `wide` is for words (sans); short values stay mono. */
 export function PillButton({
   selected,
   onClick,
@@ -52,31 +43,13 @@ export function PillButton({
   ariaLabel?: string;
 }) {
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      aria-label={ariaLabel}
-      onClick={onClick}
-      style={{
-        padding: wide ? '8px 14px' : '7px 0',
-        minWidth: wide ? undefined : 40,
-        textAlign: 'center',
-        borderRadius: 8,
-        border: `1px solid ${selected ? theme.accent : theme.border}`,
-        background: selected ? theme.accent : 'transparent',
-        color: selected ? theme.accentText : theme.text,
-        fontSize: 13,
-        fontWeight: selected ? 700 : 500,
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-      }}
-    >
+    <Chip pressed={selected} onClick={onClick} words={wide} ariaLabel={ariaLabel}>
       {children}
-    </button>
+    </Chip>
   );
 }
 
-/** Boolean on/off switch, e.g. "Land on next chord". Track + thumb, styled via `.toggle` in global.css. */
+/** Boolean on/off switch, e.g. "Land on next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
 export function Toggle({
   checked,
   onChange,
@@ -100,7 +73,7 @@ export function Toggle({
       >
         <span className="toggle__thumb" />
       </button>
-      {label !== undefined && <span style={{ fontSize: 13, color: theme.text }}>{label}</span>}
+      {label !== undefined && <span style={{ fontSize: 14, color: theme.text }}>{label}</span>}
     </label>
   );
 }
@@ -125,7 +98,7 @@ export function TextButton({
         border: 'none',
         padding: 0,
         color: theme.muted,
-        fontSize: 12.5,
+        fontSize: 13,
         textDecoration: 'underline',
         cursor: 'pointer',
         fontFamily: 'inherit',
@@ -149,6 +122,7 @@ export function GlobeIcon({ size = 14, style }: { size?: number; style?: CSSProp
       strokeLinecap="round"
       aria-hidden="true"
       focusable="false"
+      className="globe"
       style={style}
     >
       <circle cx="12" cy="12" r="9" />

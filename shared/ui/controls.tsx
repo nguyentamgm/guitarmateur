@@ -4,9 +4,22 @@
  */
 import { useId, type ReactNode } from 'react';
 
-export function Chip({ pressed, onClick, children }: { pressed: boolean; onClick(): void; children: ReactNode }) {
+/** One option of a segmented control. `words`: the option is text, not a short value (body font). */
+export function Chip({
+  pressed,
+  onClick,
+  children,
+  words,
+  ariaLabel,
+}: {
+  pressed: boolean;
+  onClick(): void;
+  children: ReactNode;
+  words?: boolean;
+  ariaLabel?: string;
+}) {
   return (
-    <button type="button" className="chip" aria-pressed={pressed} onClick={onClick}>
+    <button type="button" className={words ? 'chip text' : 'chip'} aria-pressed={pressed} aria-label={ariaLabel} onClick={onClick}>
       {children}
     </button>
   );

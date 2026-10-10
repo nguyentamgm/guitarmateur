@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { LocaleId } from '../../i18n';
 import { recordVisit, rememberInstallDone, shouldOfferInstall } from '../../state';
 import { theme } from '../theme';
@@ -17,11 +17,9 @@ interface BeforeInstallPromptEvent extends Event {
 export function InstallPrompt({
   language,
   played,
-  buttonStyle,
 }: {
   language: LocaleId;
   played: boolean;
-  buttonStyle: CSSProperties;
 }) {
   const t = useT(language);
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -62,12 +60,14 @@ export function InstallPrompt({
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
       <button
         onClick={handleInstall}
+        type="button"
+        className="btn"
         title={t('install.title')}
-        style={{ ...buttonStyle, borderColor: theme.accent }}
       >
         {t('install.button')}
       </button>
       <button
+        type="button"
         onClick={() => setMemory(rememberInstallDone())}
         aria-label={t('install.dismissAria')}
         title={t('install.dismissAria')}

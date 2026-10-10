@@ -203,7 +203,7 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
 }
 
 function Label({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <div style={{ fontSize: 12, color: theme.muted, marginBottom: 8, fontFamily: font.mono, ...style }}>{children}</div>;
+  return <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 8, ...style }}>{children}</div>;
 }
 
 function Row({ children }: { children: React.ReactNode }) {

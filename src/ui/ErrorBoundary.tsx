@@ -32,8 +32,8 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div
           style={{
-            background: '#0c0e0d',
-            color: '#e8ece9',
+            background: 'var(--bg)',
+            color: 'var(--ink)',
             minHeight: '60vh',
             display: 'flex',
             flexDirection: 'column',
@@ -43,10 +43,10 @@ export class ErrorBoundary extends Component<Props, State> {
             textAlign: 'center',
           }}
         >
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 10px', color: '#e8ece9' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 10px', color: 'var(--ink)' }}>
             {t ? t('error.title') : 'Something went wrong'}
           </h2>
-          <p style={{ color: '#7e857f', fontSize: 15, maxWidth: 480, lineHeight: 1.6, margin: '0 0 24px' }}>
+          <p style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 480, lineHeight: 1.6, margin: '0 0 24px' }}>
             {t
               ? t('error.message')
               : 'The app encountered an error. Your practice state is saved in localStorage and will persist.'}
@@ -54,8 +54,8 @@ export class ErrorBoundary extends Component<Props, State> {
           <button
             onClick={() => window.location.reload()}
             style={{
-              background: '#c3f04b',
-              color: '#0c0e0d',
+              background: 'var(--accent)',
+              color: 'var(--accent-ink)',
               border: 'none',
               borderRadius: 20,
               padding: '8px 22px',

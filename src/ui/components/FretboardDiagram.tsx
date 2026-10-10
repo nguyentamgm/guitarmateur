@@ -67,10 +67,10 @@ export function FretboardDiagram({
       if (f < box.minFret || f > box.maxFret) continue;
       const cx = bx(f);
       if (f % 12 === 0) {
-        els.push(<circle key={`ma${f}`} cx={cx} cy={y(1) + rowGap / 2} r={3} fill={theme.faintStroke} fillOpacity={0.5} />);
-        els.push(<circle key={`mb${f}`} cx={cx} cy={y(numStrings - 2) - rowGap / 2} r={3} fill={theme.faintStroke} fillOpacity={0.5} />);
+        els.push(<circle key={`ma${f}`} cx={cx} cy={y(1) + rowGap / 2} r={3} fillOpacity={0.5} style={{ fill: theme.faintStroke }} />);
+        els.push(<circle key={`mb${f}`} cx={cx} cy={y(numStrings - 2) - rowGap / 2} r={3} fillOpacity={0.5} style={{ fill: theme.faintStroke }} />);
       } else {
-        els.push(<circle key={`m${f}`} cx={cx} cy={(y(0) + y(numStrings - 1)) / 2} r={3} fill={theme.faintStroke} fillOpacity={0.5} />);
+        els.push(<circle key={`m${f}`} cx={cx} cy={(y(0) + y(numStrings - 1)) / 2} r={3} fillOpacity={0.5} style={{ fill: theme.faintStroke }} />);
       }
     }
   }
@@ -78,11 +78,11 @@ export function FretboardDiagram({
   // String lines + labels.
   for (let row = 0; row < numStrings; row++) {
     els.push(
-      <line key={`s${row}`} x1={padL} y1={y(row)} x2={padL + count * colW} y2={y(row)} stroke={theme.line} strokeWidth={mini ? 0.6 : 1} />,
+      <line key={`s${row}`} x1={padL} y1={y(row)} x2={padL + count * colW} y2={y(row)} strokeWidth={mini ? 0.6 : 1} style={{ stroke: theme.line }} />,
     );
     if (!mini) {
       els.push(
-        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} fill={theme.muted} textAnchor="end" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL - 9)}>
+        <text key={`sl${row}`} x={padL - 9} y={y(row) + 4} fontSize={11} textAnchor="end" transform={unmirror(padL - 9)} style={{ fill: theme.muted, fontFamily: font.mono }}>
           {stringLabels[numStrings - 1 - row]}
         </text>,
       );
@@ -94,13 +94,13 @@ export function FretboardDiagram({
     const x = padL + i * colW;
     const nut = box.minFret === 0 && i === 0;
     els.push(
-      <line key={`f${i}`} x1={x} y1={y(0)} x2={x} y2={y(numStrings - 1)} stroke={nut ? theme.text : theme.line} strokeWidth={nut ? 3 : mini ? 0.6 : 1} />,
+      <line key={`f${i}`} x1={x} y1={y(0)} x2={x} y2={y(numStrings - 1)} strokeWidth={nut ? 3 : mini ? 0.6 : 1} style={{ stroke: nut ? theme.text : theme.line }} />,
     );
   }
   if (!mini) {
     for (let i = 0; i < count; i++) {
       els.push(
-        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} fill={theme.muted} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" transform={unmirror(padL + (i + 0.5) * colW)}>
+        <text key={`fn${i}`} x={padL + (i + 0.5) * colW} y={H - 6} fontSize={10} textAnchor="middle" transform={unmirror(padL + (i + 0.5) * colW)} style={{ fill: theme.muted, fontFamily: font.mono }}>
           {box.minFret + i}
         </text>,
       );
@@ -153,11 +153,10 @@ export function FretboardDiagram({
         cx={bx(n.fret)}
         cy={y(rowOf(n.string))}
         r={r}
-        fill={fill}
         fillOpacity={fillOpacity}
-        stroke={stroke}
         strokeWidth={sw}
         strokeDasharray={dash}
+        style={{ fill: fill, stroke: stroke }}
       />,
     );
     if (isLanding) {
@@ -168,15 +167,15 @@ export function FretboardDiagram({
           cy={y(rowOf(n.string))}
           r={r + 4}
           fill="none"
-          stroke={theme.accent}
           strokeWidth={1.6}
           strokeDasharray="3 3"
+          style={{ stroke: theme.accent }}
         />,
       );
     }
     if (!mini && labels === 'names') {
       els.push(
-        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} fill={txt} textAnchor="middle" fontFamily={font.sans} fontWeight={n.isTonic || role ? 700 : 500} transform={unmirror(bx(n.fret))}>
+        <text key={`t${idx}`} x={bx(n.fret)} y={y(rowOf(n.string)) + 3.5} fontSize={9.5} textAnchor="middle" fontWeight={n.isTonic || role ? 700 : 500} transform={unmirror(bx(n.fret))} style={{ fill: txt, fontFamily: font.sans }}>
           {format(n.pitch)}
         </text>,
       );
@@ -187,11 +186,10 @@ export function FretboardDiagram({
             x={bx(n.fret) + r - 1}
             y={y(rowOf(n.string)) - r + 3}
             fontSize={7}
-            fill={theme.accent}
             textAnchor="middle"
-            fontFamily={font.mono}
             fontWeight={700}
             transform={unmirror(bx(n.fret) + r - 1)}
+            style={{ fill: theme.accent, fontFamily: font.mono }}
           >
             {role}
           </text>,

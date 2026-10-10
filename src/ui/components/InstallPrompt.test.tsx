@@ -14,7 +14,7 @@ function installEvent() {
 function render(played: boolean) {
   const container = document.createElement('div');
   const root = createRoot(container);
-  const draw = (p: boolean) => act(() => root.render(createElement(InstallPrompt, { language: 'en', played: p, buttonStyle: {} })));
+  const draw = (p: boolean) => act(() => root.render(createElement(InstallPrompt, { language: 'en', played: p })));
   draw(played);
   act(() => {
     window.dispatchEvent(installEvent());
@@ -63,7 +63,7 @@ describe('InstallPrompt', () => {
   it('asks the browser once, however often Install is clicked', async () => {
     const container = document.createElement('div');
     const root = createRoot(container);
-    act(() => root.render(createElement(InstallPrompt, { language: 'en', played: true, buttonStyle: {} })));
+    act(() => root.render(createElement(InstallPrompt, { language: 'en', played: true })));
     const e = installEvent();
     act(() => {
       window.dispatchEvent(e);
@@ -81,7 +81,7 @@ describe('InstallPrompt', () => {
   it('shows nothing when the browser cannot install', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
-    act(() => root.render(createElement(InstallPrompt, { language: 'en', played: true, buttonStyle: {} })));
+    act(() => root.render(createElement(InstallPrompt, { language: 'en', played: true })));
     expect(container.innerHTML).toBe('');
     act(() => root.unmount());
   });

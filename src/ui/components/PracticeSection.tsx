@@ -89,7 +89,7 @@ export function PracticeSection({
         {/* Controls */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'flex-end', marginBottom: 18 }}>
           <div>
-            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>{t('practice.level')}</div>
+            <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 6 }}>{t('practice.level')}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {([1, 2, 3, 4, 5] as const).map((l) => (
                 <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={t('practice.levelAria', { n: l })}>
@@ -97,22 +97,22 @@ export function PracticeSection({
                 </PillButton>
               ))}
             </div>
-            <div style={{ fontSize: 10, color: theme.muted, fontFamily: font.mono, marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>
               {t(`practice.level.${state.level}`)}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>{t('practice.target')}</div>
+            <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 6 }}>{t('practice.target')}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['R', '3', '5', '7'] as const).map((r) => (
-                <PillButton key={r} selected={state.targetRole === r} onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
+                <PillButton key={r} selected={state.targetRole === r} wide onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
                   {t(`role.${r}`)}
                 </PillButton>
               ))}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono, marginBottom: 6 }}>&nbsp;</div>
+            <div style={{ fontSize: 13, marginBottom: 6 }}>&nbsp;</div>
             <Toggle
               checked={state.resolveToNext}
               onChange={(value) => dispatch({ type: 'setResolveToNext', value })}
@@ -122,17 +122,8 @@ export function PracticeSection({
           </div>
           <button
             type="button"
+            className="btn ghost"
             onClick={() => dispatch({ type: 'rerollAll' })}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: `1px solid ${theme.border}`,
-              background: 'transparent',
-              color: theme.text,
-              fontSize: 13,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
           >
             {t('practice.regenerate')}
           </button>
@@ -224,10 +215,10 @@ export function PracticeSection({
                     <div
                       style={{
                         display: 'inline-block',
-                        fontSize: 10,
-                        fontFamily: font.mono,
+                        fontSize: 12,
+                        fontWeight: 600,
                         color: theme.accent,
-                        background: 'rgba(195,240,75,0.1)',
+                        background: theme.accentTint,
                         padding: '2px 8px',
                         borderRadius: 4,
                         marginBottom: 10,
@@ -249,11 +240,9 @@ export function PracticeSection({
                     {/* Lick header */}
                     <div
                       style={{
-                        fontSize: 11,
-                        fontFamily: font.mono,
+                        fontSize: 13,
+                        fontWeight: 600,
                         color: theme.muted,
-                        letterSpacing: '.15em',
-                        textTransform: 'uppercase',
                         margin: '14px 0 6px',
                       }}
                     >

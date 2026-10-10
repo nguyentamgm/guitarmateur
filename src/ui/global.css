@@ -1,164 +1,26 @@
-/* Global base styles. */
-
-:root {
-  color-scheme: dark;
-}
-
-* {
-  box-sizing: border-box;
-}
+/* Practice-only page styles. The look (tokens, base element styles, controls, the site header)
+   comes from shared/ui/*.css, imported first in main.tsx; Practice's accent is lime via
+   `data-app="practice"` on <html>. */
 
 body {
-  margin: 0;
-  background: #0c0e0d;
-  color: #e8ece9;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: #c3f04b;
   text-decoration: none;
 }
-a:hover {
-  color: #d4ff57;
-}
 
-input[type='range'] {
-  accent-color: #c3f04b;
-  height: 4px;
-}
-
-button {
-  font-family: inherit;
-}
-
-::selection {
-  background: rgba(195, 240, 75, 0.25);
-}
-
-/* Boolean switch (primitives.tsx `Toggle`). Colors mirror ui/theme.ts. */
-.toggle {
-  position: relative;
-  width: 34px;
-  height: 20px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid #2a302c;
-  background: #1c211e;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.toggle--on {
-  background: #c3f04b;
-  border-color: #c3f04b;
-}
-
-.toggle__thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #e8ece9;
-  transition: transform 0.15s ease, background-color 0.15s ease;
-}
-
-.toggle--on .toggle__thumb {
-  transform: translateX(14px);
-  background: #0c0e0d;
-}
-
-.toggle:focus-visible {
-  outline: 2px solid #c3f04b;
-  outline-offset: 2px;
-}
-
-/* Site header — the same markup, order and metrics as the Theory app's top bar
-   (theory/src/ui/theory.css), in this app's colours until the shared look lands. */
+/* The page header is a block of its own under the site header: 16px gutters like Theory. */
 .site-top {
   padding: 0 16px;
 }
-.topbar {
-  max-width: 1000px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding-block: 16px;
-  border-bottom: 1px solid #2a302c;
-  font-size: 16px;
-  line-height: 1.6;
+
+input[type='range'] {
+  accent-color: var(--accent);
+  height: 4px;
 }
-.topbar .brand {
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: #e8ece9;
-}
-.topbar-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-.topnav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  align-items: center;
-}
-.navlink {
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-.navlink[aria-current='page'] {
-  color: #e8ece9;
-  text-decoration: underline 2px #c3f04b;
-  text-underline-offset: 6px;
-}
-.topbar .btn {
-  font-size: 0.88rem;
-  font-weight: 600;
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid #c3f04b;
-  background: transparent;
-  color: #c3f04b;
-  cursor: pointer;
-}
-.topbar .group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  color: #7e857f;
-}
-.topbar .chip {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.82rem;
-  padding: 5px 10px;
-  min-width: 34px;
-  border-radius: 7px;
-  border: 1px solid #2a302c;
-  background: transparent;
-  color: #e8ece9;
-  cursor: pointer;
-}
-.topbar .chip:hover {
-  border-color: #7e857f;
-}
-.topbar .chip[aria-pressed='true'] {
-  background: #e8ece9;
-  color: #0c0e0d;
-  border-color: #e8ece9;
-}
-.topbar :focus-visible {
-  outline: 2px solid #c3f04b;
-  outline-offset: 2px;
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
