@@ -48,14 +48,21 @@ describe('trainerLink', () => {
     const saved = { tuningId: 'dropD', leftHanded: true, tempoBpm: 140, clickGain: 0.2, language: 'vi', positions: [3], key: { x: 1 } };
     const c: Chord = { root: n('A'), id: 'minor' };
     const p = payload(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c], { saved, tempoBpm: 84, lang: 'en' })!);
-    expect(p).toMatchObject({ tuningId: 'dropD', leftHanded: true, tempoBpm: 84, clickGain: 0.2, language: 'vi' });
+    expect(p).toMatchObject({ tuningId: 'dropD', leftHanded: true, tempoBpm: 84, clickGain: 0.2 });
     expect(p.positions).toBeUndefined();
+    expect(p.language).toBeUndefined();
     expect(p.key.scaleId).toBe('minorPentatonic');
   });
 
-  it("uses the Theory language only when the practice app has none, and survives a broken store", () => {
+  it("carries the lesson's language in its own parameter, over the practice app's last one", () => {
     const c: Chord = { root: n('A'), id: 'minor' };
-    expect(payload(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c], { saved: undefined, lang: 'vi' })!).language).toBe('vi');
+    const href = trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c], { saved: { language: 'en' }, lang: 'vi' })!;
+    expect(new URL(href, 'https://x.test').searchParams.get('lang')).toBe('vi');
+    expect(payload(href).language).toBeUndefined();
+    expect(new URL(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c])!, 'https://x.test').searchParams.has('lang')).toBe(false);
+  });
+
+  it('survives a broken practice store', () => {
     expect(readPracticeState({ getItem: () => '{oops', setItem: () => {} })).toBeUndefined();
     expect(readPracticeState({ getItem: (k) => (k === PRACTICE_STORAGE_KEY ? '{"leftHanded":true}' : null), setItem: () => {} })).toEqual({ leftHanded: true });
   });

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { TONICS, romanNumeral } from '../music';
 import type { LocaleId } from '../i18n';
 import { defaultState } from './appState';
-import { LANG_STORAGE_KEY, loadLanguage, migrate, saveLanguage, saveState, loadState } from './persistence';
+import { LANG_STORAGE_KEY, initialLanguage, loadLanguage, migrate, saveLanguage, saveState, loadState } from './persistence';
 import { encodeState } from './share';
 
 const STORAGE_KEY = 'guitarmateur-state';
@@ -397,6 +397,46 @@ describe('persistence', () => {
 
       const loaded = loadState();
       expect(loaded?.tempoBpm).toBe(111);
+    });
+  });
+
+  describe("a link's ?lang= (Theory's trainer link)", () => {
+    afterEach(() => window.history.replaceState(null, '', '/'));
+
+    const visit = (search: string) => window.history.replaceState(null, '', `/${search}`);
+    const theoryLink = (payload: object, lang: string) =>
+      `?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify(payload)))}`)}&lang=${lang}`;
+
+    it('opens in the link language even if Practice was last used in another', () => {
+      localStorage.setItem('gm.lang', 'en');
+      saveState({ ...defaultState(() => 0), language: 'en' });
+      visit(theoryLink({ schemaVersion: 7, key: { tonic: A, scaleId: 'minorPentatonic' } }, 'vi'));
+      expect(initialLanguage()).toBe('vi');
+      expect(loadState()!.language).toBe('vi');
+    });
+
+    it('takes ?lang= off the address so a reload keeps the language chosen after it', () => {
+      saveState({ ...defaultState(() => 0), language: 'en' });
+      visit('?lang=vi&x=1#top');
+      expect(loadState()!.language).toBe('vi');
+      expect(window.location.search).toBe('?x=1');
+      expect(window.location.hash).toBe('#top');
+      expect(initialLanguage()).toBe('en'); // the remembered one again
+    });
+
+    it('applies without a share payload too, and ignores an unknown value', () => {
+      saveState({ ...defaultState(() => 0), language: 'en' });
+      visit('?lang=vi');
+      expect(loadState()!.language).toBe('vi');
+      visit('?lang=klingon');
+      expect(loadState()!.language).toBe('en');
+      expect(window.location.search).toBe('');
+    });
+
+    it("ignores a share payload's own language: only ?lang= may switch it", () => {
+      localStorage.setItem('gm.lang', 'en');
+      visit(`?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify({ schemaVersion: 7, language: 'vi' })))}`)}`);
+      expect(loadState()!.language).toBe('en');
     });
   });
 });

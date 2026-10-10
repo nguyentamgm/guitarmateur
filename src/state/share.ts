@@ -22,7 +22,9 @@ export function decodeState(raw: string, language?: LocaleId): AppState | null {
     const encoded = raw.slice(VERSION_PREFIX.length);
     const json = decodeURIComponent(atob(encoded));
     const parsed: unknown = JSON.parse(json);
-    return migrate(parsed, language);
+    // A payload's own `language` never wins (see above): only the caller's is used.
+    const practice = parsed && typeof parsed === 'object' ? { ...(parsed as Record<string, unknown>), language: undefined } : parsed;
+    return migrate(practice, language);
   } catch {
     return null;
   }

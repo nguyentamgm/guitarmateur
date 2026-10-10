@@ -120,7 +120,8 @@ ui → lessons → core/fretboard → core/music
   A new scene with a tempo adds its id. localStorage is reached only through `platform/storage.ts`.
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the apps share no code). It renders nothing when the practice app lacks the
-  scale or a chord.
+  scale or a chord. The lesson's language goes in `&lang=`, never in the share payload: the practice
+  app opens in it, over the language it was last used in.
 - A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, written
   when a recording pass ends (and emptied by Clear), and a link `/theory/solo?take=<encodeTake()>#record`.
   Opening a link never saves over your own take, and `?take=` is dropped from the address once read. `decodeTake()` rejects any code that is not a

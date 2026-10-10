@@ -227,6 +227,37 @@ export function loadLanguage(): LocaleId {
 }
 
 /**
+ * A `?lang=` on the address (Theory's trainer link carries the lesson's language), or null. It is
+ * for this visit only: `loadState` takes it off the address, and the app does not remember it
+ * unless the user picks a language.
+ */
+export function linkLanguage(): LocaleId | null {
+  try {
+    const v = new URLSearchParams(window.location.search).get('lang');
+    return isLocaleId(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The language to open in: a link's `?lang=` wins over the remembered one (`loadLanguage`). */
+export function initialLanguage(): LocaleId {
+  return linkLanguage() ?? loadLanguage();
+}
+
+/** Take `?lang=` off the address so a reload or a bookmark doesn't override a later choice. */
+function dropLinkLanguage(): void {
+  try {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('lang')) return;
+    url.searchParams.delete('lang');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  } catch {
+    // ignore — history may be blocked; the language still applies to this visit
+  }
+}
+
+/**
  * Remember the UI language for both apps. Written only when it changes (not on every state save),
  * so a tab still showing an old language never overwrites one just chosen in another tab.
  */
@@ -239,13 +270,14 @@ export function saveLanguage(language: LocaleId): void {
 }
 
 /**
- * Browser boundary: resolve the UI language once (`loadLanguage`) then thread it through both the
- * URL and the localStorage paths so a payload without a `language` field (share links, exports,
- * v1–v6 states) never silently resets the user's locale, and a language changed in Theory wins
- * over the one in this app's saved state.
+ * Browser boundary: resolve the UI language once (`initialLanguage`) and use it on both the URL
+ * and the localStorage paths. A share payload's own `language`, if any, is ignored: opening a
+ * link must not switch the UI language unless the link says so with `?lang=`. A language changed
+ * in Theory wins over the one in this app's saved state.
  */
 export function loadState(): AppState | null {
-  const language = loadLanguage();
+  const language = initialLanguage();
+  dropLinkLanguage();
 
   const fromUrl = loadFromUrl(language);
   if (fromUrl) {
