@@ -2,7 +2,8 @@
 
 Theory is a separate app in this repo: visual, animated music-theory lessons for electric guitar,
 served at `/theory`. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) with the practice
-app in `src/` but **no code**. What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
+app in `src/`, never imports it, and shares code with it only through `shared/` (`@shared/…`,
+see [`architecture.md`](architecture.md#shared-code-shared)). What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
 
 ## Layout
 
@@ -38,7 +39,8 @@ ui → lessons → core/fretboard → core/music
  └─────────────────────→ platform
 ```
 
-- `theory/` never imports from `src/`, and `src/` never imports from `theory/`.
+- `theory/` never imports from `src/`, and `src/` never imports from `theory/`. Both may import
+  `shared/` as `@shared/…`; `shared/` imports neither.
 - `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music`.
 - `core/` never imports React, `lessons/`, `ui/` or `platform/`: it stays pure.
 - `platform/` is the only code that touches localStorage (`browserStorage()`, never throws); `i18n`
@@ -97,8 +99,8 @@ ui → lessons → core/fretboard → core/music
 - **English is the primary language and the fallback.** With nothing stored, the browser's
   languages decide (`vi-VN` → Vietnamese, anything unknown → English); the EN/VI switch changes it.
 - **One language setting for both apps:** `localStorage` key `gm.lang`, read and written by Theory
-  (`i18n/lang.ts`) and the practice app (`src/state/persistence.ts`), each with its own code. It is
-  the only key the two apps share, written only when the language changes; each app follows a
+  (`i18n/lang.ts`) and the practice app (`src/state/persistence.ts`) through
+  `shared/i18n/language.ts`. It is written only when the language changes; each app follows a
   change made in another tab (`storage` event). On a first load without it, the old choice is
   carried over: Theory's old `theory.lang` first (only ever stored on an explicit choice), then the
   practice app's `guitarmateur-state.language`. Both apps detect the browser's language the same way.
@@ -119,7 +121,7 @@ ui → lessons → core/fretboard → core/music
   backings keep one tempo per backing (`solo-<backing>`), and a shared take's tempo is not saved.
   A new scene with a tempo adds its id. localStorage is reached only through `platform/storage.ts`.
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
-  share link by hand; the apps share no code). It renders nothing when the practice app lacks the
+  share link by hand; the share format is not in `shared/`). It renders nothing when the practice app lacks the
   scale or a chord. The lesson's language goes in `&lang=`, never in the share payload: the practice
   app opens in it, over the language it was last used in.
 - A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, written

@@ -13,27 +13,34 @@ import tseslint from 'typescript-eslint';
 const noReact = ['react', 'react/*', 'react-dom', 'react-dom/*'];
 
 /**
- * The Theory app (theory/) and the practice app (src/) share no code.
+ * The Theory app (theory/) and the practice app (src/) never import each other: code both use
+ * lives in shared/ (imported as `@shared/...`), which imports neither app.
  * Every src/ block carries `fromTheory`, every theory/ block carries `fromSrc`, because a later
  * block's `no-restricted-imports` replaces an earlier one's instead of merging with it.
  */
 const fromTheory = {
   group: ['**/theory/**'],
-  message: 'src/ (practice app) may not import from theory/ — the two apps share no code.',
+  message: 'src/ (practice app) may not import from theory/ — shared code goes in shared/.',
 };
 const fromSrc = {
   group: ['**/src/**'],
-  message: 'theory/ may not import from the practice app in src/ — the two apps share no code.',
+  message: 'theory/ may not import from the practice app in src/ — shared code goes in shared/.',
 };
+const fromApps = [
+  { group: ['**/src/**', '**/theory/**'], message: 'shared/ imports neither app (src/, theory/): it is what they share.' },
+];
+// The layer globs below name folders (ui, core, i18n…), which shared/ also has: they never apply
+// to an `@shared/...` import (shared/ has its own rules), so every group ends with this negation.
+const allowShared = '!@shared/**';
 const forbid = (group, why) => ({
   rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromTheory] }],
+    'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromTheory] }],
   },
 });
 const dir = (name) => [`**/${name}`, `**/${name}/**`];
 const forbidTheory = (group, why) => ({
   rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group, message: why }, fromSrc] }],
+    'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromSrc] }],
   },
 });
 
@@ -78,7 +85,7 @@ export default tseslint.config(
   {
     files: ['src/lick/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**'], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
+      'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**', allowShared], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
       'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from ./rng instead of Math.random.' }],
     },
   },
@@ -106,6 +113,27 @@ export default tseslint.config(
     files: ['src/i18n/**/*.test.ts'],
     ...forbid([...noReact, '**/lick/**', '**/state/**', '**/audio/**', '**/ui/**'],
       'src/i18n tests may only import engine registries (music, fretboard) for drift checks — never React or higher layers.'),
+  },
+
+  // --- Shared code (shared/): imported by both apps as @shared/..., imports neither. ---
+  {
+    files: ['shared/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-imports': ['error', { patterns: fromApps }] },
+  },
+  {
+    // Pure layers: no React (shared/ui is where React components go).
+    files: ['shared/core/**/*.ts', 'shared/i18n/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...fromApps,
+            { group: [...noReact, '**/ui/**'], message: 'shared/core and shared/i18n are pure TypeScript: no React, no UI.' },
+          ],
+        },
+      ],
+    },
   },
 
   // --- Theory app (theory/): separate app, own layers. See docs/theory.md. ---

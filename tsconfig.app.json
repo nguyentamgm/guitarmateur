@@ -26,7 +26,10 @@
     "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
 
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+
+    /* The code both apps share (shared/): see docs/architecture.md */
+    "paths": { "@shared/*": ["./shared/*"] }
   },
-  "include": ["src"]
+  "include": ["src", "shared"]
 }

@@ -54,6 +54,10 @@ function theoryRoutes(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), versionSwCache(), theoryRoutes()],
+  // The code both apps share (shared/); mirrors `paths` in tsconfig.app.json / tsconfig.theory.json.
+  resolve: {
+    alias: { '@shared': resolve(import.meta.dirname, 'shared') },
+  },
   build: {
     rolldownOptions: {
       input: {

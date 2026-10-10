@@ -243,7 +243,9 @@ describe('persistence', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: 7, language: 'en' }));
     localStorage.setItem('theory.lang', 'vi');
     expect(loadLanguage()).toBe('vi');
+    expect(localStorage.getItem('gm.lang')).toBe('vi'); // carried over to the shared key
     localStorage.removeItem('theory.lang');
+    localStorage.removeItem('gm.lang');
     expect(loadLanguage()).toBe('en');
     // Garbage in the shared key is ignored.
     localStorage.setItem('gm.lang', 'klingon');
