@@ -226,8 +226,12 @@ export function loadLanguage(): LocaleId {
   }
 }
 
-/** A `?lang=` on the address (Theory's trainer link carries the lesson's language), or null. */
-function linkLanguage(): LocaleId | null {
+/**
+ * A `?lang=` on the address (Theory's trainer link carries the lesson's language), or null. It is
+ * for this visit only: `loadState` takes it off the address, and the app does not remember it
+ * unless the user picks a language.
+ */
+export function linkLanguage(): LocaleId | null {
   try {
     const v = new URLSearchParams(window.location.search).get('lang');
     return isLocaleId(v) ? v : null;
@@ -239,6 +243,18 @@ function linkLanguage(): LocaleId | null {
 /** The language to open in: a link's `?lang=` wins over the remembered one (`loadLanguage`). */
 export function initialLanguage(): LocaleId {
   return linkLanguage() ?? loadLanguage();
+}
+
+/** Take `?lang=` off the address so a reload or a bookmark doesn't override a later choice. */
+function dropLinkLanguage(): void {
+  try {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('lang')) return;
+    url.searchParams.delete('lang');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  } catch {
+    // ignore — history may be blocked; the language still applies to this visit
+  }
 }
 
 /**
@@ -261,6 +277,7 @@ export function saveLanguage(language: LocaleId): void {
  */
 export function loadState(): AppState | null {
   const language = initialLanguage();
+  dropLinkLanguage();
 
   const fromUrl = loadFromUrl(language);
   if (fromUrl) {
@@ -270,7 +287,7 @@ export function loadState(): AppState | null {
       // ignore — some embedding contexts (sandboxed iframes, certain WebViews) block
       // history mutation; the decoded share state is still valid and must not be lost
     }
-    return { ...fromUrl, language };
+    return fromUrl;
   }
   let raw: unknown;
   try {

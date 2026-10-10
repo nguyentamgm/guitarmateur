@@ -415,12 +415,22 @@ describe('persistence', () => {
       expect(loadState()!.language).toBe('vi');
     });
 
+    it('takes ?lang= off the address so a reload keeps the language chosen after it', () => {
+      saveState({ ...defaultState(() => 0), language: 'en' });
+      visit('?lang=vi&x=1#top');
+      expect(loadState()!.language).toBe('vi');
+      expect(window.location.search).toBe('?x=1');
+      expect(window.location.hash).toBe('#top');
+      expect(initialLanguage()).toBe('en'); // the remembered one again
+    });
+
     it('applies without a share payload too, and ignores an unknown value', () => {
       saveState({ ...defaultState(() => 0), language: 'en' });
       visit('?lang=vi');
       expect(loadState()!.language).toBe('vi');
       visit('?lang=klingon');
       expect(loadState()!.language).toBe('en');
+      expect(window.location.search).toBe('');
     });
 
     it("ignores a share payload's own language: only ?lang= may switch it", () => {

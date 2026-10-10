@@ -130,6 +130,12 @@ describe('share: exportStateToJson / importStateFromJson', () => {
     expect(imported!.language).toBe('vi');
   });
 
+  it("decodeState ignores a payload's own language: a link must not switch the UI language", () => {
+    const raw = `v1:${btoa(encodeURIComponent(JSON.stringify({ schemaVersion: 7, language: 'vi' })))}`;
+    expect(decodeState(raw, 'en' as LocaleId)!.language).toBe('en');
+    expect(decodeState(raw)!.language).toBe('en');
+  });
+
   it('returns null for non-JSON input', () => {
     expect(importStateFromJson('not json')).toBeNull();
   });
