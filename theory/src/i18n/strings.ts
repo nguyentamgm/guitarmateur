@@ -6,6 +6,8 @@ import type { Lang } from './lang';
 
 const en = {
   appName: 'Guitarmateur Theory',
+  /** The site name in the header, the same on every page of both apps. */
+  brand: 'Guitarmateur',
   langLabel: 'Language',
   langName: { en: 'English', vi: 'Tiếng Việt' },
   soundOn: 'Sound: on',
@@ -23,6 +25,8 @@ const en = {
   tryIt: 'Try it',
   notYetEyebrow: 'Not yet',
   lessonFooter: 'Sound is synthesized in your browser. Nothing is tracked or uploaded.',
+  navLabel: 'Sections',
+  navLessons: 'Lessons',
   navReview: 'Review',
   navPractice: 'Practice',
   tocReview: 'Review: which quiz to do next →',
@@ -45,6 +49,7 @@ export type UiStrings = typeof en;
 
 const vi: UiStrings = {
   appName: 'Guitarmateur Theory',
+  brand: 'Guitarmateur',
   langLabel: 'Ngôn ngữ',
   langName: { en: 'English', vi: 'Tiếng Việt' },
   soundOn: 'Âm thanh: bật',
@@ -62,6 +67,8 @@ const vi: UiStrings = {
   tryIt: 'Tự thử',
   notYetEyebrow: 'Tạm gác lại',
   lessonFooter: 'Âm thanh được tổng hợp ngay trong trình duyệt. Không theo dõi, không tải gì lên.',
+  navLabel: 'Các mục',
+  navLessons: 'Bài học',
   navReview: 'Ôn tập',
   navPractice: 'Luyện tập',
   tocReview: 'Ôn tập: nên làm bài đố nào tiếp →',

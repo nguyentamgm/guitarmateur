@@ -101,7 +101,7 @@ export function App({ player: given }: { player?: Player } = {}) {
   return (
     <Ctx.Provider value={ctx}>
       <ProgressCtx.Provider value={progress}>
-        <Header />
+        <Header section={route.page === 'review' ? 'review' : 'lessons'} />
         {lesson ? (
           <LessonPage lesson={lesson} />
         ) : route.page === 'review' ? (
