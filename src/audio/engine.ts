@@ -92,6 +92,23 @@ const MID_DB = 2.5;
 const TREBLE_DB = -4;
 
 /** Create a fresh engine. Throws if Web Audio is unavailable — callers gate on `isAudioSupported`. */
+/** How fast mute and unmute fade, in seconds (time constant): quick, but no click on a ringing note. */
+const MUTE_FADE_S = 0.015;
+
+/** The master level each muted engine goes back to (it may have been retuned in dev tools). */
+const levelBeforeMute = new WeakMap<AudioEngine, number>();
+
+/** Mute or unmute everything the engine plays, the user's click/note mix untouched. */
+export function setMuted(engine: AudioEngine, muted: boolean): void {
+  const gain = engine.master.gain;
+  if (muted === levelBeforeMute.has(engine)) return;
+  if (muted) levelBeforeMute.set(engine, gain.value);
+  const target = muted ? 0 : (levelBeforeMute.get(engine) ?? MASTER_GAIN);
+  if (!muted) levelBeforeMute.delete(engine);
+  gain.cancelScheduledValues(engine.ctx.currentTime);
+  gain.setTargetAtTime(target, engine.ctx.currentTime, MUTE_FADE_S);
+}
+
 export function createEngine(): AudioEngine {
   const Ctor = getAudioContextCtor();
   if (!Ctor) throw new Error('Web Audio API is not available in this environment.');

@@ -3,23 +3,18 @@ import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { UseTransport } from './useTransport';
 
-const calls: { play: unknown[]; click: number[]; note: number[] } = { play: [], click: [], note: [] };
+const muteCalls: boolean[] = [];
 
 vi.mock('../audio', () => ({
   isAudioSupported: () => true,
   createEngine: () => ({ ctx: { close: () => Promise.resolve() } }),
+  setMuted: (_engine: unknown, muted: boolean) => muteCalls.push(muted),
   Transport: class {
     isPlaying = true;
-    play(_licks: unknown, opts: unknown) {
-      calls.play.push(opts);
-    }
+    play() {}
     stop() {}
-    setClickGain(v: number) {
-      calls.click.push(v);
-    }
-    setNoteGain(v: number) {
-      calls.note.push(v);
-    }
+    setClickGain() {}
+    setNoteGain() {}
   },
 }));
 
@@ -38,38 +33,26 @@ function mount() {
 
 describe('useTransport mute (the header sound toggle)', () => {
   beforeEach(() => {
-    calls.play = [];
-    calls.click = [];
-    calls.note = [];
+    muteCalls.length = 0;
   });
 
-  it('plays silently while muted and brings back the last gains when unmuted', () => {
+  it('a muted toggle before the first play mutes the engine as soon as it exists', () => {
     const t = mount();
     t.render(true);
-    act(() => t.get().play([], { tempoBpm: 90, clickGain: 0.5, noteGain: 0.8 }));
-    expect(calls.play[0]).toMatchObject({ clickGain: 0, noteGain: 0 });
-
-    // A slider moved while muted is remembered, not heard.
-    act(() => t.get().setNoteGain(0.3));
-    expect(calls.note).not.toContain(0.3);
-
-    t.render(false);
-    expect(calls.click.at(-1)).toBe(0.5);
-    expect(calls.note.at(-1)).toBe(0.3);
-
-    t.render(true);
-    expect(calls.click.at(-1)).toBe(0);
-    expect(calls.note.at(-1)).toBe(0);
+    expect(muteCalls).toEqual([]); // no engine before a user gesture
+    act(() => t.get().play([], { tempoBpm: 90 }));
+    expect(muteCalls).toEqual([true]);
     t.unmount();
   });
 
-  it('passes the gains straight through when sound is on', () => {
+  it('follows the toggle once the engine exists', () => {
     const t = mount();
     t.render(false);
-    act(() => t.get().play([], { tempoBpm: 90, clickGain: 0.5, noteGain: 0.8 }));
-    expect(calls.play[0]).toMatchObject({ clickGain: 0.5, noteGain: 0.8 });
-    act(() => t.get().setClickGain(0.2));
-    expect(calls.click.at(-1)).toBe(0.2);
+    act(() => t.get().play([], { tempoBpm: 90 }));
+    expect(muteCalls).toEqual([]);
+    t.render(true);
+    t.render(false);
+    expect(muteCalls).toEqual([true, false]);
     t.unmount();
   });
 });

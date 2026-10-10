@@ -7,6 +7,9 @@ import { createRoot } from 'react-dom/client';
  * Uses act() for proper React 19 rendering lifecycle.
  */
 describe('App', () => {
+  // The language switch is remembered; every test starts in English.
+  afterEach(() => localStorage.clear());
+
   it('renders the header copy', async () => {
     const { App } = await import('./App');
     const container = document.createElement('div');
@@ -55,7 +58,6 @@ describe('App', () => {
       root.unmount();
     });
     document.body.removeChild(container);
-    localStorage.clear(); // the language switch is remembered; later tests expect English
   });
 
   describe('Export button download', () => {

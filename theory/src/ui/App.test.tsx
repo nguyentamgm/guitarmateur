@@ -114,7 +114,6 @@ describe('Theory app', () => {
     expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Review');
   });
 
-
   it('marks the language switcher with a globe', () => {
     render('/theory');
     const group = container.querySelector('[role="group"][aria-label="Language"]')!;
