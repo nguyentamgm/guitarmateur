@@ -36,11 +36,13 @@ everything the user does persists in `localStorage`.
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
 ├─ shared/                      # code both apps use, imported as @shared/… — see below
-│  ├─ core/                     # pure: string numbering and names per tuning (neck.ts)
+│  ├─ core/                     # pure: neck.ts (string numbering, names per tuning); music/, rhythm/
+│  │                            # (Theory's); audio/ (synths, player, backings, scheduler, sequencer)
 │  ├─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
 │  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
 │  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
-│                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css
+│                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css;
+│                               # useClock, useBacking (hooks taking a player)
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -118,6 +120,17 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
   clicked note through `src/ui/notePlayer.ts` (muted with the header's sound toggle).
+
+**Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
+and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
+gesture); `setEnabled` is the sound toggle, `setLevels({ note, click })` the mix, `now()` the audio
+clock. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
+`useBacking` (a step clock and a backing track over one chord per bar, swung when the style
+swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute) and clicks played
+sample-accurately through the lookahead `Scheduler`, looping pass after pass, reporting each event
+as it sounds. Practice's licks reach it through `src/audio/sharedPasses.ts`: `compileProgression`
+still lays out count-in, swing, bars per chord and the metronome; `lickPasses` turns that into
+sequencer passes (a note rings until the next one on its string; a technique becomes a glide).
 
 An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, `fretboard`,
 then its own).

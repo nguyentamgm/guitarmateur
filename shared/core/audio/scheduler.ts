@@ -1,15 +1,18 @@
-import type { AudioEvent } from './compile';
+/** Anything with a time on the audio clock, in seconds. */
+export interface Timed {
+  readonly timeSec: number;
+}
 
 /**
  * Fire, in order, every event at or before `windowEndSec` that hasn't fired yet, advancing from
  * `cursor` and returning the new cursor. Events must be sorted ascending by `timeSec`. Pure and
  * exactly-once: each event fires on the first pump whose window reaches it, never again.
  */
-export function drainDue(
-  events: readonly AudioEvent[],
+export function drainDue<E extends Timed>(
+  events: readonly E[],
   cursor: number,
   windowEndSec: number,
-  fire: (event: AudioEvent) => void,
+  fire: (event: E) => void,
 ): number {
   let i = cursor;
   for (;;) {

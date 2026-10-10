@@ -11,10 +11,10 @@ see [`architecture.md`](architecture.md#shared-code-shared)). What to teach: [`t
 theory/
 └─ src/
    ├─ core/              pure TypeScript, unit-tested
-   │  ├─ music/          spelled pitches, intervals, scales, chords, keys, roman numerals
+   │  ├─ music/          → shared/core/music: spelled pitches, intervals, scales, chords, keys, numerals
    │  ├─ fretboard/      neck grid, octave shapes, positions (boxes, 3-notes-per-string)
-   │  ├─ rhythm/         time as a grid: BPM, note lengths in cells, counting, strum patterns
-   │  └─ audio/          plucked-string and click synths (pure) + Web Audio player
+   │  ├─ rhythm/         → shared/core/rhythm: BPM, note lengths in cells, counting, strum patterns
+   │  └─ audio/          → shared/core/audio: string and click synths, player, backings, sequencer
    ├─ platform/          browser APIs behind a safe wrapper: `browserStorage()` (localStorage), `browserLanguages()`
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
@@ -45,6 +45,10 @@ ui → lessons → core/fretboard → core/music
 - `core/music` imports nothing else in Theory. `core/fretboard` imports only `core/music` (and
   `@shared/core`, for string numbering).
 - `core/` never imports React, `lessons/`, `ui/` or `platform/`: it stays pure.
+- `core/music`, `core/rhythm` and `core/audio` live in `shared/core/` (shared with the practice
+  app); Theory's folders only re-export them, so imports such as `'../core/music'` are unchanged.
+  So do `ui/useClock.ts` and `ui/useBacking.ts` (`shared/ui/`, the player passed in by Theory's
+  wrappers). A change there is a change to both apps.
 - `platform/` is the only code that touches localStorage (`browserStorage()`, never throws); `i18n`
   and `ui` use it, and it imports nothing else in Theory.
 - `lessons/` is data: core and i18n only, never React or `ui/`.

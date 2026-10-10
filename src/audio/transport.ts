@@ -1,6 +1,6 @@
 import type { Lick } from '../lick';
 import { compileProgression, type AudioEvent, type CompileOptions } from './compile';
-import { Scheduler, drainDue } from './scheduler';
+import { Scheduler, drainDue } from '@shared/core/audio';
 import { click, pluck, type Voice } from './voices';
 import type { AudioEngine } from './engine';
 

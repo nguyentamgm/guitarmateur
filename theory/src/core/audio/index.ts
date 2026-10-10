@@ -1,5 +1,3 @@
-export * from './backing';
-export * from './click';
-export * from './glide';
-export * from './player';
-export * from './pluck';
+// The guitar and click synths, the player and the backing patterns: shared with the practice app
+// (shared/core/audio).
+export * from '@shared/core/audio';

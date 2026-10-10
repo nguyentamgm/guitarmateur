@@ -1,7 +1,2 @@
-export * from './pitch';
-export * from './interval';
-export * from './scales';
-export * from './chords';
-export * from './keys';
-export * from './progressions';
-export * from './licks';
+// Spelled pitches, intervals, scales, chords, keys: shared with the practice app (shared/core/music).
+export * from '@shared/core/music';
