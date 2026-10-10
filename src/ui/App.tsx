@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppState, encodeState, exportStateToJson, importStateFromJson } from '../state';
-import { LOCALES, type LocaleId } from '../i18n';
+import { LOCALES } from '../i18n';
 import { theme, font } from './theme';
 import { ScalePositionSection } from './components/ScalePositionSection';
 import { ProgressionSection } from './components/ProgressionSection';
 import { PracticeSection } from './components/PracticeSection';
 import { InstallPrompt } from './components/InstallPrompt';
-import { GlobeIcon } from './components/primitives';
+import { SiteHeader } from './components/SiteHeader';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useT } from './useT';
 
@@ -39,6 +39,8 @@ function legacyCopy(url: string, onCopied: () => void, copyPrompt: string): void
 export function App() {
   const [state, dispatch] = useAppState();
   const t = useT(state.language);
+  // Like Theory's sound toggle: for this visit only, never stored.
+  const [soundOn, setSoundOn] = useState(true);
   const [copied, setCopied] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -124,98 +126,78 @@ export function App() {
   };
 
   return (
-    <div style={{ maxWidth: 1080, margin: '0 auto', padding: '30px 20px 70px' }}>
-      <header style={{ marginBottom: 34 }}>
-        <div
-          style={{
-            fontSize: 12,
-            letterSpacing: '.18em',
-            textTransform: 'uppercase',
-            color: theme.muted,
-            fontWeight: 600,
-            fontFamily: font.mono,
-          }}
-        >
-          {t('app.kicker')}
-        </div>
-        <h1 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 6px', letterSpacing: '-0.01em' }}>
-          {t('app.title')}
-        </h1>
-        <p style={{ margin: 0, color: theme.muted, fontSize: 15, maxWidth: 620, lineHeight: 1.5 }}>
-          {t('app.subtitle')}
-        </p>
-        <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
-          {t('app.playAlongNote')}
-        </p>
-        <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={handleShare} style={btnStyle}>
-            {copied ? t('common.shareCopied') : t('common.share')}
-          </button>
-          <button onClick={handleExport} style={btnStyle}>
-            {t('common.export')}
-          </button>
-          <button onClick={handleImportClick} style={btnStyle}>
-            {importStatus === 'ok'
-              ? t('common.importLoaded')
-              : importStatus === 'err'
-                ? t('common.importInvalid')
-                : t('common.import')}
-          </button>
-          <button
-            onClick={() => dispatch({ type: 'setLeftHanded', value: !state.leftHanded })}
+    <>
+      <SiteHeader
+        language={state.language}
+        onLanguage={(language) => dispatch({ type: 'setLanguage', language })}
+        soundOn={soundOn}
+        onSound={setSoundOn}
+      />
+      {/* Same 1000px column as the site header (and Theory's pages). */}
+      <div style={{ maxWidth: 1032, margin: '0 auto', padding: '30px 16px 70px' }}>
+        <div style={{ marginBottom: 34 }}>
+          <div
             style={{
-              ...btnStyle,
-              borderColor: state.leftHanded ? theme.accent : theme.border,
+              fontSize: 12,
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+              color: theme.muted,
+              fontWeight: 600,
+              fontFamily: font.mono,
             }}
           >
-            {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
-          </button>
-          <a
-            href="/theory"
-            style={{
-              ...btnStyle,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-            }}
-          >
-            {t('common.theory')}
-          </a>
-          <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-            <GlobeIcon
-              style={{ position: 'absolute', left: 11, color: theme.accent, pointerEvents: 'none' }}
-            />
-            <select
-              aria-label={t('common.language')}
-              value={state.language}
-              onChange={(e) =>
-                dispatch({ type: 'setLanguage', language: e.target.value as LocaleId })
-              }
-              style={{ ...btnStyle, paddingLeft: 30 }}
+            {t('app.kicker')}
+          </div>
+          <h1 style={{ fontSize: 30, fontWeight: 700, margin: '8px 0 6px', letterSpacing: '-0.01em' }}>
+            {t('app.title')}
+          </h1>
+          <p style={{ margin: 0, color: theme.muted, fontSize: 15, maxWidth: 620, lineHeight: 1.5 }}>
+            {t('app.subtitle')}
+          </p>
+          <p style={{ margin: '10px 0 0', color: theme.subtle, fontSize: 12.5 }}>
+            {t('app.playAlongNote')}
+          </p>
+          {/* This page's own actions, in the page rather than the site header. */}
+          <div role="group" aria-label={t('common.actions')} style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button onClick={handleShare} style={btnStyle}>
+              {copied ? t('common.shareCopied') : t('common.share')}
+            </button>
+            <button onClick={handleExport} style={btnStyle}>
+              {t('common.export')}
+            </button>
+            <button onClick={handleImportClick} style={btnStyle}>
+              {importStatus === 'ok'
+                ? t('common.importLoaded')
+                : importStatus === 'err'
+                  ? t('common.importInvalid')
+                  : t('common.import')}
+            </button>
+            <button
+              onClick={() => dispatch({ type: 'setLeftHanded', value: !state.leftHanded })}
+              style={{
+                ...btnStyle,
+                borderColor: state.leftHanded ? theme.accent : theme.border,
+              }}
             >
-              {Object.values(LOCALES).map((locale) => (
-                <option key={locale.id} value={locale.id}>
-                  {locale.endonym}
-                </option>
-              ))}
-            </select>
-          </span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
+              {state.leftHanded ? t('common.normal') : t('common.leftHanded')}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+          </div>
         </div>
-      </header>
 
-      <ErrorBoundary t={t}>
-        <ScalePositionSection state={state} dispatch={dispatch} />
-        <ProgressionSection state={state} dispatch={dispatch} />
-        <PracticeSection state={state} dispatch={dispatch} />
-        <InstallPrompt language={state.language} />
-      </ErrorBoundary>
-    </div>
+        <ErrorBoundary t={t}>
+          <ScalePositionSection state={state} dispatch={dispatch} />
+          <ProgressionSection state={state} dispatch={dispatch} />
+          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} />
+          <InstallPrompt language={state.language} />
+        </ErrorBoundary>
+      </div>
+    </>
   );
 }

@@ -4,24 +4,37 @@ import { GlobeIcon } from './GlobeIcon';
 import { Link } from './Link';
 import { BASE, hrefFor } from './router';
 
-export function Header() {
+/** Which section of the site a page belongs to: highlighted in the header. */
+export type Section = 'lessons' | 'review';
+
+/**
+ * The site header, the same on both apps: brand · Lessons · Review · Practice · sound · language.
+ * The practice app (src/ui/components/SiteHeader.tsx) keeps a copy with the same markup and order.
+ */
+export function Header({ section }: { section: Section }) {
   const { ui, lang, setLang, soundOn, setSoundOn } = useTheory();
+  const current = (s: Section) => (s === section ? 'page' : undefined);
   return (
     <header className="topbar">
-      <Link href={BASE} className="brand">
-        {ui.appName}
-      </Link>
+      {/* The homepage is the practice app, a different page: a plain link loads it. */}
+      <a href="/" className="brand">
+        {ui.brand}
+      </a>
       <div className="topbar-tools">
-        <Link href={hrefFor({ page: 'review' })} className="navlink">
-          {ui.navReview}
-        </Link>
+        <nav className="topnav" aria-label={ui.navLabel}>
+          <Link href={BASE} className="navlink" aria-current={current('lessons')}>
+            {ui.navLessons}
+          </Link>
+          <Link href={hrefFor({ page: 'review' })} className="navlink" aria-current={current('review')}>
+            {ui.navReview}
+          </Link>
+          <a href="/" className="navlink">
+            {ui.navPractice}
+          </a>
+        </nav>
         <button type="button" className="btn ghost" aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)}>
           {soundOn ? ui.soundOn : ui.soundOff}
         </button>
-        {/* The practice app is a different page, not a Theory route: a plain link loads it. */}
-        <a href="/" className="navlink">
-          {ui.navPractice}
-        </a>
         <div className="group" role="group" aria-label={ui.langLabel}>
           <GlobeIcon />
           {LANGS.map((l) => (

@@ -77,3 +77,88 @@ button {
   outline: 2px solid #c3f04b;
   outline-offset: 2px;
 }
+
+/* Site header — the same markup, order and metrics as the Theory app's top bar
+   (theory/src/ui/theory.css), in this app's colours until the shared look lands. */
+.site-top {
+  padding: 0 16px;
+}
+.topbar {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 16px;
+  border-bottom: 1px solid #2a302c;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.topbar .brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #e8ece9;
+}
+.topbar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: center;
+}
+.navlink {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.navlink[aria-current='page'] {
+  color: #e8ece9;
+  text-decoration: underline 2px #c3f04b;
+  text-underline-offset: 6px;
+}
+.topbar .btn {
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #c3f04b;
+  background: transparent;
+  color: #c3f04b;
+  cursor: pointer;
+}
+.topbar .group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  color: #7e857f;
+}
+.topbar .chip {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  padding: 5px 10px;
+  min-width: 34px;
+  border-radius: 7px;
+  border: 1px solid #2a302c;
+  background: transparent;
+  color: #e8ece9;
+  cursor: pointer;
+}
+.topbar .chip:hover {
+  border-color: #7e857f;
+}
+.topbar .chip[aria-pressed='true'] {
+  background: #e8ece9;
+  color: #0c0e0d;
+  border-color: #e8ece9;
+}
+.topbar :focus-visible {
+  outline: 2px solid #c3f04b;
+  outline-offset: 2px;
+}

@@ -66,6 +66,8 @@ a { color: var(--accent); }
 .bars .mark.bad { fill: var(--amber); }
 .trainer { display: inline-block; font-size: 0.9rem; font-weight: 600; }
 .navlink { font-size: 0.88rem; font-weight: 600; text-decoration: none; }
+.topnav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.navlink[aria-current='page'] { color: var(--ink); text-decoration: underline 2px var(--accent); text-underline-offset: 6px; }
 .lesson-card .num { font-family: var(--f-mono); color: var(--accent); grid-row: span 3; }
 .lesson-title { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; }
 .lesson-summary { color: var(--muted); }

@@ -89,13 +89,29 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('links back to the practice app, just before the language switcher', () => {
+  it('shows the shared header: brand, Lessons, Review, Practice, sound, language', () => {
     render('/theory/fretboard');
-    const practice = [...container.querySelectorAll('header a')].find((a) => a.getAttribute('href') === '/')!;
-    expect(practice.textContent).toBe('Practice');
-    expect(practice.nextElementSibling?.getAttribute('aria-label')).toBe('Language');
+    const header = container.querySelector('header.topbar')!;
+    expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
+    expect(header.querySelector('a.brand')!.textContent).toBe('Guitarmateur');
+    const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
+    expect(nav).toEqual([
+      ['Lessons', '/theory'],
+      ['Review', '/theory/review'],
+      ['Practice', '/'],
+    ]);
+    // A lesson belongs to Lessons.
+    expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
+    const nextToNav = header.querySelector('nav')!.nextElementSibling!;
+    expect(nextToNav.getAttribute('aria-pressed')).toBe('true'); // the sound toggle
+    expect(nextToNav.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
     click(button('Tiếng Việt'));
-    expect(practice.textContent).toBe('Luyện tập');
+    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+  });
+
+  it('highlights Review in the header on the review page', () => {
+    render('/theory/review');
+    expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Review');
   });
 
   it('marks the language switcher with a globe', () => {

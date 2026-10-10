@@ -4,6 +4,7 @@ import {
   Transport,
   createEngine,
   isAudioSupported,
+  setMuted,
   type AudioEngine,
   type PlayOptions,
   type Position,
@@ -25,8 +26,11 @@ export interface UseTransport {
  * created lazily on the first `play()` call — which must originate from a user gesture per browser
  * autoplay policy. Everything is torn down on unmount.
  */
-export function useTransport(): UseTransport {
+export function useTransport(muted = false): UseTransport {
   const supported = isAudioSupported();
+  // The header's sound toggle mutes the engine's master output, so the click/note mix (the
+  // volume sliders) is untouched and comes back as it was.
+  const mutedRef = useRef(muted);
   const engineRef = useRef<AudioEngine | null>(null);
   const transportRef = useRef<Transport | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -37,6 +41,7 @@ export function useTransport(): UseTransport {
     if (!transportRef.current) {
       const engine = createEngine();
       engineRef.current = engine;
+      if (mutedRef.current) setMuted(engine, true);
       transportRef.current = new Transport(engine, {
         onPosition: (pos) => setPosition(pos),
         onStop: () => setIsPlaying(false),
@@ -62,6 +67,11 @@ export function useTransport(): UseTransport {
 
   const setClickGain = useCallback((value: number) => transportRef.current?.setClickGain(value), []);
   const setNoteGain = useCallback((value: number) => transportRef.current?.setNoteGain(value), []);
+
+  useEffect(() => {
+    mutedRef.current = muted;
+    if (engineRef.current) setMuted(engineRef.current, muted);
+  }, [muted]);
 
   useEffect(() => {
     return () => {

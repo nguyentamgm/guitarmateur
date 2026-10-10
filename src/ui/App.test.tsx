@@ -7,6 +7,9 @@ import { createRoot } from 'react-dom/client';
  * Uses act() for proper React 19 rendering lifecycle.
  */
 describe('App', () => {
+  // The language switch is remembered; every test starts in English.
+  afterEach(() => localStorage.clear());
+
   it('renders the header copy', async () => {
     const { App } = await import('./App');
     const container = document.createElement('div');
@@ -20,11 +23,36 @@ describe('App', () => {
     expect(container.innerHTML).toContain('Fretboard Trainer');
     expect(container.innerHTML).toContain('Pentatonic Practice');
 
-    const theory = container.querySelector<HTMLAnchorElement>('header a[href="/theory"]');
-    expect(theory?.textContent).toBe('Theory');
-    const language = container.querySelector('header select[aria-label="Language"]');
-    expect(theory?.nextElementSibling?.contains(language)).toBe(true);
-    expect(language?.parentElement?.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+    // The shared site header: brand · Lessons · Review · Practice (current) · sound · language.
+    const header = container.querySelector('header.topbar')!;
+    expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
+    const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
+    expect(nav).toEqual([
+      ['Lessons', '/theory'],
+      ['Review', '/theory/review'],
+      ['Practice', '/'],
+    ]);
+    expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
+    const sound = header.querySelector('nav')!.nextElementSibling as HTMLButtonElement;
+    expect(sound.getAttribute('aria-pressed')).toBe('true');
+    const language = sound.nextElementSibling!;
+    expect(language.getAttribute('aria-label')).toBe('Language');
+    expect(language.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+
+    // The page's own actions stay in the page, out of the site header.
+    expect(header.textContent).not.toContain('Share');
+    expect(container.querySelector('[role="group"][aria-label="Practice actions"]')?.textContent).toContain('Share');
+
+    // The EN/VI switch translates the nav: no untranslated labels in VI.
+    await act(async () => {
+      language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
+    });
+    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+    expect(sound.textContent).toBe('Âm thanh: bật');
+    await act(async () => {
+      sound.click();
+    });
+    expect(sound.getAttribute('aria-pressed')).toBe('false');
 
     await act(async () => {
       root.unmount();
