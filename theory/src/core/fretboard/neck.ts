@@ -14,9 +14,10 @@ import {
   type NoteName,
   type Pitch,
 } from '../music';
+// String numbering is shared with the practice app (shared/core/neck.ts).
+import { STRINGS, type StringNumber } from '@shared/core/neck';
 
-export type StringNumber = 1 | 2 | 3 | 4 | 5 | 6;
-export const STRINGS: readonly StringNumber[] = [6, 5, 4, 3, 2, 1];
+export { STRINGS, type StringNumber };
 
 /** Standard tuning, indexed by string number. */
 export const STANDARD_TUNING: Readonly<Record<StringNumber, Pitch>> = {

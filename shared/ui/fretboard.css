@@ -1,0 +1,44 @@
+/* The neck both apps draw (shared/ui/Fretboard.tsx, PositionFrame.tsx), on the shared tokens. */
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.scroll svg { display: block; width: 100%; height: auto; margin-inline: auto; }
+
+/* Wood, frets, strings, box */
+.wood { fill: var(--wood); stroke: var(--wood-edge); }
+.fretline { stroke: var(--fret); stroke-width: 2; }
+.nutbar { fill: var(--nut); }
+.str { stroke: var(--string); }
+.inlay { fill: var(--inlay); }
+.fnum { fill: var(--fretnum); font-family: var(--f-mono); font-size: 11px; text-anchor: middle; }
+.sname { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; dominant-baseline: middle; }
+.boxrect { fill: var(--accent); fill-opacity: 0.16; stroke: var(--accent); stroke-opacity: 0.7; stroke-width: 1.5; transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.45s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.dot { cursor: pointer; transition: opacity 0.3s; outline: none; }
+.dot circle { fill: var(--dot); stroke: var(--wood-edge); stroke-width: 1; transform-box: fill-box; transform-origin: center; transition: transform 0.16s ease-out; }
+.dot text { fill: var(--dot-ink); font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.dot.home circle { fill: var(--accent); stroke: none; }
+.dot.home text { fill: var(--accent-ink); }
+.dot.homeMajor circle { fill: var(--amber); stroke: none; }
+.dot.homeMajor text { fill: var(--amber-ink); }
+.dot.dim { opacity: 0.22; }
+.dot.faint circle { fill: var(--dot); opacity: 0.35; transform: scale(0.6); }
+.dot.faint:hover circle, .dot.faint:focus-visible circle { opacity: 1; }
+.dot.hit circle { transform: scale(1.4); }
+.dot:hover circle, .dot:focus-visible circle { stroke: var(--accent); stroke-width: 2; }
+
+/* Position frames */
+.boxghost rect { fill: none; stroke: var(--fret); stroke-opacity: 0.55; stroke-width: 1; stroke-dasharray: 3 4; }
+.boxghost text { fill: var(--fretnum); font-family: var(--f-mono); font-size: 10px; font-weight: 600; dominant-baseline: central; }
+.boxghost.on rect { stroke: var(--accent); stroke-opacity: 0.9; stroke-dasharray: none; }
+.boxghost.on text { fill: var(--accent); }
+
+/* Dot tones: blue note, quiet chord note */
+.dot.blue circle { fill: var(--surface); stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 3 2.5; }
+.dot.blue text { fill: var(--accent); }
+.dot.soft circle { fill: var(--string); opacity: 0.75; }
+
+/* Practice's markers: a chord tone (ring + tint), the target (filled), the landing halo, a role mark */
+.dot.chord circle { fill: color-mix(in srgb, var(--accent) 28%, var(--dot)); stroke: var(--accent); stroke-width: 2; }
+.dot.chord text { fill: var(--dot-ink); }
+.dot.target circle { fill: var(--accent); stroke: none; }
+.dot.target text { fill: var(--accent-ink); }
+.halo { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
+.dot text.mark { fill: var(--accent); font-size: 9px; font-weight: 700; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
