@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react';
 import { defaultNextSeed, defaultState, reducer, type Action, type AppState } from './appState';
-import { LANG_STORAGE_KEY, loadLanguage, loadState, saveLanguage, saveState } from './persistence';
+import { LANG_STORAGE_KEY, initialLanguage, loadLanguage, loadState, saveLanguage, saveState } from './persistence';
 
 /**
  * `.tsx` (not `.ts`) is deliberate: the layer-boundary ESLint rule bans importing React from
@@ -13,8 +13,8 @@ export function useAppState(): [AppState, (action: Action) => void] {
     (s: AppState, a: Action) => reducer(s, a, defaultNextSeed),
     (() => {
       try {
-        // loadState() resolves the language itself (shared preference, else browser detection).
-        return loadState() ?? defaultState(defaultNextSeed, loadLanguage());
+        // loadState() resolves the language itself (a link's ?lang=, the shared preference, else detection).
+        return loadState() ?? defaultState(defaultNextSeed, initialLanguage());
       } catch {
         // Fallback for SSR / test environments where browser APIs may not exist
         return defaultState(defaultNextSeed);

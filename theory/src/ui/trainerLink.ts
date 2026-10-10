@@ -4,6 +4,8 @@
  * format (`/?s=v1:` + base64 JSON) by hand; the two apps share no code. Starting from the practice
  * app's own saved settings (same origin, its own key), it replaces only the key, the progression
  * and, when given, the tempo, so the learner's tuning, left-handed view and volumes survive.
+ * The lesson's language rides along as `&lang=`, outside the shared state: the practice app opens
+ * in it, whatever language it was last used in.
  */
 import { sameNote, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
@@ -52,7 +54,7 @@ export interface TrainerOptions {
   /** The practice app's saved state, as stored; its other settings are kept. */
   readonly saved?: unknown;
   readonly tempoBpm?: number;
-  /** Used only when the practice app has no language of its own yet. */
+  /** The lesson's language: the practice app opens in it. */
   readonly lang?: Lang;
 }
 
@@ -88,8 +90,11 @@ export function trainerLink(key: TrainerKey, chords: readonly Chord[], opts: Tra
 
   const saved = opts.saved && typeof opts.saved === 'object' && !Array.isArray(opts.saved) ? (opts.saved as Record<string, unknown>) : {};
   // Positions depend on the key: drop them so the practice app recommends one for the new key.
-  const state: Record<string, unknown> = { ...Object.fromEntries(Object.entries(saved).filter(([k]) => k !== 'positions')), key: { tonic, scaleId }, progression };
+  // The language is not practice state (the practice app ignores it in a share payload): it goes
+  // in its own `lang` parameter instead.
+  const dropped = new Set(['positions', 'language']);
+  const state: Record<string, unknown> = { ...Object.fromEntries(Object.entries(saved).filter(([k]) => !dropped.has(k))), key: { tonic, scaleId }, progression };
   if (opts.tempoBpm !== undefined) state.tempoBpm = opts.tempoBpm;
-  if (state.language === undefined && opts.lang) state.language = opts.lang;
-  return `/?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify(state)))}`)}`;
+  const lang = opts.lang ? `&lang=${opts.lang}` : '';
+  return `/?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify(state)))}`)}${lang}`;
 }

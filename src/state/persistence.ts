@@ -226,6 +226,21 @@ export function loadLanguage(): LocaleId {
   }
 }
 
+/** A `?lang=` on the address (Theory's trainer link carries the lesson's language), or null. */
+function linkLanguage(): LocaleId | null {
+  try {
+    const v = new URLSearchParams(window.location.search).get('lang');
+    return isLocaleId(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The language to open in: a link's `?lang=` wins over the remembered one (`loadLanguage`). */
+export function initialLanguage(): LocaleId {
+  return linkLanguage() ?? loadLanguage();
+}
+
 /**
  * Remember the UI language for both apps. Written only when it changes (not on every state save),
  * so a tab still showing an old language never overwrites one just chosen in another tab.
@@ -239,13 +254,13 @@ export function saveLanguage(language: LocaleId): void {
 }
 
 /**
- * Browser boundary: resolve the UI language once (`loadLanguage`) then thread it through both the
- * URL and the localStorage paths so a payload without a `language` field (share links, exports,
- * v1–v6 states) never silently resets the user's locale, and a language changed in Theory wins
- * over the one in this app's saved state.
+ * Browser boundary: resolve the UI language once (`initialLanguage`) and use it on both the URL
+ * and the localStorage paths. A share payload's own `language`, if any, is ignored: opening a
+ * link must not switch the UI language unless the link says so with `?lang=`. A language changed
+ * in Theory wins over the one in this app's saved state.
  */
 export function loadState(): AppState | null {
-  const language = loadLanguage();
+  const language = initialLanguage();
 
   const fromUrl = loadFromUrl(language);
   if (fromUrl) {
@@ -255,7 +270,7 @@ export function loadState(): AppState | null {
       // ignore — some embedding contexts (sandboxed iframes, certain WebViews) block
       // history mutation; the decoded share state is still valid and must not be lost
     }
-    return fromUrl;
+    return { ...fromUrl, language };
   }
   let raw: unknown;
   try {
