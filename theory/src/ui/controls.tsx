@@ -1,9 +1,9 @@
 import { homeFret } from '../core/fretboard';
 import { fill } from '../i18n';
 import { useTheory } from './context';
-import { format, sameNote, type NoteName } from '../core/music';
+import { format, type NoteName } from '../core/music';
 import { MAX_BPM, MIN_BPM, clampBpm } from '../core/rhythm';
-import { Slider } from '@shared/ui/controls';
+import { KeyPicker, Slider } from '@shared/ui/controls';
 
 // The generic controls are shared with the practice app; Theory adds its tempo slider and key finder.
 export { Button, Chip, ChipGroup, OnOff, Slider } from '@shared/ui/controls';
@@ -18,15 +18,7 @@ export function Tempo({ label, text, bpm, onChange, best = 0 }: { label: string;
   );
 }
 
-/** One button per key, with its home fret on string 6 beside the name (K0.7). */
+/** One button per key, with its home fret on string 6 beside the name (K0.7): the shared key picker. */
 export function KeyFinder({ keys, label, value, onChange }: { keys: readonly NoteName[]; label: string; value: NoteName; onChange(k: NoteName): void }) {
-  return (
-    <div className="finder" role="group" aria-label={label}>
-      {keys.map((k) => (
-        <button key={format(k)} type="button" aria-pressed={sameNote(k, value)} onClick={() => onChange(k)}>
-          <b>{format(k)}</b> {homeFret(k)}
-        </button>
-      ))}
-    </div>
-  );
+  return <KeyPicker keys={keys} label={label} name={format} fret={(k) => homeFret(k)} value={value} onChange={onChange} />;
 }

@@ -64,6 +64,38 @@ export function OnOff({ label, on, off, value, onChange }: { label: string; on: 
   );
 }
 
+/**
+ * One button per key: its name, then the fret where that note sits on the lowest string ("A 5",
+ * "C 8"), which tells the player where to put their hand. The caller spells each key (B♭, not A♯)
+ * and finds its fret, so this works for any key type and tuning.
+ */
+export function KeyPicker<K>({
+  label,
+  keys,
+  name,
+  fret,
+  value,
+  onChange,
+}: {
+  label: string;
+  keys: readonly K[];
+  name(k: K): string;
+  fret(k: K): number;
+  value: K;
+  onChange(k: K): void;
+}) {
+  const current = name(value);
+  return (
+    <div className="finder" role="group" aria-label={label}>
+      {keys.map((k) => (
+        <button key={name(k)} type="button" aria-pressed={name(k) === current} onClick={() => onChange(k)}>
+          <b>{name(k)}</b> {fret(k)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Button({ onClick, children, ghost }: { onClick(): void; children: ReactNode; ghost?: boolean }) {
   return (
     <button type="button" className={ghost ? 'btn ghost' : 'btn'} onClick={onClick}>

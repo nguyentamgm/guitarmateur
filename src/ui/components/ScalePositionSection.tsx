@@ -1,20 +1,18 @@
 import { useMemo } from 'react';
-import { format, SCALE_IDS, SCALES, TONICS, type NoteName } from '../../music';
-import { mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
+import { format, SCALE_IDS, SCALES, TONICS } from '../../music';
+import { homeFret, mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
 import { neckGeometry } from '@shared/ui/geometry';
-import { ChipGroup } from '@shared/ui/controls';
+import { ChipGroup, KeyPicker } from '@shared/ui/controls';
 import { boxDots, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
 import { useT } from '../useT';
-
-const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
 /** Step 1 — pick key, scale, and position(s); see spelled notes on the fretboard. */
 export function ScalePositionSection({
@@ -59,15 +57,16 @@ export function ScalePositionSection({
           ))}
         </Row>
 
-        {/* Key picker */}
+        {/* Key picker: each key with its fret on the lowest string, where the hand goes */}
         <Label style={{ marginTop: 16 }}>{t('scalebox.key')}</Label>
-        <Row>
-          {TONICS.map((tonic) => (
-            <PillButton key={format(tonic)} selected={sameNote(tonic, key.tonic)} onClick={() => dispatch({ type: 'setKey', tonic })}>
-              {format(tonic)}
-            </PillButton>
-          ))}
-        </Row>
+        <KeyPicker
+          label={t('scalebox.key')}
+          keys={TONICS}
+          name={format}
+          fret={(tonic) => homeFret(tuning, tonic)}
+          value={key.tonic}
+          onChange={(tonic) => dispatch({ type: 'setKey', tonic })}
+        />
 
         {/* Scale picker — driven by the registry */}
         <Label style={{ marginTop: 16 }}>{t('scalebox.scale')}</Label>

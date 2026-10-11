@@ -91,3 +91,13 @@ describe('ScalePositionSection neck', () => {
     await unmount();
   });
 });
+
+describe('ScalePositionSection key picker', () => {
+  it('shows each key with its fret on the low E, spelled B♭ not A♯, the current key pressed', async () => {
+    const { container, unmount } = await mount('minorPentatonic');
+    const keys = [...container.querySelectorAll('.finder button')];
+    expect(keys.map((b) => b.textContent)).toEqual(['A 5', 'B♭ 6', 'B 7', 'C 8', 'C♯ 9', 'D 10', 'E♭ 11', 'E 0', 'F 1', 'F♯ 2', 'G 3', 'G♯ 4']);
+    expect(keys.filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.textContent)).toEqual(['A 5']);
+    await unmount();
+  });
+});

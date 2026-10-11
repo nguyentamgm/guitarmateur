@@ -20,7 +20,7 @@ import {
 } from '../../lessons/pentatonic-map';
 import { useTheory } from '../context';
 import { posKey, signed } from '../keys';
-import { Button, ChipGroup } from '../controls';
+import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, stringName } from '../geometry';
 import { useSequence } from '../useSequence';
@@ -243,13 +243,7 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
 
   return (
     <div className="board">
-      <div className="finder" role="group" aria-label={copy.finder}>
-        {FINDER_KEYS.map((k) => (
-          <button key={format(k)} type="button" aria-pressed={sameNote(k, tonic)} onClick={() => pick(k)}>
-            <b>{format(k)}</b> {homeFret(k)}
-          </button>
-        ))}
-      </div>
+      <KeyFinder keys={FINDER_KEYS} label={copy.finder} value={tonic} onChange={pick} />
       <div className="controls">
         <Button onClick={cycle} ghost>
           {seq.playing ? copy.stop : copy.cycle}
