@@ -24,9 +24,6 @@ body { padding: 0 16px 64px; }
 .reason.weak, .reason.stale { color: var(--amber); }
 .review-card.next .reason { color: var(--accent); }
 .toc-review { display: inline-block; margin-top: 8px; font-weight: 600; }
-.bars .mark { font-family: var(--f-mono); font-size: 12px; font-weight: 700; text-anchor: end; }
-.bars .mark.good { fill: var(--accent); }
-.bars .mark.bad { fill: var(--amber); }
 .trainer { display: inline-block; font-size: 0.9rem; font-weight: 600; }
 .lesson-card .num { font-family: var(--f-mono); color: var(--accent); grid-row: span 3; }
 .lesson-title { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; }
@@ -154,12 +151,6 @@ body { padding: 0 16px 64px; }
 
 /* Blues */
 .swatch.blue { background: var(--surface); border: 1.5px dashed var(--accent); }
-.bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }
-.bars .bar text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-mono); }
-.bars .deg { fill: var(--muted); font-size: 13px; }
-.bars .sym { fill: var(--ink); font-size: 18px; font-weight: 600; }
-.bars .bar.on rect { fill: var(--accent); stroke: var(--accent); }
-.bars .bar.on text { fill: var(--accent-ink); }
 .pitchcurve .semi line { stroke: var(--line); stroke-width: 1; }
 .pitchcurve .semi.zero line { stroke: var(--muted); }
 .pitchcurve .semi text { fill: var(--muted); font-family: var(--f-mono); font-size: 10px; text-anchor: end; dominant-baseline: central; }

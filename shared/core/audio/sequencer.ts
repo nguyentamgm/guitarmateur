@@ -12,7 +12,13 @@ import type { Player } from './player';
 import { Scheduler, drainDue } from './scheduler';
 
 export type SeqEvent<Tag = unknown> =
-  | { readonly timeSec: number; readonly kind: 'click'; readonly accent: boolean }
+  | {
+      readonly timeSec: number;
+      readonly kind: 'click';
+      readonly accent: boolean;
+      /** Handed back to `onSound`, e.g. which bar this downbeat starts. */
+      readonly tag?: Tag;
+    }
   | {
       readonly timeSec: number;
       readonly kind: 'note';

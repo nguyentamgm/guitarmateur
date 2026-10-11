@@ -22,12 +22,15 @@ export function PracticeSection({
   state,
   dispatch,
   onPlay,
+  onBar,
   labels = 'degree',
 }: {
   state: AppState;
   dispatch: (action: Action) => void;
   /** Called when playback starts. */
   onPlay?: () => void;
+  /** Called with the bar being heard (0-based, a 2-bar chord counts twice), null when idle. */
+  onBar?: (bar: number | null) => void;
   /** What the necks' dots show: degrees or note names (chosen in Step 1). */
   labels?: LabelMode;
 }) {
@@ -51,6 +54,11 @@ export function PracticeSection({
   useEffect(() => {
     if (isPlaying) onPlay?.();
   }, [isPlaying, onPlay]);
+
+  const { bar } = transport;
+  useEffect(() => {
+    onBar?.(bar);
+  }, [bar, onBar]);
 
   const { stop } = transport;
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Sequencer, isAudioSupported } from '@shared/core/audio';
 import type { Lick } from '../lick';
-import { lickPasses, type CompileOptions, type NoteTag } from '../audio';
+import { lickPasses, type CompileOptions, type NoteTag, type PlayTag } from '../audio';
 import { getPlayer } from './audioPlayer';
 
 /** Which chord card and which of its notes is sounding. */
@@ -21,6 +21,8 @@ export interface UseTransport {
   isPlaying: boolean;
   /** The currently-sounding note, or null when idle — drives card/tab highlighting. */
   position: Position | null;
+  /** The bar being heard (0-based, a 2-bar chord counts twice), or null when idle or counting in. */
+  bar: number | null;
   play: (licks: Lick[], opts: PlayOptions) => void;
   stop: () => void;
   setClickGain: (value: number) => void;
@@ -34,19 +36,23 @@ export interface UseTransport {
  */
 export function useTransport(): UseTransport {
   const supported = isAudioSupported();
-  const sequencerRef = useRef<Sequencer<NoteTag> | null>(null);
+  const sequencerRef = useRef<Sequencer<PlayTag> | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
+  const [bar, setBar] = useState<number | null>(null);
 
-  const ensureSequencer = useCallback((): Sequencer<NoteTag> | null => {
+  const ensureSequencer = useCallback((): Sequencer<PlayTag> | null => {
     if (!supported) return null;
-    sequencerRef.current ??= new Sequencer<NoteTag>(getPlayer(), {
+    sequencerRef.current ??= new Sequencer<PlayTag>(getPlayer(), {
       onSound: (e) => {
-        if (e.kind === 'note' && e.tag) setPosition(e.tag);
+        if (!e.tag) return;
+        if ('bar' in e.tag) setBar(e.tag.bar);
+        else setPosition(e.tag);
       },
       onEnd: () => {
         setIsPlaying(false);
         setPosition(null);
+        setBar(null);
       },
     });
     return sequencerRef.current;
@@ -72,6 +78,7 @@ export function useTransport(): UseTransport {
   const stop = useCallback(() => {
     sequencerRef.current?.stop();
     setIsPlaying(false);
+    setBar(null);
   }, []);
 
   const setClickGain = useCallback((value: number) => getPlayer().setLevels({ click: value }), []);
@@ -85,5 +92,5 @@ export function useTransport(): UseTransport {
     };
   }, []);
 
-  return { supported, isPlaying, position, play, stop, setClickGain, setNoteGain };
+  return { supported, isPlaying, position, bar, play, stop, setClickGain, setNoteGain };
 }

@@ -53,6 +53,16 @@ describe('compileProgression', () => {
     expect(c.map((e) => e.accented)).toEqual([true, false, false, false, true, false, false, false]);
   });
 
+  it('numbers each downbeat with its bar (a 2-bar chord counts twice), none on the count-in', () => {
+    const chords = [lick(8, [0]), lick(4, [0])]; // a 2-bar chord, then a 1-bar chord
+    const c = clicks(compileProgression(chords, { tempoBpm: 60, countIn: true }).events);
+    expect(c.filter((e) => e.bar !== undefined).map((e) => [e.timeSec, e.bar])).toEqual([
+      [4, 0],
+      [8, 1],
+      [12, 2],
+    ]);
+  });
+
   it('lays chords end-to-end; a 2-bar chord occupies 8 beats', () => {
     const prog = [lick(8, [0, 4]), lick(4, [0])]; // 2-bar chord, then 1-bar chord
     const { events, musicDurationSec, totalDurationSec } = compileProgression(prog, { tempoBpm: 60, metronome: false });

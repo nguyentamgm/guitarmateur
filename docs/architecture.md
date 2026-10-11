@@ -42,7 +42,8 @@ everything the user does persists in `localStorage`.
 │  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
 │  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
 │                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css;
-│                               # useClock, useBacking (hooks taking a player)
+│                               # BarGrid.tsx (a chord form as bars); useClock, useBacking
+│                               # (hooks taking a player)
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -110,6 +111,10 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   fret, Practice with `homeFret(tuning, tonic)`) and the "Takeaway / Try it" hint panel
   (`.takeaways`). Components take their text from the caller: no copy lives in `shared/` (ESLint
   rejects literal JSX text and literal `aria-label`/`title`/`alt` in `shared/ui/**/*.tsx`).
+- `BarGrid.tsx` (styled in `controls.css`, `.bars`) — a chord form as lines of four bars: the
+  Roman numeral above the chord, the bar being heard filled (`current`), optional `marks`. Theory
+  draws its lesson forms with it; Practice's Step 2 shows the progression with it (a 2-bar chord
+  fills two cells), lit by Step 3's playback.
 
 - `Fretboard.tsx` + `geometry.ts` + `PositionFrame.tsx` + `fretboard.css` — the neck both apps
   draw (Theory's): wood, frets, inlays, an optional box frame, clickable note dots. Sound is a
@@ -164,13 +169,15 @@ What is left in `src/audio/` is what turns licks into a timeline:
 ```
 compile.ts       compileProgression: Lick[] + tempo → time-sorted pluck/click events (count-in,
                  swing, bars per chord, metronome); a pluck carries its string, technique and
-                 the previous note's pitch
+                 the previous note's pitch, a downbeat click the bar it starts
 sharedPasses.ts  lickPasses / toSeqEvents: those events → passes for the shared Sequencer; a note
-                 rings until the next pick on its string, a technique becomes a glide into it
+                 rings until the next pick on its string, a technique becomes a glide into it;
+                 tags are a `NoteTag` (which card and note) or a `BarTag` (which bar)
 ```
 
 In `src/ui/`, `audioPlayer.ts` holds the page's one `Player`; `useTransport()` drives a
-`Sequencer` on it (play state, the sounding note for card/tab highlighting, the click/note mix), and
+`Sequencer` on it (play state, the sounding note for card/tab highlighting, the bar being heard
+for Step 2's bar grid, the click/note mix), and
 `notePlayer.ts` plucks a note clicked on a neck.
 
 **Autoplay gate**: the `AudioContext` is created on the first sound — the play button or a clicked

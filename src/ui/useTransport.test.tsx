@@ -68,6 +68,30 @@ describe('useTransport (lick playback on the shared guitar sound)', () => {
     t.unmount();
   });
 
+  it('reports the bar being heard from each downbeat, null once stopped', () => {
+    const t = mount();
+    t.render();
+    // Advance the audio clock and the timers together, 25 ms at a time.
+    const run = (sec: number) => {
+      for (let i = 0; i < sec / 0.025; i++) {
+        clock += 0.025;
+        act(() => vi.advanceTimersByTime(25));
+      }
+    };
+    act(() => t.get().play([lick, { ...lick, lengthBeats: 8 }], { tempoBpm: 60, countIn: true }));
+    run(1);
+    expect(t.get().bar).toBeNull(); // counting in
+    run(4);
+    expect(t.get().bar).toBe(0);
+    run(4);
+    expect(t.get().bar).toBe(1); // the 2-bar chord's first bar
+    run(4);
+    expect(t.get().bar).toBe(2); // and its second
+    act(() => t.get().stop());
+    expect(t.get().bar).toBeNull();
+    t.unmount();
+  });
+
   it('a progression without notes plays nothing', () => {
     const t = mount();
     t.render();
