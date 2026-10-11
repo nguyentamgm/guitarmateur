@@ -1,18 +1,9 @@
-import type { Lick } from '../../lick';
-import type { Technique } from '../../lick';
-import { font, theme } from '../theme';
-import { durationGlyph } from '../labels';
+import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { midi } from '../../music';
+import type { Lick, LickNote } from '../../lick';
+import { durationGlyph, tabText } from '../labels';
 
 const STRING_LABELS = ['E', 'A', 'D', 'G', 'B', 'E'];
-
-/** Standard tab articulation glyphs, prefixed before the fret number (e.g. "h7"). */
-const TECHNIQUE_GLYPHS: Record<Technique, string> = {
-  hammer: 'h',
-  pull: 'p',
-  slide: '/',
-  bendHalf: '½',
-  bendFull: 'b',
-};
 
 export interface TabStaffProps {
   lick: Lick;
@@ -26,37 +17,78 @@ export interface TabStaffProps {
   leftHanded?: boolean;
   /** Accessible name for a lick with no notes, used when `title` is absent. */
   emptyLabel?: string;
+  /** Sounds a clicked note (its MIDI number); without it the numbers are not buttons. */
+  play?: (midi: number) => void;
 }
 
-/** SVG tab notation for a lick: fret numbers on string lines, positioned proportional to
- *  `startBeat`, with beat ticks along the top and duration glyphs underneath. */
-export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp, leftHanded = false, emptyLabel }: TabStaffProps) {
+const LEFT = 30;
+const RIGHT = 14;
+const TOP = 30;
+const GAP = 20;
+/** Room under the staff for the chord-tone row, then the duration row. */
+const ROW = 18;
+/** Narrowest gap between two notes, so their numbers ('5b7' is 34 wide) do not touch. */
+const MIN_STEP = 36;
+/** A bar is at least this wide, as the old tab was. */
+const MIN_BAR = 260;
+/** Width of a number's backing: wider for technique text such as '7b9' (Theory's Tab). */
+const boxW = (text: string) => Math.max(20, 8 + 8.5 * text.length);
+
+/**
+ * Tab for a lick, in Theory's look (shared/ui/fretboard.css, `.tab`): string lines with their
+ * names, each note a number box (technique text in it), placed by its start beat with beat numbers
+ * on top and bar lines. Under the staff, readable rows: the note's chord tone, then its length in
+ * beats. The sounding note is filled; with `play`, a number is a button that plays it.
+ */
+export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLabelsProp, leftHanded = false, emptyLabel, play }: TabStaffProps) {
   const labels = stringLabelsProp ?? STRING_LABELS;
   const numStrings = labels.length;
-  const rowGap = 20;
-  const padL = 26;
-  const padTop = 22;
-  const padBot = 34;
-  const padR = 16;
-  const stageW = 260;
   const beats = Math.max(lick.lengthBeats, 1);
+  // Note order matches `lick.notes` (already ascending by startBeat), so the index lines up with
+  // the transport's `noteIndex` for highlighting the currently-sounding note.
+  const notes = [...lick.notes].sort((a, b) => a.startBeat - b.startBeat);
 
-  const W = padL + stageW + padR;
-  const H = padTop + (numStrings - 1) * rowGap + padBot;
+  // Wide enough that the closest two notes sit MIN_STEP apart.
+  let minDelta = 1;
+  for (let i = 1; i < notes.length; i++) {
+    const d = notes[i]!.startBeat - notes[i - 1]!.startBeat;
+    if (d > 0) minDelta = Math.min(minDelta, d);
+  }
+  const stageW = Math.max((MIN_BAR * beats) / 4, (MIN_STEP * beats) / minDelta);
+  const width = LEFT + stageW + RIGHT;
+  const staffBottom = TOP + (numStrings - 1) * GAP;
+  const hasRoles = notes.some((n) => n.role);
+  const roleY = staffBottom + ROW;
+  const durY = roleY + (hasRoles ? ROW : 0);
+  const height = durY + 12;
 
-  const y = (row: number) => padTop + row * rowGap;
-  const x = (beat: number) => padL + (beat / beats) * stageW;
-  const rowOf = (string: number) => numStrings - 1 - string;
+  const y = (string: number) => TOP + (numStrings - 1 - string) * GAP;
+  const x = (beat: number) => LEFT + 12 + (beat / beats) * (stageW - 12);
   /** Un-mirror a text glyph around its own x so the left-handed flip keeps it readable. */
-  const unmirror = (x: number): string | undefined =>
-    leftHanded ? `translate(${x} 0) scale(-1 1) translate(${-x} 0)` : undefined;
+  const unmirror = (cx: number): string | undefined => (leftHanded ? `translate(${cx} 0) scale(-1 1) translate(${-cx} 0)` : undefined);
 
-  if (lick.notes.length === 0) {
+  // A long tab scrolls sideways: keep the note being played in view.
+  const scroller = useRef<HTMLDivElement>(null);
+  const activeBeat = activeNoteIndex === undefined ? undefined : notes[activeNoteIndex]?.startBeat;
+  const activeX = activeBeat === undefined ? undefined : x(activeBeat);
+  useEffect(() => {
+    const el = scroller.current;
+    if (activeX === undefined || !el || el.scrollWidth <= el.clientWidth) return;
+    const at = activeX * (el.scrollWidth / width);
+    const left = leftHanded ? el.scrollWidth - at : at;
+    if (left < el.scrollLeft || left > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, left - el.clientWidth / 3);
+  }, [activeX, width, leftHanded]);
+
+  // Shrinks a little at most, so the numbers stay readable: a dense lick scrolls sideways instead.
+  const svgStyle = { minWidth: Math.round(width * 0.9), maxWidth: Math.round(width * 1.3) };
+  const flip = leftHanded ? { transform: 'scaleX(-1)' } : undefined;
+
+  if (notes.length === 0) {
     return (
-      <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title ?? emptyLabel}>
+      <div className="scroll" style={flip}>
+        <svg className="tab" viewBox={`0 0 ${width} ${height}`} style={svgStyle} role="img" aria-label={title ?? emptyLabel}>
           {title && <title>{title}</title>}
-          <text x={W / 2} y={H / 2} fontSize={18} textAnchor="middle" dominantBaseline="middle" transform={unmirror(W / 2)} style={{ fill: theme.subtle }}>
+          <text className="tabcount" x={width / 2} y={height / 2} transform={unmirror(width / 2)}>
             —
           </text>
         </svg>
@@ -64,89 +96,79 @@ export function TabStaff({ lick, title, activeNoteIndex, stringLabels: stringLab
     );
   }
 
-  const els: React.ReactNode[] = [];
-
-  for (let row = 0; row < numStrings; row++) {
-    els.push(<line key={`s${row}`} x1={padL} y1={y(row)} x2={padL + stageW} y2={y(row)} strokeWidth={1} style={{ stroke: theme.line }} />);
-    els.push(
-      <text key={`sl${row}`} x={padL - 8} y={y(row) + 3.5} fontSize={10} textAnchor="end" transform={unmirror(padL - 8)} style={{ fill: theme.muted, fontFamily: font.mono }}>
-        {labels[numStrings - 1 - row]}
-      </text>,
-    );
-  }
-
-  for (let b = 0; b <= Math.floor(beats); b++) {
-    const bx = x(b);
-    els.push(
-      <line key={`bt${b}`} x1={bx} y1={padTop - 6} x2={bx} y2={y(numStrings - 1)} strokeWidth={0.5} strokeDasharray="1 3" style={{ stroke: theme.line }} />,
-    );
-    // The final tick (b === beats) is the closing barline, not a beat start, so it must not be numbered.
-    if (b < Math.floor(beats)) {
-      els.push(
-        <text key={`bn${b}`} x={bx} y={padTop - 10} fontSize={9} textAnchor="middle" transform={unmirror(bx)} style={{ fill: theme.subtle, fontFamily: font.mono }}>
-          {b + 1}
-        </text>,
-      );
+  const onKey = (e: KeyboardEvent, n: LickNote) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      play?.(midi(n.pitch));
     }
-  }
-
-  // Note order matches `lick.notes` (already ascending by startBeat), so the index lines up with
-  // the transport's `noteIndex` for highlighting the currently-sounding note.
-  const sorted = [...lick.notes].sort((a, b) => a.startBeat - b.startBeat);
-  sorted.forEach((n, i) => {
-    const cx = x(n.startBeat);
-    const cy = y(rowOf(n.string));
-    const active = i === activeNoteIndex;
-    els.push(
-      <g key={`n${i}`}>
-        <rect
-          x={cx - 9}
-          y={cy - 8}
-          width={18}
-          height={n.role ? 20 : 16}
-          rx={3}
-          strokeWidth={1}
-          style={{ fill: active ? theme.accent : theme.card, stroke: active ? theme.accent : theme.faintStroke }}
-        />
-        {n.technique && (
-          <text
-            x={cx - 6}
-            y={cy + 4}
-            fontSize={9}
-            textAnchor="end"
-            transform={unmirror(cx - 6)}
-            style={{ fill: theme.muted, fontFamily: font.mono }}
-          >
-            {TECHNIQUE_GLYPHS[n.technique]}
-          </text>
-        )}
-        <text x={cx} y={cy + 4} fontSize={10.5} textAnchor="middle" fontWeight={600} transform={unmirror(cx)} style={{ fill: active ? theme.accentText : theme.text, fontFamily: font.mono }}>
-          {n.fret}
-        </text>
-        {n.role && (
-          <text x={cx} y={cy + 11} fontSize={7} textAnchor="middle" transform={unmirror(cx)} style={{ fill: theme.muted, fontFamily: font.mono }}>
-            {n.role}
-          </text>
-        )}
-      </g>,
-    );
-  });
-
-  const durY = y(numStrings - 1) + 22;
-  sorted.forEach((n, i) => {
-    const cx = x(n.startBeat);
-    els.push(
-      <text key={`d${i}`} x={cx} y={durY} fontSize={11} textAnchor="middle" transform={unmirror(cx)} style={{ fill: theme.subtle, fontFamily: font.mono }}>
-        {durationGlyph(n.durationBeats)}
-      </text>,
-    );
-  });
+  };
 
   return (
-    <div style={leftHanded ? { transform: 'scaleX(-1)' } : undefined}>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} role="img" aria-label={title}>
+    <div className="scroll" ref={scroller} style={flip}>
+      <svg className="tab" viewBox={`0 0 ${width} ${height}`} style={svgStyle} role={play ? 'group' : 'img'} aria-label={title}>
         {title && <title>{title}</title>}
-        {els}
+        {activeX !== undefined && <rect className="tabcol" x={activeX - 18} y={TOP - 14} width={36} height={staffBottom - TOP + 28} rx={6} />}
+        {Array.from({ length: Math.floor(beats) + 1 }, (_, b) => {
+          const bx = x(b);
+          // A bar line every 4 beats (and the closing one); a faint tick on the other beats.
+          const bar = b % 4 === 0;
+          return (
+            <g key={`b${b}`}>
+              <line className={bar ? 'tabbar' : 'tabbeat'} x1={bx} x2={bx} y1={TOP} y2={staffBottom} />
+              {/* The final tick (b === beats) is the closing barline, not a beat start, so it is not numbered. */}
+              {b < Math.floor(beats) && (
+                <text className="tabbeatnum" x={bx} y={TOP - 18} transform={unmirror(bx)}>
+                  {b + 1}
+                </text>
+              )}
+            </g>
+          );
+        })}
+        {labels.map((name, s) => (
+          <g key={`s${s}`}>
+            <line className="tabline" x1={LEFT - 6} x2={width - RIGHT + 6} y1={y(s)} y2={y(s)} />
+            <text className="tabname" x={6} y={y(s)} transform={unmirror(6)} style={leftHanded ? { textAnchor: 'end' } : undefined}>
+              {name}
+            </text>
+          </g>
+        ))}
+        {notes.map((n, i) => {
+          const cx = x(n.startBeat);
+          const text = tabText(n, notes[i - 1]);
+          const w = boxW(text);
+          return (
+            <g
+              key={`n${i}`}
+              className={i === activeNoteIndex ? 'tabnum on' : 'tabnum'}
+              {...(play && {
+                role: 'button',
+                tabIndex: 0,
+                'aria-label': `${labels[n.string]}/${text}`,
+                onClick: () => play(midi(n.pitch)),
+                onKeyDown: (e: KeyboardEvent) => onKey(e, n),
+              })}
+              style={play ? undefined : { cursor: 'default' }}
+            >
+              <rect x={cx - w / 2} y={y(n.string) - 9} width={w} height={18} rx={4} />
+              <text x={cx} y={y(n.string)} transform={unmirror(cx)}>
+                {text}
+              </text>
+            </g>
+          );
+        })}
+        {hasRoles &&
+          notes.map((n, i) =>
+            n.role ? (
+              <text key={`r${i}`} className="tabrole" x={x(n.startBeat)} y={roleY} transform={unmirror(x(n.startBeat))}>
+                {n.role}
+              </text>
+            ) : null,
+          )}
+        {notes.map((n, i) => (
+          <text key={`d${i}`} className="tabcount" x={x(n.startBeat)} y={durY} transform={unmirror(x(n.startBeat))}>
+            {durationGlyph(n.durationBeats)}
+          </text>
+        ))}
       </svg>
     </div>
   );

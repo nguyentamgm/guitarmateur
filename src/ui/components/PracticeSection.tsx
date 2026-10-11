@@ -281,6 +281,7 @@ export function PracticeSection({
                       activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
                       stringLabels={stringLabels}
                       leftHanded={state.leftHanded}
+                      play={notePlayer(state.noteGain)}
                     />
 
                     {/* Per-card regenerate */}

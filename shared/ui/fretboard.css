@@ -45,3 +45,22 @@
 .dot.target text { fill: var(--amber-ink); }
 .halo { fill: none; stroke: var(--neck-accent, var(--accent)); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
 .dot text.mark { fill: var(--neck-accent, var(--accent)); font-size: 9px; font-weight: 700; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
+
+/* Tab (Theory's Tab, Practice's TabStaff): string lines and names, a number box per note (the
+   sounding one filled), bar lines and a row of counts under it. Practice adds beat ticks and
+   numbers on top and a chord-tone row. */
+.tab { font-family: var(--f-mono); }
+.tabline { stroke: var(--line); stroke-width: 1.5; }
+.tabname { fill: var(--muted); font-size: 12px; dominant-baseline: middle; }
+.tabcol { fill: var(--accent); fill-opacity: 0.12; }
+.tabbar { stroke: var(--muted); stroke-width: 1.5; }
+.tabcount { fill: var(--muted); font-size: 12px; text-anchor: middle; dominant-baseline: middle; }
+.tabnum { cursor: pointer; outline: none; }
+.tabnum rect { fill: var(--surface); stroke: none; }
+.tabnum text { fill: var(--ink); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.tabnum.on rect { fill: var(--accent); }
+.tabnum.on text { fill: var(--accent-ink); }
+.tabnum:hover rect, .tabnum:focus-visible rect { stroke: var(--accent); stroke-width: 1.5; }
+.tabbeat { stroke: var(--line); stroke-width: 1; stroke-dasharray: 1 3; }
+.tabbeatnum { fill: var(--muted); font-size: 11px; text-anchor: middle; dominant-baseline: middle; }
+.tabrole { fill: var(--accent); font-size: 12px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; }

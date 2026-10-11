@@ -1,5 +1,5 @@
 import { LOCALES, type LocaleId } from '../../i18n';
-import { GlobeIcon } from './primitives';
+import { GlobeIcon } from '@shared/ui/GlobeIcon';
 import { useT } from '../useT';
 
 /**
@@ -35,7 +35,7 @@ export function SiteHeader({
             </a>
           </nav>
           <div className="group" role="group" aria-label={t('common.language')}>
-            <GlobeIcon size={16} />
+            <GlobeIcon />
             {Object.values(LOCALES).map((locale) => (
               <button
                 key={locale.id}

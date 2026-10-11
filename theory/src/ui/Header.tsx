@@ -1,6 +1,6 @@
 import { LANGS } from '../i18n';
 import { useTheory } from './context';
-import { GlobeIcon } from './GlobeIcon';
+import { GlobeIcon } from '@shared/ui/GlobeIcon';
 import { Link } from './Link';
 import { BASE, hrefFor } from './router';
 

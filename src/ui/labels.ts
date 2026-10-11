@@ -9,6 +9,7 @@
 import type { Interval } from '../music';
 import { format, type NoteName, type Pitch, type ToneRole } from '../music';
 import type { Translate } from '../i18n';
+import type { LickNote } from '../lick';
 
 /** Diatonic (major-scale) semitone count for each letter degree, octave included. */
 const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11, 12];
@@ -34,6 +35,26 @@ export function intervalLabel(iv: Interval): string {
 export function durationGlyph(beats: number): string {
   const table: Record<string, string> = { '2': '2', '1.5': '1½', '1': '1', '0.75': '¾', '0.5': '½', '0.25': '¼' };
   return table[String(beats)] ?? String(beats);
+}
+
+/**
+ * A note's text in tab, as Theory writes it (K6.4): the fret, with the technique *into* it.
+ * Hammer 'h7', pull 'p5', slide '/9' or '\5', bend '7b9' (picked at the previous fret, bent up).
+ */
+export function tabText(n: LickNote, prev: LickNote | undefined): string {
+  switch (n.technique) {
+    case 'hammer':
+      return `h${n.fret}`;
+    case 'pull':
+      return `p${n.fret}`;
+    case 'slide':
+      return prev && prev.fret > n.fret ? `\\${n.fret}` : `/${n.fret}`;
+    case 'bendHalf':
+    case 'bendFull':
+      return prev ? `${prev.fret}b${n.fret}` : `b${n.fret}`;
+    default:
+      return String(n.fret);
+  }
 }
 
 /** The note a lick ends on, as far as the badge is concerned. */

@@ -47,3 +47,15 @@ describe('ProgressionSection bar grid', () => {
     await unmount();
   });
 });
+
+describe('ProgressionSection advanced adder', () => {
+  it('picks the root with the shared key picker: each root and its fret on the lowest string', async () => {
+    const base = defaultState(() => 1, 'en');
+    const state = { ...base, ui: { ...base.ui, advancedOpen: true } };
+    const { container, unmount } = await mount(state);
+    const roots = [...container.querySelectorAll('.finder[aria-label="Root"] button')];
+    expect(roots.map((b) => b.textContent)).toEqual(['A 5', 'B♭ 6', 'B 7', 'C 8', 'C♯ 9', 'D 10', 'E♭ 11', 'E 0', 'F 1', 'F♯ 2', 'G 3', 'G♯ 4']);
+    expect(roots.filter((b) => b.getAttribute('aria-pressed') === 'true')).toHaveLength(1);
+    await unmount();
+  });
+});

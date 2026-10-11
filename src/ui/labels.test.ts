@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { IV, SCALES, note, pitch } from '../music';
-import { durationGlyph, intervalLabel, targetBadgeText } from './labels';
+import { durationGlyph, intervalLabel, tabText, targetBadgeText } from './labels';
+import type { LickNote } from '../lick';
 import type { Translate } from '../i18n';
 
 /** Fixture translator rendering exactly what the en catalog says for the keys the badge uses. */
@@ -32,6 +33,27 @@ describe('durationGlyph', () => {
     expect(durationGlyph(0.75)).toBe('¾');
     expect(durationGlyph(0.5)).toBe('½');
     expect(durationGlyph(0.25)).toBe('¼');
+  });
+});
+
+describe('tabText', () => {
+  const at = (fret: number, technique?: LickNote['technique']): LickNote => ({
+    string: 2,
+    fret,
+    pitch: pitch('A', 0, 3),
+    startBeat: 0,
+    durationBeats: 1,
+    technique,
+  });
+
+  it('writes the technique into the fret as Theory does: h7, p5, /9, \\5, 7b9', () => {
+    expect(tabText(at(7), undefined)).toBe('7');
+    expect(tabText(at(7, 'hammer'), at(6))).toBe('h7');
+    expect(tabText(at(5, 'pull'), at(6))).toBe('p5');
+    expect(tabText(at(9, 'slide'), at(7))).toBe('/9');
+    expect(tabText(at(5, 'slide'), at(7))).toBe('\\5');
+    expect(tabText(at(9, 'bendFull'), at(7))).toBe('7b9');
+    expect(tabText(at(8, 'bendHalf'), at(7))).toBe('7b8');
   });
 });
 
