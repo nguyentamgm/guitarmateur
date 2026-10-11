@@ -22,7 +22,8 @@ everything the user does persists in `localStorage`.
 ```
 /
 ├─ docs/
-│  └─ architecture.md           # this file
+│  ├─ architecture.md           # this file
+│  └─ glossary.md               # one term per idea, EN + VI, for both apps
 ├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)
 ├─ public/                      # favicon, robots.txt, og image
 ├─ src/
@@ -38,7 +39,8 @@ everything the user does persists in `localStorage`.
 ├─ shared/                      # code both apps use, imported as @shared/… — see below
 │  ├─ core/                     # pure: neck.ts (string numbering, names per tuning); music/, rhythm/
 │  │                            # (Theory's); audio/ (synths, player, backings, scheduler, sequencer)
-│  ├─ i18n/                     # the shared language setting (gm.lang) and browser-language matching
+│  ├─ i18n/                     # the shared language setting (gm.lang), browser-language matching,
+│  │                            # the glossary check (glossary.ts)
 │  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
 │  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
 │                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css;
@@ -97,7 +99,9 @@ src/  ──→ shared/ ←──  theory/        shared/ imports neither app
 
 Today it holds `shared/i18n/language.ts` — the `gm.lang` key, carrying an old per-app choice over,
 and the browser-language rule — — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
-and by `theory/src/i18n/lang.ts` in Theory; `shared/platform/storage.ts`, the localStorage
+and by `theory/src/i18n/lang.ts` in Theory; `shared/i18n/glossary.ts`, which reads the words
+[`glossary.md`](glossary.md) says to avoid and finds them in copy (each app's glossary test runs it
+over its own strings); `shared/platform/storage.ts`, the localStorage
 accessor both apps use; and the shared look in `shared/ui/` (Theory's, the reference):
 
 - `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
