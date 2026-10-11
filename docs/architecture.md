@@ -105,7 +105,9 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
 - `base.css` — element styles (body type, headings, links, focus ring, reduced motion).
 - `controls.css` + `controls.tsx` — the site header, card (`.board`), segmented control
-  (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider` and the "Takeaway / Try it" hint panel
+  (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider`, the key picker (`KeyPicker`, `.finder`: each
+  key's name and its fret on the lowest string, "A 5"; the caller spells the keys and finds the
+  fret, Practice with `homeFret(tuning, tonic)`) and the "Takeaway / Try it" hint panel
   (`.takeaways`). Components take their text from the caller: no copy lives in `shared/` (ESLint
   rejects literal JSX text and literal `aria-label`/`title`/`alt` in `shared/ui/**/*.tsx`).
 

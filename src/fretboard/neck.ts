@@ -33,6 +33,11 @@ export function decorationPcs(key: Key): Set<PitchClass> {
   return new Set(def.decoration.addedIntervals.map((iv) => mod(tonicPc + iv.semitones, 12)));
 }
 
+/** The fret (0–11) where a note sits on the lowest string: where the hand goes for that key (A → 5 in standard, 7 in drop D). */
+export function homeFret(tuning: Tuning, name: NoteName): number {
+  return mod(pc(name) - pc(tuning.strings[0]!), 12);
+}
+
 /** Every scale note on the neck (spelled), from open to `maxFret`. Non-scale notes are not emitted. */
 export function scaleNotesOnNeck(tuning: Tuning, key: Key, maxFret = 22): FretNote[] {
   const spelling = scaleSpelling(key);

@@ -1,8 +1,8 @@
 /** The five scenes of "Pentatonic, the whole neck". Every position comes from lessons/pentatonic. */
 import { useMemo, useRef, useState } from 'react';
 import { bassMidi, chordMidis } from '../../core/audio';
-import { SEQUENCE_IDS, homeFret, midiAt, scaleNeck, upAndDown, type Direction, type SequenceId } from '../../core/fretboard';
-import { format, sameNote, type NoteName } from '../../core/music';
+import { SEQUENCE_IDS, midiAt, scaleNeck, upAndDown, type Direction, type SequenceId } from '../../core/fretboard';
+import { format, type NoteName } from '../../core/music';
 import { beatSeconds, cellSeconds, clampBpm, strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
@@ -36,7 +36,7 @@ import {
 import { useTheory } from '../context';
 import { useQuizScore } from '../useQuizScore';
 import { PositionFrame } from '../PositionFrame';
-import { Button, ChipGroup, Tempo } from '../controls';
+import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
 import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
@@ -313,13 +313,7 @@ function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
 
   return (
     <div className="board">
-      <div className="finder" role="group" aria-label={copy.key}>
-        {MAJOR_KEYS.map((k) => (
-          <button key={format(k)} type="button" aria-pressed={sameNote(k, tonic)} onClick={() => pick(k)}>
-            <b>{format(k)}</b> {homeFret(k)}
-          </button>
-        ))}
-      </div>
+      <KeyFinder keys={MAJOR_KEYS} label={copy.key} value={tonic} onChange={pick} />
       <div className="controls">
         <Button onClick={clock.toggle}>{clock.playing ? copy.stop : copy.play}</Button>
       </div>

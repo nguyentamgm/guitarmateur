@@ -51,12 +51,6 @@ body { padding: 0 16px 64px; }
 .formula span { padding: 4px 10px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); }
 .formula .h { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
-.finder { display: flex; flex-wrap: wrap; gap: 6px; }
-.finder button { font-family: var(--f-mono); font-size: 0.82rem; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 7px; padding: 5px 9px; font-variant-numeric: tabular-nums; }
-.finder button b { color: var(--accent); }
-.finder button:hover { border-color: var(--accent); }
-.finder button[aria-pressed='true'] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
-
 .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.85rem; color: var(--muted); }
 .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
 .swatch.home { background: var(--accent); }

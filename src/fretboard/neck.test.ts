@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { note, pc, scalePcs, type Key } from '../music';
+import { note, pc, scalePcs, TONICS, type Key } from '../music';
 import { TUNINGS } from './tuning';
-import { scaleSpelling, decorationPcs, scaleNotesOnNeck } from './neck';
+import { scaleSpelling, decorationPcs, scaleNotesOnNeck, homeFret } from './neck';
 
 const A_MINOR: Key = { tonic: note('A'), scaleId: 'minorPentatonic' };
 const A_BLUES: Key = { tonic: note('A'), scaleId: 'blues' };
@@ -138,5 +138,26 @@ describe('scaleNotesOnNeck', () => {
     expect(eStringFret12).toBeDefined();
     expect(eStringFret12!.pitch.letter).toBe('E');
     expect(eStringFret12!.pitch.alter).toBe(0);
+  });
+});
+
+describe('homeFret', () => {
+  it('gives the fret of each key on the low E in standard tuning', () => {
+    expect(homeFret(TUNINGS.standard, note('A'))).toBe(5);
+    expect(homeFret(TUNINGS.standard, note('C'))).toBe(8);
+    expect(homeFret(TUNINGS.standard, note('E'))).toBe(0);
+    expect(homeFret(TUNINGS.standard, note('B', -1))).toBe(6);
+  });
+
+  it('follows the low string down in drop D', () => {
+    expect(homeFret(TUNINGS.dropD, note('A'))).toBe(7);
+    expect(homeFret(TUNINGS.dropD, note('D'))).toBe(0);
+  });
+
+  it('puts the 12 tonics on 12 different frets, 0–11', () => {
+    const frets = TONICS.map((t) => homeFret(TUNINGS.standard, t));
+    expect(new Set(frets).size).toBe(12);
+    expect(Math.min(...frets)).toBe(0);
+    expect(Math.max(...frets)).toBe(11);
   });
 });

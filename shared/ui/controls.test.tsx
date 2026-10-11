@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Button, ChipGroup, OnOff, Slider } from './controls';
+import { Button, ChipGroup, KeyPicker, OnOff, Slider } from './controls';
 
 const roots: Root[] = [];
 function render(el: ReactElement) {
@@ -24,6 +24,20 @@ describe('shared controls', () => {
     expect(chips.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
     act(() => (chips[0] as HTMLButtonElement).click());
     expect(onChange).toHaveBeenCalledWith('A');
+  });
+
+  it('KeyPicker: each key with its fret, the current one pressed', () => {
+    const onChange = vi.fn();
+    const frets: Record<string, number> = { A: 5, 'B♭': 6, C: 8 };
+    const c = render(
+      createElement(KeyPicker<string>, { label: 'Key', keys: ['A', 'B♭', 'C'], name: (k) => k, fret: (k) => frets[k]!, value: 'B♭', onChange }),
+    );
+    expect(c.querySelector('.finder[role="group"]')!.getAttribute('aria-label')).toBe('Key');
+    const buttons = [...c.querySelectorAll('button')];
+    expect(buttons.map((b) => b.textContent)).toEqual(['A 5', 'B♭ 6', 'C 8']);
+    expect(buttons.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true', 'false']);
+    act(() => buttons[2]!.click());
+    expect(onChange).toHaveBeenCalledWith('C');
   });
 
   it('OnOff: off then on', () => {

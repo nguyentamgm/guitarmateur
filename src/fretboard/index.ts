@@ -2,6 +2,7 @@ export type { TuningId } from './tuning';
 export { TUNINGS } from './tuning';
 
 export type { FretNote } from './neck';
+export { homeFret } from './neck';
 
 export { positions } from './positions';
 
