@@ -7,40 +7,30 @@ import { describe, expect, it } from 'vitest';
 import glossary from '../../docs/glossary.md?raw';
 import { avoidRules, findAvoided } from '@shared/i18n/glossary';
 import { MESSAGES } from './locales';
-import type { LocaleId } from './types';
 
 const rules = avoidRules(glossary);
 
-/** `key: term` for each miss today, per locale. To be emptied by #175. */
-const BASELINE: Readonly<Record<LocaleId, readonly string[]>> = {
-  en: [],
+/**
+ * `key: term`, one entry per occurrence, sorted, of each locale's misses today. To be emptied by
+ * #175. A locale not listed (a new language) must have none.
+ */
+const BASELINE: Readonly<Partial<Record<string, readonly string[]>>> = {
   vi: [
     'app.playAlongNote: nhạc nền',
-    'app.subtitle: âm giai',
-    'app.subtitle: nốt hợp âm',
-    'app.subtitle: tiến trình',
     'app.subtitle: nhạc nền',
+    'app.subtitle: nốt hợp âm',
+    'app.subtitle: âm giai',
     'app.title: ngũ cung',
     'legend.blueNote: nốt blue',
     'legend.chordTone: nốt hợp âm',
     'legend.root: nốt gốc',
-    'legend.root: gốc',
     'legend.scaleNote: âm giai',
-    'legend.target: mục tiêu',
-    'playback.play: tiến trình',
     'playback.tempo: nhịp độ',
     'playback.tempoBpmAria: nhịp độ',
     'practice.level.4: đảo phách',
-    'practice.target: mục tiêu',
-    'practice.targetBadge: mục tiêu',
-    'practice.targetBadgeRedirect: mục tiêu',
-    'progression.empty: tiến trình',
-    'progression.grid: tiến trình',
-    'progression.progression: tiến trình',
+    'progression.progression: tiến trình hợp âm',
     'progression.root: nốt gốc',
-    'progression.root: gốc',
-    'progression.stepKicker: tiến trình',
-    'role.R: gốc',
+    'progression.stepKicker: tiến trình hợp âm',
     'scale.blues: âm giai',
     'scale.major-blues: blues trưởng',
     'scale.majorPentatonic: ngũ cung',
@@ -51,14 +41,17 @@ const BASELINE: Readonly<Record<LocaleId, readonly string[]>> = {
   ],
 };
 
-function misses(locale: LocaleId): string[] {
-  return Object.entries(MESSAGES[locale])
+/** Every occurrence of an avoided word in a catalog, sorted, so the order of rules does not matter. */
+function misses(locale: string): string[] {
+  const catalog: Readonly<Record<string, unknown>> = MESSAGES[locale as keyof typeof MESSAGES] ?? {};
+  return Object.entries(catalog)
     .flatMap(([key, text]) => findAvoided(String(text), rules, locale, key))
-    .map((m) => `${m.where}: ${m.term}`);
+    .map((m) => `${m.where}: ${m.term}`)
+    .sort();
 }
 
 describe('Practice copy follows docs/glossary.md', () => {
-  it.each(['en', 'vi'] as const)('%s: no avoided word beyond the baseline, and the baseline only shrinks', (locale) => {
-    expect(misses(locale)).toEqual(BASELINE[locale]);
+  it.each(Object.keys(MESSAGES))('%s: no avoided word beyond the baseline, and the baseline only shrinks', (locale) => {
+    expect(misses(locale)).toEqual([...(BASELINE[locale] ?? [])].sort());
   });
 });

@@ -72,7 +72,7 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 | nut, bridge | nut, bridge | | `lược đàn`, `ngựa đàn` |
 | pick | pick (miếng gảy), never "phím", which is a fret | | |
 | tuning; standard tuning; drop D | lên dây; chuẩn; drop D | | |
-| the notes on strings 6 and 5 | bảng nốt trên dây 6 và 5 | `home fret`, `home frets` | `bảng nốt nhà` |
+| the notes on strings 6 and 5 | bảng nốt trên dây 6 và 5 | `home fret` | `bảng nốt nhà` |
 | the G–B shift | G–B shift | | `chỗ lệch G–B` |
 | left-handed | thuận tay trái | | |
 
@@ -80,11 +80,11 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 
 | English | Tiếng Việt | Avoid (en) | Avoid (vi) |
 | --- | --- | --- | --- |
-| root (of a key: tonic) | root | `home note` | `nốt nhà`, `nốt gốc`, `gốc` |
+| root (of a key: tonic) | root | `home note` | `nốt nhà`, `nốt gốc` |
 | scale; scale note | scale; nốt của scale | | `âm giai` |
 | major scale; natural minor scale | major scale; natural minor scale | | `thứ tự nhiên` |
-| minor pentatonic; major pentatonic; A minor pentatonic | minor pentatonic; major pentatonic; A minor pentatonic | | `ngũ cung`, `pentatonic thứ`, `pentatonic trưởng` |
-| minor blues scale; major blues scale | minor blues scale; major blues scale | | `blues thứ`, `blues trưởng` |
+| minor pentatonic; major pentatonic; A minor pentatonic | minor pentatonic; major pentatonic; A minor pentatonic | | `ngũ cung`, `pentatonic trưởng` |
+| minor blues scale; major blues scale | minor blues scale; major blues scale | | `blues trưởng` |
 | Dorian, Mixolydian | Dorian, Mixolydian | | |
 | box, box 1 (a pentatonic position) | box, box 1 | | `hộp` |
 | shape (octave shape, E shape) | shape | | |
@@ -94,7 +94,7 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 | degree | bậc | | |
 | semitone / half step; whole step | nửa cung; một cung | | |
 | major 3rd, perfect 5th, octave | quãng 3 trưởng, quãng 5 đúng, quãng 8 | | |
-| quality (of an interval or chord) | loại | | `tính chất` |
+| quality (of an interval or chord) | loại | | |
 | blue note | blue note | | `nốt blue` |
 | passing note | passing note | | `nốt đi qua` |
 | extension, extended chord | extension; hợp âm mở rộng | `colour note`, `color note` | `nốt màu` |
@@ -109,8 +109,8 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | English | Tiếng Việt | Avoid (en) | Avoid (vi) |
 | --- | --- | --- | --- |
 | chord; chord tone | hợp âm; nốt của hợp âm | | `nốt hợp âm` |
-| chord progression; progression | vòng hợp âm; vòng | | `tiến trình` |
-| I chord; dominant 7th chord | hợp âm I; hợp âm dominant 7 | | `hợp âm chủ`, `hợp âm át` |
+| chord progression; progression | vòng hợp âm; vòng | | `tiến trình hợp âm` |
+| I chord; dominant 7th chord | hợp âm I; hợp âm dominant 7 | | `hợp âm át` |
 | major, minor (chord quality) | trưởng, thứ | | |
 | triad | triad ("hợp âm ba" chỉ kèm giải nghĩa) | | |
 | barre chord; barre | hợp âm chặn; ngón chặn | | |
@@ -121,7 +121,7 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | add2 / add9 | add2 / add9 | | |
 | altered note, close voicing | altered note, close voicing | | `nốt biến`, `thế bấm khít` |
 | half-diminished; augmented, diminished | half-diminished; tăng, giảm | | `nửa giảm` |
-| quick change, turnaround | quick change, turnaround | | `đổi sớm`, `quay vòng` |
+| quick change, turnaround | quick change, turnaround | | `đổi sớm` |
 | bar; 12-bar blues | bar; 12-bar blues | | `blues 12 ô` |
 | rub, clash | nghe chỏi, độ chỏi | | |
 
@@ -131,9 +131,9 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | --- | --- | --- | --- |
 | beat; time signature; 4/4 | phách; time signature; nhịp 4/4 | | `số chỉ nhịp` |
 | whole, half, quarter, 8th, 16th note; dotted | nốt tròn, trắng, đen, móc đơn, móc kép; chấm dôi | | |
-| rest | dấu lặng | | `khoảng lặng` |
+| rest | dấu lặng | | |
 | triplet; counting "1 trip-let" | triplet; đếm "1 trip-let" | | `liên ba`, `trí-ô` |
-| syncopation, accent, dynamics | syncopation, accent, dynamics | | `đảo phách`, `cường độ` |
+| syncopation, accent, dynamics | syncopation, accent, dynamics | | `đảo phách` |
 | straight, swing, shuffle | straight (thẳng), swing, shuffle | | |
 | tempo; BPM | tempo; BPM | | `nhịp độ` |
 | count-in | count-in (đếm vào; "đếm nhịp" là counting beats) | | |
@@ -153,31 +153,48 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | palm mute, chug | palm mute, chug | | `chặn tiếng` |
 | distortion | distortion | | `tiếng méo` |
 | lick, riff, sequence | lick, riff, sequence | | `câu mẫu`, `mẫu luyện ngón` |
-| target note; target | nốt đích | | `mục tiêu` |
+| target note; target | nốt đích | | |
 | landing note (the note a lick ends on) | nốt đáp | | |
 | level (of a lick) | mức | | |
 
-Not checked automatically, because the same word is fine elsewhere · Không kiểm tra tự động, vì từ
-đó vẫn đúng ở chỗ khác:
+### Not checked automatically · Không kiểm tra tự động
 
+These words are wrong for the idea but fine elsewhere, so no test can catch them; reviewers do.
+Những từ sau sai với khái niệm nhưng vẫn đúng ở chỗ khác, nên test không bắt được; người review
+kiểm tra.
+
+- *Root* is "root": not "gốc" or "nhà" ("Gốc", "Nhà thứ"); "nhà" and "home" only to explain it
+  ("root, nốt nghe như về nhà" / "the root, the note that sounds like home"). A key is "giọng":
+  "Giọng thứ", not "Nhà thứ".
+- Scale names keep the English order: "A minor pentatonic", "minor blues scale", not "A thứ
+  pentatonic", "pentatonic thứ" or "blues thứ" (those words also appear as ordinals, "bài blues
+  thứ hai", so they are not checked).
+- *Chord progression* is "vòng hợp âm", not "tiến trình" (fine for "progress": "tiến trình luyện
+  tập"). *Target note* is "nốt đích", not "mục tiêu" (fine for "goal": "Mục tiêu của bài").
+- *I chord* is "hợp âm I", not "hợp âm chủ" (fine in "hợp âm chủ đạo"); *turnaround* not "quay
+  vòng"; *quality* is "loại", not "tính chất"; *rest* is "dấu lặng", not "khoảng lặng" (fine for
+  leaving space in a solo); *dynamics* not "cường độ"; *inversion* "inversion 1", not "đảo 1".
 - For the techniques, say *slide* and *vibrato*, not "trượt" or "rung" (these stay fine in their
   plain sense: "trượt tay lên box 2", "dây rung"). Not "tiếng chặt" for a chug, "cọ" for a clash,
   or "toàn hợp âm 7" for dominant 7th chords.
 - *Semitone* is "nửa cung", never "bước" alone; *bar* is "bar", never "ô" alone; a fingering is a
   *shape*, not "hình".
-- In English, the root is never "R" on a label (see [Degrees](#degrees-and-chord-tones--bậc-và-nốt-của-hợp-âm)).
+- In English: the root is never "R" on a label (see [Degrees](#degrees-and-chord-tones--bậc-và-nốt-của-hợp-âm));
+  blues chords are *dominant 7th* chords, not bare "7 chords"; *home* only to explain the root.
 
 ## Checking · Kiểm tra
 
 `shared/i18n/glossary.ts` reads the *Avoid* columns of this file. Two tests use it:
 
-- `theory/src/i18n/glossary.test.ts` — Theory's UI strings and every lesson's `copy.en.ts` /
-  `copy.vi.ts` must contain none of them.
-- `src/i18n/glossary.test.ts` — the same for Practice's `src/i18n/locales/*.json`. Practice's
+- `theory/src/lessons/glossary.test.ts` — Theory's UI strings, concept names and every lesson's
+  copy, in English and Vietnamese, must contain none of them.
+- `src/i18n/glossary.test.ts` — the same for every catalog in `src/i18n/locales/`. Practice's
   wording predates this file; its current misses are listed in that test as a baseline that may
-  only shrink (issue #175 rewrites them). A new miss, or a baseline entry that no longer happens,
-  fails the test.
+  only shrink (issue #175 rewrites them). Each occurrence counts: a new one fails the test, and so
+  does a baseline entry that no longer happens.
 
-A term is matched as a whole word, ignoring case. To add a rule, add the term to a row here; to
-allow a word in one place, the rule is probably too broad, so take it out of the *Avoid* column and
-explain it in prose instead.
+A term is matched as a whole word, ignoring case; an English term also matches its plural ("home
+notes"). A table the check cannot read (an *Avoid* column not named `Avoid (xx)`, a row with the
+wrong number of cells) fails the tests rather than being skipped. To add a rule, add the term to a
+row here. If a word is wrong in one place but fine in another, it does not belong in an *Avoid*
+column: explain it in the prose under the tables instead.

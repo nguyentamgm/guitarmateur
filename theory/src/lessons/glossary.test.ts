@@ -28,9 +28,12 @@ function misses(lang: Lang): GlossaryMiss[] {
 }
 
 describe('Theory copy follows docs/glossary.md', () => {
-  it('the glossary has rules for both languages', () => {
+  it('every term table of the glossary has rules to check', () => {
+    // A table whose rules stopped being read would leave its words unchecked.
+    const tables = glossary.split(/^### /m).slice(1).filter((t) => t.includes('| Avoid (vi) |'));
+    expect(tables.length).toBeGreaterThanOrEqual(5);
+    for (const table of tables) expect(avoidRules(table).length, table.split('\n')[0]).toBeGreaterThan(0);
     expect(rules.some((r) => r.lang === 'en')).toBe(true);
-    expect(rules.some((r) => r.lang === 'vi')).toBe(true);
   });
 
   it.each(['en', 'vi'] as const)('%s: no avoided word', (lang) => {
