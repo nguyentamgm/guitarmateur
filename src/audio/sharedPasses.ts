@@ -15,6 +15,14 @@ export interface NoteTag {
   readonly noteIndex: number;
 }
 
+/** Which bar of the progression a downbeat click starts: for the bar grid. */
+export interface BarTag {
+  readonly bar: number;
+}
+
+/** What a sounding event reports: a note (`NoteTag`) or a bar's downbeat (`BarTag`). */
+export type PlayTag = NoteTag | BarTag;
+
 /**
  * How a technique reaches a note picked `fromSemis` away from it (at the previous note's pitch):
  * the glide, in semitones from that picked pitch, ends on the note itself.
@@ -40,17 +48,17 @@ export function glideInto(technique: Technique | undefined, fromSemis: number): 
  * loop pass, shifted to this pass's time), so a note at the end of a pass is still damped by the
  * next note on its string.
  */
-export function toSeqEvents(events: readonly AudioEvent[], following: readonly AudioEvent[] = []): SeqEvent<NoteTag>[] {
+export function toSeqEvents(events: readonly AudioEvent[], following: readonly AudioEvent[] = []): SeqEvent<PlayTag>[] {
   // Walking backwards, remember when each string is next picked: one pass, not a search per note.
   const nextPick = new Map<number, number>();
   for (const f of following) {
     if (f.kind === 'pluck' && !nextPick.has(f.string)) nextPick.set(f.string, f.timeSec);
   }
-  const out: SeqEvent<NoteTag>[] = new Array(events.length);
+  const out: SeqEvent<PlayTag>[] = new Array(events.length);
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i]!;
     if (e.kind === 'click') {
-      out[i] = { timeSec: e.timeSec, kind: 'click', accent: e.accented };
+      out[i] = { timeSec: e.timeSec, kind: 'click', accent: e.accented, ...(e.bar !== undefined && { tag: { bar: e.bar } }) };
       continue;
     }
     const fromSemis = e.fromMidi === undefined ? 0 : e.fromMidi - e.midi;
@@ -77,11 +85,11 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
  * The first pass (with the count-in) and, for a loop, every pass after it (without). With `loop`,
  * each pass's last notes are damped by the next pass's first ones.
  */
-export function lickPasses(licks: Lick[], opts: CompileOptions, loop = false): { first: Pass<NoteTag>; next: () => Pass<NoteTag> } {
+export function lickPasses(licks: Lick[], opts: CompileOptions, loop = false): { first: Pass<PlayTag>; next: () => Pass<PlayTag> } {
   const first = compileProgression(licks, { ...opts, repeats: 1 });
   const again = compileProgression(licks, { ...opts, countIn: false, repeats: 1 });
   const after = (offset: number) => (loop ? again.events.map((e) => ({ ...e, timeSec: e.timeSec + offset })) : []);
-  const nextPass: Pass<NoteTag> = { events: toSeqEvents(again.events, after(again.musicDurationSec)), durationSec: again.musicDurationSec };
+  const nextPass: Pass<PlayTag> = { events: toSeqEvents(again.events, after(again.musicDurationSec)), durationSec: again.musicDurationSec };
   return {
     first: { events: toSeqEvents(first.events, after(first.totalDurationSec)), durationSec: first.totalDurationSec },
     next: () => nextPass,

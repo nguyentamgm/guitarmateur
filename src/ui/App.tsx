@@ -45,6 +45,8 @@ export function App() {
   const markPlayed = useCallback(() => setPlayed(true), []);
   // Degrees or note names on every neck; for this visit.
   const [labels, setLabels] = useState<LabelMode>('degree');
+  // The bar being heard in Step 3's playback, lit on Step 2's bar grid.
+  const [bar, setBar] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'err'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,8 +175,8 @@ export function App() {
 
         <ErrorBoundary t={t}>
           <ScalePositionSection state={state} dispatch={dispatch} labels={labels} onLabels={setLabels} />
-          <ProgressionSection state={state} dispatch={dispatch} />
-          <PracticeSection state={state} dispatch={dispatch} onPlay={markPlayed} labels={labels} />
+          <ProgressionSection state={state} dispatch={dispatch} currentBar={bar} />
+          <PracticeSection state={state} dispatch={dispatch} onPlay={markPlayed} onBar={setBar} labels={labels} />
         </ErrorBoundary>
       </div>
     </>

@@ -82,6 +82,7 @@
   "progression.barsToggle": "{chord} kéo dài {bars} — nhấn để đổi",
   "progression.clearAll": "Xóa tất cả",
   "progression.empty": "Chưa có hợp âm — chạm vào gợi ý ở trên để xây dựng tiến trình.",
+  "progression.grid": "Tiến trình, từng nhịp",
   "progression.progression": "Tiến Trình Hợp Âm",
   "progression.quality": "Loại",
   "progression.removeChord": "Xóa {chord}",

@@ -4,7 +4,7 @@ import { defaultState } from '../state';
 import { licksForState } from '../state/selectors';
 import type { Lick, LickNote } from '../lick';
 import type { Pitch } from '../music';
-import { glideInto, lickPasses, toSeqEvents, type NoteTag } from './sharedPasses';
+import { glideInto, lickPasses, toSeqEvents, type NoteTag, type PlayTag } from './sharedPasses';
 import { compileProgression } from './compile';
 
 const A4: Pitch = { letter: 'A', alter: 0, octave: 4 };
@@ -77,7 +77,12 @@ describe("Practice's licks as passes for the shared sequencer", () => {
       clearTimeout: () => {},
     };
     const heard: NoteTag[] = [];
-    const seq = new Sequencer<NoteTag>(player, { onSound: (e) => e.kind === 'note' && e.tag && heard.push(e.tag) }, deps);
+    const bars: number[] = [];
+    const onSound = (e: { tag?: PlayTag }) => {
+      if (e.tag && 'bar' in e.tag) bars.push(e.tag.bar);
+      else if (e.tag) heard.push(e.tag);
+    };
+    const seq = new Sequencer<PlayTag>(player, { onSound }, deps);
 
     const { first } = lickPasses(licks, { tempoBpm: 120, countIn: true, swing: 1 });
     seq.play(first);
@@ -93,6 +98,8 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     // A bar of count-in plus the metronome under every beat.
     const beats = licks.reduce((s, l) => s + l.lengthBeats, 0);
     expect(clicks).toBe(4 + beats);
+    // Each bar's downbeat reports it, in order; the count-in reports none.
+    expect(bars).toEqual(Array.from({ length: beats / 4 }, (_, i) => i));
     expect(seq.isPlaying).toBe(false);
   });
 });

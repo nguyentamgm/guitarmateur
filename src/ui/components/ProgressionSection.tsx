@@ -3,12 +3,26 @@ import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker, TextButton } from './primitives';
 import { useT } from '../useT';
+import { BarGrid, type BarCell } from '@shared/ui/BarGrid';
 
 const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
 
-/** Step 2 — build the chord progression licks are generated against. */
-export function ProgressionSection({ state, dispatch }: { state: AppState; dispatch: (action: Action) => void }) {
+/** Step 2 — build the chord progression licks are generated against, shown as a bar grid. */
+export function ProgressionSection({
+  state,
+  dispatch,
+  currentBar = null,
+}: {
+  state: AppState;
+  dispatch: (action: Action) => void;
+  /** The bar being heard (Step 3's playback), lit on the grid; null when idle. */
+  currentBar?: number | null;
+}) {
   const t = useT(state.language);
+  // One cell per bar, as Theory draws a form: a 2-bar chord fills two.
+  const bars: BarCell[] = state.progression.flatMap((entry) =>
+    Array.from({ length: entry.bars }, () => ({ degree: romanNumeral(state.key, entry.chord), symbol: chordLabel(entry.chord) })),
+  );
   const suggestions = suggestedChords(state.key);
   const { advancedOpen, advRoot, advQuality } = state.ui;
   const previewChord = { tonic: advRoot, quality: advQuality };
@@ -195,6 +209,12 @@ export function ProgressionSection({ state, dispatch }: { state: AppState; dispa
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {bars.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <BarGrid label={t('progression.grid')} bars={bars} current={currentBar} />
           </div>
         )}
       </Panel>

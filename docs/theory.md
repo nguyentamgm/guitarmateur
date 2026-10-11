@@ -160,7 +160,7 @@ ui → lessons → core/fretboard → core/music
 - Melodic ideas come from `motif()` / `landOn()` in `core/music/licks.ts` (indexes into a
   pitch-ordered list of scale notes), never typed in.
 - A barre is drawn with `ui/BarreBar.tsx`. Shared controls live in `ui/controls.tsx` (`ChipGroup`, `OnOff`, `Tempo`, `KeyFinder`); a chord
-  form is drawn with `ui/BarGrid.tsx`. Key lists for a finder come from `byHomeFret()`.
+  form is drawn with `ui/BarGrid.tsx` (re-exports `@shared/ui/BarGrid`, which Practice uses too). Key lists for a finder come from `byHomeFret()`.
 - Notes on the neck come from `core/fretboard`: `NeckNote` (position, midi, spelled name, degree,
   tonic), `neckNote()`, `scaleNeck(tonic, scale, maxFret)`, `samePos()`, and `upAndDown()` for a run
   up and back. A lesson that needs more (blues: `isBlue`) extends `NeckNote`; it does not redefine it.

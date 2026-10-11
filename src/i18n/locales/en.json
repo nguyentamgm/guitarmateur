@@ -82,6 +82,7 @@
   "progression.barsToggle": "{chord} spans {bars} — click to toggle",
   "progression.clearAll": "Clear all",
   "progression.empty": "No chords yet — tap a suggestion above to build your progression.",
+  "progression.grid": "Progression, bar by bar",
   "progression.progression": "Progression",
   "progression.quality": "Quality",
   "progression.removeChord": "Remove {chord}",

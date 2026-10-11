@@ -6,7 +6,14 @@ import type { Lick, Technique } from '../lick';
  * start of playback (the transport shifts them onto the AudioContext clock). Pure data — no nodes.
  */
 export type AudioEvent =
-  | { timeSec: number; kind: 'click'; accented: boolean }
+  | {
+      timeSec: number;
+      kind: 'click';
+      accented: boolean;
+      /** On a downbeat of the music: which bar starts (0-based, a 2-bar chord counts twice). Not
+       *  on the count-in. Drives the bar grid's highlight. */
+      bar?: number;
+    }
   | {
       timeSec: number;
       kind: 'pluck';
@@ -124,6 +131,7 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
           timeSec: (passStartBeat + b) * secPerBeat,
           kind: 'click',
           accented: b % BEATS_PER_BAR === 0,
+          ...(b % BEATS_PER_BAR === 0 && { bar: b / BEATS_PER_BAR }),
         });
       }
     }

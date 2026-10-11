@@ -16,6 +16,7 @@ const transport: UseTransport = {
   supported: true,
   isPlaying: false,
   position: null,
+  bar: null,
   play: noop,
   stop: noop,
   setClickGain: noop,

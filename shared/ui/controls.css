@@ -49,6 +49,17 @@
 .finder button:hover { border-color: var(--accent); }
 .finder button[aria-pressed='true'] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
 
+/* Bar grid (BarGrid): lines of four bars, degree above the chord, the bar being heard filled. */
+.bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }
+.bars .bar text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-mono); }
+.bars .deg { fill: var(--muted); font-size: 13px; }
+.bars .sym { fill: var(--ink); font-size: 18px; font-weight: 600; }
+.bars .bar.on rect { fill: var(--accent); stroke: var(--accent); }
+.bars .bar.on text { fill: var(--accent-ink); }
+.bars .mark { font-family: var(--f-mono); font-size: 12px; font-weight: 700; text-anchor: end; }
+.bars .mark.good { fill: var(--accent); }
+.bars .mark.bad { fill: var(--amber); }
+
 /* A chip holding words rather than a short value: the body font. */
 .chip.text { font-family: var(--f-body); padding: 5px 12px; }
 
