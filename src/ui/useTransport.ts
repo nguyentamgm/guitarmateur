@@ -32,7 +32,7 @@ export interface UseTransport {
  * `Sequencer`, fed passes by `lickPasses`. The AudioContext is created on the first `play()`, which
  * must come from a user gesture per browser autoplay policy. Playback stops on unmount.
  */
-export function useTransport(muted = false): UseTransport {
+export function useTransport(): UseTransport {
   const supported = isAudioSupported();
   const sequencerRef = useRef<Sequencer<NoteTag> | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -76,11 +76,6 @@ export function useTransport(muted = false): UseTransport {
 
   const setClickGain = useCallback((value: number) => getPlayer().setLevels({ click: value }), []);
   const setNoteGain = useCallback((value: number) => getPlayer().setLevels({ note: value }), []);
-
-  // The header's sound toggle: the player stays, its sound goes; the mix is untouched.
-  useEffect(() => {
-    getPlayer().setEnabled(!muted);
-  }, [muted]);
 
   useEffect(() => {
     return () => {

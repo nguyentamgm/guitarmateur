@@ -8,11 +8,11 @@ import { BASE, hrefFor } from './router';
 export type Section = 'lessons' | 'review';
 
 /**
- * The site header, the same on both apps: brand · Lessons · Review · Practice · sound · language.
+ * The site header, the same on both apps: brand · Lessons · Review · Practice · language.
  * The practice app (src/ui/components/SiteHeader.tsx) keeps a copy with the same markup and order.
  */
 export function Header({ section }: { section: Section }) {
-  const { ui, lang, setLang, soundOn, setSoundOn } = useTheory();
+  const { ui, lang, setLang } = useTheory();
   const current = (s: Section) => (s === section ? 'page' : undefined);
   return (
     <header className="topbar">
@@ -32,9 +32,6 @@ export function Header({ section }: { section: Section }) {
             {ui.navPractice}
           </a>
         </nav>
-        <button type="button" className="btn ghost" aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)}>
-          {soundOn ? ui.soundOn : ui.soundOff}
-        </button>
         <div className="group" role="group" aria-label={ui.langLabel}>
           <GlobeIcon />
           {LANGS.map((l) => (

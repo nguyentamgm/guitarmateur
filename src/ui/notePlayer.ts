@@ -1,7 +1,6 @@
 /**
  * Hearing one note when it is clicked on the neck, through the page's one player
- * (`audioPlayer.ts`, the shared guitar sound): the Notes slider sets its level, the sound toggle
- * mutes it.
+ * (`audioPlayer.ts`, the shared guitar sound), at the Notes slider's level.
  */
 import { isAudioSupported } from '@shared/core/audio';
 import { getPlayer } from './audioPlayer';
@@ -14,6 +13,8 @@ export function playNote(midi: number, noteGain: number): void {
   player.pluck(midi, 0.01, 0.5);
 }
 
-/** The neck's `play` prop: the note player while sound is on, nothing while it is off. */
-export const notePlayer = (soundOn: boolean, noteGain: number): ((midi: number) => void) | undefined =>
-  soundOn ? (midi) => playNote(midi, noteGain) : undefined;
+/** The neck's `play` prop: sounds a clicked note at the Notes slider's level. */
+export const notePlayer =
+  (noteGain: number): ((midi: number) => void) =>
+  (midi) =>
+    playNote(midi, noteGain);

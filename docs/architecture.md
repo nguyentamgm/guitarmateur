@@ -119,11 +119,11 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   `neckGeometry(frets, { from })` draws a window of the neck (frets `from + 1`…`frets`, no nut),
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
-  clicked note through `src/ui/notePlayer.ts` (muted with the header's sound toggle).
+  clicked note through `src/ui/notePlayer.ts`.
 
 **Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
 and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
-gesture); `setEnabled` is the sound toggle, `setLevels({ note, click })` the mix, `now()` the audio
+gesture); `setEnabled` turns it on or off, `setLevels({ note, click })` the mix, `now()` the audio
 clock. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
 `useBacking` (a step clock and a backing track over one chord per bar, swung when the style
 swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute) and clicks played
@@ -168,8 +168,8 @@ sharedPasses.ts  lickPasses / toSeqEvents: those events → passes for the share
 ```
 
 In `src/ui/`, `audioPlayer.ts` holds the page's one `Player`; `useTransport()` drives a
-`Sequencer` on it (play state, the sounding note for card/tab highlighting, the click/note mix,
-the header's sound toggle as `setEnabled`), and `notePlayer.ts` plucks a note clicked on a neck.
+`Sequencer` on it (play state, the sounding note for card/tab highlighting, the click/note mix), and
+`notePlayer.ts` plucks a note clicked on a neck.
 
 **Autoplay gate**: the `AudioContext` is created on the first sound — the play button or a clicked
 note (browsers require a user gesture) — never at module load.

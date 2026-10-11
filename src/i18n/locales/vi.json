@@ -13,8 +13,6 @@
   "common.leftHanded": "Thuận tay trái",
   "common.share": "Chia sẻ",
   "common.shareCopied": "Đã sao chép!",
-  "common.soundOff": "Âm thanh: tắt",
-  "common.soundOn": "Âm thanh: bật",
   "error.message": "Ứng dụng đã gặp lỗi. Trạng thái luyện tập của bạn được lưu trong localStorage và sẽ không bị mất.",
   "error.reload": "Tải lại",
   "error.title": "Đã có lỗi xảy ra",

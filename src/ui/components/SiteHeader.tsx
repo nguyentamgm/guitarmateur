@@ -3,7 +3,7 @@ import { GlobeIcon } from './primitives';
 import { useT } from '../useT';
 
 /**
- * The site header, the same on both apps: brand · Lessons · Review · Practice · sound · language.
+ * The site header, the same on both apps: brand · Lessons · Review · Practice · language.
  * Same markup, order and class names as the Theory app's header (theory/src/ui/Header.tsx), styled
  * by shared/ui/controls.css; each app keeps its own copy because the text comes from its own i18n.
  * This page is Practice, so Practice is the current section.
@@ -11,13 +11,9 @@ import { useT } from '../useT';
 export function SiteHeader({
   language,
   onLanguage,
-  soundOn,
-  onSound,
 }: {
   language: LocaleId;
   onLanguage: (language: LocaleId) => void;
-  soundOn: boolean;
-  onSound: (on: boolean) => void;
 }) {
   const t = useT(language);
   return (
@@ -38,14 +34,6 @@ export function SiteHeader({
               {t('nav.practice')}
             </a>
           </nav>
-          <button
-            type="button"
-            className="btn ghost"
-            aria-pressed={soundOn}
-            onClick={() => onSound(!soundOn)}
-          >
-            {soundOn ? t('common.soundOn') : t('common.soundOff')}
-          </button>
           <div className="group" role="group" aria-label={t('common.language')}>
             <GlobeIcon size={16} />
             {Object.values(LOCALES).map((locale) => (

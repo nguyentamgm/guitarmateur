@@ -10,8 +10,6 @@ const en = {
   brand: 'Guitarmateur',
   langLabel: 'Language',
   langName: { en: 'English', vi: 'Tiếng Việt' },
-  soundOn: 'Sound: on',
-  soundOff: 'Sound: off',
   tocEyebrow: 'Music theory for electric guitar',
   tocTitle: 'Learn the neck by its shapes',
   tocLead:
@@ -52,8 +50,6 @@ const vi: UiStrings = {
   brand: 'Guitarmateur',
   langLabel: 'Ngôn ngữ',
   langName: { en: 'English', vi: 'Tiếng Việt' },
-  soundOn: 'Âm thanh: bật',
-  soundOff: 'Âm thanh: tắt',
   tocEyebrow: 'Nhạc lý cho guitar điện',
   tocTitle: 'Học cần đàn qua hình',
   tocLead:

@@ -21,12 +21,8 @@ describe('notePlayer (notes clicked on a neck)', () => {
     levels.length = 0;
   });
 
-  it('is silent while the sound toggle is off', () => {
-    expect(notePlayer(false, 0.9)).toBeUndefined();
-  });
-
   it("plays through the page's one player at the Notes slider's level", () => {
-    notePlayer(true, 0.4)!(57);
+    notePlayer(0.4)(57);
     expect(plucks).toEqual([57]);
     expect(levels).toEqual([{ note: 0.4 }]);
   });

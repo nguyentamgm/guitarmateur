@@ -20,14 +20,11 @@ const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter 
 export function ScalePositionSection({
   state,
   dispatch,
-  soundOn = true,
   labels = 'degree',
   onLabels = () => {},
 }: {
   state: AppState;
   dispatch: (action: Action) => void;
-  /** The header's sound toggle: notes clicked on the neck sound only while it is on. */
-  soundOn?: boolean;
   /** What the neck's dots show: degrees or note names (shared with the lick cards). */
   labels?: LabelMode;
   onLabels?: (mode: LabelMode) => void;
@@ -137,7 +134,7 @@ export function ScalePositionSection({
               labels={labels}
               stringNames={names}
               leftHanded={state.leftHanded}
-              play={notePlayer(soundOn, state.noteGain)}
+              play={notePlayer(state.noteGain)}
             >
               {pos.map((p, i) => (
                 <PositionFrame
