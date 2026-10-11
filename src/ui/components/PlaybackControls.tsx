@@ -7,7 +7,7 @@ import { PillButton } from './primitives';
 import { useT } from '../useT';
 import type { UseTransport } from '../useTransport';
 
-/** Playback controls bar: transport, tempo, count-in / loop toggles, and click / note mix. */
+/** Playback controls bar (sticky): transport, tempo, count-in / loop toggles, and click / note mix. */
 export function PlaybackControls({
   licks,
   tempoBpm,
@@ -91,6 +91,10 @@ export function PlaybackControls({
         alignItems: 'center',
         padding: '12px 14px',
         marginBottom: 18,
+        // Stays on screen while the lick cards scroll under it.
+        position: 'sticky',
+        top: 0,
+        zIndex: 5,
         background: theme.card,
         border: `1px solid ${theme.border}`,
         borderRadius: 10,

@@ -40,8 +40,6 @@ function legacyCopy(url: string, onCopied: () => void, copyPrompt: string): void
 export function App() {
   const [state, dispatch] = useAppState();
   const t = useT(state.language);
-  // Like Theory's sound toggle: for this visit only, never stored.
-  const [soundOn, setSoundOn] = useState(true);
   // First playback this visit: one of the signs of engagement before offering to install.
   const [played, setPlayed] = useState(false);
   const markPlayed = useCallback(() => setPlayed(true), []);
@@ -124,8 +122,6 @@ export function App() {
       <SiteHeader
         language={state.language}
         onLanguage={(language) => dispatch({ type: 'setLanguage', language })}
-        soundOn={soundOn}
-        onSound={setSoundOn}
       />
       {/* Same 1000px column as the site header (and Theory's pages). */}
       <div style={{ maxWidth: 1032, margin: '0 auto', padding: '30px 16px 70px' }}>
@@ -176,9 +172,9 @@ export function App() {
         </div>
 
         <ErrorBoundary t={t}>
-          <ScalePositionSection state={state} dispatch={dispatch} soundOn={soundOn} labels={labels} onLabels={setLabels} />
+          <ScalePositionSection state={state} dispatch={dispatch} labels={labels} onLabels={setLabels} />
           <ProgressionSection state={state} dispatch={dispatch} />
-          <PracticeSection state={state} dispatch={dispatch} soundOn={soundOn} onPlay={markPlayed} labels={labels} />
+          <PracticeSection state={state} dispatch={dispatch} onPlay={markPlayed} labels={labels} />
         </ErrorBoundary>
       </div>
     </>

@@ -31,7 +31,6 @@ export function App({ player: given }: { player?: Player } = {}) {
   const [lang, setLangState] = useState<Lang>(() => loadLang());
   const [path, setPath] = useState(() => window.location.pathname);
   const [player] = useState(() => given ?? createPlayer());
-  const [soundOn, setSoundState] = useState(true);
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
   // Each answer goes straight through storage, so another tab's answers are never overwritten.
   const recordQuiz = useCallback(
@@ -87,15 +86,10 @@ export function App({ player: given }: { player?: Player } = {}) {
         setLangState(l);
       },
       player,
-      soundOn,
-      setSoundOn: (on) => {
-        player.setEnabled(on);
-        setSoundState(on);
-      },
       navigate,
       recordQuiz,
     }),
-    [lang, ui, player, soundOn, navigate, recordQuiz],
+    [lang, ui, player, navigate, recordQuiz],
   );
 
   return (

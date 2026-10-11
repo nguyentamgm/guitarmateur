@@ -17,17 +17,15 @@ import { KeyboardShortcuts } from '../KeyboardShortcuts';
 import { intervalLabel, targetBadgeText } from '../labels';
 import { useT } from '../useT';
 
-/** Step 3 — practice licks with controls per chord. `soundOn` is the header's sound toggle. */
+/** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({
   state,
   dispatch,
-  soundOn = true,
   onPlay,
   labels = 'degree',
 }: {
   state: AppState;
   dispatch: (action: Action) => void;
-  soundOn?: boolean;
   /** Called when playback starts. */
   onPlay?: () => void;
   /** What the necks' dots show: degrees or note names (chosen in Step 1). */
@@ -35,7 +33,7 @@ export function PracticeSection({
 }) {
   const t = useT(state.language);
   const licks = useMemo(() => licksForState(state), [state]);
-  const transport = useTransport(!soundOn);
+  const transport = useTransport();
   const [countIn, setCountIn] = useState(true);
   const [loop, setLoop] = useState(true);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
@@ -252,7 +250,7 @@ export function PracticeSection({
                       labels={labels}
                       stringNames={names}
                       leftHanded={state.leftHanded}
-                      play={notePlayer(soundOn, state.noteGain)}
+                      play={notePlayer(state.noteGain)}
                     />
 
                     {/* Lick header */}

@@ -1,6 +1,4 @@
-export type { AudioEngine } from './engine';
-export { createEngine, isAudioSupported, setMuted } from './engine';
-
-export type { Position, PlayOptions } from './transport';
-export { Transport } from './transport';
-export { pluck } from './voices';
+export type { AudioEvent, CompileOptions, CompiledProgression } from './compile';
+export { compileProgression } from './compile';
+export type { NoteTag } from './sharedPasses';
+export { glideInto, lickPasses, toSeqEvents } from './sharedPasses';

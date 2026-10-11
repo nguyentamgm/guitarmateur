@@ -23,7 +23,7 @@ describe('App', () => {
     expect(container.innerHTML).toContain('Fretboard Trainer');
     expect(container.innerHTML).toContain('Pentatonic Practice');
 
-    // The shared site header: brand · Lessons · Review · Practice (current) · sound · language.
+    // The shared site header: brand · Lessons · Review · Practice (current) · language.
     const header = container.querySelector('header.topbar')!;
     expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
     const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
@@ -33,9 +33,8 @@ describe('App', () => {
       ['Practice', '/'],
     ]);
     expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
-    const sound = header.querySelector('nav')!.nextElementSibling as HTMLButtonElement;
-    expect(sound.getAttribute('aria-pressed')).toBe('true');
-    const language = sound.nextElementSibling!;
+    // No sound toggle: nothing sounds until a click asks for it.
+    const language = header.querySelector('nav')!.nextElementSibling!;
     expect(language.getAttribute('aria-label')).toBe('Language');
     expect(language.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
 
@@ -48,11 +47,6 @@ describe('App', () => {
       language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
     });
     expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
-    expect(sound.textContent).toBe('Âm thanh: bật');
-    await act(async () => {
-      sound.click();
-    });
-    expect(sound.getAttribute('aria-pressed')).toBe('false');
 
     await act(async () => {
       root.unmount();

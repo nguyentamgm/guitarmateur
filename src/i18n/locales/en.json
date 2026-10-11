@@ -13,8 +13,6 @@
   "common.leftHanded": "Left-handed",
   "common.share": "Share",
   "common.shareCopied": "Copied!",
-  "common.soundOff": "Sound: off",
-  "common.soundOn": "Sound: on",
   "error.message": "The app encountered an error. Your practice state is saved in localStorage and will persist.",
   "error.reload": "Reload",
   "error.title": "Something went wrong",

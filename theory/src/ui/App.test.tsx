@@ -91,7 +91,7 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('shows the shared header: brand, Lessons, Review, Practice, sound, language', () => {
+  it('shows the shared header: brand, Lessons, Review, Practice, language', () => {
     render('/theory/fretboard');
     const header = container.querySelector('header.topbar')!;
     expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
@@ -104,9 +104,7 @@ describe('Theory app', () => {
     ]);
     // A lesson belongs to Lessons.
     expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
-    const nextToNav = header.querySelector('nav')!.nextElementSibling!;
-    expect(nextToNav.getAttribute('aria-pressed')).toBe('true'); // the sound toggle
-    expect(nextToNav.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
+    expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
     click(button('Tiếng Việt'));
     expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
   });
@@ -150,14 +148,11 @@ describe('Theory app', () => {
     });
   });
 
-  it('plays the note you click, and stays silent when sound is off', () => {
+  it('plays the note you click', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/pentatonic-map', player);
     // Step 1, first pair: string 6 at fret 5 is A2 = MIDI 45.
     const first = container.querySelector('section#grid .dot')!;
-    click(first);
-    expect(plucked).toEqual([45]);
-    click(button('Sound: on'));
     click(first);
     expect(plucked).toEqual([45]);
   });

@@ -31,7 +31,7 @@ everything the user does persists in `localStorage`.
 │  ├─ fretboard/                # tuning-aware note mapping, algorithmic position/box generation
 │  ├─ lick/                     # lick data model (rhythm + techniques), generation, difficulty
 │  ├─ state/                    # versioned app state, reducer, localStorage persistence + migrations
-│  ├─ audio/                    # metronome + lick playback via Web Audio synthesis
+│  ├─ audio/                    # licks → timeline for the shared sequencer (shared/core/audio)
 │  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
@@ -119,11 +119,11 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   `neckGeometry(frets, { from })` draws a window of the neck (frets `from + 1`…`frets`, no nut),
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
-  clicked note through `src/ui/notePlayer.ts` (muted with the header's sound toggle).
+  clicked note through `src/ui/notePlayer.ts`.
 
 **Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
 and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
-gesture); `setEnabled` is the sound toggle, `setLevels({ note, click })` the mix, `now()` the audio
+gesture); `setEnabled` turns it on or off, `setLevels({ note, click })` the mix, `now()` the audio
 clock. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
 `useBacking` (a step clock and a backing track over one chord per bar, swung when the style
 swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute) and clicks played
@@ -156,37 +156,23 @@ versions; roughly:
 
 ## `src/audio/` internals
 
+Practice has no synth of its own: it plays on the shared guitar sound (`shared/core/audio`, above).
+What is left in `src/audio/` is what turns licks into a timeline:
+
 ```
-engine.ts      AudioContext lifecycle (created on first user gesture), master gain, and the
-               fixed guitar amp chain on the note path:
-               noteBus → pickup peak (3 kHz) → preGain → waveShaper (soft-clip, 4x
-               oversampled) → cabinet (highpass 90 Hz + cascaded lowpass ~4 kHz) →
-               tone stack → noteOut → master
-scheduler.ts   lookahead scheduler (the standard "tale of two clocks" pattern:
-               setInterval(25ms) schedules events falling in the next 100ms window
-               on the AudioContext clock) — sample-accurate, tab-throttle-proof
-voices.ts      click(when, accented) — short filtered noise/oscillator blip, two pitches
-               pluck(when, midi, durationSec, opts) — one string: two sawtooth oscillators
-               7 cents apart plus a pick-noise transient, through a lowpass whose cutoff
-               falls as the note decays; rings past its notated length so notes overlap
-transport.ts   play/stop/loop state machine; converts Lick + tempo into scheduled events;
-               emits beat/position callbacks for UI highlighting
+compile.ts       compileProgression: Lick[] + tempo → time-sorted pluck/click events (count-in,
+                 swing, bars per chord, metronome); a pluck carries its string, technique and
+                 the previous note's pitch
+sharedPasses.ts  lickPasses / toSeqEvents: those events → passes for the shared Sequencer; a note
+                 rings until the next pick on its string, a technique becomes a glide into it
 ```
 
-The amp chain lives on the bus, not per note: a `WaveShaperNode` curve is a 2048-sample array that
-would otherwise be rebuilt every note, and distortion is non-linear, so applying it once after the
-mix is what a real amp does. `setNoteGain` rides `noteOut` (post-drive) so the mix slider doesn't
-change how hard the waveshaper is driven.
+In `src/ui/`, `audioPlayer.ts` holds the page's one `Player`; `useTransport()` drives a
+`Sequencer` on it (play state, the sounding note for card/tab highlighting, the click/note mix), and
+`notePlayer.ts` plucks a note clicked on a neck.
 
-`useTransport()` in `src/ui/` adapts the transport to React (play state, current beat, current
-card). Techniques are rendered as articulation: hammer-ons/pull-offs skip the pick transient and
-sound softer; slides and bends ramp `frequency` from the previous note's pitch (`AudioEvent`
-carries `technique` + `fromMidi` for this), with bends leaning in slower than slides. Notes held
-past ~0.5s get a delayed-onset vibrato LFO on `detune`. Note pitch comes from `LickNote.pitch` →
-`midi()`.
-
-**Autoplay gate**: the `AudioContext` is created/resumed only inside the play button's click
-handler (browsers require a user gesture) — never at module load.
+**Autoplay gate**: the `AudioContext` is created on the first sound — the play button or a clicked
+note (browsers require a user gesture) — never at module load.
 
 ## Conventions & invariants
 
