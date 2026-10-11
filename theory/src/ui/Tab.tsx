@@ -3,7 +3,8 @@
  * left to right; notes in one column sound together. Positions come from the lesson's scenes.
  * With `counts`, each column shows the count word it starts on ("1", "&") under the tab (K1.2).
  */
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent } from 'react';
+import { tabBoxWidth, useKeepInView } from '@shared/ui/tab';
 import { STRINGS, type StringNumber } from '../core/fretboard';
 import { useTheory } from './context';
 import { stringName } from './geometry';
@@ -39,7 +40,7 @@ const GAP = 20;
 /** Room under the tab for count words. */
 const COUNT_ROW = 22;
 /** Width of a number's backing: wider for technique text such as '7b9'. */
-const boxW = (n: TabNote) => Math.max(20, 8 + 8.5 * (n.text ?? String(n.fret)).length);
+const boxW = (n: TabNote) => tabBoxWidth(n.text ?? String(n.fret));
 
 export function Tab({ columns, label, active = [], column = null, onNote, counts, barLines = [] }: Props) {
   const { player } = useTheory();
@@ -51,14 +52,7 @@ export function Tab({ columns, label, active = [], column = null, onNote, counts
 
   // A long tab scrolls sideways: keep the column being played in view.
   const scroller = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = scroller.current;
-    if (column === null || !el || el.scrollWidth <= el.clientWidth) return;
-    const scale = el.scrollWidth / width;
-    const left = (LEFT + column * COL) * scale;
-    const right = left + COL * scale;
-    if (left < el.scrollLeft || right > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, left - el.clientWidth / 3);
-  }, [column, width]);
+  useKeepInView(scroller, column === null ? null : [LEFT + column * COL, LEFT + (column + 1) * COL], width);
 
   const play = (n: TabNote, i: number) => {
     player.pluck(n.midi);

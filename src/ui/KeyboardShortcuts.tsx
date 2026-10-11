@@ -26,13 +26,16 @@ export function KeyboardShortcuts({ dispatch, transport, licks, tempoBpm, countI
       // Space would rapidly toggle play/stop.
       if (e.repeat) return;
       // Buttons and links handle Space/Enter natively — hijacking those keys would
-      // break keyboard activation of the focused control (WCAG 2.1.1).
+      // break keyboard activation of the focused control (WCAG 2.1.1). So do elements with a
+      // button role (a tab's fret numbers), and a key a control already handled.
       if (
+        e.defaultPrevented ||
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.tagName === 'SELECT' ||
         target.tagName === 'BUTTON' ||
-        target.tagName === 'A'
+        target.tagName === 'A' ||
+        target.getAttribute?.('role') === 'button'
       ) {
         return;
       }

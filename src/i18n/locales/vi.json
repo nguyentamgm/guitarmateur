@@ -123,6 +123,7 @@
   "scalebox.titleCombined": "{tonic} {scale} — phím {min}–{max} (kết hợp)",
   "scalebox.tuning": "Dây đàn",
   "tab.emptyLick": "lick trống",
+  "tab.noteAria": "Dây {n}: {text}",
   "tuning.dropD": "Drop D",
   "tuning.standard": "Chuẩn"
 }

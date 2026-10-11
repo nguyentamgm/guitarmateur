@@ -42,8 +42,8 @@ everything the user does persists in `localStorage`.
 │  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
 │  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
 │                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css;
-│                               # BarGrid.tsx (a chord form as bars); useClock, useBacking
-│                               # (hooks taking a player)
+│                               # BarGrid.tsx (a chord form as bars), GlobeIcon.tsx; useClock,
+│                               # useBacking (hooks taking a player)
 ├─ package.json
 ├─ tsconfig.json
 ├─ vite.config.ts
@@ -127,6 +127,13 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
   clicked note through `src/ui/notePlayer.ts`.
+- The tab look is in `fretboard.css` too (`.tab`, `.tabline`, `.tabname`, `.tabnum` boxes, the
+  sounding one `.on`, `.tabbar`, `.tabcount`): Theory's `ui/Tab.tsx` (columns) and Practice's
+  `TabStaff` (notes placed by start beat, beat ticks and numbers on top, then a chord-tone row
+  and a duration row under it) draw with it. Both write a technique into the number as Theory does
+  (`h7`, `p5`, `/9`, `7b9`; Practice's `tabText` in `src/ui/labels.ts`), and a number plays its
+  note when clicked. A dense lick scrolls sideways rather than shrinking its numbers.
+- `GlobeIcon.tsx` — the globe beside both headers' language switcher.
 
 **Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
 and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user

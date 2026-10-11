@@ -123,6 +123,7 @@
   "scalebox.titleCombined": "{tonic} {scale} — frets {min}–{max} (combined)",
   "scalebox.tuning": "Tuning",
   "tab.emptyLick": "empty lick",
+  "tab.noteAria": "String {n}: {text}",
   "tuning.dropD": "Drop D",
   "tuning.standard": "Standard"
 }

@@ -1,11 +1,11 @@
-import { CHORD_QUALITIES, TONICS, chordLabel, format, romanNumeral, suggestedChords, type NoteName, type QualityId } from '../../music';
+import { CHORD_QUALITIES, TONICS, chordLabel, format, romanNumeral, suggestedChords, type QualityId } from '../../music';
+import { homeFret, TUNINGS } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, SectionKicker, TextButton } from './primitives';
 import { useT } from '../useT';
 import { BarGrid, type BarCell } from '@shared/ui/BarGrid';
-
-const sameNote = (a: NoteName, b: NoteName) => a.letter === b.letter && a.alter === b.alter;
+import { KeyPicker } from '@shared/ui/controls';
 
 /** Step 2 — build the chord progression licks are generated against, shown as a bar grid. */
 export function ProgressionSection({
@@ -82,14 +82,16 @@ export function ProgressionSection({
 
         {advancedOpen && (
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${theme.border}` }}>
+            {/* The shared key picker: each root with its fret on the lowest string */}
             <Label>{t('progression.root')}</Label>
-            <Row>
-              {TONICS.map((tonic) => (
-                <PillButton key={format(tonic)} selected={sameNote(tonic, advRoot)} onClick={() => dispatch({ type: 'setAdvRoot', tonic })}>
-                  {format(tonic)}
-                </PillButton>
-              ))}
-            </Row>
+            <KeyPicker
+              label={t('progression.root')}
+              keys={TONICS}
+              name={format}
+              fret={(tonic) => homeFret(TUNINGS[state.tuningId], tonic)}
+              value={advRoot}
+              onChange={(tonic) => dispatch({ type: 'setAdvRoot', tonic })}
+            />
 
             <Label style={{ marginTop: 14 }}>{t('progression.quality')}</Label>
             <Row>
