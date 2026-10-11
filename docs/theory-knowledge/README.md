@@ -80,69 +80,9 @@ Các phần này có trong sách nhưng chưa vào Theory. Không xóa khỏi da
 
 ## Thuật ngữ Việt – Anh
 
-Lời giảng tiếng Việt **ưu tiên thuật ngữ tiếng Anh**, vì đó là từ người chơi guitar Việt thật sự dùng và tra cứu được. Chỉ giữ tiếng Việt khi từ Việt vốn đã quen và dễ hiểu (hợp âm, hợp âm chặn, ngón chặn, quãng, phách…). Lần đầu một thuật ngữ xuất hiện trong bài, có thể kèm giải nghĩa ngắn bằng tiếng Việt. Không tự chế từ dịch (đã bỏ: "nốt nhà", "hộp", "nhéo dây", "luyến lên", "chặn tiếng", "nốt màu", "trí-ô").
+Lời giảng tiếng Việt **ưu tiên thuật ngữ tiếng Anh**, vì đó là từ người chơi guitar Việt thật sự dùng và tra cứu được. Chỉ giữ tiếng Việt khi từ Việt vốn đã quen và dễ hiểu (hợp âm, hợp âm chặn, ngón chặn, quãng, phách…). Không tự chế từ dịch.
 
-| Lời giảng vi dùng | Không dùng | English |
-| --- | --- | --- |
-| root | nốt nhà, nhà, nốt gốc | root (giọng: tonic) |
-| bảng nốt trên dây 6 và 5 | bảng nốt nhà | the notes on strings 6 and 5 |
-| box, box 1… | hộp | box, position |
-| shape (shape quãng 8, shape E) | hình (khi là thế bấm) | shape |
-| G–B shift | chỗ lệch G–B | the G–B shift |
-| scale; major scale; natural minor scale | âm giai | scale |
-| minor / major pentatonic; A minor pentatonic | pentatonic thứ, A thứ pentatonic | minor / major pentatonic |
-| minor / major blues scale; A minor blues | âm giai blues thứ, A blues thứ | minor / major blues scale |
-| relative minor / relative major | giọng song song (chỉ dùng kèm giải nghĩa) | relative key |
-| key signature, circle of fifths, mode | hóa biểu, vòng quãng năm, điệu thức | key signature, circle of fifths, mode |
-| giọng C trưởng, giọng A thứ | | key of C major, A minor |
-| pick | phím (miếng gảy) | pick |
-| phím (vị trí bấm); thanh phím (fret) khi nói thanh kim loại | | fret |
-| nut, bridge | lược đàn, ngựa đàn | nut, bridge |
-| dây buông | | open string |
-| nửa cung, một cung | bước (đứng một mình) | semitone / half step, whole step |
-| quãng 3 trưởng, quãng 5 đúng, quãng 8… | | major 3rd, perfect 5th, octave |
-| loại (quãng, hợp âm) | tính chất | quality |
-| bậc | | degree |
-| bar (ô nhịp); 12-bar blues | ô (đứng một mình), blues 12 ô | bar, measure |
-| phách, nhịp 4/4, time signature | số chỉ nhịp | beat, time signature |
-| nốt tròn / trắng / đen / móc đơn / móc kép, chấm dôi | | whole … sixteenth, dotted |
-| dấu lặng | khoảng lặng | rest |
-| triplet, đếm "1 trip-let" | liên ba, "1 trí-ô" | triplet |
-| syncopation, accent, dynamics | đảo phách, cường độ | syncopation, accent, dynamics |
-| straight, swing, shuffle | | straight, swing, shuffle |
-| alternate picking, ghost strum | | alternate picking, ghost strum |
-| bend, curl, bend & release | nhéo dây, nhéo nhẹ | bend, curl, bend & release |
-| hammer-on, pull-off, legato | luyến lên, luyến xuống | hammer-on, pull-off, legato |
-| slide, vibrato | trượt, rung | slide, vibrato |
-| palm mute, chug | chặn tiếng, tiếng "chặt" | palm mute, chug |
-| distortion | tiếng méo | distortion |
-| lick, riff, sequence | câu mẫu, mẫu luyện ngón | lick, riff, sequence |
-| blue note, passing note, nốt đích | nốt blue, nốt đi qua | blue note, passing note, target note |
-| quick change, turnaround | đổi sớm, quay vòng | quick change, turnaround |
-| backing, vamp, drone | vòng đệm, nốt ngân | backing, vamp, drone |
-| nghe chỏi, độ chỏi | cọ | rub, clash |
-| vòng hợp âm | tiến trình | chord progression |
-| hợp âm I, hợp âm dominant 7 | hợp âm chủ, hợp âm át, "toàn hợp âm 7" | I chord, dominant 7th chord |
-| triad | hợp âm ba (chỉ dùng kèm giải nghĩa) | triad |
-| hợp âm chặn, ngón chặn | | barre chord, barre |
-| open chord / hợp âm dây buông | | open chord |
-| hợp âm sus, bậc 3 được thay (suspended) | bậc 3 bị treo | sus chord |
-| inversion, inversion 1/2/3 | thế đảo, đảo 1 | inversion |
-| slash chord | hợp âm có bass riêng | slash chord |
-| extension; hợp âm mở rộng | nốt màu | extension, extended chord |
-| add2 (thường viết add9) | | add2 / add9 |
-| altered note, close voicing | nốt biến, thế bấm khít | altered note, close voicing |
-| half-diminished; tăng, giảm | nửa giảm | half-diminished; augmented, diminished |
-
-Lưu ý: tiếng Việt gọi C trưởng và La thứ là "giọng song song" (cùng key signature). Tiếng Anh gọi đó là *relative*; *parallel* trong tiếng Anh lại là hai giọng cùng chủ âm (C trưởng và C thứ). Lời giảng dùng *relative*.
-
-Lời giảng tiếng Anh dùng thuật ngữ chuẩn, không dịch sát từng chữ tiếng Việt:
-
-- *root* (giọng: *tonic*), không phải "home note". "Home" chỉ dùng để giải nghĩa: "the root, the note that sounds like home".
-- Bảng nốt trên dây 6 và 5 (K0.7) là "the notes on strings 6 and 5", không phải "home frets".
-- Nốt 9, 11, 13 là *extension*, không phải "colour note". Hợp âm 7 của blues là *dominant 7th*, không viết trống "7 chords".
-- Một phím là *semitone / half step*; *step* đứng một mình dễ bị hiểu là một cung.
-- Chỗ lệch của cặp dây G–B gọi thống nhất là *the G–B shift*.
+Bảng thuật ngữ đầy đủ (Việt và Anh, dùng chung cho Theory và Practice), cách viết bậc (1 ♭3 3 5 ♭7, không dùng R) và các từ không dùng nằm ở [`docs/glossary.md`](../glossary.md). Test `theory/src/lessons/glossary.test.ts` kiểm tra lời giảng theo bảng đó.
 
 ## Đính chính so với sách
 

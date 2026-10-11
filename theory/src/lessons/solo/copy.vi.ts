@@ -9,8 +9,8 @@ export const vi: SoloCopy = {
     scale: {
       title: 'Chọn scale theo giọng',
       body: [
-        'Bắt đầu từ giọng. Nhà thứ hoặc blues: minor pentatonic, và với blues thì thêm ♭5, nốt blue. Nhà trưởng: major pentatonic. Nốt nào của nó cũng nghe ổn trên mọi hợp âm của giọng, nên đây là scale đầu tiên người chơi dùng để solo.',
-        'Phong cách quyết định màu sắc. Rock dựa vào minor pentatonic và nhéo dây. Blues thêm nốt blue và lối chơi swing thoải mái. Jazz dùng cả major scale và đi theo từng hợp âm, vì hợp âm jazz có bậc 7 mà pentatonic bỏ mất. Thử chuyển sang pentatonic sai một lần để nghe vì sao chọn đúng lại quan trọng.',
+        'Bắt đầu từ giọng. Giọng thứ hoặc blues: minor pentatonic, và với blues thì thêm ♭5, blue note. Giọng trưởng: major pentatonic. Nốt nào của nó cũng nghe ổn trên mọi hợp âm của giọng, nên đây là scale đầu tiên người chơi dùng để solo.',
+        'Phong cách quyết định màu sắc. Rock dựa vào minor pentatonic và bend. Blues thêm blue note và lối chơi swing thoải mái. Jazz dùng cả major scale và đi theo từng hợp âm, vì hợp âm jazz có bậc 7 mà pentatonic bỏ mất. Thử chuyển sang pentatonic sai một lần để nghe vì sao chọn đúng lại quan trọng.',
       ],
       takeaway: 'Giọng chọn scale; phong cách chọn màu.',
       tryIt: 'Chơi tự do trong box trên mỗi backing, mỗi cái một vòng. Rồi chuyển sang scale sai và nghe chỗ bị chỏi.',
@@ -19,7 +19,7 @@ export const vi: SoloCopy = {
       title: 'Nốt của hợp âm sáng lên',
       body: [
         'Scale cho biết nốt nào được phép. Hợp âm đang vang cho biết nốt nào mạnh nhất lúc này: chính các nốt của nó, bậc 1, 3, 5 và 7. Ở đây các nốt của hợp âm đang vang sáng lên, ghi theo vị trí của chúng trong hợp âm, và đổi theo khi backing đổi hợp âm.',
-        'Các nốt còn lại không sai. Chúng là nốt đi qua: tốt khi đang đi, yếu khi dừng lại. Dừng trên một nốt sáng, nhất là ở phách 1 và ở cuối câu, thì câu solo nghe như biết bài đang ở đâu.',
+        'Các nốt còn lại không sai. Chúng là passing note: tốt khi đang đi, yếu khi dừng lại. Dừng trên một nốt sáng, nhất là ở phách 1 và ở cuối câu, thì câu solo nghe như biết bài đang ở đâu.',
       ],
       takeaway: 'Scale nói nốt nào được phép; hợp âm nói nốt nào mạnh nhất.',
       tryIt: 'Chơi tự do, nhưng ở phách 1 của mỗi bar phải dừng trên một nốt sáng.',
@@ -84,9 +84,9 @@ export const vi: SoloCopy = {
       caption: 'Solo bằng {scale}, box 1 ở phím {fret}.',
       captionOpen: 'Solo bằng {scale}, box 1 ở thế bấm dây buông.',
       styles: {
-        blues: 'Blues: dựa vào ♭3 và nốt blue, nhéo chúng lên, và để nhịp shuffle làm câu nhạc swing.',
+        blues: 'Blues: dựa vào ♭3 và blue note, bend chúng lên, và để nhịp shuffle làm câu nhạc swing.',
         pop: 'Pop: câu nhạc như hát, lấy từ major pentatonic, đi từng bước, kết ở root hoặc bậc 3.',
-        rock: 'Rock: minor pentatonic, riff ngắn lặp lại, nhéo dây lên root và bậc 5.',
+        rock: 'Rock: minor pentatonic, riff ngắn lặp lại, bend lên root và bậc 5.',
         jazz: 'Jazz: đủ các nốt của major scale, chọn theo từng hợp âm. Hai bước sau chỉ cách làm.',
       },
       wrongCaption: '{scale}: {notes} không thuộc giọng, và chúng chỏi với các hợp âm. Nghe kỹ nhé.',
@@ -167,8 +167,8 @@ export const vi: SoloCopy = {
     { title: 'Thu từ đàn của bạn', why: 'Nốt được bấm trên màn hình chứ không thu qua micro. Bản thu gần nhất được giữ trong trình duyệt này, và nút Sao chép link để chia sẻ nó.' },
     { title: 'Câu dài hơn, ở giọng khác', why: 'Ba bốn nốt trong một box trước đã. Câu dài và box khác đến khi những câu này đã dễ.' },
     { title: 'Mode và scale cho từng hợp âm', why: 'Dân chơi jazz chọn scale theo từng hợp âm. Trên ii–V–I, tạm thời major scale là đủ.' },
-    { title: 'Nốt đi qua chromatic', why: 'Nốt ngoài scale trên đường tới một nốt của hợp âm. Học nốt đích trước.' },
+    { title: 'Passing note chromatic', why: 'Nốt ngoài scale trên đường tới một nốt của hợp âm. Học nốt đích trước.' },
     { title: 'Solo qua cả năm box', why: 'Một box là đủ để nhắm vào nốt của hợp âm. Nối các box sẽ học cùng bài scale phủ toàn cần đàn.' },
-    { title: 'Nhéo, vuốt và rung trong câu nhạc', why: 'Bài blues và bài đàn điện đã dạy các kỹ thuật này. Ở đây nốt và nhịp đi trước.' },
+    { title: 'Bend, slide và vibrato trong câu nhạc', why: 'Bài blues và bài đàn điện đã dạy các kỹ thuật này. Ở đây nốt và nhịp đi trước.' },
   ],
 };

@@ -9,7 +9,7 @@ export const vi: BluesCopy = {
     blueNote: {
       title: 'Thêm một nốt: ♭5',
       body: [
-        'Thêm một nốt vào pentatonic thứ, nốt ♭5 nằm giữa bậc 4 và bậc 5, là có minor blues scale: 1 ♭3 4 ♭5 5 ♭7. Nốt này nằm trong mọi box, cách nốt bên cạnh một phím, nên các shape vẫn giữ nguyên.',
+        'Thêm một nốt vào minor pentatonic, nốt ♭5 nằm giữa bậc 4 và bậc 5, là có minor blues scale: 1 ♭3 4 ♭5 5 ♭7. Nốt này nằm trong mọi box, cách nốt bên cạnh một phím, nên các shape vẫn giữ nguyên.',
         'Nốt ♭5 là passing note. Slide hoặc bước qua nó trên đường từ 4 sang 5; dừng lại và ngân trên nó nghe như chưa xong câu. Major blues cũng làm vậy với nốt ♭3 thêm vào major pentatonic, rồi slide lên bậc 3.',
       ],
       takeaway: 'Blues scale = pentatonic + một passing note: ♭5 ở giọng thứ, ♭3 ở giọng trưởng.',
