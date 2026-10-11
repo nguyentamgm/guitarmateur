@@ -99,6 +99,30 @@ describe('KeyboardShortcuts', () => {
     expect(transport.stop).not.toHaveBeenCalled();
   });
 
+  it('Space on an element with a button role (a tab fret number) is left to it', async () => {
+    await mount();
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('role', 'button');
+    svg.appendChild(g);
+    document.body.appendChild(svg);
+    extra = svg as unknown as HTMLElement;
+
+    await press(g, { code: 'Space' });
+
+    expect(transport.play).not.toHaveBeenCalled();
+  });
+
+  it('a key a control already handled (default prevented) is not a shortcut', async () => {
+    await mount();
+    await act(async () => {
+      const e = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, code: 'Space' });
+      e.preventDefault();
+      document.body.dispatchEvent(e);
+    });
+    expect(transport.play).not.toHaveBeenCalled();
+  });
+
   it('r on the body rerolls', async () => {
     await mount();
     await press(document.body, { key: 'r' });

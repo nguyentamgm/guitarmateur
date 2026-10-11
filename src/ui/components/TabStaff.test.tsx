@@ -82,18 +82,36 @@ describe('TabStaff in Theory\'s look', () => {
       { string: 2, fret: 7, pitch: { letter: 'A', alter: 0, octave: 3 }, startBeat: 1, durationBeats: 1, technique: 'pull', role: 'R' },
     ]);
     const { container, unmount } = await mount({ lick });
-    expect(texts(container, 'g.tabnum text')).toEqual(['7', '7b9', 'p7']);
+    expect(texts(container, 'g.tabnum text')).toEqual(['7', 'b9', 'p7']);
     expect(texts(container, 'text.tabcount')).toEqual(['½', '½', '1']);
     expect(texts(container, 'text.tabrole')).toEqual(['R', 'R']);
     await unmount();
   });
 
-  it('keeps the closest notes far enough apart that their numbers never touch', async () => {
-    const sixteenths = Array.from({ length: 16 }, (_, i) => ({ string: 2, fret: 12, pitch: D3, startBeat: i / 4, durationBeats: 0.25 }));
+  it('keeps neighbouring numbers apart, however wide their text', async () => {
+    // Sixteenths high on the neck, every other one a slide: '12', '/14', '12', '/14'…
+    const sixteenths: LickNote[] = Array.from({ length: 16 }, (_, i) => ({
+      string: 2,
+      fret: i % 2 ? 14 : 12,
+      pitch: D3,
+      startBeat: i / 4,
+      durationBeats: 0.25,
+      ...(i % 2 && { technique: 'slide' as const }),
+    }));
     const { container, unmount } = await mount({ lick: makeLick(4, sixteenths) });
     const rects = [...container.querySelectorAll('g.tabnum rect')].map((r) => ({ x: Number(r.getAttribute('x')), w: Number(r.getAttribute('width')) }));
     for (let i = 1; i < rects.length; i++) expect(rects[i]!.x).toBeGreaterThan(rects[i - 1]!.x + rects[i - 1]!.w);
     await unmount();
+  });
+
+  it('keeps a sparse 2-bar lick as narrow as a 1-bar one, so it fits a phone card', async () => {
+    const quarters = (beats: number): LickNote[] => Array.from({ length: beats }, (_, i) => ({ string: 2, fret: 7, pitch: D3, startBeat: i, durationBeats: 1 }));
+    const one = await mount({ lick: makeLick(4, quarters(4)) });
+    const oneWidth = one.container.querySelector('svg')!.getAttribute('viewBox');
+    await one.unmount();
+    const two = await mount({ lick: makeLick(8, quarters(8)) });
+    expect(two.container.querySelector('svg')!.getAttribute('viewBox')).toBe(oneWidth);
+    await two.unmount();
   });
 
   it('fills the sounding note', async () => {
@@ -105,9 +123,9 @@ describe('TabStaff in Theory\'s look', () => {
 
   it('with `play`, each number is a button that plays its note', async () => {
     const play = vi.fn();
-    const { container, unmount } = await mount({ lick: makeLick(4), play });
+    const { container, unmount } = await mount({ lick: makeLick(4), play, noteLabel: (n, text) => `String ${n}: ${text}` });
     const buttons = [...container.querySelectorAll<SVGGElement>('g.tabnum[role="button"]')];
-    expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(['E/5', 'A/5']);
+    expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(['String 6: 5', 'String 5: 5']);
     act(() => buttons[1]!.dispatchEvent(new MouseEvent('click', { bubbles: true })));
     expect(play).toHaveBeenCalledWith(50); // D3
     await unmount();

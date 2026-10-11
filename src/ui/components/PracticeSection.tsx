@@ -282,6 +282,7 @@ export function PracticeSection({
                       stringLabels={stringLabels}
                       leftHanded={state.leftHanded}
                       play={notePlayer(state.noteGain)}
+                      noteLabel={(n, text) => t('tab.noteAria', { n, text })}
                     />
 
                     {/* Per-card regenerate */}

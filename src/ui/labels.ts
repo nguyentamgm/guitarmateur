@@ -38,8 +38,9 @@ export function durationGlyph(beats: number): string {
 }
 
 /**
- * A note's text in tab, as Theory writes it (K6.4): the fret, with the technique *into* it.
- * Hammer 'h7', pull 'p5', slide '/9' or '\5', bend '7b9' (picked at the previous fret, bent up).
+ * A note's text in tab: the fret, with the technique *into* it from the note before, which has its
+ * own number (as '7h9' reads in plain tab, split at the time each note sounds). Hammer 'h9',
+ * pull 'p5', slide '/9' or '\5', bend 'b9' (the note before, bent up to sound as fret 9).
  */
 export function tabText(n: LickNote, prev: LickNote | undefined): string {
   switch (n.technique) {
@@ -51,7 +52,7 @@ export function tabText(n: LickNote, prev: LickNote | undefined): string {
       return prev && prev.fret > n.fret ? `\\${n.fret}` : `/${n.fret}`;
     case 'bendHalf':
     case 'bendFull':
-      return prev ? `${prev.fret}b${n.fret}` : `b${n.fret}`;
+      return `b${n.fret}`;
     default:
       return String(n.fret);
   }

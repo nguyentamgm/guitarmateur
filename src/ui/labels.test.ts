@@ -46,14 +46,15 @@ describe('tabText', () => {
     technique,
   });
 
-  it('writes the technique into the fret as Theory does: h7, p5, /9, \\5, 7b9', () => {
+  it('writes the technique into the fret: h7, p5, /9, \\5, b9', () => {
     expect(tabText(at(7), undefined)).toBe('7');
     expect(tabText(at(7, 'hammer'), at(6))).toBe('h7');
     expect(tabText(at(5, 'pull'), at(6))).toBe('p5');
     expect(tabText(at(9, 'slide'), at(7))).toBe('/9');
     expect(tabText(at(5, 'slide'), at(7))).toBe('\\5');
-    expect(tabText(at(9, 'bendFull'), at(7))).toBe('7b9');
-    expect(tabText(at(8, 'bendHalf'), at(7))).toBe('7b8');
+    // The note before has its own number: a bend is the bend up to the fret it sounds as.
+    expect(tabText(at(9, 'bendFull'), at(7))).toBe('b9');
+    expect(tabText(at(8, 'bendHalf'), at(7))).toBe('b8');
   });
 });
 
