@@ -220,14 +220,14 @@ export function Fretboard({
                     {text}
                   </text>
                 )}
-                {/* Apart from the label, so the dot's visible text reads "♭3 3", not "♭33". */}
-                {text !== undefined && d.mark !== undefined && ' '}
-                {d.mark !== undefined && (
-                  <text className="mark" x={markX} y={cy - 9} transform={upright(markX)}>
-                    {d.mark}
-                  </text>
-                )}
               </g>,
+              // Beside the button, not in it: its visible text stays the label, which leads the
+              // name; the mark is said in the name after the tone ("chord tone 3").
+              d.mark !== undefined && (
+                <text key={`${d.key}-mark`} className="mark" x={markX} y={cy - 9} transform={upright(markX)}>
+                  {d.mark}
+                </text>
+              ),
             ];
           })}
         </g>

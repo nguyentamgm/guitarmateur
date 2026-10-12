@@ -48,7 +48,7 @@
 .dot.target circle { fill: var(--amber); stroke: none; }
 .dot.target text { fill: var(--amber-ink); }
 .halo { fill: none; stroke: var(--neck-accent, var(--accent)); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
-.dot text.mark { fill: var(--neck-accent, var(--accent)); font-size: 9px; font-weight: 700; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
+text.mark { fill: var(--neck-accent, var(--accent)); font-family: var(--f-mono); font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
 
 /* Tab (Theory's Tab, Practice's TabStaff): string lines and names, a number box per note (the
    sounding one filled), bar lines and a row of counts under it. Practice adds beat ticks and

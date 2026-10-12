@@ -39,12 +39,13 @@ describe('shared Fretboard', () => {
     expect(halo.nextElementSibling).toBe(dot(c, 'e'));
     expect(c.querySelectorAll('circle.halo')).toHaveLength(1);
     expect(dot(c, 'c').getAttribute('class')).toBe('dot chord');
-    expect(dot(c, 'c').querySelector('text.mark')!.textContent).toBe('3');
+    expect(dot(c, 'c').nextElementSibling!.matches('text.mark')).toBe(true);
+    expect(dot(c, 'c').nextElementSibling!.textContent).toBe('3');
     expect(dot(c, 'eb').getAttribute('class')).toBe('dot blue');
   });
 
   it('labels dots with degrees by default, note names on request; an explicit label wins', () => {
-    const texts = (c: HTMLElement) => [...c.querySelectorAll('g.dot > text:not(.mark)')].map((t) => t.textContent);
+    const texts = (c: HTMLElement) => [...c.querySelectorAll('g.dot > text')].map((t) => t.textContent);
     expect(texts(render({ dots }))).toEqual(['1', '♭3', '5', '♭5', '4']);
     expect(texts(render({ dots, labels: 'name' }))).toEqual(['A', 'C', 'E', 'E♭', 'D']);
     expect(texts(render({ dots: [{ ...dots[0]!, label: 'R' }] }))).toEqual(['R']);
@@ -74,7 +75,7 @@ describe('shared Fretboard', () => {
     expect(label.getAttribute('transform')).toBe(`translate(${2 * g.x(5)} 0) scale(-1 1)`);
     expect(c.querySelector('text.sname')!.getAttribute('text-anchor')).toBe('end');
     // The role mark stays at the dot's top right as seen: drawn left of it before mirroring.
-    expect(dot(c, 'c').querySelector('text.mark')!.getAttribute('x')).toBe(String(g.x(8) - 11));
+    expect(dot(c, 'c').nextElementSibling!.getAttribute('x')).toBe(String(g.x(8) - 11));
     // Right-handed: no transforms at all.
     expect(render({ dots }).querySelector('svg > g')!.getAttribute('transform')).toBeNull();
   });
@@ -114,8 +115,8 @@ describe('keyboard and screen reader', () => {
     expect(names(render({ dots: [{ key: 'x', string: 3, fret: 2, midi: 57, label: '1', tone: 'home' }], words }))).toEqual(['1, fret 2, string 3, root']);
   });
 
-  it('keeps a space between a dot\'s label and its mark, so its text reads "♭3 3"', () => {
-    expect(dot(render({ dots, words }), 'c').textContent).toBe('♭3 3');
+  it('draws the mark beside the button, so the button\'s visible text is its label, which leads its name', () => {
+    expect(dot(render({ dots, words }), 'c').textContent).toBe('♭3');
   });
 
   it('is one Tab stop: the first lit dot, then the one last focused; dimmed dots are in it too', () => {
