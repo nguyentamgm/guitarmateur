@@ -154,11 +154,10 @@ export function ProgressionSection({
                 onDragOver={handleDragOver}
                 onDrop={handleDrop(i)}
                 onDragEnd={() => dispatch({ type: 'dragEnd' })}
+                className="chord-chip"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 10px',
                   borderRadius: 9,
                   border: `1px solid ${theme.border}`,
                   background: theme.card,
@@ -178,6 +177,7 @@ export function ProgressionSection({
                     bars: t('progression.bars', { count: entry.bars }),
                   })}
                   title={t('progression.bars', { count: entry.bars })}
+                  className="hit"
                   onClick={() => dispatch({ type: 'setBars', id: entry.id, bars: entry.bars === 1 ? 2 : 1 })}
                   style={{
                     background: entry.bars === 2 ? theme.accentTint : 'transparent',
@@ -196,6 +196,7 @@ export function ProgressionSection({
                 <button
                   type="button"
                   aria-label={t('progression.removeChord', { chord: chordLabel(entry.chord) })}
+                  className="hit"
                   onClick={() => dispatch({ type: 'removeChord', id: entry.id })}
                   style={{
                     background: 'none',

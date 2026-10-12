@@ -24,3 +24,21 @@ input[type='range'] {
 ::selection {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
+
+/* The playback bar's gaps; at phone width they tighten so it stays short while it sticks. */
+.transport { gap: 18px; }
+.transport-tempo { gap: 10px; }
+/* A chord of the progression (Step 2); tighter at phone width, so two still fit on a row. */
+.chord-chip { gap: 8px; padding: 8px 10px; }
+
+/* Phone width: a 40px box to tap (`.hit` on the small icon and text buttons); the sliders get the
+   same height, their track still drawn thin; the tempo slider takes what the row has left. */
+@media (max-width: 560px) {
+  .hit { min-width: 40px; min-height: 40px; }
+  input[type='range'] { height: 40px; }
+  .transport { gap: 8px 12px; }
+  .transport-tempo { flex: 1 1 0; min-width: 0; gap: 6px; }
+  .transport-tempo input[type='range'] { flex: 1 1 0; min-width: 0; }
+  .transport .chip.text { padding-inline: 10px; }
+  .chord-chip { gap: 2px; padding: 0 6px; }
+}

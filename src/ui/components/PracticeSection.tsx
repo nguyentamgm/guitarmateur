@@ -202,7 +202,7 @@ export function PracticeSection({
             </div>
 
             {/* Cards grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: 14 }}>
               {licks.map(({ entryId, lick }, i) => {
                 const entry = chordMap.get(entryId);
                 if (!entry) return null;
@@ -290,6 +290,7 @@ export function PracticeSection({
                       <button
                         type="button"
                         aria-label={t('practice.rerollAria', { chord: targetTone })}
+                        className="hit"
                         onClick={() => dispatch({ type: 'rerollLick', id: entryId })}
                         style={{
                           background: 'none',

@@ -84,10 +84,10 @@ export function PlaybackControls({
 
   return (
     <div
+      className="transport"
       style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 18,
         alignItems: 'center',
         padding: '12px 14px',
         marginBottom: 18,
@@ -123,7 +123,7 @@ export function PlaybackControls({
       </button>
 
       {/* Tempo */}
-      <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <label className="transport-tempo" style={{ display: 'flex', alignItems: 'center' }}>
         <span style={{ fontSize: 13, color: theme.muted, fontWeight: 600 }}>{t('playback.tempo')}</span>
         <input
           type="range"
@@ -209,6 +209,7 @@ function TempoField({
       }}
       onBlur={() => setDraft(String(value))}
       aria-label={ariaLabel}
+      className="hit"
       style={{
         width: 52,
         padding: '4px 6px',
