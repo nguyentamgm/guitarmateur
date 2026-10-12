@@ -27,6 +27,10 @@
   "legend.root": "root",
   "legend.scaleNote": "nốt của scale",
   "legend.target": "nốt đích · {role}",
+  "lesson.keys": "Giọng và vòng hợp âm: gọi hợp âm bằng số",
+  "lesson.pentatonic": "Pentatonic trên toàn cần đàn",
+  "lesson.pentatonic-map": "Bản đồ Pentatonic",
+  "lesson.solo": "Solo theo hợp âm: nhắm vào nốt của hợp âm",
   "nav.brand": "Guitarmateur",
   "nav.label": "Các mục",
   "nav.lessons": "Bài học",
@@ -142,5 +146,6 @@
   "tab.emptyLick": "lick trống",
   "tab.noteAria": "Dây {n}: {text}",
   "tuning.dropD": "Drop D",
-  "tuning.standard": "Chuẩn"
+  "tuning.standard": "Chuẩn",
+  "why.label": "Vì sao?"
 }
