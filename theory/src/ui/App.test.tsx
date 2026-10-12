@@ -82,7 +82,7 @@ describe('Theory app', () => {
 
   it('switches to Vietnamese and remembers it', () => {
     render('/theory');
-    click(button('Tiếng Việt'));
+    click(container.querySelector('button[lang="vi"]')!);
     expect(text()).toContain('Học cần đàn qua hình');
     expect(document.documentElement.lang).toBe('vi');
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
@@ -121,7 +121,7 @@ describe('Theory app', () => {
     // A lesson belongs to Lessons.
     expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
     expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
-    click(button('Tiếng Việt'));
+    click(container.querySelector('button[lang="vi"]')!);
     expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
   });
 
@@ -132,7 +132,7 @@ describe('Theory app', () => {
 
   it('marks the language switcher with a globe', () => {
     render('/theory');
-    const group = container.querySelector('[role="group"][aria-label="Language"]')!;
+    const group = container.querySelector('[role="radiogroup"][aria-label="Language"]')!;
     expect(group.querySelector('svg.globe[aria-hidden="true"]')).not.toBeNull();
   });
 
@@ -197,7 +197,7 @@ describe('Theory app', () => {
     expect(home.querySelector('a.trainer')!.textContent).toBe('Practise licks in Practice, over C–F →');
     expect(payload(home.querySelector('a.trainer')!).state.key).toEqual({ tonic: { letter: 'C', alter: 0 }, scaleId: 'majorPentatonic' });
 
-    click(button('Tiếng Việt'));
+    click(container.querySelector('button[lang="vi"]')!);
     expect(link.textContent).toBe('Tập lick trong app Luyện tập, trên Am7–Dm7 →');
     expect(payload(link).lang).toBe('vi');
   });
@@ -474,7 +474,7 @@ describe('Theory app', () => {
       expect(section.querySelector('.caption')!.textContent).toBe('Pattern: D-DU-UDU');
       click(section.querySelectorAll('.block')[1]!);
       expect(section.querySelector('.caption')!.textContent).toBe('Pattern: DUDU-UDU');
-      expect(section.querySelector('.chip[aria-pressed="true"]')!.textContent).toBe('Your own');
+      expect(section.querySelector('.chip[aria-checked="true"]')!.textContent).toBe('Your own');
     });
   });
 
@@ -544,7 +544,7 @@ describe('Theory app', () => {
       const section = container.querySelector('section#record')!;
       expect(section.querySelector('.caption')!.textContent).toBe('A shared take. Press Hear it back to hear it over its backing.');
       expect([...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back')).toBe(true);
-      expect(section.querySelector('[aria-pressed="true"]')!.textContent).toBe('Pop I–V–vi–IV');
+      expect(section.querySelector('[aria-checked="true"]')!.textContent).toBe('Pop I–V–vi–IV');
     });
 
     it('brings back the last take, and forgets it when cleared', () => {
@@ -577,7 +577,7 @@ describe('Theory app', () => {
       // A space keeps the title and the status apart in the link's name.
       expect(container.querySelector('a.lesson-card[href="/theory/blues"] .lesson-title')!.textContent).toBe(`${blues.copy.en.title} Quiz in progress`);
 
-      click(button('Tiếng Việt'));
+      click(container.querySelector('button[lang="vi"]')!);
       expect(status('fretboard')).toBe('Chưa làm bài đố');
       expect(status('blues')).toBe('Đang làm bài đố');
       expect(status('barre')).toBe('Đã xong bài đố');

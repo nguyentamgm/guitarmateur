@@ -1,5 +1,6 @@
 import { LOCALES, type LocaleId } from '../../i18n';
 import { GlobeIcon } from '@shared/ui/GlobeIcon';
+import { RadioGroup } from '@shared/ui/controls';
 import { useT } from '../useT';
 
 /**
@@ -34,7 +35,7 @@ export function SiteHeader({
               {t('nav.practice')}
             </a>
           </nav>
-          <div className="group" role="group" aria-label={t('common.language')}>
+          <RadioGroup className="group" label={t('common.language')}>
             <GlobeIcon />
             {Object.values(LOCALES).map((locale) => (
               <button
@@ -42,14 +43,17 @@ export function SiteHeader({
                 type="button"
                 className="chip"
                 lang={locale.tag}
-                aria-pressed={locale.id === language}
-                aria-label={locale.endonym}
+                role="radio"
+                aria-checked={locale.id === language}
+                tabIndex={locale.id === language ? 0 : -1}
+                // The name holds the shown code too, so "EN" / "VI" is what a voice user can say.
+                aria-label={`${locale.endonym} (${locale.id.toUpperCase()})`}
                 onClick={() => onLanguage(locale.id)}
               >
                 {locale.id.toUpperCase()}
               </button>
             ))}
-          </div>
+          </RadioGroup>
         </div>
       </header>
     </div>

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Button, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
+import { Button, Chip, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
 
 const roots: Root[] = [];
 function render(el: ReactElement) {
@@ -29,26 +29,82 @@ describe('shared controls', () => {
     );
   });
 
-  it('ChipGroup: a labelled group, one chip pressed', () => {
+  it('ChipGroup: a labelled radio group, one chip checked and the only Tab stop', () => {
     const onChange = vi.fn();
     const c = render(createElement(ChipGroup<string>, { label: 'Key', items: [{ value: 'A', text: 'A' }, { value: 'E', text: 'E' }], value: 'E', onChange }));
-    expect(c.querySelector('[role="group"]')!.getAttribute('aria-label')).toBe('Key');
-    const chips = [...c.querySelectorAll('button.chip')];
-    expect(chips.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
-    act(() => (chips[0] as HTMLButtonElement).click());
+    expect(c.querySelector('[role="radiogroup"]')!.getAttribute('aria-label')).toBe('Key');
+    const chips = [...c.querySelectorAll<HTMLButtonElement>('button.chip')];
+    expect(chips.map((b) => b.getAttribute('role'))).toEqual(['radio', 'radio']);
+    expect(chips.map((b) => b.getAttribute('aria-checked'))).toEqual(['false', 'true']);
+    expect(chips.map((b) => b.tabIndex)).toEqual([-1, 0]);
+    expect(chips[0]!.hasAttribute('aria-pressed')).toBe(false);
+    act(() => chips[0]!.click());
     expect(onChange).toHaveBeenCalledWith('A');
   });
 
-  it('KeyPicker: each key with its fret, the current one pressed', () => {
+  it('RadioGroup: the arrow keys move the choice and the focus, wrapping; other keys do nothing', () => {
+    const onChange = vi.fn();
+    const items = ['A', 'B', 'C'].map((v) => ({ value: v, text: v }));
+    const c = render(createElement(ChipGroup<string>, { label: 'Key', items, value: 'B', onChange }));
+    document.body.append(c);
+    const chips = [...c.querySelectorAll<HTMLButtonElement>('button.chip')];
+    const key = (el: HTMLElement, k: string) => act(() => el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })));
+    key(chips[1]!, 'ArrowRight');
+    expect(onChange).toHaveBeenLastCalledWith('C');
+    expect(document.activeElement).toBe(chips[2]);
+    key(chips[2]!, 'ArrowDown');
+    expect(onChange).toHaveBeenLastCalledWith('A');
+    key(chips[0]!, 'ArrowLeft');
+    expect(onChange).toHaveBeenLastCalledWith('C');
+    key(chips[1]!, 'ArrowUp');
+    expect(onChange).toHaveBeenLastCalledWith('A');
+    key(chips[1]!, 'x');
+    expect(onChange).toHaveBeenCalledTimes(4);
+    c.remove();
+  });
+
+  it('ChipGroup / KeyPicker with nothing checked: the first radio still takes Tab', () => {
+    const items = ['A', 'B'].map((v) => ({ value: v, text: v }));
+    const c = render(createElement(ChipGroup<string>, { label: 'Answer', items, value: 'none', onChange: () => {} }));
+    expect([...c.querySelectorAll<HTMLButtonElement>('button.chip')].map((b) => b.tabIndex)).toEqual([0, -1]);
+    const k = render(createElement(KeyPicker<string>, { label: 'Key', keys: ['A', 'C'], name: (x) => x, fret: () => 0, value: 'E', onChange: () => {} }));
+    expect([...k.querySelectorAll('button')].map((b) => b.tabIndex)).toEqual([0, -1]);
+  });
+
+  it('RadioGroup `manual`: the arrow keys move the focus only; a click chooses', () => {
+    const onChange = vi.fn();
+    const items = ['A', 'B'].map((v) => ({ value: v, text: v }));
+    const c = render(createElement(ChipGroup<string>, { label: 'Answer', items, value: 'none', onChange, manual: true }));
+    document.body.append(c);
+    const chips = [...c.querySelectorAll<HTMLButtonElement>('button.chip')];
+    act(() => chips[0]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })));
+    expect(document.activeElement).toBe(chips[1]);
+    expect(onChange).not.toHaveBeenCalled();
+    act(() => chips[1]!.click());
+    expect(onChange).toHaveBeenCalledWith('B');
+    c.remove();
+  });
+
+  it('Chip without `radio` stays a toggle button', () => {
+    const c = render(createElement(Chip, { pressed: true, onClick: () => {}, children: 'Loop' }));
+    const b = c.querySelector('button')!;
+    expect(b.getAttribute('aria-pressed')).toBe('true');
+    expect(b.hasAttribute('role')).toBe(false);
+    expect(b.hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('KeyPicker: each key with its fret, a radio group with the current one checked', () => {
     const onChange = vi.fn();
     const frets: Record<string, number> = { A: 5, 'B♭': 6, C: 8 };
     const c = render(
       createElement(KeyPicker<string>, { label: 'Key', keys: ['A', 'B♭', 'C'], name: (k) => k, fret: (k) => frets[k]!, value: 'B♭', onChange }),
     );
-    expect(c.querySelector('.finder[role="group"]')!.getAttribute('aria-label')).toBe('Key');
+    expect(c.querySelector('.finder[role="radiogroup"]')!.getAttribute('aria-label')).toBe('Key');
     const buttons = [...c.querySelectorAll('button')];
     expect(buttons.map((b) => b.textContent)).toEqual(['A 5', 'B♭ 6', 'C 8']);
-    expect(buttons.map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'true', 'false']);
+    expect(buttons.map((b) => b.getAttribute('role'))).toEqual(['radio', 'radio', 'radio']);
+    expect(buttons.map((b) => b.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
+    expect(buttons.map((b) => b.tabIndex)).toEqual([-1, 0, -1]);
     act(() => buttons[2]!.click());
     expect(onChange).toHaveBeenCalledWith('C');
   });

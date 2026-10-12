@@ -5,7 +5,7 @@ import { font, theme } from '../theme';
 import { Panel, PillButton, StepHead, StepHints, TextButton } from './primitives';
 import { useT } from '../useT';
 import { BarGrid, type BarCell } from '@shared/ui/BarGrid';
-import { KeyPicker } from '@shared/ui/controls';
+import { KeyPicker, RadioGroup } from '@shared/ui/controls';
 
 /** Step 2 — build the chord progression licks are generated against, shown as a bar grid. */
 export function ProgressionSection({
@@ -94,9 +94,9 @@ export function ProgressionSection({
             />
 
             <Label style={{ marginTop: 14 }}>{t('progression.quality')}</Label>
-            <Row>
+            <Row label={t('progression.quality')}>
               {(Object.keys(CHORD_QUALITIES) as QualityId[]).map((id) => (
-                <PillButton key={id} selected={id === advQuality} wide onClick={() => dispatch({ type: 'setAdvQuality', quality: id })}>
+                <PillButton key={id} radio selected={id === advQuality} wide onClick={() => dispatch({ type: 'setAdvQuality', quality: id })}>
                   {t(`quality.${id}`)}
                 </PillButton>
               ))}
@@ -230,6 +230,15 @@ function Label({ children, style }: { children: React.ReactNode; style?: React.C
   return <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 8, ...style }}>{children}</div>;
 }
 
-function Row({ children }: { children: React.ReactNode }) {
-  return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{children}</div>;
+const ROW: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: 8 };
+
+/** A row of chips; with `label`, a radio group (one choice) named by it. */
+function Row({ children, label }: { children: React.ReactNode; label?: string }) {
+  return label ? (
+    <RadioGroup label={label} style={ROW}>
+      {children}
+    </RadioGroup>
+  ) : (
+    <div style={ROW}>{children}</div>
+  );
 }

@@ -23,10 +23,16 @@ describe('SiteHeader', () => {
 
   it('switches language with EN/VI chips', () => {
     const { container, onLanguage } = render({ language: 'vi' });
-    const vi = container.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!;
+    const vi = container.querySelector<HTMLButtonElement>('button[lang="vi"]')!;
     expect(vi.textContent).toBe('VI');
-    expect(vi.getAttribute('aria-pressed')).toBe('true');
-    act(() => container.querySelector<HTMLButtonElement>('button[aria-label="English"]')!.click());
+    // A radio named by the language and the shown code (what a voice user says), one Tab stop.
+    expect(vi.getAttribute('role')).toBe('radio');
+    expect(vi.getAttribute('aria-label')).toBe('Tiếng Việt (VI)');
+    expect(vi.getAttribute('aria-checked')).toBe('true');
+    expect(vi.tabIndex).toBe(0);
+    const en = container.querySelector<HTMLButtonElement>('button[lang="en"]')!;
+    expect(en.tabIndex).toBe(-1);
+    act(() => en.click());
     expect(onLanguage).toHaveBeenCalledWith('en');
   });
 });

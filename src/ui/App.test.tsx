@@ -49,7 +49,7 @@ describe('App', () => {
 
       // The EN/VI switch translates the nav: no untranslated labels in VI.
       await act(async () => {
-        language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
+        language.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
       expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
       expect(container.querySelector('h1')?.textContent).toBe('Luyện tập');
@@ -85,7 +85,7 @@ describe('App', () => {
       expect(container.querySelector('section')!.textContent).toContain('Why? The Pentatonic Map · Pentatonic, the Whole Neck');
 
       await act(async () => {
-        container.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
+        container.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
       // The lesson opens in the page's language too.
       expect(why()[0]).toEqual(['Bản đồ Pentatonic', '/theory/pentatonic-map?lang=vi#boxes']);
