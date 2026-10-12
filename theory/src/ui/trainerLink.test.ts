@@ -81,6 +81,13 @@ describe('trainerLink', () => {
     expect(payload(trainerLink({ tonic: n('C'), scale: 'majorPentatonic' }, [c], { saved: { positions: [3] } })!).positions).toBeUndefined();
   });
 
+  it('ignores a box number that is not 1–5, rather than opening a wrong box', () => {
+    const c: Chord = { root: n('A'), id: 'minor' };
+    const at = (boxes: number[]) => payload(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c], { boxes })!).positions;
+    expect(at([0, 6, 2.5])).toBeUndefined();
+    expect(at([0, 2])).toEqual([1]);
+  });
+
   it('turns swing on or off when asked, and keeps the saved setting otherwise', () => {
     const c: Chord = { root: n('A'), id: 'dom7' };
     const key = { tonic: n('A'), scale: 'minorBlues' } as const;

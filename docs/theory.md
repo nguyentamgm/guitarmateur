@@ -138,7 +138,9 @@ ui → lessons → core/fretboard → core/music
   scale or a chord. The lesson's language goes in `&lang=`, never in the share payload: the practice
   app opens in it, over the language it was last used in. A link may also set the box(es), given
   in our numbering (box 1 from the minor root on string 6, even in a major key) and turned into the
-  practice app's (by the degree a box starts on), and swing. `VampLink` is for a scene with no
+  practice app's (by the degree a box starts on), and swing (on for a shuffle backing). Of two
+  boxes, the practice app keeps only the first when it draws them apart: it puts every box at its
+  lowest frets, so the pair that straddles the nut (box 3 → 4 in A minor) is not side by side there. `VampLink` is for a scene with no
   progression of its own: the key's i and iv (m7) or I and IV, two bars each. Links today: the
   Pentatonic Map (boxes, keys, root), Pentatonic across the neck (boxes, joins, sequences, major),
   Blues (the 12-bar, swing on), Keys and progressions, and Soloing.

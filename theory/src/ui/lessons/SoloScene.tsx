@@ -181,6 +181,7 @@ function ScaleScene({ copy }: { copy: SceneCopy }) {
         trainerKey={{ tonic: choice.tonic, scale: BACKINGS[choice.id].scale }}
         chords={choice.bars.map((b) => b.chord)}
         tempoBpm={choice.bpm}
+        swing={BACKINGS[choice.id].style === 'shuffle'}
         progressionKey={`${format(choice.tonic)} ${choice.id}`}
       />
     </div>

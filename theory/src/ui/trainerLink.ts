@@ -8,7 +8,7 @@
  * The lesson's language rides along as `&lang=`, outside the shared state: the practice app opens
  * in it, whatever language it was last used in.
  */
-import { interval, sameNote, transpose, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
+import { SCALES, interval, sameNote, transpose, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import { PRACTICE_STATE_KEY } from '@shared/i18n/language';
 import { browserStorage, type KeyValue } from '../platform/storage';
@@ -64,7 +64,11 @@ export interface TrainerOptions {
   /** The practice app's saved state, as stored; its other settings are kept. */
   readonly saved?: unknown;
   readonly tempoBpm?: number;
-  /** Boxes to open on, numbered as our lessons do (1–5); one, or two side by side. */
+  /**
+   * Boxes to open on, numbered as our lessons do (1–5); one, or two side by side. The practice app
+   * keeps only the first of two it draws apart: it puts each box at its lowest frets, so the pair
+   * that straddles the nut (box 3 → 4 in A minor) is not side by side there.
+   */
   readonly boxes?: readonly number[];
   /** Swing the eighths (a shuffle). */
   readonly swing?: boolean;
@@ -87,8 +91,7 @@ export function readPracticeState(storage: KeyValue | null = browserStorage()): 
  * major one: something to play a box over when the lesson has no chord progression of its own.
  */
 export function vamp(key: TrainerKey): Chord[] {
-  const minor = key.scale === 'minorPentatonic' || key.scale === 'minorBlues' || key.scale === 'naturalMinor';
-  const id: ChordId = minor ? 'm7' : 'major';
+  const id: ChordId = SCALES[key.scale].quality === 'minor' ? 'm7' : 'major';
   const four = transpose(key.tonic, interval('4'));
   return [key.tonic, key.tonic, four, four].map((root) => ({ root, id }));
 }
@@ -121,7 +124,9 @@ export function trainerLink(key: TrainerKey, chords: readonly Chord[], opts: Tra
   const state: Record<string, unknown> = { ...Object.fromEntries(Object.entries(saved).filter(([k]) => !dropped.has(k))), key: { tonic, scaleId }, progression };
   if (opts.tempoBpm !== undefined) state.tempoBpm = opts.tempoBpm;
   const offset = BOX_OFFSET[key.scale];
-  if (opts.boxes?.length && offset !== undefined) state.positions = opts.boxes.map((n) => (n - 1 + offset) % 5);
+  // Only real box numbers: anything else would be a wrong box, not a missing one.
+  const boxes = opts.boxes?.filter((n) => Number.isInteger(n) && n >= 1 && n <= 5) ?? [];
+  if (boxes.length && offset !== undefined) state.positions = boxes.map((n) => (n - 1 + offset) % 5);
   if (opts.swing !== undefined) state.swingEnabled = opts.swing;
   const lang = opts.lang ? `&lang=${opts.lang}` : '';
   return `/?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify(state)))}`)}${lang}`;

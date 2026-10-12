@@ -43,7 +43,9 @@ export function TrainerLink({
 /** For a lesson with no progression of its own: practise the key's scale, in its box, over a short vamp. */
 export function VampLink({ trainerKey, boxes }: { trainerKey: TrainerKey; boxes?: readonly number[] }) {
   const { ui } = useTheory();
-  const chords = vamp(trainerKey);
+  const { tonic, scale } = trainerKey;
+  // Scenes with a clock re-render on every tick: build the vamp once per key.
+  const chords = useMemo(() => vamp({ tonic, scale }), [tonic, scale]);
   // "Am7–Dm7": the vamp's two chords, each held for two bars.
   const names = [chords[0]!, chords[2]!].map(chordSymbol).join('–');
   return (

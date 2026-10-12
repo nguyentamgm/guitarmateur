@@ -192,6 +192,14 @@ describe('Theory app', () => {
     expect(payload(link).lang).toBe('vi');
   });
 
+  it("swings Practice for the soloing lesson's shuffle backing, not for a straight one", () => {
+    render('/theory/solo');
+    const scene = container.querySelector('section#scale')!;
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'blues' }, swingEnabled: true });
+    click([...scene.querySelectorAll('button')].find((b) => b.textContent?.startsWith('Rock'))!);
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, swingEnabled: false });
+  });
+
   it('links the 12-bar blues to Practice: the minor blues scale, the form, swing on', () => {
     render('/theory/blues');
     const blues = container.querySelector('section#twelveBar a.trainer')!;
