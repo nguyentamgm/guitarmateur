@@ -94,7 +94,6 @@
   "progression.addChord": "Add {chord}",
   "progression.advancedHide": "Hide the chord picker",
   "progression.advancedShow": "Pick any chord",
-  "progression.advancedToggleAria": "Show or hide the chord picker",
   "progression.bars.one": "{count} bar",
   "progression.bars.other": "{count} bars",
   "progression.barsToggle": "{chord}, {bars}: click to switch between 1 and 2 bars",

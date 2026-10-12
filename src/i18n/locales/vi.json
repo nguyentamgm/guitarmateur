@@ -94,7 +94,6 @@
   "progression.addChord": "Thêm {chord}",
   "progression.advancedHide": "Ẩn bảng chọn hợp âm",
   "progression.advancedShow": "Chọn hợp âm bất kỳ",
-  "progression.advancedToggleAria": "Hiện hoặc ẩn bảng chọn hợp âm",
   "progression.bars.one": "{count} bar",
   "progression.bars.other": "{count} bar",
   "progression.barsToggle": "{chord}, {bars}: bấm để đổi giữa 1 và 2 bar",

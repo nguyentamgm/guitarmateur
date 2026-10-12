@@ -145,16 +145,17 @@ export function Toggle({
 export function TextButton({
   onClick,
   children,
-  ariaLabel,
+  expanded,
 }: {
   onClick: () => void;
   children: ReactNode;
-  ariaLabel?: string;
+  /** It shows or hides a panel: open or not (`aria-expanded`). */
+  expanded?: boolean;
 }) {
   return (
     <button
       type="button"
-      aria-label={ariaLabel}
+      aria-expanded={expanded}
       onClick={onClick}
       className="hit"
       style={{

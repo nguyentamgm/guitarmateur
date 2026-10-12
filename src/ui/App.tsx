@@ -128,7 +128,7 @@ export function App() {
         onLanguage={(language) => dispatch({ type: 'setLanguage', language })}
       />
       {/* Same 1000px column as the site header (and Theory's pages). */}
-      <div style={{ maxWidth: 1032, margin: '0 auto', padding: '30px 16px 70px' }}>
+      <main style={{ display: 'block', maxWidth: 1032, margin: '0 auto', padding: '30px 16px 70px' }}>
         <div style={{ marginBottom: 34 }}>
           <div style={{ fontSize: 14, color: theme.muted, fontWeight: 600 }}>{t('app.kicker')}</div>
           <h1 style={{ fontSize: 'clamp(1.8rem, 4.2vw, 2.5rem)', margin: '6px 0 8px' }}>
@@ -180,7 +180,7 @@ export function App() {
           <ProgressionSection state={state} dispatch={dispatch} currentBar={bar} />
           <PracticeSection state={state} dispatch={dispatch} onPlay={markPlayed} onBar={setBar} labels={labels} />
         </ErrorBoundary>
-      </div>
+      </main>
     </>
   );
 }

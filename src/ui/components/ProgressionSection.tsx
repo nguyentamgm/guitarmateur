@@ -75,7 +75,7 @@ export function ProgressionSection({
         </div>
 
         <div style={{ marginTop: 14 }}>
-          <TextButton onClick={() => dispatch({ type: 'toggleAdvanced' })} ariaLabel={t('progression.advancedToggleAria')}>
+          <TextButton onClick={() => dispatch({ type: 'toggleAdvanced' })} expanded={advancedOpen}>
             {advancedOpen ? t('progression.advancedHide') : t('progression.advancedShow')}
           </TextButton>
         </div>
