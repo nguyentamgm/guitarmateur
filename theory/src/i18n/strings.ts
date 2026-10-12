@@ -41,6 +41,8 @@ const en = {
   reviewFooter: 'Scores stay in this browser. Nothing is tracked or uploaded.',
   tempoBest: 'Best: {bpm} BPM',
   trainerLink: 'Practise licks over this in the Guitarmateur trainer →',
+  /** A link to Practice over a short vamp, for a lesson with no progression: '{chords}' is 'Am7–Dm7'. */
+  trainerVamp: 'Practise licks in Practice, over {chords} →',
 };
 
 export type UiStrings = typeof en;
@@ -81,6 +83,7 @@ const vi: UiStrings = {
   reviewFooter: 'Điểm chỉ nằm trong trình duyệt này. Không theo dõi, không tải gì lên.',
   tempoBest: 'Tốt nhất: {bpm} BPM',
   trainerLink: 'Tập lick trên vòng này trong app Luyện tập của Guitarmateur →',
+  trainerVamp: 'Tập lick trong app Luyện tập, trên {chords} →',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };

@@ -3,11 +3,12 @@
  * learner can practise licks over what a lesson just taught. It writes the practice app's share
  * format (`/?s=v1:` + base64 JSON) by hand; the two apps share no code. Starting from the practice
  * app's own saved settings (same origin, its own key), it replaces only the key, the progression
- * and, when given, the tempo, so the learner's tuning, left-handed view and volumes survive.
+ * and, when given, the tempo, the box(es) and swing, so the learner's tuning, left-handed view and
+ * volumes survive.
  * The lesson's language rides along as `&lang=`, outside the shared state: the practice app opens
  * in it, whatever language it was last used in.
  */
-import { sameNote, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
+import { interval, sameNote, transpose, type Chord, type ChordId, type NoteName, type ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import { PRACTICE_STATE_KEY } from '@shared/i18n/language';
 import { browserStorage, type KeyValue } from '../platform/storage';
@@ -21,6 +22,14 @@ const SCALE_IDS: Readonly<Record<ScaleId, string | null>> = {
   minorBlues: 'blues',
   majorBlues: 'major-blues',
 };
+
+/**
+ * How far the practice app's box numbering is from ours, for the scales it draws as pentatonic
+ * boxes. We number boxes from the minor root on string 6, even in a major key (K3.4); the practice
+ * app numbers each box by the scale degree it starts on, 0 for the root. So minor box n is its
+ * n − 1, and major box 1 (on the 6th, degree 4 of 1 2 3 5 6) is its 4.
+ */
+const BOX_OFFSET: Readonly<Partial<Record<ScaleId, number>>> = { minorPentatonic: 0, minorBlues: 0, majorPentatonic: 4, majorBlues: 4 };
 
 /** The practice app's chord types; any other chord means no link. */
 const QUALITIES: Readonly<Partial<Record<ChordId, string>>> = { major: 'M', minor: 'm', dom7: 'dom7', m7: 'm7', maj7: 'M7' };
@@ -55,6 +64,10 @@ export interface TrainerOptions {
   /** The practice app's saved state, as stored; its other settings are kept. */
   readonly saved?: unknown;
   readonly tempoBpm?: number;
+  /** Boxes to open on, numbered as our lessons do (1–5); one, or two side by side. */
+  readonly boxes?: readonly number[];
+  /** Swing the eighths (a shuffle). */
+  readonly swing?: boolean;
   /** The lesson's language: the practice app opens in it. */
   readonly lang?: Lang;
 }
@@ -67,6 +80,17 @@ export function readPracticeState(storage: KeyValue | null = browserStorage()): 
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Two bars of the key's i chord and two of its iv, as m7 chords in a minor key, or I and IV in a
+ * major one: something to play a box over when the lesson has no chord progression of its own.
+ */
+export function vamp(key: TrainerKey): Chord[] {
+  const minor = key.scale === 'minorPentatonic' || key.scale === 'minorBlues' || key.scale === 'naturalMinor';
+  const id: ChordId = minor ? 'm7' : 'major';
+  const four = transpose(key.tonic, interval('4'));
+  return [key.tonic, key.tonic, four, four].map((root) => ({ root, id }));
 }
 
 /**
@@ -96,6 +120,9 @@ export function trainerLink(key: TrainerKey, chords: readonly Chord[], opts: Tra
   const dropped = new Set(['positions', 'language']);
   const state: Record<string, unknown> = { ...Object.fromEntries(Object.entries(saved).filter(([k]) => !dropped.has(k))), key: { tonic, scaleId }, progression };
   if (opts.tempoBpm !== undefined) state.tempoBpm = opts.tempoBpm;
+  const offset = BOX_OFFSET[key.scale];
+  if (opts.boxes?.length && offset !== undefined) state.positions = opts.boxes.map((n) => (n - 1 + offset) % 5);
+  if (opts.swing !== undefined) state.swingEnabled = opts.swing;
   const lang = opts.lang ? `&lang=${opts.lang}` : '';
   return `/?s=${encodeURIComponent(`v1:${btoa(encodeURIComponent(JSON.stringify(state)))}`)}${lang}`;
 }

@@ -136,7 +136,12 @@ ui → lessons → core/fretboard → core/music
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the share format is not in `shared/`). It renders nothing when the practice app lacks the
   scale or a chord. The lesson's language goes in `&lang=`, never in the share payload: the practice
-  app opens in it, over the language it was last used in.
+  app opens in it, over the language it was last used in. A link may also set the box(es), given
+  in our numbering (box 1 from the minor root on string 6, even in a major key) and turned into the
+  practice app's (by the degree a box starts on), and swing. `VampLink` is for a scene with no
+  progression of its own: the key's i and iv (m7) or I and IV, two bars each. Links today: the
+  Pentatonic Map (boxes, keys, root), Pentatonic across the neck (boxes, joins, sequences, major),
+  Blues (the 12-bar, swing on), Keys and progressions, and Soloing.
 - A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, written
   when a recording pass ends (and emptied by Clear), and a link `/theory/solo?take=<encodeTake()>#record`.
   Opening a link never saves over your own take, and `?take=` is dropped from the address once read. `decodeTake()` rejects any code that is not a

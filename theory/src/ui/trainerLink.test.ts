@@ -1,5 +1,5 @@
-import { parseNote, progression, twelveBar, type Chord } from '../core/music';
-import { PRACTICE_STORAGE_KEY, readPracticeState, trainerLink } from './trainerLink';
+import { chordSymbol, parseNote, progression, twelveBar, type Chord } from '../core/music';
+import { PRACTICE_STORAGE_KEY, readPracticeState, trainerLink, vamp } from './trainerLink';
 
 const n = parseNote;
 /** Read a link back the way the practice app does: query value, strip 'v1:', base64, JSON. */
@@ -60,6 +60,43 @@ describe('trainerLink', () => {
     expect(new URL(href, 'https://x.test').searchParams.get('lang')).toBe('vi');
     expect(payload(href).language).toBeUndefined();
     expect(new URL(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, [c])!, 'https://x.test').searchParams.has('lang')).toBe(false);
+  });
+
+  it("opens on the lesson's box: minor box n is the practice app's n − 1, major box 1 its box on the 6th", () => {
+    const c: Chord = { root: n('A'), id: 'minor' };
+    const at = (scale: 'minorPentatonic' | 'majorPentatonic' | 'minorBlues' | 'majorBlues', boxes: number[]) =>
+      payload(trainerLink({ tonic: n('A'), scale }, [c], { boxes })!).positions;
+    expect(at('minorPentatonic', [1])).toEqual([0]);
+    expect(at('minorPentatonic', [4, 5])).toEqual([3, 4]);
+    expect(at('minorBlues', [2])).toEqual([1]);
+    // Major box 1 starts on the 6th (degree 4 of 1 2 3 5 6); box 2 on the root.
+    expect(at('majorPentatonic', [1])).toEqual([4]);
+    expect(at('majorPentatonic', [2, 3])).toEqual([0, 1]);
+    expect(at('majorBlues', [5])).toEqual([3]);
+  });
+
+  it('sends no box for a scale the practice app does not draw as pentatonic boxes, and none unless asked', () => {
+    const c: Chord = { root: n('C'), id: 'major' };
+    expect(payload(trainerLink({ tonic: n('C'), scale: 'major' }, [c], { boxes: [2] })!).positions).toBeUndefined();
+    expect(payload(trainerLink({ tonic: n('C'), scale: 'majorPentatonic' }, [c], { saved: { positions: [3] } })!).positions).toBeUndefined();
+  });
+
+  it('turns swing on or off when asked, and keeps the saved setting otherwise', () => {
+    const c: Chord = { root: n('A'), id: 'dom7' };
+    const key = { tonic: n('A'), scale: 'minorBlues' } as const;
+    expect(payload(trainerLink(key, [c], { swing: true })!).swingEnabled).toBe(true);
+    expect(payload(trainerLink(key, [c], { saved: { swingEnabled: true }, swing: false })!).swingEnabled).toBe(false);
+    expect(payload(trainerLink(key, [c], { saved: { swingEnabled: true } })!).swingEnabled).toBe(true);
+  });
+
+  it('vamps on the i and iv as m7 chords in a minor key, I and IV in a major one, two bars each', () => {
+    expect(vamp({ tonic: n('A'), scale: 'minorPentatonic' }).map(chordSymbol)).toEqual(['Am7', 'Am7', 'Dm7', 'Dm7']);
+    expect(vamp({ tonic: n('E'), scale: 'minorBlues' }).map(chordSymbol)).toEqual(['Em7', 'Em7', 'Am7', 'Am7']);
+    expect(vamp({ tonic: n('G'), scale: 'majorPentatonic' }).map(chordSymbol)).toEqual(['G', 'G', 'C', 'C']);
+    // Spelled in the key: F major's IV is B♭, not A♯.
+    expect(vamp({ tonic: n('F'), scale: 'majorPentatonic' }).map(chordSymbol)).toEqual(['F', 'F', 'B♭', 'B♭']);
+    const p = payload(trainerLink({ tonic: n('A'), scale: 'minorPentatonic' }, vamp({ tonic: n('A'), scale: 'minorPentatonic' }))!);
+    expect(cards(p)).toEqual(['Am7×2', 'Dm7×2']);
   });
 
   it('survives a broken practice store', () => {

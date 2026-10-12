@@ -42,6 +42,7 @@ import { neckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
+import { VampLink } from '../TrainerLink';
 import { useStoredTempo } from '../useStoredTempo';
 import { useSequence } from '../useSequence';
 
@@ -138,6 +139,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <VampLink trainerKey={{ tonic: EXAMPLE_TONIC, scale: 'minorPentatonic' }} boxes={[index]} />
     </div>
   );
 }
@@ -190,6 +192,7 @@ function ConnectScene({ copy }: { copy: SceneCopy['connect'] }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <VampLink trainerKey={{ tonic: EXAMPLE_TONIC, scale: 'minorPentatonic' }} boxes={[k, (k % 5) + 1]} />
     </div>
   );
 }
@@ -276,6 +279,7 @@ function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
       <p className="caption" aria-live="polite">
         {clock.playing ? fill(copy.round, { round: Math.max(1, round), bpm }) : idle}
       </p>
+      <VampLink trainerKey={{ tonic: EXAMPLE_TONIC, scale: 'minorPentatonic' }} boxes={[index]} />
     </div>
   );
 }
@@ -335,6 +339,7 @@ function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
       <p className="caption" aria-live="polite">
         {clock.playing ? fill(copy.playing, { key }) : caption}
       </p>
+      <VampLink trainerKey={{ tonic, scale: 'majorPentatonic' }} boxes={[1]} />
     </div>
   );
 }
