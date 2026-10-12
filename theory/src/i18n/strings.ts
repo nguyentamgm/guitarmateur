@@ -16,6 +16,8 @@ const en = {
     'Short visual lessons where every idea is a picture you can play. Click any note to hear it. Shapes come first; names come later, when you need them.',
   tocLessons: 'Lessons',
   tocConcepts: 'Covers {names}',
+  /** A lesson card's quiz progress (ui/progress.ts `lessonStatus`). */
+  tocStatus: { new: 'Quiz not started', started: 'Quiz in progress', done: 'Quiz done' },
   notFound: 'There is no lesson at “{path}”. Here is everything that exists so far.',
   backToContents: '← All lessons',
   stepLabel: 'Step {n}',
@@ -64,6 +66,7 @@ const vi: UiStrings = {
     'Những bài ngắn, mỗi ý là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được. Shape đi trước, tên gọi đến sau, khi bạn thật sự cần.',
   tocLessons: 'Các bài',
   tocConcepts: 'Khái niệm: {names}',
+  tocStatus: { new: 'Chưa làm bài đố', started: 'Đang làm bài đố', done: 'Đã xong bài đố' },
   notFound: 'Không có bài nào ở “{path}”. Dưới đây là tất cả các bài hiện có.',
   backToContents: '← Tất cả các bài',
   stepLabel: 'Bước {n}',
