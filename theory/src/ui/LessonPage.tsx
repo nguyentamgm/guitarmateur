@@ -1,14 +1,18 @@
 import { Takeaways } from '@shared/ui/controls';
 import { fill } from '../i18n';
-import { conceptName, type Lesson } from '../lessons';
+import { conceptName, lessonNeighbours, type Lesson } from '../lessons';
 import { useTheory } from './context';
 import { LessonScene } from './lessons/LessonScene';
 import { Link } from './Link';
-import { BASE } from './router';
+import { BASE, hrefFor } from './router';
+import { TrainerLink } from './TrainerLink';
+import { vamp } from './trainerLink';
 
 export function LessonPage({ lesson }: { lesson: Lesson }) {
   const { ui, lang } = useTheory();
   const copy = lesson.copy[lang];
+  const { prev, next } = lessonNeighbours(lesson.slug);
+  const practice = lesson.practice;
   return (
     <main className="wrap">
       <section className="hero">
@@ -70,6 +74,32 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
           ))}
         </div>
       </section>
+      <nav className="lesson-nav" aria-label={ui.lessonNavLabel}>
+        {practice && (
+          <TrainerLink
+            trainerKey={practice}
+            chords={practice.chords ?? vamp(practice)}
+            tempoBpm={practice.tempoBpm}
+            boxes={practice.boxes}
+            swing={practice.swing}
+            progressionKey={lesson.slug}
+            label={ui.lessonPractice}
+          />
+        )}
+        <div className="lesson-nav-links">
+          {prev && (
+            <Link href={hrefFor({ page: 'lesson', slug: prev.slug })} className="lesson-nav-card prev">
+              <span className="eyebrow">{ui.prevLesson}</span>
+              <span className="lesson-title">{prev.copy[lang].title}</span>
+            </Link>
+          )}
+          {/* The last lesson goes on to review instead. */}
+          <Link href={hrefFor(next ? { page: 'lesson', slug: next.slug } : { page: 'review' })} className="lesson-nav-card next">
+            <span className="eyebrow">{next ? ui.nextLesson : ui.navReview}</span>
+            <span className="lesson-title">{next ? next.copy[lang].title : ui.lastLessonNext}</span>
+          </Link>
+        </div>
+      </nav>
       <footer className="foot">{ui.lessonFooter}</footer>
     </main>
   );

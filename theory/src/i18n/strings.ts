@@ -43,6 +43,12 @@ const en = {
   trainerLink: 'Practise licks over this in Practice →',
   /** A link to Practice over a short vamp, for a lesson with no progression: '{chords}' is 'Am7–Dm7'. */
   trainerVamp: 'Practise licks in Practice, over {chords} →',
+  lessonNavLabel: 'Where next',
+  prevLesson: '← Previous lesson',
+  nextLesson: 'Next lesson →',
+  lessonPractice: 'Practise licks from this lesson in Practice →',
+  /** The last lesson's next step, under the eyebrow 'Review'. */
+  lastLessonNext: 'Which quiz to do next →',
 };
 
 export type UiStrings = typeof en;
@@ -84,6 +90,11 @@ const vi: UiStrings = {
   tempoBest: 'Tốt nhất: {bpm} BPM',
   trainerLink: 'Tập lick trên vòng này trong app Luyện tập →',
   trainerVamp: 'Tập lick trong app Luyện tập, trên {chords} →',
+  lessonNavLabel: 'Học tiếp',
+  prevLesson: '← Bài trước',
+  nextLesson: 'Bài tiếp theo →',
+  lessonPractice: 'Tập lick của bài này trong app Luyện tập →',
+  lastLessonNext: 'Nên làm bài đố nào tiếp →',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };
