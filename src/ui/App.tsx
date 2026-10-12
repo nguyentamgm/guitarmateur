@@ -53,7 +53,9 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.lang = LOCALES[state.language].tag;
-    document.title = t('app.title');
+    // "Practice · Guitarmateur", as Theory titles its pages; the description follows the language.
+    document.title = `${t('app.title')} · ${t('nav.brand')}`;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t('app.description'));
   }, [state.language, t]);
 
   function handleShare() {

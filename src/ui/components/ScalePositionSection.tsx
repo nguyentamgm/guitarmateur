@@ -3,7 +3,7 @@ import { format, SCALE_IDS, SCALES, TONICS } from '../../music';
 import { homeFret, mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
-import { Panel, PillButton, SectionKicker } from './primitives';
+import { Panel, PillButton, SectionKicker, StepIntro, Takeaways } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
 import { neckGeometry } from '@shared/ui/geometry';
@@ -32,11 +32,9 @@ export function ScalePositionSection({
   const pos = useMemo(() => positions(TUNINGS[state.tuningId], key), [state.tuningId, key]);
   const rec = useMemo(() => recommendedPosition(pos), [pos]);
   const box = useMemo(() => mergedBox(pos, state.positions), [pos, state.positions]);
-  const scaleName = t(`scale.${key.scaleId}`);
-  const combined = state.positions.length > 1;
-  const title = combined
-    ? t('scalebox.titleCombined', { tonic: format(key.tonic), scale: scaleName, min: box.minFret, max: box.maxFret })
-    : t('scalebox.title', { tonic: format(key.tonic), scale: scaleName });
+  // "A minor pentatonic": each scale's own phrase, since word order and case differ by scale.
+  const name = t(`scaleTitle.${key.scaleId}`, { tonic: format(key.tonic) });
+  const title = state.positions.length > 1 ? t('scalebox.titleCombined', { name, min: box.minFret, max: box.maxFret }) : name;
   const tuning = TUNINGS[state.tuningId];
   const names = useMemo(() => tuningNames(tuning), [tuning]);
   // Up to the highest box, at least 12 frets, as Theory draws the whole neck.
@@ -45,7 +43,8 @@ export function ScalePositionSection({
 
   return (
     <section style={{ marginBottom: 34 }}>
-      <SectionKicker style={{ marginBottom: 12 }}>{t('scalebox.stepKicker')}</SectionKicker>
+      <SectionKicker style={{ marginBottom: 6 }}>{t('scalebox.stepKicker')}</SectionKicker>
+      <StepIntro>{t('scalebox.intro')}</StepIntro>
       <Panel>
         {/* Tuning picker */}
         <Label style={{ marginTop: 0 }}>{t('scalebox.tuning')}</Label>
@@ -92,9 +91,7 @@ export function ScalePositionSection({
               {t('scalebox.boxLabel', { n: i + 1 })}{' '}
               <span style={{ fontFamily: font.mono, opacity: 0.75 }}>{t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}</span>
               {p.index === rec && (
-                <span style={{ marginLeft: 6, fontWeight: 700 }} title={t('scalebox.recommendedAria')}>
-                  {t('scalebox.recommended')}
-                </span>
+                <span style={{ marginLeft: 6, fontWeight: 700 }}>{t('scalebox.recommended')}</span>
               )}
             </button>
           ))}
@@ -147,6 +144,12 @@ export function ScalePositionSection({
             </Fretboard>
           </div>
         </div>
+        <Takeaways
+          rows={[
+            { label: t('common.takeaway'), text: t('scalebox.takeaway') },
+            { label: t('common.tryIt'), text: t('scalebox.tryIt') },
+          ]}
+        />
       </Panel>
     </section>
   );

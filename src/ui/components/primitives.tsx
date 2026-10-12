@@ -19,6 +19,28 @@ export function SectionKicker({ children, style }: { children: ReactNode; style?
   );
 }
 
+/** One line under a step's kicker saying why the step is there, as Theory opens a lesson step. */
+export function StepIntro({ children }: { children: ReactNode }) {
+  return <p style={{ margin: '0 0 14px', color: theme.muted, fontSize: 15, lineHeight: 1.5, maxWidth: '66ch' }}>{children}</p>;
+}
+
+/**
+ * The "Takeaway / Try it" hint panel that ends a step, as in Theory's lessons (`.takeaways` in
+ * shared/ui/controls.css). Labels and text come from the catalog.
+ */
+export function Takeaways({ rows }: { rows: readonly { label: string; text: string }[] }) {
+  return (
+    <dl className="takeaways" style={{ marginTop: 20, paddingTop: 16, borderTop: `1px solid ${theme.border}`, maxWidth: '66ch' }}>
+      {rows.map(({ label, text }) => (
+        <div key={label}>
+          <dt>{label}</dt>
+          <dd>{text}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /** Panel card: the shared card (`.board` in shared/ui/controls.css). */
 export function Panel({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
@@ -49,7 +71,7 @@ export function PillButton({
   );
 }
 
-/** Boolean on/off switch, e.g. "Land on next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
+/** Boolean on/off switch, e.g. "Lead into the next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
 export function Toggle({
   checked,
   onChange,

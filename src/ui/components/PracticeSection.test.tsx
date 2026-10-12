@@ -64,7 +64,7 @@ describe('PracticeSection transport vs. progression edits', () => {
     T.isPlaying = false; T.playCalls = 0; T.stopCalls = 0;
     await mount();
 
-    const play = byName(/Play progression/);
+    const play = byName(/Play the progression/);
     expect(play).not.toBeNull();
     await act(async () => { play!.click(); });
     expect(T.isPlaying).toBe(true);
@@ -80,7 +80,7 @@ describe('PracticeSection transport vs. progression edits', () => {
     T.isPlaying = false; T.playCalls = 0; T.stopCalls = 0;
     await mount();
 
-    const play = byName(/Play progression/);
+    const play = byName(/Play the progression/);
     expect(play).not.toBeNull();
     await act(async () => { play!.click(); });
     expect(T.isPlaying).toBe(true);

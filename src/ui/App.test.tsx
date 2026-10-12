@@ -12,6 +12,9 @@ describe('App', () => {
 
   it('renders the header copy', async () => {
     const { App } = await import('./App');
+    const description = document.createElement('meta');
+    description.name = 'description';
+    document.head.appendChild(description);
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -20,8 +23,8 @@ describe('App', () => {
       root.render(createElement(StrictMode, null, createElement(App)));
     });
 
-    expect(container.innerHTML).toContain('Fretboard Trainer');
-    expect(container.innerHTML).toContain('Pentatonic Practice');
+    expect(container.querySelector('h1')?.textContent).toBe('Practice');
+    expect(document.title).toBe('Practice · Guitarmateur');
 
     // The shared site header: brand · Lessons · Review · Practice (current) · language.
     const header = container.querySelector('header.topbar')!;
@@ -47,11 +50,16 @@ describe('App', () => {
       language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
     });
     expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+    // The page title is the header link's word, and the title and description follow the language.
+    expect(container.querySelector('h1')?.textContent).toBe('Luyện tập');
+    expect(document.title).toBe('Luyện tập · Guitarmateur');
+    expect(description.getAttribute('content')).toMatch(/^Guitarmateur Luyện tập: /);
 
     await act(async () => {
       root.unmount();
     });
     document.body.removeChild(container);
+    description.remove();
   });
 
   describe('Export button download', () => {

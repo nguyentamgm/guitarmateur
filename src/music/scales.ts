@@ -28,23 +28,23 @@ export interface ScaleDef {
 export const SCALES: Record<ScaleId, ScaleDef> = {
   minorPentatonic: {
     id: 'minorPentatonic',
-    name: 'Minor Pentatonic',
+    name: 'Minor pentatonic',
     intervals: [IV.P1, IV.m3, IV.P4, IV.P5, IV.m7],
   },
   majorPentatonic: {
     id: 'majorPentatonic',
-    name: 'Major Pentatonic',
+    name: 'Major pentatonic',
     intervals: [IV.P1, IV.M2, IV.M3, IV.P5, IV.M6],
   },
   blues: {
     id: 'blues',
-    name: 'Blues Scale',
+    name: 'Minor blues',
     intervals: [IV.P1, IV.m3, IV.P4, IV.d5, IV.P5, IV.m7],
     decoration: { baseScaleId: 'minorPentatonic', addedIntervals: [IV.d5] },
   },
   major: {
     id: 'major',
-    name: 'Major',
+    name: 'Major scale',
     intervals: [IV.P1, IV.M2, IV.M3, IV.P4, IV.P5, IV.M6, IV.M7],
   },
   dorian: {
@@ -59,12 +59,12 @@ export const SCALES: Record<ScaleId, ScaleDef> = {
   },
   'natural-minor': {
     id: 'natural-minor',
-    name: 'Natural Minor',
+    name: 'Natural minor',
     intervals: [IV.P1, IV.M2, IV.m3, IV.P4, IV.P5, IV.m6, IV.m7],
   },
   'major-blues': {
     id: 'major-blues',
-    name: 'Major Blues',
+    name: 'Major blues',
     intervals: [IV.P1, IV.M2, IV.m3, IV.M3, IV.P5, IV.M6],
     decoration: { baseScaleId: 'majorPentatonic', addedIntervals: [IV.m3] },
   },

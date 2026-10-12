@@ -188,10 +188,7 @@ kiểm tra.
 
 - `theory/src/lessons/glossary.test.ts` — Theory's UI strings, concept names and every lesson's
   copy, in English and Vietnamese, must contain none of them.
-- `src/i18n/glossary.test.ts` — the same for every catalog in `src/i18n/locales/`. Practice's
-  wording predates this file; its current misses are listed in that test as a baseline that may
-  only shrink (issue #175 rewrites them). Each occurrence counts: a new one fails the test, and so
-  does a baseline entry that no longer happens.
+- `src/i18n/glossary.test.ts` — the same for every catalog in `src/i18n/locales/`.
 
 A term is matched as a whole word, ignoring case; an English term also matches its plural ("home
 notes"). A table the check cannot read (an *Avoid* column not named `Avoid (xx)`, a row with the

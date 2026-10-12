@@ -113,7 +113,7 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider`, the key picker (`KeyPicker`, `.finder`: each
   key's name and its fret on the lowest string, "A 5"; the caller spells the keys and finds the
   fret, Practice with `homeFret(tuning, tonic)`) and the "Takeaway / Try it" hint panel
-  (`.takeaways`). Components take their text from the caller: no copy lives in `shared/` (ESLint
+  (`.takeaways`; Theory ends each lesson step with it, Practice each of its three steps). Components take their text from the caller: no copy lives in `shared/` (ESLint
   rejects literal JSX text and literal `aria-label`/`title`/`alt` in `shared/ui/**/*.tsx`).
 - `BarGrid.tsx` (styled in `controls.css`, `.bars`) — a chord form as lines of four bars: the
   Roman numeral above the chord, the bar being heard filled (`current`), optional `marks`. Theory
