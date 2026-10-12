@@ -2,6 +2,7 @@ import type { Lesson } from '../types';
 import { en } from './copy.en';
 import { vi } from './copy.vi';
 import type { SceneCopy, StepId } from './model';
+import { BACKINGS, backingBars } from './scenes';
 
 export * from './scenes';
 export type { SceneCopy, StepId } from './model';
@@ -17,4 +18,11 @@ export const solo: Lesson<StepId, SceneCopy> = {
     { id: 'record', concepts: ['K7.6', 'K7.2'] },
   ],
   copy: { en, vi },
+  practice: {
+    tonic: BACKINGS.blues.tonic,
+    scale: BACKINGS.blues.scale,
+    chords: backingBars('blues', BACKINGS.blues.tonic).map((b) => b.chord),
+    tempoBpm: BACKINGS.blues.bpm,
+    swing: true,
+  },
 };

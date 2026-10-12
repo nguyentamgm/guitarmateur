@@ -1,6 +1,6 @@
 import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
-import { CONCEPT_NAMES, LESSONS, conceptName, findLesson, lessonConcepts } from '.';
+import { CONCEPT_NAMES, LESSONS, conceptName, findLesson, lessonConcepts, lessonNeighbours } from '.';
 
 /** Concept IDs defined as headings (`## K3.4 …`) in docs/theory-knowledge. */
 const knowledge = import.meta.glob('../../../docs/theory-knowledge/m*.md', {
@@ -32,6 +32,25 @@ describe('lesson registry', () => {
     for (const s of slugs) expect(s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     expect(findLesson('pentatonic-map')).toBeDefined();
     expect(findLesson('nope')).toBeUndefined();
+  });
+
+  it('links each lesson to the ones before and after it in LESSONS', () => {
+    const slugs = LESSONS.map((l) => l.slug);
+    expect(slugs.slice(0, 3)).toEqual(['fretboard', 'rhythm', 'major-scale']);
+    expect(lessonNeighbours('fretboard').prev).toBeUndefined();
+    expect(lessonNeighbours('fretboard').next?.slug).toBe('rhythm');
+    expect(lessonNeighbours('rhythm')).toEqual({ prev: findLesson('fretboard'), next: findLesson('major-scale') });
+    expect(lessonNeighbours(slugs.at(-1)!).next).toBeUndefined();
+    expect(lessonNeighbours(slugs.at(-1)!).prev?.slug).toBe(slugs.at(-2));
+    slugs.forEach((slug, i) => {
+      expect(lessonNeighbours(slug).prev?.slug).toBe(slugs[i - 1]);
+      expect(lessonNeighbours(slug).next?.slug).toBe(slugs[i + 1]);
+    });
+    expect(lessonNeighbours('nope')).toEqual({});
+  });
+
+  it('links to Practice from the lessons that practise a key there', () => {
+    expect(LESSONS.filter((l) => l.practice).map((l) => l.slug)).toEqual(['pentatonic-map', 'pentatonic', 'blues', 'keys', 'solo']);
   });
 
   describe.each(LESSONS.map((l) => [l.slug, l] as const))('%s', (_slug, lesson) => {

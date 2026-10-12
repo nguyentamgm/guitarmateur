@@ -2,6 +2,7 @@ import type { Lesson } from '../types';
 import { en } from './copy.en';
 import { vi } from './copy.vi';
 import type { SceneCopy, StepId } from './model';
+import { BLUES_BPM, EXAMPLE_TONIC, bluesForm } from './scenes';
 
 export * from './scenes';
 export type { SceneCopy, StepId } from './model';
@@ -16,4 +17,11 @@ export const blues: Lesson<StepId, SceneCopy> = {
     { id: 'legato', concepts: ['K6.4'] },
   ],
   copy: { en, vi },
+  practice: {
+    tonic: EXAMPLE_TONIC,
+    scale: 'minorBlues',
+    chords: bluesForm(EXAMPLE_TONIC).map((b) => b.chord),
+    tempoBpm: BLUES_BPM,
+    swing: true,
+  },
 };

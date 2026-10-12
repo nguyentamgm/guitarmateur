@@ -2,6 +2,7 @@ import type { Lesson } from '../types';
 import { en } from './copy.en';
 import { vi } from './copy.vi';
 import type { SceneCopy, StepId } from './model';
+import { EXAMPLE_TONIC, SCALE } from './scenes';
 
 export * from './scenes';
 export type { SceneCopy, StepId } from './model';
@@ -16,4 +17,5 @@ export const pentatonicMap: Lesson<StepId, SceneCopy> = {
     { id: 'home', concepts: ['K3.1', 'K3.3'] },
   ],
   copy: { en, vi },
+  practice: { tonic: EXAMPLE_TONIC, scale: SCALE, boxes: [1] },
 };
