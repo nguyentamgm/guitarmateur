@@ -113,6 +113,8 @@ describe('keyboard and screen reader', () => {
     ]);
     // Without a note name, the text the dot shows leads; a `home` tone is the root.
     expect(names(render({ dots: [{ key: 'x', string: 3, fret: 2, midi: 57, label: '1', tone: 'home' }], words }))).toEqual(['1, fret 2, string 3, root']);
+    // `homeMajor` paints other notes too (a 7th, a bass): not called the root by its tone alone.
+    expect(names(render({ dots: [{ key: 'y', string: 1, fret: 7, midi: 71, label: '7', tone: 'homeMajor' }], words }))).toEqual(['7, fret 7, string 1']);
   });
 
   it('draws the mark beside the button, so the button\'s visible text is its label, which leads its name', () => {

@@ -5,7 +5,7 @@ import type { DotTone, FretDot } from './Fretboard';
 export interface DotWords {
   fret(n: number): string;
   string(n: number): string;
-  /** Said for the root (tone `home` / `homeMajor`, or degree 1), after its degree. */
+  /** Said for the root (tone `home`, or degree 1), after its degree. */
   readonly root: string;
   /** Said for a tone that means something on its own: a chord tone, the target, a blue note. */
   readonly tones: Partial<Record<DotTone, string>>;
@@ -17,7 +17,8 @@ export interface DotWords {
  * user can say it.
  */
 export function dotName(d: FretDot, shown: string | undefined, w: DotWords): string {
-  const root = d.tone === 'home' || d.tone === 'homeMajor' || d.degree === '1';
+  // Not `homeMajor`: Theory also paints a 7th, a bass or a picked note with it.
+  const root = d.tone === 'home' || d.degree === '1';
   const tone = [d.tone && w.tones[d.tone], d.mark].filter(Boolean).join(' ');
   return [d.name ?? shown, w.fret(d.fret), w.string(d.string), d.degree, root && w.root, tone].filter(Boolean).join(', ');
 }

@@ -46,7 +46,8 @@ const en = {
   dotFret: 'fret {n}',
   dotString: 'string {n}',
   dotRoot: 'root',
-  dotTones: { chord: 'chord tone', target: 'target note', blue: 'blue note' },
+  // No `blue`: Theory paints chord colour tones with it too, not only blue notes.
+  dotTones: { chord: 'chord tone', target: 'target note' },
   // A tab number's accessible name, as Practice names its tab.
   tabNote: 'String {n}: {text}',
   // Told to screen readers when playback starts or stops.
@@ -103,7 +104,7 @@ const vi: UiStrings = {
   dotFret: 'phím {n}',
   dotString: 'dây {n}',
   dotRoot: 'root',
-  dotTones: { chord: 'nốt của hợp âm', target: 'nốt đích', blue: 'blue note' },
+  dotTones: { chord: 'nốt của hợp âm', target: 'nốt đích' },
   tabNote: 'Dây {n}: {text}',
   playStatus: { playing: 'Đang phát', stopped: 'Đã dừng' },
   trainerLink: 'Tập lick trên vòng này trong app Luyện tập →',

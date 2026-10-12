@@ -38,8 +38,9 @@
 .dot.blue text { fill: var(--neck-accent, var(--accent)); }
 .dot.soft circle { fill: var(--string); opacity: 0.75; }
 /* A dimmed dot of any tone gets a pale ring: at the dim opacity it still makes 3:1 on the wood,
-   where a dimmed root (accent / amber) or blue note alone does not. After the tones, so it wins. */
-.dot.dim circle { stroke: var(--dot); stroke-width: 1.5; }
+   where a dimmed root (accent / amber) or blue note alone does not. The :not()s outrank every tone
+   and leave the hover / focus ring alone. */
+.dot.dim:not(:hover):not(:focus-visible) circle { stroke: var(--dot); stroke-width: 1.5; }
 
 /* Practice's markers: a chord tone (ring + tint), the target (amber, apart from the root), the
    landing halo, a role mark */
@@ -48,7 +49,7 @@
 .dot.target circle { fill: var(--amber); stroke: none; }
 .dot.target text { fill: var(--amber-ink); }
 .halo { fill: none; stroke: var(--neck-accent, var(--accent)); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
-text.mark { fill: var(--neck-accent, var(--accent)); font-family: var(--f-mono); font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
+.dot + text.mark { fill: var(--neck-accent, var(--accent)); font-family: var(--f-mono); font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
 
 /* Tab (Theory's Tab, Practice's TabStaff): string lines and names, a number box per note (the
    sounding one filled), bar lines and a row of counts under it. Practice adds beat ticks and
