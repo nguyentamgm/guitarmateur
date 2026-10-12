@@ -1,11 +1,13 @@
 import { LESSONS } from '../lessons';
 import {
+  DONE_AFTER,
   PROGRESS_STORAGE_KEY,
   QUIZZES,
   RECENT,
   accuracy,
   loadProgress,
   nextReview,
+  lessonStatus,
   reasonOf,
   recordAnswer,
   storeAnswer,
@@ -94,6 +96,32 @@ describe('nextReview', () => {
     const p = answers('barre-find', '11110', NOW - 7 * DAY);
     expect(reasonOf(p['barre-find'], NOW)).toBe('stale');
     expect(reasonOf(p['barre-find'], NOW - DAY)).toBe('fresh');
+  });
+});
+
+describe('lessonStatus', () => {
+  it('is new before any answer, and null for a lesson with no quiz', () => {
+    expect(lessonStatus({}, 'blues')).toBe('new');
+    expect(lessonStatus(answers('barre-find', '1', NOW), 'blues')).toBe('new');
+    expect(lessonStatus({}, 'rhythm')).toBeNull();
+  });
+
+  it('is started after one answer, right or wrong', () => {
+    expect(lessonStatus(answers('blues-bend', '1', NOW), 'blues')).toBe('started');
+    expect(lessonStatus(answers('blues-bend', '000', NOW), 'blues')).toBe('started');
+  });
+
+  it('is done once DONE_AFTER recent answers are at least 80% right', () => {
+    const short = '1'.repeat(DONE_AFTER - 1);
+    expect(lessonStatus(answers('blues-bend', short, NOW), 'blues')).toBe('started');
+    expect(lessonStatus(answers('blues-bend', short + '1', NOW), 'blues')).toBe('done');
+    expect(lessonStatus(answers('blues-bend', '11111111' + '00', NOW), 'blues')).toBe('done'); // 80%
+    expect(lessonStatus(answers('blues-bend', '1111111' + '000', NOW), 'blues')).toBe('started'); // 70%
+  });
+
+  it('goes back to started when recent answers slip under 80%', () => {
+    const p = answers('blues-bend', '1'.repeat(RECENT) + '00000', NOW);
+    expect(lessonStatus(p, 'blues')).toBe('started');
   });
 });
 
