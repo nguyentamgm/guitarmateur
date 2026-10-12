@@ -18,9 +18,28 @@ a {
 
 input[type='range'] {
   accent-color: var(--accent);
-  height: 4px;
+}
+/* A thin box above phone width; below it the shared 40px slider box (controls.css) applies. */
+@media (min-width: 561px) {
+  input[type='range'] { height: 4px; }
 }
 
 ::selection {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* The playback bar's gaps; at phone width they tighten so it stays short while it sticks. */
+.transport { gap: 18px; }
+.transport-tempo { gap: 10px; }
+/* A chord of the progression (Step 2); tighter at phone width, so two still fit on a row. */
+.chord-chip { gap: 8px; padding: 8px 10px; }
+
+/* Phone width: the tempo label shares the Play button's row (a 160px basis keeps the pills off
+   it) and its slider takes what the row has left. */
+@media (max-width: 560px) {
+  .transport { gap: 8px 12px; }
+  .transport-tempo { flex: 1 1 160px; min-width: 0; gap: 6px; }
+  .transport-tempo input[type='range'] { flex: 1 1 0; min-width: 0; }
+  .transport .chip.text { padding-inline: 10px; }
+  .chord-chip { gap: 2px; padding: 0 6px; }
 }

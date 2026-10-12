@@ -68,3 +68,12 @@
 .toggle--on { background: var(--accent); border-color: var(--accent); }
 .toggle__thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform 0.15s ease, background-color 0.15s ease; }
 .toggle--on .toggle__thumb { transform: translateX(14px); background: var(--accent-ink); }
+
+/* Phone width: every control is at least 40px to tap. `.hit` is for an app's own small icon or
+   text buttons. */
+@media (max-width: 560px) {
+  .chip, .finder button, .hit { min-width: 40px; min-height: 40px; }
+  .btn { min-height: 40px; }
+  a.btn, .navlink, .brand { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; }
+  input[type='range'] { height: 40px; }
+}

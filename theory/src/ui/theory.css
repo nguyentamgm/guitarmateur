@@ -211,3 +211,5 @@ body { padding: 0 16px 64px; }
 .numerals .symbols td.q-dim { --q: var(--muted); }
 .numerals .symbols td.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 @media (max-width: 520px) { .degrees { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* Phone width: links standing on their own line are tapped like buttons, so they get a 40px box. */
+@media (max-width: 560px) { .back, .trainer, .toc-review { display: inline-flex; align-items: center; min-height: 40px; } }

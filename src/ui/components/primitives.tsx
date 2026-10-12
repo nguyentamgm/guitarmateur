@@ -119,7 +119,8 @@ export function Toggle({
   ariaLabel?: string;
 }) {
   return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+    // The label is the tap target (a click on it presses the switch): `.hit` gives it the 40px.
+    <label className="hit" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
       <button
         type="button"
         role="switch"
@@ -150,6 +151,7 @@ export function TextButton({
       type="button"
       aria-label={ariaLabel}
       onClick={onClick}
+      className="hit"
       style={{
         background: 'none',
         border: 'none',
