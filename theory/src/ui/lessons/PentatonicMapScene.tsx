@@ -24,6 +24,7 @@ import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
 import { neckGeometry, stringName } from '../geometry';
 import { useSequence } from '../useSequence';
+import { VampLink } from '../TrainerLink';
 
 const homeMidi = (tonic: NoteName) => midiAt({ string: 6, fret: homeFret(tonic, 6) });
 
@@ -194,6 +195,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <VampLink trainerKey={{ tonic: EXAMPLE_TONIC, scale: SCALE }} boxes={[index]} />
     </div>
   );
 }
@@ -253,6 +255,7 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <VampLink trainerKey={{ tonic, scale: SCALE }} boxes={[1]} />
     </div>
   );
 }
@@ -310,6 +313,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
       <p className="caption" aria-live="polite">
         {caption}
       </p>
+      <VampLink trainerKey={{ tonic: view.home, scale: mode === 'minor' ? 'minorPentatonic' : 'majorPentatonic' }} />
     </div>
   );
 }

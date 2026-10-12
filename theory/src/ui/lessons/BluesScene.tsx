@@ -55,6 +55,7 @@ import { degreeText, posKey } from '../keys';
 import { PitchCurve } from '../PitchCurve';
 import { Tab, type TabNote } from '../Tab';
 import { useBacking } from '../useBacking';
+import { TrainerLink } from '../TrainerLink';
 import { useClock } from '../useClock';
 import { useSequence } from '../useSequence';
 import { useLastTempo } from '../useStoredTempo';
@@ -234,6 +235,13 @@ function TwelveBarScene({ copy }: { copy: SceneCopy }) {
       <p className="caption" aria-live="polite">
         {bar === null ? fill(c.idle, { key: format(tonic) }) : fill(c.playing, { n: bar + 1, chord: form[bar]!.symbol, degree: form[bar]!.degree })}
       </p>
+      <TrainerLink
+        trainerKey={{ tonic, scale: 'minorBlues' }}
+        chords={form.map((b) => b.chord)}
+        tempoBpm={bpm}
+        swing
+        progressionKey={`${format(tonic)} ${quickChange} ${turnaround}`}
+      />
     </div>
   );
 }

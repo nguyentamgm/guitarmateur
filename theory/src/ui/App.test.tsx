@@ -65,6 +65,12 @@ afterEach(() => {
   container.remove();
 });
 
+/** A Practice link's language and share state, read back as the practice app does. */
+function payload(a: Element) {
+  const url = new URL(a.getAttribute('href')!, 'https://x.test');
+  return { lang: url.searchParams.get('lang'), state: JSON.parse(decodeURIComponent(atob(url.searchParams.get('s')!.slice(3)))) };
+}
+
 describe('Theory app', () => {
   it('opens the contents in English by default', () => {
     render('/theory');
@@ -164,6 +170,41 @@ describe('Theory app', () => {
     expect(container.querySelector('section#keys .caption')!.textContent).toBe(
       'C minor: root on string 6 at fret 8; the shape slid +3 frets',
     );
+  });
+
+  it('links each box, key and root scene to Practice, set up and in the same language', () => {
+    render('/theory/pentatonic-map');
+    const boxes = container.querySelector('section#boxes')!;
+    click([...boxes.querySelectorAll('button')].find((b) => b.textContent === '3')!);
+    const link = boxes.querySelector('a.trainer')!;
+    expect(link.textContent).toBe('Practise licks in Practice, over Am7–Dm7 →');
+    expect(payload(link).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, positions: [2] });
+    expect(payload(link).lang).toBe('en');
+    expect(container.querySelector('section#keys a.trainer')).not.toBeNull();
+    // Same notes, other root: C major pentatonic over C and F.
+    const home = container.querySelector('section#home')!;
+    click([...home.querySelectorAll('button')].find((b) => b.textContent === 'C major')!);
+    expect(home.querySelector('a.trainer')!.textContent).toBe('Practise licks in Practice, over C–F →');
+    expect(payload(home.querySelector('a.trainer')!).state.key).toEqual({ tonic: { letter: 'C', alter: 0 }, scaleId: 'majorPentatonic' });
+
+    click(button('Tiếng Việt'));
+    expect(link.textContent).toBe('Tập lick trong app Luyện tập, trên Am7–Dm7 →');
+    expect(payload(link).lang).toBe('vi');
+  });
+
+  it("swings Practice for the soloing lesson's shuffle backing, not for a straight one", () => {
+    render('/theory/solo');
+    const scene = container.querySelector('section#scale')!;
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'blues' }, swingEnabled: true });
+    click([...scene.querySelectorAll('button')].find((b) => b.textContent?.startsWith('Rock'))!);
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, swingEnabled: false });
+  });
+
+  it('links the 12-bar blues to Practice: the minor blues scale, the form, swing on', () => {
+    render('/theory/blues');
+    const blues = container.querySelector('section#twelveBar a.trainer')!;
+    expect(payload(blues).state).toMatchObject({ key: { scaleId: 'blues' }, swingEnabled: true, tempoBpm: 84 });
+    expect(payload(blues).state.progression).toHaveLength(7);
   });
 
   it('plays an open string and names it (fretboard, step 1)', () => {
