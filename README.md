@@ -28,7 +28,7 @@ memorize wrong notes from.
 
 - Scroll through the position cards and pick one to practice in.
 - Pick **two adjacent positions** to combine them into one wider diagram spanning both.
-- One position is marked **REC** (recommended) as a sensible starting point.
+- One position is marked **Suggested** as a sensible starting point.
 
 ## Reading the diagram
 
@@ -49,7 +49,7 @@ Note names are shown using correct spelling for the key (F minor shows B♭, not
 
 - Tap a **suggestion chip** (e.g. "+ Cm") to append a chord that fits your key — each comes with
   its roman numeral (e.g. "iv") so you can see the harmony at a glance.
-- Use the **advanced adder** to build any chord: pick a root and a quality (major, minor, 7th,
+- Use **Pick any chord** to build any chord: pick a root and a quality (major, minor, 7th,
   and more).
 - Drag chips to **reorder** the progression, or remove one with its "×". "Reset to default" and
   "Clear all" are always available.
@@ -59,10 +59,10 @@ Note names are shown using correct spelling for the key (F minor shows B♭, not
 - **Level (1–5)** controls how busy a lick is: level 1 is a handful of on-beat quarter notes,
   level 5 mixes syncopation, runs, and techniques. Higher levels aren't "more notes" for its own
   sake — the rhythm, range, and physical difficulty all scale together.
-- **Target (Root / 3rd / 5th)** picks which chord tone each lick lands on for the changes.
-- **Land on next chord** makes each lick resolve onto the *following* chord's target tone instead
+- **Target note (Root / 3rd / 5th / 7th)** picks which chord tone each lick lands on for the changes.
+- **Lead into the next chord** makes each lick resolve onto the *following* chord's target tone instead
   of its own — useful once you're comfortable landing on the current chord.
-- **↻ Regenerate** reshuffles every lick; each card also has its own ↻ to reroll just that one.
+- **↻ New licks** reshuffles every lick; each card also has its own ↻ to reroll just that one.
 
 ## Reading a lick
 

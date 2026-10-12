@@ -53,7 +53,9 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.lang = LOCALES[state.language].tag;
-    document.title = t('app.title');
+    // The page is named by its header link: "Practice · Guitarmateur", as Theory titles its pages.
+    document.title = `${t('nav.practice')} · ${t('nav.brand')}`;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t('app.description'));
   }, [state.language, t]);
 
   function handleShare() {
@@ -130,7 +132,7 @@ export function App() {
         <div style={{ marginBottom: 34 }}>
           <div style={{ fontSize: 14, color: theme.muted, fontWeight: 600 }}>{t('app.kicker')}</div>
           <h1 style={{ fontSize: 'clamp(1.8rem, 4.2vw, 2.5rem)', margin: '6px 0 8px' }}>
-            {t('app.title')}
+            {t('nav.practice')}
           </h1>
           <p style={{ margin: 0, color: theme.muted, fontSize: 16, maxWidth: 620, lineHeight: 1.5 }}>
             {t('app.subtitle')}

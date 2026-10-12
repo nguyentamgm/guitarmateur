@@ -2,7 +2,7 @@
  * Controls both apps use, styled by shared/ui/controls.css on the shared tokens. Text comes from
  * the caller (each app has its own i18n), so nothing here holds copy.
  */
-import { useId, type ReactNode } from 'react';
+import { useId, type CSSProperties, type ReactNode } from 'react';
 
 /** One option of a segmented control. `words`: the option is text, not a short value (body font). */
 export function Chip({
@@ -93,6 +93,28 @@ export function KeyPicker<K>({
         </button>
       ))}
     </div>
+  );
+}
+
+/** The "Takeaway / Try it" hint panel that ends a step (`.takeaways`): a label and its text per row. */
+export function Takeaways({
+  rows,
+  className,
+  style,
+}: {
+  rows: readonly { label: ReactNode; text: ReactNode }[];
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <dl className={className ? `takeaways ${className}` : 'takeaways'} style={style}>
+      {rows.map(({ label, text }, i) => (
+        <div key={i}>
+          <dt>{label}</dt>
+          <dd>{text}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

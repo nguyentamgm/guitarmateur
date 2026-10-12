@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { Chip } from '@shared/ui/controls';
+import { Chip, Takeaways } from '@shared/ui/controls';
+import type { LocaleId } from '../../i18n';
+import { useT } from '../useT';
 import { font, theme } from '../theme';
 
 /** Label above a section: the shared sans font (mono stays for numbers), readable with accents. */
@@ -16,6 +18,51 @@ export function SectionKicker({ children, style }: { children: ReactNode; style?
     >
       {children}
     </div>
+  );
+}
+
+/** One line under a step's kicker saying why the step is there, as Theory opens a lesson step. */
+export function StepIntro({ children }: { children: ReactNode }) {
+  return (
+    <p
+      style={{
+        margin: '0 0 14px',
+        color: theme.muted,
+        fontSize: 15,
+        lineHeight: 1.5,
+        maxWidth: '66ch',
+      }}
+    >
+      {children}
+    </p>
+  );
+}
+
+/**
+ * The shared "Takeaway / Try it" panel that ends each of Practice's steps, as Theory ends a lesson
+ * step; `step` is the catalog namespace holding its `takeaway` and `tryIt`.
+ */
+export function StepHints({
+  language,
+  step,
+}: {
+  language: LocaleId;
+  step: 'scalebox' | 'progression' | 'practice';
+}) {
+  const t = useT(language);
+  return (
+    <Takeaways
+      style={{
+        marginTop: 20,
+        paddingTop: 16,
+        borderTop: `1px solid ${theme.border}`,
+        maxWidth: '66ch',
+      }}
+      rows={[
+        { label: t('common.takeaway'), text: t(`${step}.takeaway`) },
+        { label: t('common.tryIt'), text: t(`${step}.tryIt`) },
+      ]}
+    />
   );
 }
 
@@ -49,7 +96,7 @@ export function PillButton({
   );
 }
 
-/** Boolean on/off switch, e.g. "Land on next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
+/** Boolean on/off switch, e.g. "Lead into the next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
 export function Toggle({
   checked,
   onChange,

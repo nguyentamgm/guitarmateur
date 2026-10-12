@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Button, ChipGroup, KeyPicker, OnOff, Slider } from './controls';
+import { Button, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
 
 const roots: Root[] = [];
 function render(el: ReactElement) {
@@ -16,6 +16,19 @@ afterEach(() => {
 });
 
 describe('shared controls', () => {
+  it('Takeaways: a label and its text per row, the caller\'s class added', () => {
+    const rows = [
+      { label: 'Takeaway', text: 'One box at a time.' },
+      { label: 'Try it', text: 'Play it up and down.' },
+    ];
+    const c = render(createElement(Takeaways, { rows, className: 'prose' }));
+    const dl = c.querySelector('dl')!;
+    expect(dl.className).toBe('takeaways prose');
+    expect([...dl.querySelectorAll('div')].map((d) => [d.querySelector('dt')!.textContent, d.querySelector('dd')!.textContent])).toEqual(
+      rows.map((r) => [r.label, r.text]),
+    );
+  });
+
   it('ChipGroup: a labelled group, one chip pressed', () => {
     const onChange = vi.fn();
     const c = render(createElement(ChipGroup<string>, { label: 'Key', items: [{ value: 'A', text: 'A' }, { value: 'E', text: 'E' }], value: 'E', onChange }));

@@ -12,46 +12,56 @@ describe('App', () => {
 
   it('renders the header copy', async () => {
     const { App } = await import('./App');
+    const description = document.createElement('meta');
+    description.name = 'description';
+    document.head.appendChild(description);
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
+    try {
+      await act(async () => {
+        root.render(createElement(StrictMode, null, createElement(App)));
+      });
 
-    await act(async () => {
-      root.render(createElement(StrictMode, null, createElement(App)));
-    });
+      // The page is named by its header link, in the tab too; the description follows the language.
+      expect(container.querySelector('h1')?.textContent).toBe('Practice');
+      expect(document.title).toBe('Practice · Guitarmateur');
+      expect(description.getAttribute('content')).toMatch(/^Guitarmateur Practice: /);
 
-    expect(container.innerHTML).toContain('Fretboard Trainer');
-    expect(container.innerHTML).toContain('Pentatonic Practice');
+      // The shared site header: brand · Lessons · Review · Practice (current) · language.
+      const header = container.querySelector('header.topbar')!;
+      expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
+      const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
+      expect(nav).toEqual([
+        ['Lessons', '/theory'],
+        ['Review', '/theory/review'],
+        ['Practice', '/'],
+      ]);
+      expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
+      // No sound toggle: nothing sounds until a click asks for it.
+      const language = header.querySelector('nav')!.nextElementSibling!;
+      expect(language.getAttribute('aria-label')).toBe('Language');
+      expect(language.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
 
-    // The shared site header: brand · Lessons · Review · Practice (current) · language.
-    const header = container.querySelector('header.topbar')!;
-    expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
-    const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
-    expect(nav).toEqual([
-      ['Lessons', '/theory'],
-      ['Review', '/theory/review'],
-      ['Practice', '/'],
-    ]);
-    expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
-    // No sound toggle: nothing sounds until a click asks for it.
-    const language = header.querySelector('nav')!.nextElementSibling!;
-    expect(language.getAttribute('aria-label')).toBe('Language');
-    expect(language.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+      // The page's own actions stay in the page, out of the site header.
+      expect(header.textContent).not.toContain('Share');
+      expect(container.querySelector('[role="group"][aria-label="Practice actions"]')?.textContent).toContain('Share');
 
-    // The page's own actions stay in the page, out of the site header.
-    expect(header.textContent).not.toContain('Share');
-    expect(container.querySelector('[role="group"][aria-label="Practice actions"]')?.textContent).toContain('Share');
-
-    // The EN/VI switch translates the nav: no untranslated labels in VI.
-    await act(async () => {
-      language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
-    });
-    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
-
-    await act(async () => {
-      root.unmount();
-    });
-    document.body.removeChild(container);
+      // The EN/VI switch translates the nav: no untranslated labels in VI.
+      await act(async () => {
+        language.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
+      });
+      expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+      expect(container.querySelector('h1')?.textContent).toBe('Luyện tập');
+      expect(document.title).toBe('Luyện tập · Guitarmateur');
+      expect(description.getAttribute('content')).toMatch(/^Guitarmateur Luyện tập: /);
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      container.remove();
+      description.remove();
+    }
   });
 
   describe('Export button download', () => {
