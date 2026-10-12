@@ -147,6 +147,7 @@ ui → lessons → core/fretboard → core/music
   progression of its own: the key's i and iv (m7) or I and IV, two bars each. Links today: the
   Pentatonic Map (boxes, keys, root), Pentatonic across the neck (boxes, joins, sequences, major),
   Blues (the 12-bar, swing on), Keys and progressions, and Soloing.
+  A lesson's optional `practice` (key, chords or the vamp, boxes, swing) is the same link at its end.
 - A solo take (K7.6) is saved and shared by `ui/savedTake.ts`: the last take under `theory.take`, written
   when a recording pass ends (and emptied by Clear), and a link `/theory/solo?take=<encodeTake()>#record`.
   Opening a link never saves over your own take, and `?take=` is dropped from the address once read. `decodeTake()` rejects any code that is not a
@@ -177,7 +178,9 @@ ui → lessons → core/fretboard → core/music
   A numbered box or position outline is `ui/PositionFrame.tsx`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.
-- Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it.
+- Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it, and
+  each lesson ends with links to the lessons before and after it (`lessonNeighbours()`; the last one
+  links to `/theory/review`).
 
 - Each lesson lists the concept IDs it teaches (`K3.4`…); the page shows them by name from
   `lessons/concepts.ts` (en + vi), and a test fails when a knowledge-base ID has no name. If
