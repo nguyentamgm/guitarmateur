@@ -2,6 +2,8 @@ import type { Lesson } from '../types';
 import { en } from './copy.en';
 import { vi } from './copy.vi';
 import type { SceneCopy, StepId } from './model';
+import { progression } from '../../core/music';
+import { NUMBERS_TONIC } from './scenes';
 
 export * from './scenes';
 export type { SceneCopy, StepId } from './model';
@@ -16,4 +18,9 @@ export const keys: Lesson<StepId, SceneCopy> = {
     { id: 'relative', concepts: ['K5.6', 'K2.8', 'K3.7'] },
   ],
   copy: { en, vi },
+  practice: {
+    tonic: NUMBERS_TONIC,
+    scale: 'major',
+    chords: progression(NUMBERS_TONIC, 'I-V-vi-IV').map((c) => c.chord),
+  },
 };

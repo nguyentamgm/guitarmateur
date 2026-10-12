@@ -47,3 +47,10 @@ export const LESSONS: readonly Lesson[] = [
 ];
 
 export const findLesson = (slug: string): Lesson | undefined => LESSONS.find((l) => l.slug === slug);
+
+/** The lessons before and after `slug` in `LESSONS`; none at either end. */
+export function lessonNeighbours(slug: string): { prev?: Lesson; next?: Lesson } {
+  const i = LESSONS.findIndex((l) => l.slug === slug);
+  if (i < 0) return {};
+  return { prev: LESSONS[i - 1], next: LESSONS[i + 1] };
+}

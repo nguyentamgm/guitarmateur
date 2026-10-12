@@ -125,6 +125,12 @@ body { padding: 0 16px 64px; }
 .skip div { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
 .skip h3 { text-decoration: line-through; text-decoration-color: var(--amber); text-decoration-thickness: 2px; }
 .skip p { font-size: 0.9rem; color: var(--muted); }
+.lesson-nav { display: grid; gap: 16px; padding-top: 24px; border-top: 1px solid var(--line); }
+.lesson-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lesson-nav-card { display: grid; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); text-decoration: none; }
+.lesson-nav-card:hover { border-color: var(--accent); }
+.lesson-nav-card.next { text-align: right; grid-column: 2; }
+@media (max-width: 520px) { .lesson-nav-links { grid-template-columns: 1fr; } .lesson-nav-card.next { grid-column: 1; } }
 .foot { padding-block: 40px 0; font-size: 0.85rem; color: var(--muted); }
 
 

@@ -217,6 +217,68 @@ describe('Theory app', () => {
     expect(payload(blues).state.progression).toHaveLength(7);
   });
 
+  describe('end of a lesson', () => {
+    const nav = () => container.querySelector('nav.lesson-nav')!;
+    const card = (dir: 'prev' | 'next') => nav().querySelector(`a.lesson-nav-card.${dir}`);
+
+    it('the first lesson has no previous link; its next is the second lesson', () => {
+      render(`/theory/${LESSONS[0]!.slug}`);
+      expect(card('prev')).toBeNull();
+      expect(card('next')!.getAttribute('href')).toBe(`/theory/${LESSONS[1]!.slug}`);
+      expect(card('next')!.textContent).toBe(`Next lesson →${LESSONS[1]!.copy.en.title}`);
+    });
+
+    it('a middle lesson links to the lessons before and after it, in its language', () => {
+      localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+      render(`/theory/${LESSONS[2]!.slug}`);
+      expect(card('prev')!.getAttribute('href')).toBe(`/theory/${LESSONS[1]!.slug}`);
+      expect(card('prev')!.textContent).toBe(`← Bài trước${LESSONS[1]!.copy.vi.title}`);
+      expect(card('next')!.getAttribute('href')).toBe(`/theory/${LESSONS[3]!.slug}`);
+      expect(card('next')!.textContent).toBe(`Bài tiếp theo →${LESSONS[3]!.copy.vi.title}`);
+    });
+
+    it('the last lesson has no next lesson and goes on to review', () => {
+      const last = LESSONS.at(-1)!;
+      render(`/theory/${last.slug}`);
+      expect(card('prev')!.getAttribute('href')).toBe(`/theory/${LESSONS.at(-2)!.slug}`);
+      expect(card('next')!.getAttribute('href')).toBe('/theory/review');
+      expect(card('next')!.textContent).toBe('ReviewWhich quiz to do next →');
+    });
+
+    it('navigates to the next lesson without a reload', () => {
+      render(`/theory/${LESSONS[0]!.slug}`);
+      click(card('next')!);
+      expect(window.location.pathname).toBe(`/theory/${LESSONS[1]!.slug}`);
+      expect(document.title).toBe(`${LESSONS[1]!.copy.en.title} · Guitarmateur Theory`);
+    });
+
+    it.each(LESSONS.map((l) => [l.slug, l] as const))('%s links to Practice only if it has a Practice key', (slug, lesson) => {
+      render(`/theory/${slug}`);
+      const link = nav().querySelector('a.trainer');
+      expect(link !== null).toBe(lesson.practice !== undefined);
+      if (!link) return;
+      expect(link.textContent).toBe('Practise licks from this lesson in Practice →');
+      expect(payload(link).lang).toBe('en');
+    });
+
+    it("opens Practice on the lesson's key and chords", () => {
+      localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+      render('/theory/blues');
+      const link = nav().querySelector('a.trainer')!;
+      expect(link.textContent).toBe('Tập lick của bài này trong app Luyện tập →');
+      expect(payload(link).lang).toBe('vi');
+      expect(payload(link).state).toMatchObject({ key: { tonic: { letter: 'A', alter: 0 }, scaleId: 'blues' }, swingEnabled: true, tempoBpm: 84 });
+      expect(payload(link).state.progression).toHaveLength(7);
+    });
+
+    it('opens Practice over a vamp when the lesson has no chords of its own', () => {
+      render('/theory/pentatonic');
+      // No chords of its own: the A minor vamp (Am7, Dm7), from box 1.
+      expect(payload(nav().querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, positions: [0] });
+      expect(payload(nav().querySelector('a.trainer')!).state.progression).toHaveLength(2);
+    });
+  });
+
   it('plays an open string and names it (fretboard, step 1)', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/fretboard', player);

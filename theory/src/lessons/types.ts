@@ -2,6 +2,7 @@
  * The shape every lesson takes. A lesson is data: its steps, the concept IDs it teaches
  * (docs/theory-knowledge) and its copy in every language. Scenes are drawn by theory/src/ui.
  */
+import type { Chord, NoteName, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 
 /** A concept ID from docs/theory-knowledge, e.g. 'K3.4'. */
@@ -44,6 +45,18 @@ export interface Lesson<StepId extends string = string, SceneCopy = unknown> {
   readonly slug: string;
   readonly steps: readonly LessonStep<StepId>[];
   readonly copy: Readonly<Record<Lang, LessonCopy<StepId, SceneCopy>>>;
+  /** What the lesson's end opens in the practice app, if it has a link there. */
+  readonly practice?: LessonPractice;
+}
+
+/** A key to practise in, over `chords` (or the key's i–iv / I–IV vamp), with boxes numbered as the lessons do. */
+export interface LessonPractice {
+  readonly tonic: NoteName;
+  readonly scale: ScaleId;
+  readonly chords?: readonly Chord[];
+  readonly boxes?: readonly number[];
+  readonly swing?: boolean;
+  readonly tempoBpm?: number;
 }
 
 /** Every concept a lesson teaches, in step order, without repeats. */
