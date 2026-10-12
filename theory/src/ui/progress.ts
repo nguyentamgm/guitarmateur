@@ -107,6 +107,20 @@ export function nextReview(progress: Progress, now: number): ReviewItem[] {
     .map(({ id, reason, record }) => ({ id, reason, record }));
 }
 
+/** A lesson quiz is done once this many recent answers are in, at least WEAK_BELOW of them right. */
+export const DONE_AFTER = 10;
+
+/** A lesson's quiz progress on the contents page; `null` for a lesson with no quiz. */
+export type LessonStatus = 'new' | 'started' | 'done';
+
+export function lessonStatus(progress: Progress, slug: string): LessonStatus | null {
+  const records = QUIZZES.filter((q) => q.slug === slug).map((q) => progress[q.id]);
+  if (records.length === 0) return null;
+  if (records.every((r) => accuracy(r) === null)) return 'new';
+  const done = (r: QuizRecord | undefined) => (r?.recent.length ?? 0) >= DONE_AFTER && (accuracy(r) ?? 0) >= WEAK_BELOW;
+  return records.every(done) ? 'done' : 'started';
+}
+
 // --- Storage ---
 
 export const PROGRESS_STORAGE_KEY = 'theory.progress';

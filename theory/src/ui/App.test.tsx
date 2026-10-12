@@ -2,12 +2,12 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
-import { LESSONS, barre, pentatonicMap } from '../lessons';
+import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
-import { PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
+import { DONE_AFTER, PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
 
 function fakePlayer() {
   const plucked: number[] = [];
@@ -554,6 +554,33 @@ describe('Theory app', () => {
       expect(section.querySelector('.caption')!.textContent).toBe('Your last take is back. Press Hear it back, or Record a new one.');
       click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Clear')!);
       expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe('');
+    });
+  });
+
+  describe('contents progress', () => {
+    const status = (slug: string) => {
+      const card = container.querySelector(`a.lesson-card[href="/theory/${slug}"]`)!;
+      return card.querySelector('.lesson-status')?.textContent ?? null;
+    };
+
+    it('shows each quiz lesson as not started, in progress or done, from stored progress', () => {
+      const now = Date.now();
+      let p = recordAnswer({}, 'blues-bend', false, now);
+      for (let i = 0; i < DONE_AFTER; i++) p = recordAnswer(p, 'barre-find', true, now);
+      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(p));
+      render('/theory');
+      expect(status('fretboard')).toBe('Quiz not started');
+      expect(status('blues')).toBe('Quiz in progress');
+      expect(status('barre')).toBe('Quiz done');
+      expect(status('rhythm')).toBeNull();
+      expect(container.querySelectorAll('.lesson-status')).toHaveLength(QUIZZES.length);
+      // A space keeps the title and the status apart in the link's name.
+      expect(container.querySelector('a.lesson-card[href="/theory/blues"] .lesson-title')!.textContent).toBe(`${blues.copy.en.title} Quiz in progress`);
+
+      click(button('Tiếng Việt'));
+      expect(status('fretboard')).toBe('Chưa làm bài đố');
+      expect(status('blues')).toBe('Đang làm bài đố');
+      expect(status('barre')).toBe('Đã xong bài đố');
     });
   });
 

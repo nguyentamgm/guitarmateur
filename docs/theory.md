@@ -154,6 +154,8 @@ ui → lessons → core/fretboard → core/music
   take of a known backing, key, tempo and box. A page opened with a `#step` scrolls to it.
 - `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
   then under 80% right in the last 20 answers, then not practised for 7 days.
+- Each contents card with a quiz shows its status from the same progress (`lessonStatus()`): not
+  started (no answer), in progress, done (at least `DONE_AFTER` = 10 recent answers, 80% right).
 
 ## Lessons
 
