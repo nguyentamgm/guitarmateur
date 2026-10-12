@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
-import { LESSONS, barre, pentatonicMap } from '../lessons';
+import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
@@ -574,6 +574,8 @@ describe('Theory app', () => {
       expect(status('barre')).toBe('Quiz done');
       expect(status('rhythm')).toBeNull();
       expect(container.querySelectorAll('.lesson-status')).toHaveLength(QUIZZES.length);
+      // A space keeps the title and the status apart in the link's name.
+      expect(container.querySelector('a.lesson-card[href="/theory/blues"] .lesson-title')!.textContent).toBe(`${blues.copy.en.title} Quiz in progress`);
 
       click(button('Tiếng Việt'));
       expect(status('fretboard')).toBe('Chưa làm bài đố');

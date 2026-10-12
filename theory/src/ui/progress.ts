@@ -116,8 +116,8 @@ export type LessonStatus = 'new' | 'started' | 'done';
 export function lessonStatus(progress: Progress, slug: string): LessonStatus | null {
   const records = QUIZZES.filter((q) => q.slug === slug).map((q) => progress[q.id]);
   if (records.length === 0) return null;
-  if (records.every((r) => !r || r.recent.length === 0)) return 'new';
-  const done = (r: QuizRecord | undefined) => !!r && r.recent.length >= DONE_AFTER && accuracy(r)! >= WEAK_BELOW;
+  if (records.every((r) => accuracy(r) === null)) return 'new';
+  const done = (r: QuizRecord | undefined) => (r?.recent.length ?? 0) >= DONE_AFTER && (accuracy(r) ?? 0) >= WEAK_BELOW;
   return records.every(done) ? 'done' : 'started';
 }
 

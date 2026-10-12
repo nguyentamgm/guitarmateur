@@ -28,7 +28,7 @@ body { padding: 0 16px 64px; }
 .lesson-card .num { font-family: var(--f-mono); color: var(--accent); grid-row: span 3; }
 .lesson-title { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; }
 .lesson-summary { color: var(--muted); }
-.lesson-status { margin-left: 10px; font-family: var(--f-mono); font-size: 0.7rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; vertical-align: 0.2em; }
+.lesson-status { margin-left: 6px; font-family: var(--f-mono); font-size: 0.7rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; vertical-align: 0.2em; }
 .lesson-status.started { color: var(--amber); }
 .lesson-status.done { color: var(--accent); }
 .lesson-ids { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }

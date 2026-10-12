@@ -35,6 +35,7 @@ export function ContentsPage({ missingPath }: { missingPath?: string }) {
                   <b className="num">{String(i + 1).padStart(2, '0')}</b>
                   <span className="lesson-title">
                     {copy.title}
+                    {status && ' '}
                     {status && <span className={`lesson-status ${status}`}>{ui.tocStatus[status]}</span>}
                   </span>
                   <span className="lesson-summary">{copy.summary}</span>
