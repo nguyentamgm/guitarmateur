@@ -3,7 +3,7 @@ import { format, SCALE_IDS, SCALES, TONICS } from '../../music';
 import { homeFret, mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
-import { Panel, PillButton, SectionKicker, StepHints, StepIntro } from './primitives';
+import { Panel, PillButton, StepHead, StepHints } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
 import { neckGeometry } from '@shared/ui/geometry';
@@ -43,8 +43,7 @@ export function ScalePositionSection({
 
   return (
     <section style={{ marginBottom: 34 }}>
-      <SectionKicker style={{ marginBottom: 6 }}>{t('scalebox.stepKicker')}</SectionKicker>
-      <StepIntro>{t('scalebox.intro')}</StepIntro>
+      <StepHead language={state.language} step="scalebox" />
       <Panel>
         {/* Tuning picker */}
         <Label style={{ marginTop: 0 }}>{t('scalebox.tuning')}</Label>

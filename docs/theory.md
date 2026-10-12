@@ -133,6 +133,9 @@ ui → lessons → core/fretboard → core/music
   and uses `useLastTempo(id, fallback)`, which keeps only the last tempo the learner set; the solo
   backings keep one tempo per backing (`solo-<backing>`), and a shared take's tempo is not saved.
   A new scene with a tempo adds its id. localStorage is reached only through `platform/storage.ts`.
+- A link's `?lang=` (the practice app's "Why?" links carry its page language) opens Theory in that
+  language for the visit: `linkLang()` reads it, it is not saved unless the learner picks a
+  language, and `App` takes it off the address.
 - `ui/TrainerLink.tsx` opens the practice app on a key and progression (`ui/trainerLink.ts` writes its
   share link by hand; the share format is not in `shared/`). It renders nothing when the practice app lacks the
   scale or a chord. The lesson's language goes in `&lang=`, never in the share payload: the practice

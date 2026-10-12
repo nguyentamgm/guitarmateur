@@ -2,39 +2,55 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Chip, Takeaways } from '@shared/ui/controls';
 import type { LocaleId } from '../../i18n';
 import { useT } from '../useT';
+import { WHY, lessonHref, type PracticeStep } from '../lessonLinks';
 import { font, theme } from '../theme';
 
-/** Label above a section: the shared sans font (mono stays for numbers), readable with accents. */
-export function SectionKicker({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+/**
+ * A step's head: its kicker ("Step 1 · Scale and box"), with "Why?" links on the same line to the
+ * Theory lessons that explain it, then one line saying why the step is there, as Theory opens a
+ * lesson step. Text from the catalog's `<step>.stepKicker` and `<step>.intro`.
+ */
+export function StepHead({ language, step }: { language: LocaleId; step: PracticeStep }) {
+  const t = useT(language);
   return (
-    <div
-      style={{
-        fontSize: 14,
-        color: theme.muted,
-        fontWeight: 600,
-        fontFamily: font.sans,
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/** One line under a step's kicker saying why the step is there, as Theory opens a lesson step. */
-export function StepIntro({ children }: { children: ReactNode }) {
-  return (
-    <p
-      style={{
-        margin: '0 0 14px',
-        color: theme.muted,
-        fontSize: 15,
-        lineHeight: 1.5,
-        maxWidth: '66ch',
-      }}
-    >
-      {children}
-    </p>
+    <>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: '4px 16px',
+          marginBottom: 6,
+          fontFamily: font.sans,
+        }}
+      >
+        <div style={{ fontSize: 14, color: theme.muted, fontWeight: 600 }}>
+          {t(`${step}.stepKicker`)}
+        </div>
+        {/* Another app: plain links that load it. */}
+        <div style={{ fontSize: 13, color: theme.muted }}>
+          {t('why.label')}{' '}
+          {WHY[step].map((link, i) => (
+            <span key={lessonHref(link, language)}>
+              {i > 0 && ' · '}
+              <a href={lessonHref(link, language)}>{t(`lesson.${link.slug}`)}</a>
+            </span>
+          ))}
+        </div>
+      </div>
+      <p
+        style={{
+          margin: '0 0 14px',
+          color: theme.muted,
+          fontSize: 15,
+          lineHeight: 1.5,
+          maxWidth: '66ch',
+        }}
+      >
+        {t(`${step}.intro`)}
+      </p>
+    </>
   );
 }
 
@@ -42,13 +58,7 @@ export function StepIntro({ children }: { children: ReactNode }) {
  * The shared "Takeaway / Try it" panel that ends each of Practice's steps, as Theory ends a lesson
  * step; `step` is the catalog namespace holding its `takeaway` and `tryIt`.
  */
-export function StepHints({
-  language,
-  step,
-}: {
-  language: LocaleId;
-  step: 'scalebox' | 'progression' | 'practice';
-}) {
+export function StepHints({ language, step }: { language: LocaleId; step: PracticeStep }) {
   const t = useT(language);
   return (
     <Takeaways

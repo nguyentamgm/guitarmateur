@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPlayer, type Player } from '../core/audio';
-import { LANG_STORAGE_KEY, UI, loadLang, saveLang, type Lang } from '../i18n';
+import { LANG_STORAGE_KEY, UI, linkLang, loadLang, saveLang, type Lang } from '../i18n';
 import { findLesson } from '../lessons';
 import { ContentsPage } from './ContentsPage';
 import { Ctx, ProgressCtx, type TheoryContext } from './context';
@@ -28,7 +28,8 @@ function scrollToHash(id: string): void {
 }
 
 export function App({ player: given }: { player?: Player } = {}) {
-  const [lang, setLangState] = useState<Lang>(() => loadLang());
+  // A link's ?lang= (from a practice-app lesson link) wins for this visit, without being remembered.
+  const [lang, setLangState] = useState<Lang>(() => linkLang(window.location.search) ?? loadLang());
   const [path, setPath] = useState(() => window.location.pathname);
   const [player] = useState(() => given ?? createPlayer());
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
@@ -45,6 +46,14 @@ export function App({ player: given }: { player?: Player } = {}) {
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // Take ?lang= off the address, so a reload or a bookmark doesn't override a later choice.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('lang')) return;
+    url.searchParams.delete('lang');
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
   }, []);
 
   // A link with a #step (a shared take, a review card opened in a new tab) lands on that step.

@@ -27,6 +27,10 @@
   "legend.root": "root",
   "legend.scaleNote": "scale note",
   "legend.target": "target note · {role}",
+  "lesson.keys": "Keys and Progressions: Chords by Number",
+  "lesson.pentatonic": "Pentatonic, the Whole Neck",
+  "lesson.pentatonic-map": "The Pentatonic Map",
+  "lesson.solo": "Soloing over the Changes: Aim for the Chord",
   "nav.brand": "Guitarmateur",
   "nav.label": "Sections",
   "nav.lessons": "Lessons",
@@ -142,5 +146,6 @@
   "tab.emptyLick": "empty lick",
   "tab.noteAria": "String {n}: {text}",
   "tuning.dropD": "Drop D",
-  "tuning.standard": "Standard"
+  "tuning.standard": "Standard",
+  "why.label": "Why?"
 }

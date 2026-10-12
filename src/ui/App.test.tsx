@@ -64,6 +64,40 @@ describe('App', () => {
     }
   });
 
+  it('links each step to the lessons that explain it, in the page language', async () => {
+    const { App } = await import('./App');
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    try {
+      await act(async () => {
+        root.render(createElement(App));
+      });
+      // Lesson links in the page, not the site header's.
+      const why = () =>
+        [...container.querySelectorAll('section a[href^="/theory/"]')].map((a) => [a.textContent, a.getAttribute('href')]);
+      expect(why()).toEqual([
+        ['The Pentatonic Map', '/theory/pentatonic-map?lang=en#boxes'],
+        ['Pentatonic, the Whole Neck', '/theory/pentatonic?lang=en#connect'],
+        ['Keys and Progressions: Chords by Number', '/theory/keys?lang=en'],
+        ['Soloing over the Changes: Aim for the Chord', '/theory/solo?lang=en#tones'],
+      ]);
+      expect(container.querySelector('section')!.textContent).toContain('Why? The Pentatonic Map · Pentatonic, the Whole Neck');
+
+      await act(async () => {
+        container.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
+      });
+      // The lesson opens in the page's language too.
+      expect(why()[0]).toEqual(['Bản đồ Pentatonic', '/theory/pentatonic-map?lang=vi#boxes']);
+      expect(container.querySelector('section')!.textContent).toContain('Vì sao? Bản đồ Pentatonic');
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      container.remove();
+    }
+  });
+
   describe('Export button download', () => {
     let originalCreateObjectURL: PropertyDescriptor | undefined;
     let originalRevokeObjectURL: PropertyDescriptor | undefined;

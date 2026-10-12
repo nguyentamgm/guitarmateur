@@ -88,6 +88,16 @@ describe('Theory app', () => {
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
   });
 
+  it("opens in a link's ?lang= for the visit, without saving it, and takes it off the address", () => {
+    localStorage.setItem(LANG_STORAGE_KEY, 'en');
+    render('/theory/pentatonic-map?lang=vi#boxes');
+    expect(document.documentElement.lang).toBe('vi');
+    expect(text()).toContain(pentatonicMap.copy.vi.title);
+    expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('en');
+    expect(window.location.search).toBe('');
+    expect(window.location.hash).toBe('#boxes');
+  });
+
   it('follows a language changed in the practice app in another tab', () => {
     render('/theory');
     localStorage.setItem(LANG_STORAGE_KEY, 'vi');
