@@ -2,50 +2,106 @@
  * Controls both apps use, styled by shared/ui/controls.css on the shared tokens. Text comes from
  * the caller (each app has its own i18n), so nothing here holds copy.
  */
-import { useId, type CSSProperties, type ReactNode } from 'react';
+import { useId, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 
-/** One option of a segmented control. `words`: the option is text, not a short value (body font). */
+const ARROW_STEP: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+
+/**
+ * Arrow keys move to the next / previous radio of the group (wrapping) and check it, as native
+ * radios do; with `manual` (a quiz's answers) they only move the focus, Space / Enter chooses.
+ */
+function radioKeys(e: KeyboardEvent<HTMLElement>, manual: boolean) {
+  const step = ARROW_STEP[e.key];
+  if (step === undefined) return;
+  const radios = [...e.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]')];
+  const i = radios.indexOf(e.target as HTMLElement);
+  if (i < 0) return;
+  e.preventDefault();
+  const next = radios[(i + step + radios.length) % radios.length]!;
+  next.focus();
+  if (!manual) next.click();
+}
+
+/**
+ * A single-choice row: `role="radiogroup"` around radios (a `Chip` with `radio`, or any
+ * `role="radio"` button). Tab reaches the checked one only (the first while none is); the arrow
+ * keys change the choice (or, `manual`, only move to one).
+ */
+export function RadioGroup({
+  label,
+  className,
+  style,
+  manual = false,
+  children,
+}: {
+  label: string;
+  className?: string;
+  style?: CSSProperties;
+  manual?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className={className} style={style} role="radiogroup" aria-label={label} onKeyDown={(e) => radioKeys(e, manual)}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * One option of a segmented control. `words`: the option is text, not a short value (body font).
+ * `radio`: one choice of a `RadioGroup` (`aria-checked`, one Tab stop); otherwise a toggle (`aria-pressed`).
+ */
 export function Chip({
   pressed,
   onClick,
   children,
   words,
   ariaLabel,
+  radio,
+  tabStop,
 }: {
   pressed: boolean;
   onClick(): void;
   children: ReactNode;
   words?: boolean;
   ariaLabel?: string;
+  radio?: boolean;
+  /** A radio that takes Tab though unchecked: the first one, while none is checked. */
+  tabStop?: boolean;
 }) {
+  const state = radio ? { role: 'radio', 'aria-checked': pressed, tabIndex: pressed || tabStop ? 0 : -1 } : { 'aria-pressed': pressed };
   return (
-    <button type="button" className={words ? 'chip text' : 'chip'} aria-pressed={pressed} aria-label={ariaLabel} onClick={onClick}>
+    <button type="button" className={words ? 'chip text' : 'chip'} {...state} aria-label={ariaLabel} onClick={onClick}>
       {children}
     </button>
   );
 }
 
-/** A labelled row of chips, one pressed: the segmented control. */
+/** A labelled row of chips, one checked: the segmented control, a radio group. */
 export function ChipGroup<T extends string | number>({
   label,
   items,
   value,
   onChange,
+  manual,
 }: {
   label: string;
   items: readonly { value: T; text: ReactNode }[];
   value: T;
   onChange(v: T): void;
+  /** Arrow keys only move the focus; Space / Enter chooses (a quiz's answers). */
+  manual?: boolean;
 }) {
+  const none = !items.some((it) => it.value === value);
   return (
-    <div className="group" role="group" aria-label={label}>
+    <RadioGroup className="group" label={label} manual={manual}>
       <span aria-hidden="true">{label}</span>
-      {items.map((it) => (
-        <Chip key={it.value} pressed={it.value === value} onClick={() => onChange(it.value)}>
+      {items.map((it, i) => (
+        <Chip key={it.value} radio pressed={it.value === value} tabStop={none && i === 0} onClick={() => onChange(it.value)}>
           {it.text}
         </Chip>
       ))}
-    </div>
+    </RadioGroup>
   );
 }
 
@@ -85,14 +141,22 @@ export function KeyPicker<K>({
   onChange(k: K): void;
 }) {
   const current = name(value);
+  const none = !keys.some((k) => name(k) === current);
   return (
-    <div className="finder" role="group" aria-label={label}>
-      {keys.map((k) => (
-        <button key={name(k)} type="button" aria-pressed={name(k) === current} onClick={() => onChange(k)}>
+    <RadioGroup className="finder" label={label}>
+      {keys.map((k, i) => (
+        <button
+          key={name(k)}
+          type="button"
+          role="radio"
+          aria-checked={name(k) === current}
+          tabIndex={name(k) === current || (none && i === 0) ? 0 : -1}
+          onClick={() => onChange(k)}
+        >
           <b>{name(k)}</b> {fret(k)}
         </button>
       ))}
-    </div>
+    </RadioGroup>
   );
 }
 

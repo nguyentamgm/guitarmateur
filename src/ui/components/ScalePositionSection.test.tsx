@@ -11,17 +11,17 @@ import { defaultState, type AppState } from '../../state';
  * have mislabeled it as ♭5.
  */
 
-function stateForScale(scaleId: ScaleId, leftHanded = false): AppState {
-  return { ...defaultState(() => 1), key: { tonic: note('A'), scaleId }, leftHanded };
+function stateForScale(scaleId: ScaleId, leftHanded = false, language: AppState['language'] = 'en'): AppState {
+  return { ...defaultState(() => 1), key: { tonic: note('A'), scaleId }, leftHanded, language };
 }
 
-async function mount(scaleId: ScaleId, leftHanded = false): Promise<{ container: HTMLDivElement; unmount: () => Promise<void> }> {
+async function mount(scaleId: ScaleId, leftHanded = false, language: AppState['language'] = 'en'): Promise<{ container: HTMLDivElement; unmount: () => Promise<void> }> {
   const { ScalePositionSection } = await import('./ScalePositionSection');
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
   await act(async () => {
-    root.render(createElement(ScalePositionSection, { state: stateForScale(scaleId, leftHanded), dispatch: () => {} }));
+    root.render(createElement(ScalePositionSection, { state: stateForScale(scaleId, leftHanded, language), dispatch: () => {} }));
   });
   return {
     container,
@@ -56,6 +56,16 @@ describe('ScalePositionSection legend', () => {
 });
 
 describe('ScalePositionSection neck', () => {
+  it('names each note for a screen reader in the page language, the neck one Tab stop', async () => {
+    for (const [language, root] of [['en', 'A, fret 5, string 6, 1, root'], ['vi', 'A, phím 5, dây 6, 1, root']] as const) {
+      const { container, unmount } = await mount('minorPentatonic', false, language);
+      const dots = [...container.querySelectorAll<SVGGElement>('svg[role="group"] g.dot')];
+      expect(dots.map((d) => d.getAttribute('aria-label'))).toContain(root);
+      expect(dots.filter((d) => d.tabIndex === 0).map((d) => d.getAttribute('aria-label'))).toEqual([root]);
+      await unmount();
+    }
+  });
+
   it('draws one whole neck, mirrored for a left-handed player', async () => {
     const { container, unmount } = await mount('minorPentatonic', true);
     const necks = container.querySelectorAll('svg[role="group"]');
@@ -97,7 +107,7 @@ describe('ScalePositionSection key picker', () => {
     const { container, unmount } = await mount('minorPentatonic');
     const keys = [...container.querySelectorAll('.finder button')];
     expect(keys.map((b) => b.textContent)).toEqual(['A 5', 'B♭ 6', 'B 7', 'C 8', 'C♯ 9', 'D 10', 'E♭ 11', 'E 0', 'F 1', 'F♯ 2', 'G 3', 'G♯ 4']);
-    expect(keys.filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.textContent)).toEqual(['A 5']);
+    expect(keys.filter((b) => b.getAttribute('aria-checked') === 'true').map((b) => b.textContent)).toEqual(['A 5']);
     await unmount();
   });
 });

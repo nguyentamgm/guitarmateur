@@ -12,13 +12,13 @@
 .board { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-board); padding: var(--s-4); min-width: 0; }
 .controls { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; }
 
-/* Segmented control: a labelled group of chips, one pressed (ChipGroup, OnOff). */
+/* Segmented control: a labelled radio group of chips, one checked (ChipGroup, OnOff). */
 .group { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
 .group > .globe { color: var(--muted); margin-right: 2px; }
 .group > span { font-size: var(--t-label); color: var(--muted); margin-right: 2px; font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
 .chip { font-family: var(--f-mono); font-size: var(--t-chip); padding: 5px 10px; min-width: 34px; border-radius: var(--r-chip); border: 1px solid var(--line); background: transparent; color: var(--ink); }
 .chip:hover { border-color: var(--muted); }
-.chip[aria-pressed='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed='true'], .chip[aria-checked='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* Button; `.ghost` is the outlined one. */
 .btn { font-size: var(--t-small); font-weight: 600; padding: 7px 14px; border-radius: var(--r-btn); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
@@ -47,7 +47,7 @@
 .finder button { font-family: var(--f-mono); font-size: 0.82rem; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 7px; padding: 5px 9px; font-variant-numeric: tabular-nums; }
 .finder button b { color: var(--accent); }
 .finder button:hover { border-color: var(--accent); }
-.finder button[aria-pressed='true'] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
+.finder button[aria-checked='true'] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
 
 /* Bar grid (BarGrid): lines of four bars, degree above the chord, the bar being heard filled. */
 .bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }

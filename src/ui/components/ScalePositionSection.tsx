@@ -7,8 +7,8 @@ import { Panel, PillButton, StepHead, StepHints } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
 import { neckGeometry } from '@shared/ui/geometry';
-import { ChipGroup, KeyPicker } from '@shared/ui/controls';
-import { boxDots, tuningNames } from '../neck';
+import { ChipGroup, KeyPicker, RadioGroup } from '@shared/ui/controls';
+import { boxDots, dotWords, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
@@ -28,6 +28,7 @@ export function ScalePositionSection({
   onLabels?: (mode: LabelMode) => void;
 }) {
   const t = useT(state.language);
+  const words = useMemo(() => dotWords(t), [t]);
   const { key } = state;
   const pos = useMemo(() => positions(TUNINGS[state.tuningId], key), [state.tuningId, key]);
   const rec = useMemo(() => recommendedPosition(pos), [pos]);
@@ -47,9 +48,9 @@ export function ScalePositionSection({
       <Panel>
         {/* Tuning picker */}
         <Label style={{ marginTop: 0 }}>{t('scalebox.tuning')}</Label>
-        <Row>
+        <Row label={t('scalebox.tuning')}>
           {(Object.keys(TUNINGS) as TuningId[]).map((tuningId) => (
-            <PillButton key={tuningId} selected={tuningId === state.tuningId} wide onClick={() => dispatch({ type: 'setTuning', tuningId })}>
+            <PillButton key={tuningId} radio selected={tuningId === state.tuningId} wide onClick={() => dispatch({ type: 'setTuning', tuningId })}>
               {t(`tuning.${tuningId}`)}
             </PillButton>
           ))}
@@ -68,9 +69,9 @@ export function ScalePositionSection({
 
         {/* Scale picker — driven by the registry */}
         <Label style={{ marginTop: 16 }}>{t('scalebox.scale')}</Label>
-        <Row>
+        <Row label={t('scalebox.scale')}>
           {SCALE_IDS.map((id) => (
-            <PillButton key={id} selected={id === key.scaleId} wide onClick={() => dispatch({ type: 'setScale', scaleId: id })}>
+            <PillButton key={id} radio selected={id === key.scaleId} wide onClick={() => dispatch({ type: 'setScale', scaleId: id })}>
               {t(`scale.${id}`)}
             </PillButton>
           ))}
@@ -129,6 +130,7 @@ export function ScalePositionSection({
               labels={labels}
               stringNames={names}
               leftHanded={state.leftHanded}
+              words={words}
               play={notePlayer(state.noteGain)}
             >
               {pos.map((p, i) => (
@@ -155,6 +157,15 @@ function Label({ children, style }: { children: React.ReactNode; style?: React.C
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
-  return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{children}</div>;
+const ROW: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: 8 };
+
+/** A row of chips; with `label`, a radio group (one choice) named by it. */
+function Row({ children, label }: { children: React.ReactNode; label?: string }) {
+  return label ? (
+    <RadioGroup label={label} style={ROW}>
+      {children}
+    </RadioGroup>
+  ) : (
+    <div style={ROW}>{children}</div>
+  );
 }

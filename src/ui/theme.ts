@@ -11,8 +11,8 @@ export const theme = {
   border: 'var(--line)',
   text: 'var(--ink)',
   muted: 'var(--muted)',
-  /** Dimmer than muted: secondary numbers and notes. */
-  subtle: 'color-mix(in srgb, var(--muted) 72%, var(--bg))',
+  /** Secondary numbers and notes: the muted ink, as anything dimmer falls under 4.5:1 for text. */
+  subtle: 'var(--muted)',
   /** Strings, frets, tab lines: drawn on the page background, so stronger than a border. */
   line: 'color-mix(in srgb, var(--muted) 55%, var(--bg))',
   /** Plain scale-note rings. */

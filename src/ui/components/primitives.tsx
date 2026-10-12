@@ -85,22 +85,27 @@ export function Panel({ children, style }: { children: ReactNode; style?: CSSPro
   );
 }
 
-/** One option of a segmented control: the shared `Chip`. `wide` is for words (sans); short values stay mono. */
+/**
+ * One option of a segmented control: the shared `Chip`. `wide` is for words (sans); short values stay mono.
+ * `radio`: one choice of a shared `RadioGroup`; otherwise an on/off toggle.
+ */
 export function PillButton({
   selected,
   onClick,
   children,
   wide,
   ariaLabel,
+  radio,
 }: {
   selected: boolean;
   onClick: () => void;
   children: ReactNode;
   wide?: boolean;
   ariaLabel?: string;
+  radio?: boolean;
 }) {
   return (
-    <Chip pressed={selected} onClick={onClick} words={wide} ariaLabel={ariaLabel}>
+    <Chip pressed={selected} onClick={onClick} words={wide} ariaLabel={ariaLabel} radio={radio}>
       {children}
     </Chip>
   );
@@ -140,16 +145,17 @@ export function Toggle({
 export function TextButton({
   onClick,
   children,
-  ariaLabel,
+  expanded,
 }: {
   onClick: () => void;
   children: ReactNode;
-  ariaLabel?: string;
+  /** It shows or hides a panel: open or not (`aria-expanded`). */
+  expanded?: boolean;
 }) {
   return (
     <button
       type="button"
-      aria-label={ariaLabel}
+      aria-expanded={expanded}
       onClick={onClick}
       className="hit"
       style={{

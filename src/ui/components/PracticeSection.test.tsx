@@ -7,12 +7,17 @@ import { createRoot } from 'react-dom/client';
  * renders inside the non-empty-progression branch, so there would be no visible stop control.
  */
 
-const T = { isPlaying: false, playCalls: 0, stopCalls: 0 };
+const T: { isPlaying: boolean; playCalls: number; stopCalls: number; position: { entryIndex: number; noteIndex: number } | null } = {
+  isPlaying: false,
+  playCalls: 0,
+  stopCalls: 0,
+  position: null,
+};
 vi.mock('../useTransport', () => ({
   useTransport: () => ({
     supported: true,
     isPlaying: T.isPlaying,
-    position: null,
+    position: T.position,
     play: () => { T.playCalls++; T.isPlaying = true; },
     stop: () => { T.stopCalls++; T.isPlaying = false; },
     setClickGain: () => {},
@@ -90,5 +95,36 @@ describe('PracticeSection transport vs. progression edits', () => {
     expect(T.isPlaying).toBe(true);
     expect(T.stopCalls).toBe(0);
     expect(byName(/Stop playback/)).not.toBeNull();
+  });
+});
+
+describe('PracticeSection playback status', () => {
+  it('tells a screen reader playing (with the chord being heard) and stopped, in one polite region', async () => {
+    T.isPlaying = false; T.position = null;
+    // jsdom has no scrollIntoView; the card being heard scrolls into view.
+    Element.prototype.scrollIntoView = () => {};
+    await mount();
+    const regions = container.querySelectorAll('[role="status"]');
+    expect(regions).toHaveLength(1);
+    const status = regions[0]!;
+    expect(status.className).toBe('sr-only');
+    expect(status.textContent).toBe('Stopped');
+    const rerender = () => act(async () => { byName(/TEST-REROLL/)!.click(); });
+
+    await act(async () => { byName(/Play the progression/)!.click(); });
+    await rerender(); // the mock transport does not re-render by itself
+    expect(status.textContent).toBe('Playing'); // counting in: no chord yet
+    T.position = { entryIndex: 1, noteIndex: 0 };
+    await rerender();
+    expect(status.textContent).toBe('Playing: G');
+    // The same region, kept: a live region must exist before its text changes.
+    expect(container.querySelector('[role="status"]')).toBe(status);
+    T.position = { entryIndex: 2, noteIndex: 0 };
+    await rerender();
+    expect(status.textContent).toBe('Playing: F');
+
+    T.isPlaying = false; T.position = null;
+    await rerender();
+    expect(status.textContent).toBe('Stopped');
   });
 });

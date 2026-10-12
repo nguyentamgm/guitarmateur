@@ -350,6 +350,7 @@ function BendQuiz({ copy }: { copy: SceneCopy }) {
           items={(['flat', 'full', 'sharp'] as const).map((o) => ({ value: o, text: c.outcomes[o] }))}
           value={answer ?? 'none'}
           onChange={(o) => o !== 'none' && choose(o)}
+          manual
         />
         <Button onClick={next} ghost>
           {c.next}

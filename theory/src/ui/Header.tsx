@@ -1,6 +1,7 @@
 import { LANGS } from '../i18n';
 import { useTheory } from './context';
 import { GlobeIcon } from '@shared/ui/GlobeIcon';
+import { RadioGroup } from '@shared/ui/controls';
 import { Link } from './Link';
 import { BASE, hrefFor } from './router';
 
@@ -32,7 +33,7 @@ export function Header({ section }: { section: Section }) {
             {ui.navPractice}
           </a>
         </nav>
-        <div className="group" role="group" aria-label={ui.langLabel}>
+        <RadioGroup className="group" label={ui.langLabel}>
           <GlobeIcon />
           {LANGS.map((l) => (
             <button
@@ -40,14 +41,17 @@ export function Header({ section }: { section: Section }) {
               type="button"
               className="chip"
               lang={l}
-              aria-pressed={l === lang}
-              aria-label={ui.langName[l]}
+              role="radio"
+              aria-checked={l === lang}
+              tabIndex={l === lang ? 0 : -1}
+              // The name holds the shown code too, so "EN" / "VI" is what a voice user can say.
+              aria-label={`${ui.langName[l]} (${l.toUpperCase()})`}
               onClick={() => setLang(l)}
             >
               {l.toUpperCase()}
             </button>
           ))}
-        </div>
+        </RadioGroup>
       </div>
     </header>
   );

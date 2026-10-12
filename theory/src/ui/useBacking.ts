@@ -12,6 +12,7 @@ import {
   type BackingStep,
 } from '@shared/ui/useBacking';
 import { useTheory } from './context';
+import { useReportPlaying } from './playing';
 
 export { STRUM_LOOP_BPM, type Backing, type BackingStep };
 
@@ -23,10 +24,14 @@ export function useBacking(
   loop = true,
 ): Backing {
   const { player } = useTheory();
-  return useSharedBacking(player, bars, style, bpm, onEighth, loop);
+  const backing = useSharedBacking(player, bars, style, bpm, onEighth, loop);
+  useReportPlaying(backing.playing);
+  return backing;
 }
 
 export function useStrumLoop(views: readonly { readonly chord: Chord; readonly notes: readonly { readonly midi: number }[] }[], bpm: number): Backing {
   const { player } = useTheory();
-  return useSharedStrumLoop(player, views, bpm);
+  const backing = useSharedStrumLoop(player, views, bpm);
+  useReportPlaying(backing.playing);
+  return backing;
 }

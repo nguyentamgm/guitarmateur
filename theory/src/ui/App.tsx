@@ -6,6 +6,7 @@ import { ContentsPage } from './ContentsPage';
 import { Ctx, ProgressCtx, type TheoryContext } from './context';
 import { Header } from './Header';
 import { LessonPage } from './LessonPage';
+import { PlayStatus } from './PlayStatus';
 import {
   PROGRESS_STORAGE_KEY,
   loadProgress,
@@ -105,6 +106,7 @@ export function App({ player: given }: { player?: Player } = {}) {
     <Ctx.Provider value={ctx}>
       <ProgressCtx.Provider value={progress}>
         <Header section={route.page === 'review' ? 'review' : 'lessons'} />
+        <PlayStatus />
         {lesson ? (
           <LessonPage lesson={lesson} />
         ) : route.page === 'review' ? (

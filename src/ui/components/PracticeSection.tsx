@@ -5,9 +5,10 @@ import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, StepHead, StepHints, Toggle } from './primitives';
+import { RadioGroup } from '@shared/ui/controls';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { neckGeometry } from '@shared/ui/geometry';
-import { boxDots, stringNumber, tuningNames } from '../neck';
+import { boxDots, dotWords, stringNumber, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
@@ -35,6 +36,7 @@ export function PracticeSection({
   labels?: LabelMode;
 }) {
   const t = useT(state.language);
+  const words = useMemo(() => dotWords(t), [t]);
   const licks = useMemo(() => licksForState(state), [state]);
   const transport = useTransport();
   const [countIn, setCountIn] = useState(true);
@@ -89,6 +91,13 @@ export function PracticeSection({
   }, [stateProgression]);
 
   const targetLabel = t(`role.${state.targetRole}`);
+  // The chord of the card being heard (none while counting in), for the status region.
+  const heardEntry = active ? chordMap.get(licks[active.entryIndex]?.entryId ?? '') : undefined;
+  const status = !isPlaying
+    ? t('playback.statusStopped')
+    : heardEntry
+      ? t('playback.statusPlayingChord', { chord: chordLabel(heardEntry.chord) })
+      : t('playback.statusPlaying');
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -104,31 +113,35 @@ export function PracticeSection({
         noteGain={state.noteGain}
       />
       <StepHead language={state.language} step="practice" />
+      {/* Polite, and there from the first render: only a change (play, stop, the next chord) is read out. */}
+      <p className="sr-only" role="status">
+        {status}
+      </p>
       <Panel>
         {/* Controls */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'flex-end', marginBottom: 18 }}>
           <div>
             <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 6 }}>{t('practice.level')}</div>
-            <div style={{ display: 'flex', gap: 6 }}>
+            <RadioGroup label={t('practice.level')} style={{ display: 'flex', gap: 6 }}>
               {([1, 2, 3, 4, 5] as const).map((l) => (
-                <PillButton key={l} selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={t('practice.levelAria', { n: l })}>
+                <PillButton key={l} radio selected={state.level === l} onClick={() => dispatch({ type: 'setLevel', level: l })} ariaLabel={t('practice.levelAria', { n: l })}>
                   {l}
                 </PillButton>
               ))}
-            </div>
+            </RadioGroup>
             <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>
               {t(`practice.level.${state.level}`)}
             </div>
           </div>
           <div>
             <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 6 }}>{t('practice.target')}</div>
-            <div style={{ display: 'flex', gap: 6 }}>
+            <RadioGroup label={t('practice.target')} style={{ display: 'flex', gap: 6 }}>
               {(['R', '3', '5', '7'] as const).map((r) => (
-                <PillButton key={r} selected={state.targetRole === r} wide onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
+                <PillButton key={r} radio selected={state.targetRole === r} wide onClick={() => dispatch({ type: 'setTargetRole', role: r })}>
                   {t(`role.${r}`)}
                 </PillButton>
               ))}
-            </div>
+            </RadioGroup>
           </div>
           <div>
             <div style={{ fontSize: 13, marginBottom: 6 }}>&nbsp;</div>
@@ -258,6 +271,7 @@ export function PracticeSection({
                       labels={labels}
                       stringNames={names}
                       leftHanded={state.leftHanded}
+                      words={words}
                       play={notePlayer(state.noteGain)}
                     />
 
