@@ -2,7 +2,7 @@ import { CHORD_QUALITIES, TONICS, chordLabel, format, romanNumeral, suggestedCho
 import { homeFret, TUNINGS } from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
-import { Panel, PillButton, SectionKicker, StepIntro, Takeaways, TextButton } from './primitives';
+import { Panel, PillButton, SectionKicker, StepHints, StepIntro, TextButton } from './primitives';
 import { useT } from '../useT';
 import { BarGrid, type BarCell } from '@shared/ui/BarGrid';
 import { KeyPicker } from '@shared/ui/controls';
@@ -220,12 +220,7 @@ export function ProgressionSection({
             <BarGrid label={t('progression.grid')} bars={bars} current={currentBar} />
           </div>
         )}
-        <Takeaways
-          rows={[
-            { label: t('common.takeaway'), text: t('progression.takeaway') },
-            { label: t('common.tryIt'), text: t('progression.tryIt') },
-          ]}
-        />
+        <StepHints language={state.language} step="progression" />
       </Panel>
     </section>
   );

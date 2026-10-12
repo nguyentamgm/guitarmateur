@@ -1,3 +1,4 @@
+import { Takeaways } from '@shared/ui/controls';
 import { fill } from '../i18n';
 import { conceptName, type Lesson } from '../lessons';
 import { useTheory } from './context';
@@ -43,16 +44,13 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
               ))}
             </div>
             <LessonScene slug={lesson.slug} step={s.id} copy={copy.scene} />
-            <dl className="takeaways prose">
-              <div>
-                <dt>{ui.takeaway}</dt>
-                <dd>{step.takeaway}</dd>
-              </div>
-              <div>
-                <dt>{ui.tryIt}</dt>
-                <dd>{step.tryIt}</dd>
-              </div>
-            </dl>
+            <Takeaways
+              className="prose"
+              rows={[
+                { label: ui.takeaway, text: step.takeaway },
+                { label: ui.tryIt, text: step.tryIt },
+              ]}
+            />
           </section>
         );
       })}

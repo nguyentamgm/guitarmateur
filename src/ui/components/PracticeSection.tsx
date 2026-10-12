@@ -4,7 +4,7 @@ import { mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
-import { Panel, PillButton, SectionKicker, StepIntro, Takeaways, Toggle } from './primitives';
+import { Panel, PillButton, SectionKicker, StepHints, StepIntro, Toggle } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { neckGeometry } from '@shared/ui/geometry';
 import { boxDots, stringNumber, tuningNames } from '../neck';
@@ -310,12 +310,7 @@ export function PracticeSection({
             </div>
           </>
         )}
-        <Takeaways
-          rows={[
-            { label: t('common.takeaway'), text: t('practice.takeaway') },
-            { label: t('common.tryIt'), text: t('practice.tryIt') },
-          ]}
-        />
+        <StepHints language={state.language} step="practice" />
       </Panel>
     </section>
   );
