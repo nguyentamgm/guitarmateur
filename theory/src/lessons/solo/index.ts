@@ -23,6 +23,6 @@ export const solo: Lesson<StepId, SceneCopy> = {
     scale: BACKINGS.blues.scale,
     chords: backingBars('blues', BACKINGS.blues.tonic).map((b) => b.chord),
     tempoBpm: BACKINGS.blues.bpm,
-    swing: true,
+    swing: BACKINGS.blues.style === 'shuffle',
   },
 };

@@ -36,10 +36,9 @@ describe('lesson registry', () => {
 
   it('links each lesson to the ones before and after it in LESSONS', () => {
     const slugs = LESSONS.map((l) => l.slug);
-    expect(slugs.slice(0, 3)).toEqual(['fretboard', 'rhythm', 'major-scale']);
-    expect(lessonNeighbours('fretboard').prev).toBeUndefined();
-    expect(lessonNeighbours('fretboard').next?.slug).toBe('rhythm');
-    expect(lessonNeighbours('rhythm')).toEqual({ prev: findLesson('fretboard'), next: findLesson('major-scale') });
+    expect(lessonNeighbours(slugs[0]!).prev).toBeUndefined();
+    expect(lessonNeighbours(slugs[0]!).next?.slug).toBe(slugs[1]);
+    expect(lessonNeighbours(slugs[1]!)).toEqual({ prev: LESSONS[0], next: LESSONS[2] });
     expect(lessonNeighbours(slugs.at(-1)!).next).toBeUndefined();
     expect(lessonNeighbours(slugs.at(-1)!).prev?.slug).toBe(slugs.at(-2));
     slugs.forEach((slug, i) => {

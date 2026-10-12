@@ -222,19 +222,19 @@ describe('Theory app', () => {
     const card = (dir: 'prev' | 'next') => nav().querySelector(`a.lesson-nav-card.${dir}`);
 
     it('the first lesson has no previous link; its next is the second lesson', () => {
-      render('/theory/fretboard');
+      render(`/theory/${LESSONS[0]!.slug}`);
       expect(card('prev')).toBeNull();
-      expect(card('next')!.getAttribute('href')).toBe('/theory/rhythm');
+      expect(card('next')!.getAttribute('href')).toBe(`/theory/${LESSONS[1]!.slug}`);
       expect(card('next')!.textContent).toBe(`Next lesson →${LESSONS[1]!.copy.en.title}`);
     });
 
     it('a middle lesson links to the lessons before and after it, in its language', () => {
       localStorage.setItem(LANG_STORAGE_KEY, 'vi');
-      render('/theory/major-scale');
-      expect(card('prev')!.getAttribute('href')).toBe('/theory/rhythm');
+      render(`/theory/${LESSONS[2]!.slug}`);
+      expect(card('prev')!.getAttribute('href')).toBe(`/theory/${LESSONS[1]!.slug}`);
       expect(card('prev')!.textContent).toBe(`← Bài trước${LESSONS[1]!.copy.vi.title}`);
-      expect(card('next')!.getAttribute('href')).toBe('/theory/pentatonic-map');
-      expect(card('next')!.textContent).toBe(`Bài tiếp theo →${pentatonicMap.copy.vi.title}`);
+      expect(card('next')!.getAttribute('href')).toBe(`/theory/${LESSONS[3]!.slug}`);
+      expect(card('next')!.textContent).toBe(`Bài tiếp theo →${LESSONS[3]!.copy.vi.title}`);
     });
 
     it('the last lesson has no next lesson and goes on to review', () => {
@@ -246,9 +246,9 @@ describe('Theory app', () => {
     });
 
     it('navigates to the next lesson without a reload', () => {
-      render('/theory/fretboard');
+      render(`/theory/${LESSONS[0]!.slug}`);
       click(card('next')!);
-      expect(window.location.pathname).toBe('/theory/rhythm');
+      expect(window.location.pathname).toBe(`/theory/${LESSONS[1]!.slug}`);
       expect(document.title).toBe(`${LESSONS[1]!.copy.en.title} · Guitarmateur Theory`);
     });
 
