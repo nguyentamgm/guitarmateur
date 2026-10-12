@@ -32,9 +32,9 @@ export function StepHead({ language, step }: { language: LocaleId; step: Practic
         <div style={{ fontSize: 13, color: theme.muted }}>
           {t('why.label')}{' '}
           {WHY[step].map((link, i) => (
-            <span key={link.slug}>
+            <span key={lessonHref(link, language)}>
               {i > 0 && ' · '}
-              <a href={lessonHref(link)}>{t(`lesson.${link.slug}`)}</a>
+              <a href={lessonHref(link, language)}>{t(`lesson.${link.slug}`)}</a>
             </span>
           ))}
         </div>

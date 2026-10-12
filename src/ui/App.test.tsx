@@ -77,17 +77,18 @@ describe('App', () => {
       const why = () =>
         [...container.querySelectorAll('section a[href^="/theory/"]')].map((a) => [a.textContent, a.getAttribute('href')]);
       expect(why()).toEqual([
-        ['The Pentatonic Map', '/theory/pentatonic-map#boxes'],
-        ['Pentatonic, the Whole Neck', '/theory/pentatonic#boxes'],
-        ['Keys and Progressions: Chords by Number', '/theory/keys'],
-        ['Soloing over the Changes: Aim for the Chord', '/theory/solo#tones'],
+        ['The Pentatonic Map', '/theory/pentatonic-map?lang=en#boxes'],
+        ['Pentatonic, the Whole Neck', '/theory/pentatonic?lang=en#connect'],
+        ['Keys and Progressions: Chords by Number', '/theory/keys?lang=en'],
+        ['Soloing over the Changes: Aim for the Chord', '/theory/solo?lang=en#tones'],
       ]);
       expect(container.querySelector('section')!.textContent).toContain('Why? The Pentatonic Map · Pentatonic, the Whole Neck');
 
       await act(async () => {
         container.querySelector<HTMLButtonElement>('button[aria-label="Tiếng Việt"]')!.click();
       });
-      expect(why()[0]).toEqual(['Bản đồ Pentatonic', '/theory/pentatonic-map#boxes']);
+      // The lesson opens in the page's language too.
+      expect(why()[0]).toEqual(['Bản đồ Pentatonic', '/theory/pentatonic-map?lang=vi#boxes']);
       expect(container.querySelector('section')!.textContent).toContain('Vì sao? Bản đồ Pentatonic');
     } finally {
       await act(async () => {

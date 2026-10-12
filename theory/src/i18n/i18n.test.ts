@@ -1,5 +1,5 @@
 import { copyShape, emptyStrings } from './copyShape';
-import { DEFAULT_LANG, LANG_STORAGE_KEY, detectLang, fill, loadLang, saveLang } from './lang';
+import { DEFAULT_LANG, LANG_STORAGE_KEY, detectLang, fill, linkLang, loadLang, saveLang } from './lang';
 import { UI } from './strings';
 
 const memory = (init: Record<string, string> = {}) => {
@@ -65,6 +65,13 @@ describe('language choice', () => {
 
     // A broken practice state is skipped.
     expect(loadLang(memory({ 'guitarmateur-state': '{oops' }), ['vi'])).toBe('vi');
+  });
+
+  it("reads a link's ?lang=, ignoring anything that is not a language", () => {
+    expect(linkLang('?lang=vi')).toBe('vi');
+    expect(linkLang('?s=x&lang=en')).toBe('en');
+    expect(linkLang('?lang=fr')).toBeNull();
+    expect(linkLang('')).toBeNull();
   });
 
   it('ignores unknown values and never throws on blocked storage', () => {

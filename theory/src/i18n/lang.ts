@@ -29,6 +29,16 @@ export function loadLang(
   return loadStoredLanguage(storage, isLang) ?? detectLang(preferred);
 }
 
+/**
+ * The language a link asks for (`?lang=vi`, as the practice app's lesson links carry the page's
+ * language), or null. It is for that visit only: the caller takes it off the address, and it is
+ * not remembered unless the learner picks a language.
+ */
+export function linkLang(search: string): Lang | null {
+  const v = new URLSearchParams(search).get('lang');
+  return isLang(v) ? v : null;
+}
+
 /** Remember a language for both apps. A storage failure only means it is not remembered. */
 export function saveLang(lang: Lang, storage: KeyValue | null = browserStorage()): void {
   saveStoredLanguage(lang, storage);

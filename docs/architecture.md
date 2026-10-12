@@ -187,9 +187,11 @@ sharedPasses.ts  lickPasses / toSeqEvents: those events → passes for the share
 ```
 
 Each Practice step's head carries "Why?" links to the Theory lessons that explain it
-(`src/ui/lessonLinks.ts`: the lesson's slug and step). Practice never imports Theory, so the titles
-are in its catalogs (`lesson.*`); `lessonLinks.test.ts` reads Theory's lesson files as text and
-fails when a slug, step or title no longer matches.
+(`src/ui/lessonLinks.ts`: the lesson's slug and step, and `?lang=` with the page's language).
+Practice never imports Theory, so the titles are in its catalogs (`lesson.*`);
+`lessonLinks.test.ts` loads Theory's `LESSONS` at test time (`import.meta.glob`, outside the type
+program and the lint rule) and fails when a slug, step or title no longer matches, or a `lesson.*`
+title is left over.
 
 In `src/ui/`, `audioPlayer.ts` holds the page's one `Player`; `useTransport()` drives a
 `Sequencer` on it (play state, the sounding note for card/tab highlighting, the bar being heard

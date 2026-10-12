@@ -1,8 +1,10 @@
 /**
- * The Theory lesson behind each Practice step, for its "Why?" link. Theory is a separate app (we
- * never import it): its paths are written here, and `lessonLinks.test.ts` reads Theory's lesson
- * files as text to check that each slug, step and title still exists.
+ * The Theory lesson behind each Practice step, for its "Why?" link. Theory is a separate app that
+ * Practice never imports: its paths are written here and its titles are in our catalogs
+ * (`lesson.*`). `lessonLinks.test.ts`, the one file allowed to import Theory's lessons, checks that
+ * each slug, step and title still matches.
  */
+import type { LocaleId } from '../i18n';
 
 /** The lessons we link to; each has a `lesson.<slug>` title in the catalogs, as Theory titles it. */
 export type LessonSlug = 'pentatonic-map' | 'pentatonic' | 'keys' | 'solo';
@@ -16,10 +18,10 @@ export interface LessonLink {
 export type PracticeStep = 'scalebox' | 'progression' | 'practice';
 
 export const WHY: Readonly<Record<PracticeStep, readonly LessonLink[]>> = {
-  // Scale and box: the five boxes, then joining them and playing them in any key.
+  // Scale and box: the five boxes, then joining two of them, as two boxes picked here are.
   scalebox: [
     { slug: 'pentatonic-map', step: 'boxes' },
-    { slug: 'pentatonic', step: 'boxes' },
+    { slug: 'pentatonic', step: 'connect' },
   ],
   // Chord progression: which chords belong to a key, and the numbers that name them.
   progression: [{ slug: 'keys' }],
@@ -27,5 +29,6 @@ export const WHY: Readonly<Record<PracticeStep, readonly LessonLink[]>> = {
   practice: [{ slug: 'solo', step: 'tones' }],
 };
 
-export const lessonHref = ({ slug, step }: LessonLink): string =>
-  `/theory/${slug}${step ? `#${step}` : ''}`;
+/** The lesson's address. `?lang=` opens it in the page's language, even one a link set for this visit. */
+export const lessonHref = ({ slug, step }: LessonLink, lang: LocaleId): string =>
+  `/theory/${slug}?lang=${lang}${step ? `#${step}` : ''}`;
