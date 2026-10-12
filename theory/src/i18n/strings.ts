@@ -49,6 +49,8 @@ const en = {
   dotTones: { chord: 'chord tone', target: 'target note', blue: 'blue note' },
   // A tab number's accessible name, as Practice names its tab.
   tabNote: 'String {n}: {text}',
+  // Told to screen readers when playback starts or stops.
+  playStatus: { playing: 'Playing', stopped: 'Stopped' },
   trainerLink: 'Practise licks over this in Practice →',
   /** A link to Practice over a short vamp, for a lesson with no progression: '{chords}' is 'Am7–Dm7'. */
   trainerVamp: 'Practise licks in Practice, over {chords} →',
@@ -103,6 +105,7 @@ const vi: UiStrings = {
   dotRoot: 'root',
   dotTones: { chord: 'nốt của hợp âm', target: 'nốt đích', blue: 'blue note' },
   tabNote: 'Dây {n}: {text}',
+  playStatus: { playing: 'Đang phát', stopped: 'Đã dừng' },
   trainerLink: 'Tập lick trên vòng này trong app Luyện tập →',
   trainerVamp: 'Tập lick trong app Luyện tập, trên {chords} →',
   lessonNavLabel: 'Học tiếp',

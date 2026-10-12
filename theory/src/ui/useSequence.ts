@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useReportPlaying } from './playing';
 
 export interface Sequence {
   /** Index of the current item while playing, otherwise null. */
@@ -53,6 +54,7 @@ export function useSequence(
   useEffect(() => stop, [stop]);
 
   const playing = current !== null;
+  useReportPlaying(playing);
   const toggle = useCallback(() => (playing ? stop() : run(0)), [playing, run, stop]);
   const start = useCallback(() => {
     stop();

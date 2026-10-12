@@ -130,6 +130,25 @@ describe('Theory app', () => {
     expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Review');
   });
 
+  it('tells a screen reader when playback starts and stops, in one polite region for the page', () => {
+    render('/theory/blues');
+    const status = container.querySelectorAll('[role="status"]');
+    expect(status).toHaveLength(1);
+    expect(status[0]!.className).toBe('sr-only');
+    expect(status[0]!.textContent).toBe('Stopped');
+    const play = (id: string) => [...container.querySelectorAll(`section#${id} button`)].find((b) => b.textContent === 'Play' || b.textContent === 'Stop')!;
+    click(play('twelveBar'));
+    expect(status[0]!.textContent).toBe('Playing');
+    // Starting another backing stops the first: still playing, nothing to tell.
+    click(play('shuffle'));
+    expect(play('twelveBar').textContent).toBe('Play');
+    expect(status[0]!.textContent).toBe('Playing');
+    click(play('shuffle'));
+    expect(status[0]!.textContent).toBe('Stopped');
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(status[0]!.textContent).toBe('Đã dừng');
+  });
+
   it('marks the language switcher with a globe', () => {
     render('/theory');
     const group = container.querySelector('[role="radiogroup"][aria-label="Language"]')!;

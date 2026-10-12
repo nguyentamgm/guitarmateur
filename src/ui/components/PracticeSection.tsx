@@ -91,6 +91,13 @@ export function PracticeSection({
   }, [stateProgression]);
 
   const targetLabel = t(`role.${state.targetRole}`);
+  // The chord of the card being heard (none while counting in), for the status region.
+  const heardEntry = active ? chordMap.get(licks[active.entryIndex]?.entryId ?? '') : undefined;
+  const status = !isPlaying
+    ? t('playback.statusStopped')
+    : heardEntry
+      ? t('playback.statusPlayingChord', { chord: chordLabel(heardEntry.chord) })
+      : t('playback.statusPlaying');
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -106,6 +113,10 @@ export function PracticeSection({
         noteGain={state.noteGain}
       />
       <StepHead language={state.language} step="practice" />
+      {/* Polite, and there from the first render: only a change (play, stop, the next chord) is read out. */}
+      <p className="sr-only" role="status">
+        {status}
+      </p>
       <Panel>
         {/* Controls */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'flex-end', marginBottom: 18 }}>
