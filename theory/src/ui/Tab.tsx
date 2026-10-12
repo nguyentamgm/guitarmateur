@@ -8,6 +8,7 @@ import { tabBoxWidth, useKeepInView } from '@shared/ui/tab';
 import { STRINGS, type StringNumber } from '../core/fretboard';
 import { useTheory } from './context';
 import { stringName } from './geometry';
+import { fill } from '../i18n';
 
 export interface TabNote {
   /** Shared with the neck's dot for the same position, so both light up together. */
@@ -43,7 +44,7 @@ const COUNT_ROW = 22;
 const boxW = (n: TabNote) => tabBoxWidth(n.text ?? String(n.fret));
 
 export function Tab({ columns, label, active = [], column = null, onNote, counts, barLines = [] }: Props) {
-  const { player } = useTheory();
+  const { player, ui } = useTheory();
   const width = LEFT + columns.length * COL + 12;
   const staff = TOP * 2 + 5 * GAP;
   const height = staff + (counts ? COUNT_ROW : 0);
@@ -100,7 +101,7 @@ export function Tab({ columns, label, active = [], column = null, onNote, counts
               className={active.includes(n.key) ? 'tabnum on' : 'tabnum'}
               role="button"
               tabIndex={0}
-              aria-label={`${stringName(n.string)}/${n.text ?? n.fret}`}
+              aria-label={fill(ui.tabNote, { n: n.string, text: n.text ?? n.fret })}
               onClick={() => play(n, i)}
               onKeyDown={(e) => onKey(e, n, i)}
             >

@@ -8,7 +8,7 @@ import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
 import { neckGeometry } from '@shared/ui/geometry';
 import { ChipGroup, KeyPicker, RadioGroup } from '@shared/ui/controls';
-import { boxDots, tuningNames } from '../neck';
+import { boxDots, dotWords, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
@@ -28,6 +28,7 @@ export function ScalePositionSection({
   onLabels?: (mode: LabelMode) => void;
 }) {
   const t = useT(state.language);
+  const words = useMemo(() => dotWords(t), [t]);
   const { key } = state;
   const pos = useMemo(() => positions(TUNINGS[state.tuningId], key), [state.tuningId, key]);
   const rec = useMemo(() => recommendedPosition(pos), [pos]);
@@ -129,6 +130,7 @@ export function ScalePositionSection({
               labels={labels}
               stringNames={names}
               leftHanded={state.leftHanded}
+              words={words}
               play={notePlayer(state.noteGain)}
             >
               {pos.map((p, i) => (

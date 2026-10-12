@@ -4,6 +4,8 @@
  * thinnest), so the two meet here.
  */
 import type { FretDot } from '@shared/ui/Fretboard';
+import type { DotWords } from '@shared/ui/dotName';
+import type { Translate } from '../i18n';
 import type { StringNames, StringNumber } from '@shared/core/neck';
 import { format, midi, SCALES, toneRole, type Chord, type Key, type ToneRole } from '../music';
 import type { Box } from '../fretboard';
@@ -68,3 +70,11 @@ export function boxDots(box: Box, key: Key, opts: DotOptions = {}): FretDot[] {
       };
     });
 }
+
+/** The words of a dot's accessible name ("A, fret 5, string 6, 1, root") in the page's language. */
+export const dotWords = (t: Translate): DotWords => ({
+  fret: (n) => t('neck.dotFret', { n }),
+  string: (n) => t('neck.dotString', { n }),
+  root: t('neck.dotRoot'),
+  tones: { chord: t('neck.dotChordTone'), target: t('neck.dotTarget'), blue: t('neck.dotBlueNote') },
+});

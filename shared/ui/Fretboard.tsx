@@ -3,9 +3,10 @@
  * to hear. Callers add their own SVG (lines, arcs) through `children`, drawn under the dots.
  * Styled by shared/ui/fretboard.css. Sound is the caller's (`play`), so this holds no audio.
  */
-import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STANDARD_STRING_NAMES, STRINGS, type StringNames, type StringNumber } from '../core/neck';
 import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, upright as uprightAt, type NeckGeometry } from './geometry';
+import { dotName, type DotWords } from './dotName';
 
 /**
  * How a dot is drawn. `home`/`homeMajor`: the root (blue / amber); `blue`: a blue note (♭5);
@@ -36,6 +37,25 @@ export interface FretDot {
   readonly mark?: string;
 }
 
+/**
+ * The dot an arrow key moves to: along the string (Left / Right, as drawn, so mirrored when
+ * left-handed), or to the nearest fret on the next string up / down the picture that has a dot.
+ */
+function neighbour(dots: readonly FretDot[], from: FretDot, key: string, g: NeckGeometry, leftHanded: boolean): FretDot | undefined {
+  if (key === 'ArrowLeft' || key === 'ArrowRight') {
+    const up = (key === 'ArrowRight') !== leftHanded;
+    const row = dots.filter((d) => d.string === from.string && (up ? d.fret > from.fret : d.fret < from.fret));
+    return row.sort((a, b) => (up ? a.fret - b.fret : b.fret - a.fret))[0];
+  }
+  if (key !== 'ArrowUp' && key !== 'ArrowDown') return undefined;
+  const sign = key === 'ArrowUp' ? -1 : 1;
+  const ahead = dots.filter((d) => sign * (g.y(d.string) - g.y(from.string)) > 0);
+  if (ahead.length === 0) return undefined;
+  const gap = Math.min(...ahead.map((d) => Math.abs(g.y(d.string) - g.y(from.string))));
+  const row = ahead.filter((d) => Math.abs(g.y(d.string) - g.y(from.string)) === gap);
+  return row.sort((a, b) => Math.abs(a.fret - from.fret) - Math.abs(b.fret - from.fret) || a.fret - b.fret)[0];
+}
+
 interface Props {
   readonly geometry: NeckGeometry;
   readonly dots: readonly FretDot[];
@@ -54,6 +74,8 @@ interface Props {
   readonly stringNames?: StringNames;
   /** Mirror the neck for a left-handed player: nut on the right; text stays readable. */
   readonly leftHanded?: boolean;
+  /** Words for each dot's accessible name (`dotName`). Without them: its text and string/fret. */
+  readonly words?: DotWords;
   readonly children?: ReactNode;
 }
 
@@ -70,9 +92,15 @@ export function Fretboard({
   labels = 'degree',
   stringNames = STANDARD_STRING_NAMES,
   leftHanded = false,
+  words,
   children,
 }: Props) {
   const [flash, setFlash] = useState<string | null>(null);
+  // One Tab stop for the whole neck (the dot last focused, else the first lit one); the arrow keys
+  // move between dots, so every dot, dimmed ones too, is reachable without a Tab stop each.
+  const [focused, setFocused] = useState<string | null>(null);
+  const nodes = useRef(new Map<string, SVGGElement>());
+  const stop = (dots.find((d) => d.key === focused) ?? dots.find((d) => !d.dim) ?? dots[0])?.key;
   useEffect(() => {
     if (flash === null) return;
     const t = setTimeout(() => setFlash(null), 220);
@@ -88,6 +116,12 @@ export function Fretboard({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       play(d);
+      return;
+    }
+    const next = neighbour(dots, d, e.key, g, leftHanded);
+    if (next) {
+      e.preventDefault();
+      nodes.current.get(next.key)?.focus();
     }
   };
 
@@ -168,12 +202,17 @@ export function Fretboard({
               d.halo && <circle key={`${d.key}-halo`} className="halo" cx={cx} cy={cy} r={16} />,
               <g
                 key={d.key}
+                ref={(el) => {
+                  if (el) nodes.current.set(d.key, el);
+                  else nodes.current.delete(d.key);
+                }}
                 className={cls}
                 role="button"
-                tabIndex={d.dim ? -1 : 0}
-                aria-label={`${text ?? ''} ${stringName(d.string, stringNames)}/${d.fret}`.trim()}
+                tabIndex={d.key === stop ? 0 : -1}
+                aria-label={words ? dotName(d, text, words) : `${text ?? ''} ${stringName(d.string, stringNames)}/${d.fret}`.trim()}
                 onClick={() => play(d)}
                 onKeyDown={(e) => onKey(e, d)}
+                onFocus={() => setFocused(d.key)}
               >
                 <circle cx={cx} cy={cy} r={11} />
                 {text !== undefined && (
@@ -181,6 +220,8 @@ export function Fretboard({
                     {text}
                   </text>
                 )}
+                {/* Apart from the label, so the dot's visible text reads "♭3 3", not "♭33". */}
+                {text !== undefined && d.mark !== undefined && ' '}
                 {d.mark !== undefined && (
                   <text className="mark" x={markX} y={cy - 9} transform={upright(markX)}>
                     {d.mark}

@@ -42,6 +42,13 @@ const en = {
   reviewOpen: 'Go to the quiz',
   reviewFooter: 'Scores stay in this browser. Nothing is tracked or uploaded.',
   tempoBest: 'Best: {bpm} BPM',
+  // A neck dot's accessible name: "A, fret 5, string 6, 1, root".
+  dotFret: 'fret {n}',
+  dotString: 'string {n}',
+  dotRoot: 'root',
+  dotTones: { chord: 'chord tone', target: 'target note', blue: 'blue note' },
+  // A tab number's accessible name, as Practice names its tab.
+  tabNote: 'String {n}: {text}',
   trainerLink: 'Practise licks over this in Practice →',
   /** A link to Practice over a short vamp, for a lesson with no progression: '{chords}' is 'Am7–Dm7'. */
   trainerVamp: 'Practise licks in Practice, over {chords} →',
@@ -91,6 +98,11 @@ const vi: UiStrings = {
   reviewOpen: 'Tới bài đố',
   reviewFooter: 'Điểm chỉ nằm trong trình duyệt này. Không theo dõi, không tải gì lên.',
   tempoBest: 'Tốt nhất: {bpm} BPM',
+  dotFret: 'phím {n}',
+  dotString: 'dây {n}',
+  dotRoot: 'root',
+  dotTones: { chord: 'nốt của hợp âm', target: 'nốt đích', blue: 'blue note' },
+  tabNote: 'Dây {n}: {text}',
   trainerLink: 'Tập lick trên vòng này trong app Luyện tập →',
   trainerVamp: 'Tập lick trong app Luyện tập, trên {chords} →',
   lessonNavLabel: 'Học tiếp',

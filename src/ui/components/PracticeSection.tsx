@@ -8,7 +8,7 @@ import { Panel, PillButton, StepHead, StepHints, Toggle } from './primitives';
 import { RadioGroup } from '@shared/ui/controls';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { neckGeometry } from '@shared/ui/geometry';
-import { boxDots, stringNumber, tuningNames } from '../neck';
+import { boxDots, dotWords, stringNumber, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { TabStaff } from './TabStaff';
@@ -36,6 +36,7 @@ export function PracticeSection({
   labels?: LabelMode;
 }) {
   const t = useT(state.language);
+  const words = useMemo(() => dotWords(t), [t]);
   const licks = useMemo(() => licksForState(state), [state]);
   const transport = useTransport();
   const [countIn, setCountIn] = useState(true);
@@ -259,6 +260,7 @@ export function PracticeSection({
                       labels={labels}
                       stringNames={names}
                       leftHanded={state.leftHanded}
+                      words={words}
                       play={notePlayer(state.noteGain)}
                     />
 

@@ -3,6 +3,7 @@ import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { DROP_D_STRING_NAMES } from '../core/neck';
 import { Fretboard, type FretDot } from './Fretboard';
+import type { DotWords } from './dotName';
 import { neckGeometry } from './geometry';
 
 const roots: Root[] = [];
@@ -89,6 +90,74 @@ describe('shared Fretboard', () => {
     // Silent without `play`.
     const silent = render({ dots });
     expect(() => act(() => (dot(silent, 'a') as SVGGElement).dispatchEvent(new MouseEvent('click', { bubbles: true })))).not.toThrow();
+  });
+});
+
+describe('keyboard and screen reader', () => {
+  const words: DotWords = {
+    fret: (n) => `fret ${n}`,
+    string: (n) => `string ${n}`,
+    root: 'root',
+    tones: { chord: 'chord tone', target: 'target note', blue: 'blue note' },
+  };
+  const names = (c: HTMLElement) => [...c.querySelectorAll('g.dot')].map((d) => d.getAttribute('aria-label'));
+
+  it('names each dot by note, fret, string, then degree (and root for 1), tone and mark', () => {
+    expect(names(render({ dots, words }))).toEqual([
+      'A, fret 5, string 6, 1, root',
+      'C, fret 8, string 6, ♭3, chord tone 3',
+      'E, fret 7, string 5, 5, target note 5',
+      'E♭, fret 6, string 5, ♭5, blue note',
+      'D, fret 5, string 5, 4',
+    ]);
+    // Without a note name, the text the dot shows leads; a `home` tone is the root.
+    expect(names(render({ dots: [{ key: 'x', string: 3, fret: 2, midi: 57, label: '1', tone: 'home' }], words }))).toEqual(['1, fret 2, string 3, root']);
+  });
+
+  it('keeps a space between a dot\'s label and its mark, so its text reads "♭3 3"', () => {
+    expect(dot(render({ dots, words }), 'c').textContent).toBe('♭3 3');
+  });
+
+  it('is one Tab stop: the first lit dot, then the one last focused; dimmed dots are in it too', () => {
+    const tabbable = (c: HTMLElement) => [...c.querySelectorAll<SVGGElement>('g.dot')].filter((d) => d.tabIndex === 0);
+    const dimFirst = [{ ...dots[4]!, key: 'dim', dim: true }, ...dots];
+    const c = render({ dots: dimFirst, words });
+    expect(tabbable(c).map((d) => d.getAttribute('aria-label'))).toEqual(['A, fret 5, string 6, 1, root']);
+    const dim = c.querySelector<SVGGElement>('g.dot.dim')!;
+    expect(dim.tabIndex).toBe(-1);
+    act(() => dim.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
+    expect(tabbable(c)).toEqual([dim]);
+  });
+
+  it('moves along the string with Left / Right, across strings with Up / Down; Enter still plays', () => {
+    const play = vi.fn();
+    const c = render({ dots, words, play });
+    document.body.append(c);
+    const key = (k: string) => act(() => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })));
+    const at = () => document.activeElement!.getAttribute('aria-label');
+    act(() => (dot(c, 'a') as SVGGElement).focus());
+    key('ArrowRight');
+    expect(at()).toBe('C, fret 8, string 6, ♭3, chord tone 3');
+    key('ArrowRight'); // the last dot on the string: stays
+    expect(at()).toBe('C, fret 8, string 6, ♭3, chord tone 3');
+    key('ArrowUp'); // string 5 is drawn above string 6; nearest fret to 8 is 7
+    expect(at()).toBe('E, fret 7, string 5, 5, target note 5');
+    key('ArrowLeft');
+    expect(at()).toBe('E♭, fret 6, string 5, ♭5, blue note');
+    key('ArrowDown');
+    expect(at()).toBe('A, fret 5, string 6, 1, root');
+    key('Enter');
+    expect(play).toHaveBeenLastCalledWith(45);
+    c.remove();
+  });
+
+  it('left-handed: Right goes toward the nut, as the mirrored neck is drawn', () => {
+    const c = render({ dots, words, leftHanded: true });
+    document.body.append(c);
+    act(() => (dot(c, 'c') as SVGGElement).focus());
+    act(() => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })));
+    expect(document.activeElement!.getAttribute('aria-label')).toBe('A, fret 5, string 6, 1, root');
+    c.remove();
   });
 });
 

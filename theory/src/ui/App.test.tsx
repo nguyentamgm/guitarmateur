@@ -282,7 +282,7 @@ describe('Theory app', () => {
   it('plays an open string and names it (fretboard, step 1)', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/fretboard', player);
-    click(container.querySelector('section#strings .dot[aria-label$="A/0"]')!);
+    click(container.querySelector('section#strings .dot[aria-label*="fret 0, string 5"]')!);
     expect(plucked).toEqual([45]);
     expect(container.querySelector('section#strings .caption')!.textContent).toBe('String 5: A');
   });
@@ -291,13 +291,13 @@ describe('Theory app', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/fretboard', player);
     const section = container.querySelector('section#tab')!;
-    const tabNum = section.querySelector('.tabnum[aria-label="D/7"]')!;
+    const tabNum = section.querySelector('.tabnum[aria-label="String 4: 7"]')!;
     click(tabNum);
     expect(plucked).toEqual([57]);
-    expect(section.querySelector('.dot.hit[aria-label="7 D/7"]')).not.toBeNull();
+    expect(section.querySelector('.dot.hit[aria-label^="7, fret 7, string 4"]')).not.toBeNull();
     expect(section.querySelector('.caption')!.textContent).toBe('String 4, fret 7');
-    click(section.querySelector('.dot[aria-label="0 A/0"]')!);
-    expect(section.querySelector('.tabnum.on')!.getAttribute('aria-label')).toBe('A/0');
+    click(section.querySelector('.dot[aria-label^="0, fret 0, string 5"]')!);
+    expect(section.querySelector('.tabnum.on')!.getAttribute('aria-label')).toBe('String 5: 0');
     expect(section.querySelector('.caption')!.textContent).toBe('String 5, open (0)');
   });
 
@@ -318,7 +318,7 @@ describe('Theory app', () => {
     const other = string === 6 ? 5 : 6;
     const homeFret = naturalHomeFret(name, string);
     const caption = () => section.querySelector('.caption')!.textContent;
-    const dot = (s: number, f: number) => section.querySelector(`.dot[aria-label$="${s === 6 ? 'E' : 'A'}/${f}"]`)!;
+    const dot = (s: number, f: number) => section.querySelector(`.dot[aria-label*="fret ${f}, string ${s}"]`)!;
 
     click(dot(other, 1));
     expect(caption()).toBe(`Right idea, wrong string: look on string ${string}.`);
@@ -373,11 +373,11 @@ describe('Theory app', () => {
       const section = container.querySelector('section#intervals')!;
       const caption = () => section.querySelector('.caption')!.textContent;
       // Home C is string 5 fret 3; string 4 fret 2 is E, fret 4 is F♯/G♭.
-      click(section.querySelector('.dot[aria-label$="D/2"]')!);
+      click(section.querySelector('.dot[aria-label*="fret 2, string 4"]')!);
       expect(caption()).toBe('C → E: major 3rd, 4 semitones');
       click(button('Lower ½ step'));
       expect(caption()).toBe('C → E♭: minor 3rd, 3 semitones');
-      click(section.querySelector('.dot[aria-label$="D/4"]')!);
+      click(section.querySelector('.dot[aria-label*="fret 4, string 4"]')!);
       expect(caption()).toBe('C → F♯ / G♭: augmented 4th or diminished 5th, 6 semitones');
       expect(plucked).toEqual([52, 51, 54]);
     });
@@ -387,7 +387,7 @@ describe('Theory app', () => {
       const section = container.querySelector('section#shapes')!;
       const lines = () => [...section.querySelectorAll('p.caption')].map((p) => p.textContent);
       expect(lines()[0]).toBe('major 3rd, 5/3 → 4/2: next string up, fret shift −1');
-      click(section.querySelector('.dot[aria-label$="G/5"]')!);
+      click(section.querySelector('.dot[aria-label*="fret 5, string 3"]')!);
       expect(lines()).toEqual([
         'major 3rd, 3/5 → 2/5: next string up, fret shift 0',
         'Crosses G→B: the upper note sits one fret further right.',
@@ -623,7 +623,7 @@ describe('Theory app', () => {
       vi.restoreAllMocks();
       const section = container.querySelector('section#ear')!;
       const dot = (n: { string: number; fret: number }) =>
-        [...section.querySelectorAll('.dot')].find((d) => d.getAttribute('aria-label')!.endsWith(` ${['', 'e', 'B', 'G', 'D', 'A', 'E'][n.string]}/${n.fret}`))!;
+        section.querySelector(`.dot[aria-label*="fret ${n.fret}, string ${n.string}"]`)!;
       const caption = () => section.querySelector('.caption')!.textContent;
       expect(caption()).toBe(`1 of ${q.length} notes found.`);
       // The given first note only plays again: it is not an answer.
