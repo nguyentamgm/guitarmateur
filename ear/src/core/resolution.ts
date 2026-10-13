@@ -1,5 +1,13 @@
 /** Resolution: after each answer the note walks to the nearest tonic (docs/ear.md "Music rules"). */
-import { interval, mod, pc, pitchAt, type DegreeLabel, type Key, type Pitch } from '@shared/core/music';
+import {
+  interval,
+  mod,
+  pc,
+  pitchAt,
+  type DegreeLabel,
+  type Key,
+  type Pitch,
+} from '@shared/core/music';
 import { beatSeconds, clampBpm } from '@shared/core/rhythm';
 import { degreeId, diatonicDegrees, noteOf } from './degrees';
 
@@ -40,7 +48,10 @@ export function resolution(key: Key, degree: DegreeLabel, midi: number): Resolut
   }
   const up = s > 6 || (s === 6 && key.mode === 'major');
   const tonic = midi - s;
-  const scale = diatonicDegrees(key.mode).map((d) => ({ degree: d, semitones: interval(d).semitones }));
+  const scale = diatonicDegrees(key.mode).map((d) => ({
+    degree: d,
+    semitones: interval(d).semitones,
+  }));
   const path = up
     ? [...scale.filter((d) => d.semitones > s), { degree: '1', semitones: 12 }]
     : scale.filter((d) => d.semitones < s).reverse();
