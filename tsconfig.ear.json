@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "resolveJsonModule": true,
 
-    /* Linting — strict theory-safe settings (see AGENTS.md) */
+    /* Linting — the same strict settings as the other apps (see AGENTS.md) */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -28,7 +28,7 @@
 
     "types": ["vitest/globals"],
 
-    /* The code both apps share (shared/): see docs/architecture.md */
+    /* The code the apps share (shared/): see docs/architecture.md */
     "paths": { "@shared/*": ["./shared/*"] }
   },
   "include": ["ear/src", "shared"]

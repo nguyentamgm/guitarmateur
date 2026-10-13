@@ -3,7 +3,7 @@
  * shared/i18n/language.ts): with nothing stored, the browser's languages decide; English is the
  * fallback.
  */
-import { LANG_STORAGE_KEY, detectLanguage, loadStoredLanguage, saveStoredLanguage } from '@shared/i18n/language';
+import { LANG_STORAGE_KEY, detectLanguage, linkLanguage, loadStoredLanguage, saveStoredLanguage } from '@shared/i18n/language';
 import { browserLanguages } from '@shared/platform/languages';
 import { browserStorage, type KeyValue } from '@shared/platform/storage';
 
@@ -23,17 +23,11 @@ export function loadLang(
 }
 
 /** The language a link asks for (`?lang=vi`), or null: for that visit only, not remembered. */
-export function linkLang(search: string): Lang | null {
-  const v = new URLSearchParams(search).get('lang');
-  return isLang(v) ? v : null;
-}
+export const linkLang = (search: string): Lang | null => linkLanguage(search, isLang);
 
 /** Remember a language for every page. A storage failure only means it is not remembered. */
 export function saveLang(lang: Lang, storage: KeyValue | null = browserStorage()): void {
   saveStoredLanguage(lang, storage);
 }
 
-/** Fill `{name}` placeholders. A missing value is left visible so a test can catch it. */
-export function fill(template: string, vars: Readonly<Record<string, string | number>>): string {
-  return template.replace(/\{(\w+)\}/g, (whole, name: string) => (name in vars ? String(vars[name]) : whole));
-}
+export { fill } from '@shared/i18n/fill';

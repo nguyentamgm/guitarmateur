@@ -80,3 +80,12 @@ export function saveStoredLanguage(lang: string, storage: KeyValue | null): void
     // Private mode or blocked storage: the choice lasts for this visit only.
   }
 }
+
+/**
+ * The language a link asks for (`?lang=vi`, as the pages' links to each other carry it), or null.
+ * It is for that visit only: the page takes it off the address and does not remember it.
+ */
+export function linkLanguage<L extends string>(search: string, isValid: (v: unknown) => v is L): L | null {
+  const v = new URLSearchParams(search).get('lang');
+  return isValid(v) ? v : null;
+}

@@ -31,15 +31,15 @@ function versionSwCache(): Plugin {
 
 /**
  * The Theory app (theory/) is a second page with client-side routes under /theory, and the ear
- * trainer (ear/) a third at /ear. Dev and preview servers would answer /theory/<lesson> (or /ear
- * without its slash) with the root index.html, so hand every extension-less /theory path to
- * theory/index.html and /ear to ear/index.html, as vercel.json and `cleanUrls` do in production.
+ * trainer (ear/) a third at /ear. Dev and preview servers would answer /theory/<lesson> with the
+ * root index.html, so hand every extension-less /theory path to theory/index.html and every /ear
+ * path to ear/index.html, as vercel.json does in production (and public/sw.js offline).
  */
 function pageRoutes(): Plugin {
   const rewrite = (req: { url?: string }, _res: unknown, next: () => void) => {
     const path = req.url?.split('?')[0] ?? '';
     if (/^\/theory(\/[^.]*)?$/.test(path)) req.url = '/theory/index.html';
-    else if (/^\/ear\/?$/.test(path)) req.url = '/ear/index.html';
+    else if (/^\/ear(\/[^.]*)?$/.test(path)) req.url = '/ear/index.html';
     next();
   };
   return {

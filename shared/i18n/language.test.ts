@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LANG_STORAGE_KEY, detectLanguage, loadStoredLanguage, saveStoredLanguage } from './language';
+import { LANG_STORAGE_KEY, detectLanguage, linkLanguage, loadStoredLanguage, saveStoredLanguage } from './language';
 
 type L = 'en' | 'vi';
 const isL = (v: unknown): v is L => v === 'en' || v === 'vi';
@@ -63,5 +63,15 @@ describe('the shared language key', () => {
     expect(writes).toBe(0);
     saveStoredLanguage('en', store);
     expect(writes).toBe(1);
+  });
+});
+
+describe('linkLanguage', () => {
+  const isLang = (v: unknown): v is 'en' | 'vi' => v === 'en' || v === 'vi';
+  it('reads a supported ?lang= and ignores anything else', () => {
+    expect(linkLanguage('?lang=vi', isLang)).toBe('vi');
+    expect(linkLanguage('?x=1&lang=en', isLang)).toBe('en');
+    expect(linkLanguage('?lang=fr', isLang)).toBeNull();
+    expect(linkLanguage('', isLang)).toBeNull();
   });
 });

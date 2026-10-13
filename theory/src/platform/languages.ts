@@ -1,2 +1,9 @@
-/** The browser's preferred languages: shared with the ear trainer (shared/platform/languages.ts). */
-export { browserLanguages } from '@shared/platform/languages';
+/** The browser's preferred languages, most preferred first. Empty when there is no browser. Never throws. */
+export function browserLanguages(): readonly string[] {
+  try {
+    if (typeof navigator === 'undefined') return [];
+    return navigator.languages?.length ? navigator.languages : [navigator.language];
+  } catch {
+    return [];
+  }
+}
