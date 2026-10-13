@@ -13,21 +13,26 @@ import tseslint from 'typescript-eslint';
 const noReact = ['react', 'react/*', 'react-dom', 'react-dom/*'];
 
 /**
- * The Theory app (theory/) and the practice app (src/) never import each other: code both use
- * lives in shared/ (imported as `@shared/...`), which imports neither app.
- * Every src/ block carries `fromTheory`, every theory/ block carries `fromSrc`, because a later
- * block's `no-restricted-imports` replaces an earlier one's instead of merging with it.
+ * The practice app (src/), the Theory app (theory/) and the ear trainer (ear/) never import each
+ * other: code they share lives in shared/ (imported as `@shared/...`), which imports none of them.
+ * Every src/ block carries `fromTheory`, every theory/ block `fromSrc`, every ear/ block
+ * `fromOtherApps`, because a later block's `no-restricted-imports` replaces an earlier one's
+ * instead of merging with it.
  */
 const fromTheory = {
-  group: ['**/theory/**'],
-  message: 'src/ (practice app) may not import from theory/ — shared code goes in shared/.',
+  group: ['**/theory/**', '**/ear/**'],
+  message: 'src/ (practice app) may not import from theory/ or ear/ — shared code goes in shared/.',
 };
 const fromSrc = {
-  group: ['**/src/**'],
-  message: 'theory/ may not import from the practice app in src/ — shared code goes in shared/.',
+  group: ['**/src/**', '**/ear/**'],
+  message: 'theory/ may not import from the practice app in src/ or from ear/ — shared code goes in shared/.',
+};
+const fromOtherApps = {
+  group: ['**/src/**', '**/theory/**'],
+  message: 'ear/ may not import from the practice app (src/) or Theory (theory/) — shared code goes in shared/.',
 };
 const fromApps = [
-  { group: ['**/src/**', '**/theory/**'], message: 'shared/ imports neither app (src/, theory/): it is what they share.' },
+  { group: ['**/src/**', '**/theory/**', '**/ear/**'], message: 'shared/ imports none of the apps (src/, theory/, ear/): it is what they share.' },
 ];
 // The layer globs below name folders (ui, core, i18n…), which shared/ also has: they never apply
 // to an `@shared/...` import (shared/ has its own rules), so every group ends with this negation.
@@ -38,6 +43,11 @@ const forbid = (group, why) => ({
   },
 });
 const dir = (name) => [`**/${name}`, `**/${name}/**`];
+const forbidEar = (group, why) => ({
+  rules: {
+    'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromOtherApps] }],
+  },
+});
 const forbidTheory = (group, why) => ({
   rules: {
     'no-restricted-imports': ['error', { patterns: [{ group: [...group, allowShared], message: why }, fromSrc] }],
@@ -177,16 +187,43 @@ export default tseslint.config(
     ...forbidTheory([...noReact, ...dir('ui')],
       'theory/src/lessons is data: it may use core and i18n, never UI or React.'),
   },
-  // Every user-facing string in Theory's UI comes from i18n or lesson copy, in both languages;
-  // shared/ui holds no copy at all (its components take their text from the calling app).
+
+  // --- Ear trainer (ear/): a third page, own layers. See docs/ear.md. ---
   {
-    files: ['theory/src/ui/**/*.tsx', 'shared/ui/**/*.tsx'],
+    files: ['ear/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-imports': ['error', { patterns: [fromOtherApps] }] },
+  },
+  {
+    files: ['ear/src/core/**/*.ts'],
+    ...forbidEar([...noReact, ...dir('ui'), ...dir('store'), ...dir('audio'), ...dir('i18n')],
+      'ear/src/core is pure: no React, UI, store, audio or i18n (it returns ids and numbers, never text).'),
+  },
+  {
+    files: ['ear/src/audio/**/*.ts'],
+    ...forbidEar([...noReact, ...dir('ui'), ...dir('store'), ...dir('i18n')],
+      'ear/src/audio plays what core describes: it may import core, never React, UI, store or i18n.'),
+  },
+  {
+    files: ['ear/src/store/**/*.ts'],
+    ...forbidEar([...noReact, ...dir('ui'), ...dir('audio'), ...dir('i18n')],
+      'ear/src/store keeps settings and stats: it may import core, never React, UI, audio or i18n.'),
+  },
+  {
+    files: ['ear/src/i18n/**/*.ts'],
+    ...forbidEar([...noReact, ...dir('core'), ...dir('ui'), ...dir('audio'), ...dir('store')],
+      'ear/src/i18n holds languages and UI strings only: no core, UI, audio, store or React.'),
+  },
+
+  // Every user-facing string in Theory's and the ear trainer's UI comes from i18n (or lesson copy),
+  // in both languages; shared/ui holds no copy at all (its components take their text from the app).
+  {
+    files: ['theory/src/ui/**/*.tsx', 'ear/src/ui/**/*.tsx', 'shared/ui/**/*.tsx'],
     rules: {
       'no-restricted-syntax': [
         'error',
         {
           selector: 'JSXText[value=/\\p{L}/u]',
-          message: 'Hard-coded UI copy: take the text from theory/src/i18n or the lesson copy (vi + en).',
+          message: "Hard-coded UI copy: take the text from the app's i18n (theory/src/i18n, ear/src/i18n) or the lesson copy (vi + en).",
         },
         {
           selector: "JSXAttribute[name.name=/^(aria-label|title|placeholder|alt)$/] > Literal",
