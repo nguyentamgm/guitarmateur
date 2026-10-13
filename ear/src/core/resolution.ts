@@ -8,7 +8,7 @@ import {
   type Key,
   type Pitch,
 } from '@shared/core/music';
-import { beatSeconds, clampBpm } from '@shared/core/rhythm';
+import { beatSeconds, clampBpm, lengthInBeats } from '@shared/core/rhythm';
 import { degreeId, diatonicDegrees, noteOf } from './degrees';
 
 export interface ResolutionStep {
@@ -20,7 +20,7 @@ export interface ResolutionStep {
 }
 
 /** Each note of the walk lasts an eighth: half a beat of the cadence tempo. */
-export const RESOLUTION_NOTE_BEATS = 0.5;
+export const RESOLUTION_NOTE_BEATS = lengthInBeats('eighth');
 
 /** Seconds each note of the walk lasts at `bpm` (clamped to 40–200, as the cadence is). */
 export function resolutionNoteSeconds(bpm: number): number {
@@ -44,7 +44,7 @@ export function resolution(key: Key, degree: DegreeLabel, midi: number): Resolut
   const start = label(key, degree);
   const s = interval(start).semitones;
   if (pc(noteOf(key, start)) !== mod(midi, 12)) {
-    throw new RangeError(`MIDI ${midi} is not degree ${start} of the key`);
+    throw new RangeError(`MIDI ${midi} is not degree ${degree} (${start}) of the key`);
   }
   const up = s > 6 || (s === 6 && key.mode === 'major');
   const tonic = midi - s;

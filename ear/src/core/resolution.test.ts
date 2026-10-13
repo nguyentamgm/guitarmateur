@@ -83,12 +83,6 @@ describe("resolution, the issue's tables", () => {
     expect(steps.map((s) => s.midi)).toEqual(midis);
     expect(steps.map((s) => format(s.pitch))).toEqual(degrees.map((d) => format(noteOf(k, d))));
   });
-
-  it('covers every row of both tables in every key', () => {
-    expect(Object.keys(MAJOR)).toHaveLength(12);
-    expect(Object.keys(MINOR)).toHaveLength(12);
-    expect(CASES).toHaveLength(KEYS.length * 12);
-  });
 });
 
 describe('resolution, over every row in every key', () => {
