@@ -55,3 +55,44 @@ export function noteOf(key: Key, degree: DegreeLabel): NoteName {
 export function midiOf(key: Key, degree: DegreeLabel, octave: number): number {
   return midi({ ...key.tonic, octave }) + interval(degreeId(degree)).semitones;
 }
+
+/** A preset's stable id; its name is UI copy and lives in i18n. */
+export type PresetId = 'triad' | 'majorPentatonic' | 'minorPentatonic' | 'blues' | 'scale' | 'chromatic';
+
+/** Each preset's degree ids in a mode, or null when the mode does not offer it. */
+const PRESETS: Readonly<Record<PresetId, (mode: Mode) => readonly DegreeLabel[] | null>> = {
+  triad: (mode) => diatonicDegrees(mode).filter((_, i) => i === 0 || i === 2 || i === 4),
+  majorPentatonic: (mode) => (mode === 'major' ? SCALES.majorPentatonic.formula : null),
+  minorPentatonic: (mode) => (mode === 'minor' ? SCALES.minorPentatonic.formula : null),
+  // The minor pentatonic plus b5, in both modes: over a major key it is the rock/blues sound.
+  blues: () => SCALES.minorBlues.formula.map(degreeId),
+  scale: diatonicDegrees,
+  chromatic: () => DEGREES.map((d) => d.label),
+};
+
+export const PRESET_IDS = Object.keys(PRESETS) as PresetId[];
+
+export function presetDegrees(id: PresetId, mode: Mode): readonly DegreeLabel[] | null {
+  return PRESETS[id](mode);
+}
+
+/** The presets a mode offers, in PRESET_IDS order. */
+export function presetsFor(mode: Mode): PresetId[] {
+  return PRESET_IDS.filter((id) => PRESETS[id](mode) !== null);
+}
+
+/** A quiz needs at least two possible answers. */
+export const MIN_DEGREES = 2;
+
+/** Turn a degree on or off, in chromatic order; turning one off below MIN_DEGREES changes nothing. */
+export function toggleDegree(on: readonly DegreeLabel[], degree: DegreeLabel): readonly DegreeLabel[] {
+  const set = new Set(on.map(degreeId));
+  const id = degreeId(degree);
+  if (set.has(id)) {
+    if (set.size <= MIN_DEGREES) return on;
+    set.delete(id);
+  } else {
+    set.add(id);
+  }
+  return DEGREES.map((d) => d.label).filter((l) => set.has(l));
+}

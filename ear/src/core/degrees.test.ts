@@ -9,7 +9,18 @@ import {
   transpose,
   type Key,
 } from '@shared/core/music';
-import { DEGREES, degreeId, diatonicDegrees, midiOf, noteOf } from './degrees';
+import {
+  DEGREES,
+  MIN_DEGREES,
+  PRESET_IDS,
+  degreeId,
+  diatonicDegrees,
+  midiOf,
+  noteOf,
+  presetDegrees,
+  presetsFor,
+  toggleDegree,
+} from './degrees';
 
 const KEYS: Key[] = [
   ...MAJOR_KEY_TONICS.map((tonic) => ({ tonic, mode: 'major' as const })),
@@ -96,5 +107,55 @@ describe('midiOf', () => {
     expect(midiOf(aMinor, 'b3', 3)).toBe(60);
     expect(midiOf(aMinor, '7', 3)).toBe(68);
     expect(midiOf({ tonic: parseNote('C'), mode: 'major' }, 'b5', 4)).toBe(66);
+  });
+});
+
+describe('presets', () => {
+  // The #212 table; '#4' is the one id of #4 / b5.
+  const TABLE = {
+    triad: { major: ['1', '3', '5'], minor: ['1', 'b3', '5'] },
+    majorPentatonic: { major: ['1', '2', '3', '5', '6'], minor: null },
+    minorPentatonic: { major: null, minor: ['1', 'b3', '4', '5', 'b7'] },
+    blues: { major: ['1', 'b3', '4', '#4', '5', 'b7'], minor: ['1', 'b3', '4', '#4', '5', 'b7'] },
+    scale: { major: ['1', '2', '3', '4', '5', '6', '7'], minor: ['1', '2', 'b3', '4', '5', 'b6', 'b7'] },
+    chromatic: { major: labels, minor: labels },
+  };
+
+  it('match the table in both modes', () => {
+    expect(PRESET_IDS).toEqual(Object.keys(TABLE));
+    for (const id of PRESET_IDS) {
+      expect(presetDegrees(id, 'major'), `${id} major`).toEqual(TABLE[id].major);
+      expect(presetDegrees(id, 'minor'), `${id} minor`).toEqual(TABLE[id].minor);
+    }
+  });
+
+  it('offer each mode its own pentatonic', () => {
+    expect(presetsFor('major')).toEqual(['triad', 'majorPentatonic', 'blues', 'scale', 'chromatic']);
+    expect(presetsFor('minor')).toEqual(['triad', 'minorPentatonic', 'blues', 'scale', 'chromatic']);
+  });
+
+  it('are made of the 12 degree ids, never fewer than the minimum', () => {
+    for (const mode of ['major', 'minor'] as const) {
+      for (const id of presetsFor(mode)) {
+        const degrees = presetDegrees(id, mode)!;
+        expect(degrees.every((d) => labels.includes(d)), `${id} ${mode}`).toBe(true);
+        expect(degrees.length, `${id} ${mode}`).toBeGreaterThanOrEqual(MIN_DEGREES);
+      }
+    }
+  });
+});
+
+describe('toggleDegree', () => {
+  it('adds and removes, keeping chromatic order', () => {
+    expect(toggleDegree(['1', '5'], 'b3')).toEqual(['1', 'b3', '5']);
+    expect(toggleDegree(['1', 'b3', '5'], 'b3')).toEqual(['1', '5']);
+    expect(toggleDegree(['1', '5'], 'b5')).toEqual(['1', '#4', '5']);
+  });
+
+  it('keeps at least two degrees on', () => {
+    expect(MIN_DEGREES).toBe(2);
+    const two = ['1', '5'];
+    expect(toggleDegree(two, '5')).toBe(two);
+    expect(toggleDegree(two, '1')).toBe(two);
   });
 });
