@@ -35,8 +35,10 @@ merges. Match that order locally before pushing.
 - Respect the layer dependency rule; don't reach for a new dependency to avoid it — an ESLint rule
   fails the build on a bad cross-layer import.
 - Keep new code stylistically consistent with the layer it lives in; colocate its `*.test.ts`.
-- **Code both apps need** goes in `shared/` (imported as `@shared/…`; it imports neither app) —
+- **Code the apps share** goes in `shared/` (imported as `@shared/…`; it imports none of them) —
   see the "Shared code" section of [`docs/architecture.md`](docs/architecture.md).
 - **Working on the Theory app (`theory/`)?** It is a separate app with its own rules: read
   [`docs/theory.md`](docs/theory.md) and [`docs/theory-knowledge/`](docs/theory-knowledge/README.md) first.
+- **Working on the ear trainer (`ear/`, served at `/ear`)?** It is a third app with its own layers
+  and music rules, being built in phases (#227): read [`docs/ear.md`](docs/ear.md) first.
 - **Adding a language?** Follow [`docs/i18n.md`](docs/i18n.md) — a non-developer guide for shipping a new locale.

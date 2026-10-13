@@ -1,13 +1,15 @@
 # Glossary · Thuật ngữ
 
-One word per idea, in both apps (Practice at `/`, Theory at `/theory`) and both languages. Theory
-is the reference: when the apps disagree, this file follows Theory, and the other app changes.
+One word per idea, on every page (Practice at `/`, Theory at `/theory`, Ear training at `/ear`)
+and in both languages. Theory is the reference: when the pages disagree, this file follows Theory,
+and the other page changes.
 Translators and anyone writing copy (UI strings, lesson text) start here; see
 [`i18n.md`](i18n.md) for how to ship a language and [`theory-knowledge/`](theory-knowledge/README.md)
 for what the lessons teach.
 
-Mỗi khái niệm một từ, dùng chung cho cả hai app (Practice ở `/`, Theory ở `/theory`) và cả hai
-ngôn ngữ. Theory là chuẩn: khi hai app gọi khác nhau, file này theo Theory và app kia đổi theo.
+Mỗi khái niệm một từ, dùng chung cho mọi trang (Practice ở `/`, Theory ở `/theory`, Luyện tai ở
+`/ear`) và cả hai ngôn ngữ. Theory là chuẩn: khi các trang gọi khác nhau, file này theo Theory và
+trang kia đổi theo.
 Người dịch và người viết lời (chuỗi giao diện, lời giảng) đọc file này trước.
 
 ## Rules · Quy tắc
@@ -80,7 +82,8 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 
 | English | Tiếng Việt | Avoid (en) | Avoid (vi) |
 | --- | --- | --- | --- |
-| root (of a key: tonic) | root | `home note` | `nốt nhà`, `nốt gốc` |
+| root (of a key: tonic, key centre) | root (của giọng: tonic) | `home note` | `nốt nhà`, `nốt gốc` |
+| resolution; resolve (a note moving to the tonic) | resolution; resolve (về tonic) | | |
 | scale; scale note | scale; nốt của scale | | `âm giai` |
 | major scale; natural minor scale | major scale; natural minor scale | | `thứ tự nhiên` |
 | minor pentatonic; major pentatonic; A minor pentatonic | minor pentatonic; major pentatonic; A minor pentatonic | | `ngũ cung`, `pentatonic trưởng` |
@@ -91,7 +94,7 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 | key; key of C major; A minor | giọng; giọng C trưởng; giọng A thứ | | |
 | relative minor / relative major | relative minor / relative major ("giọng song song" chỉ dùng kèm giải nghĩa) | | |
 | key signature, circle of fifths, mode | key signature, circle of fifths, mode | | `hóa biểu`, `vòng quãng năm`, `điệu thức` |
-| degree | bậc | | |
+| degree; scale degree | bậc | | |
 | semitone / half step; whole step | nửa cung; một cung | | |
 | major 3rd, perfect 5th, octave | quãng 3 trưởng, quãng 5 đúng, quãng 8 | | |
 | quality (of an interval or chord) | loại | | |
@@ -110,6 +113,7 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | --- | --- | --- | --- |
 | chord; chord tone | hợp âm; nốt của hợp âm | | `nốt hợp âm` |
 | chord progression; progression | vòng hợp âm; vòng | | `tiến trình hợp âm` |
+| cadence (chords that set the key: I–IV–V7–I, i–iv–V7–i) | cadence (vài hợp âm dẫn về giọng) | | |
 | I chord; dominant 7th chord | hợp âm I; hợp âm dominant 7 | | `hợp âm át` |
 | major, minor (chord quality) | trưởng, thứ | | |
 | triad | triad ("hợp âm ba" chỉ kèm giải nghĩa) | | |
@@ -157,6 +161,21 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | landing note (the note a lick ends on) | nốt đáp | | |
 | level (of a lick) | mức | | |
 
+### Ear training · Luyện tai
+
+The ear trainer's words are in the tables above: *root* (of a key), *scale degree* and
+*resolution* under Scales and keys, *cadence* under Chords and progressions, *drone* under Rhythm
+and playback. Below: the page's name, its score, and *tonic*. Nothing here is checked
+automatically. · Các từ của trang Luyện tai nằm trong các bảng trên; phần dưới đây không kiểm tra
+tự động.
+
+- *Ear training* is "luyện tai": the page ("Ear training" / "Luyện tai") and the skill.
+- *Right first try* is "đúng ngay lần đầu": a question counts as right only if the first answer
+  was, as in Theory's quizzes.
+- The key's home is the *root*, on this page too. *Tonic* and *key centre* are what ear-training
+  books call it: fine to explain it ("the root of the key, its tonic"), not as the label. · Trang
+  Luyện tai cũng gọi là *root*; *tonic* chỉ dùng để giải nghĩa.
+
 ### Not checked automatically · Không kiểm tra tự động
 
 These words are wrong for the idea but fine elsewhere, so no test can catch them; reviewers do.
@@ -184,11 +203,13 @@ kiểm tra.
 
 ## Checking · Kiểm tra
 
-`shared/i18n/glossary.ts` reads the *Avoid* columns of this file. Two tests use it:
+`shared/i18n/glossary.ts` reads the *Avoid* columns of this file. Three tests use it:
 
 - `theory/src/lessons/glossary.test.ts` — Theory's UI strings, concept names and every lesson's
   copy, in English and Vietnamese, must contain none of them.
 - `src/i18n/glossary.test.ts` — the same for every catalog in `src/i18n/locales/`.
+- `ear/src/i18n/i18n.test.ts` — the same for the ear trainer's UI strings
+  (`ear/src/i18n/strings.ts`), in English and Vietnamese.
 
 A term is matched as a whole word, ignoring case; an English term also matches its plural ("home
 notes"). A table the check cannot read (an *Avoid* column not named `Avoid (xx)`, a row with the
