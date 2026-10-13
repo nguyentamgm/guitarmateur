@@ -40,6 +40,7 @@ describe('DEGREES', () => {
     expect(degreeId('b5')).toBe('#4');
     expect(degreeId('#5')).toBe('b6');
     expect(degreeId('8')).toBe('1');
+    expect(degreeId('b1')).toBe('7');
   });
 });
 
@@ -106,6 +107,7 @@ describe('midiOf', () => {
     expect(midiOf(aMinor, '1', 3)).toBe(57);
     expect(midiOf(aMinor, 'b3', 3)).toBe(60);
     expect(midiOf(aMinor, '7', 3)).toBe(68);
+    expect(midiOf(aMinor, '8', 3)).toBe(69);
     expect(midiOf({ tonic: parseNote('C'), mode: 'major' }, 'b5', 4)).toBe(66);
   });
 });
@@ -154,8 +156,8 @@ describe('toggleDegree', () => {
 
   it('keeps at least two degrees on', () => {
     expect(MIN_DEGREES).toBe(2);
-    const two = ['1', '5'];
-    expect(toggleDegree(two, '5')).toBe(two);
-    expect(toggleDegree(two, '1')).toBe(two);
+    expect(toggleDegree(['1', '5'], '5')).toEqual(['1', '5']);
+    expect(toggleDegree(['5', 'b5'], '5')).toEqual(['#4', '5']);
+    expect(toggleDegree(['1', '5', '1'], '1')).toEqual(['1', '5']);
   });
 });

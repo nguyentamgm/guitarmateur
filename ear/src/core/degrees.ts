@@ -4,6 +4,7 @@ import {
   SCALES,
   interval,
   midi,
+  mod,
   pc,
   spellMidi,
   transpose,
@@ -34,7 +35,7 @@ export const DEGREES: readonly { label: DegreeLabel; semitones: number }[] = Arr
 
 /** The degree id of any label within the octave: 'b5' → '#4', '#5' → 'b6', '1' → '1'. */
 export function degreeId(label: DegreeLabel): DegreeLabel {
-  return DEGREES[interval(label).semitones % 12]!.label;
+  return DEGREES[mod(interval(label).semitones, 12)]!.label;
 }
 
 /** The tritone is spelled #4 in major (it leads up to 5) and b5 in minor (it falls to 4). */
@@ -53,7 +54,7 @@ export function noteOf(key: Key, degree: DegreeLabel): NoteName {
 
 /** MIDI number of the degree above the tonic sounding in scientific `octave` (C4 = 60). */
 export function midiOf(key: Key, degree: DegreeLabel, octave: number): number {
-  return midi({ ...key.tonic, octave }) + interval(degreeId(degree)).semitones;
+  return midi({ ...key.tonic, octave }) + interval(degree).semitones;
 }
 
 /** A preset's stable id; its name is UI copy and lives in i18n. */
@@ -84,15 +85,11 @@ export function presetsFor(mode: Mode): PresetId[] {
 /** A quiz needs at least two possible answers. */
 export const MIN_DEGREES = 2;
 
-/** Turn a degree on or off, in chromatic order; turning one off below MIN_DEGREES changes nothing. */
-export function toggleDegree(on: readonly DegreeLabel[], degree: DegreeLabel): readonly DegreeLabel[] {
+/** Turn a degree on or off; returns degree ids in chromatic order, never removing one below MIN_DEGREES. */
+export function toggleDegree(on: readonly DegreeLabel[], degree: DegreeLabel): DegreeLabel[] {
   const set = new Set(on.map(degreeId));
   const id = degreeId(degree);
-  if (set.has(id)) {
-    if (set.size <= MIN_DEGREES) return on;
-    set.delete(id);
-  } else {
-    set.add(id);
-  }
+  if (!set.has(id)) set.add(id);
+  else if (set.size > MIN_DEGREES) set.delete(id);
   return DEGREES.map((d) => d.label).filter((l) => set.has(l));
 }
