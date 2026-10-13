@@ -1,0 +1,18 @@
+/* The ear trainer's page styles. The look (tokens, base element styles, controls, the site header)
+   comes from shared/ui/*.css, imported first in main.tsx; the accent is Practice's lime via
+   `data-app="practice"` on <html>. Layout matches Practice's page: a 1000px column, 16px gutters. */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.site-top { padding: 0 16px; }
+
+.ear-page { display: grid; gap: 20px; max-width: 1032px; margin: 0 auto; padding: 30px 16px 70px; }
+.ear-head { margin-bottom: 14px; }
+.ear-kicker { font-size: 14px; color: var(--muted); font-weight: 600; }
+.ear-head h1 { font-size: clamp(1.8rem, 4.2vw, 2.5rem); margin: 6px 0 8px; }
+.ear-lead { margin: 0; color: var(--muted); font-size: 16px; max-width: 620px; line-height: 1.5; }
+.board p { margin: 0; }
+.ear-footer { margin: 0; color: var(--muted); font-size: 14px; }

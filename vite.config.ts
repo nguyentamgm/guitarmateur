@@ -30,18 +30,20 @@ function versionSwCache(): Plugin {
 }
 
 /**
- * The Theory app (theory/) is a second page with client-side routes under /theory. Dev and
- * preview servers would answer /theory/<lesson> with the root index.html, so hand every
- * extension-less /theory path to theory/index.html, as vercel.json does in production.
+ * The Theory app (theory/) is a second page with client-side routes under /theory, and the ear
+ * trainer (ear/) a third at /ear. Dev and preview servers would answer /theory/<lesson> (or /ear
+ * without its slash) with the root index.html, so hand every extension-less /theory path to
+ * theory/index.html and /ear to ear/index.html, as vercel.json and `cleanUrls` do in production.
  */
-function theoryRoutes(): Plugin {
+function pageRoutes(): Plugin {
   const rewrite = (req: { url?: string }, _res: unknown, next: () => void) => {
     const path = req.url?.split('?')[0] ?? '';
     if (/^\/theory(\/[^.]*)?$/.test(path)) req.url = '/theory/index.html';
+    else if (/^\/ear\/?$/.test(path)) req.url = '/ear/index.html';
     next();
   };
   return {
-    name: 'theory-routes',
+    name: 'page-routes',
     configureServer(server) {
       server.middlewares.use(rewrite);
     },
@@ -53,8 +55,8 @@ function theoryRoutes(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), versionSwCache(), theoryRoutes()],
-  // The code both apps share (shared/); mirrors `paths` in tsconfig.app.json / tsconfig.theory.json.
+  plugins: [react(), versionSwCache(), pageRoutes()],
+  // The code the apps share (shared/); mirrors `paths` in tsconfig.app.json / .theory.json / .ear.json.
   resolve: {
     alias: { '@shared': resolve(import.meta.dirname, 'shared') },
   },
@@ -63,6 +65,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         theory: resolve(import.meta.dirname, 'theory/index.html'),
+        ear: resolve(import.meta.dirname, 'ear/index.html'),
       },
     },
   },
