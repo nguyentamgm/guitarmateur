@@ -17,13 +17,20 @@ trainer built around a three-step practice loop:
 No accounts, no server-side state: the app is a fully static SPA on free-tier hosting, and
 everything the user does persists in `localStorage`.
 
+Two more pages share the site, its header and its look: **Theory** at `/theory`, visual
+music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear`, naming the degree
+of a note heard in a key ([`ear.md`](ear.md); being built, see #227). Each is a separate app that
+imports none of the others; what they share is in `shared/` (below).
+
 ## Repository layout
 
 ```
 /
 ├─ docs/
 │  ├─ architecture.md           # this file
-│  └─ glossary.md               # one term per idea, EN + VI, for both apps
+│  ├─ theory.md, ear.md         # the Theory app's and the ear trainer's conventions
+│  ├─ i18n.md                   # how to add a language
+│  └─ glossary.md               # one term per idea, EN + VI, for every page
 ├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)
 ├─ public/                      # favicon, robots.txt, og image
 ├─ src/
@@ -36,13 +43,16 @@ everything the user does persists in `localStorage`.
 │  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
-├─ shared/                      # code both apps use, imported as @shared/… — see below
+├─ ear/                         # the ear trainer (/ear) — see docs/ear.md
+├─ shared/                      # code the apps share, imported as @shared/… — see below
 │  ├─ core/                     # pure: neck.ts (string numbering, names per tuning); music/, rhythm/
 │  │                            # (Theory's); audio/ (synths, player, backings, scheduler, sequencer)
 │  ├─ i18n/                     # the shared language setting (gm.lang), browser-language matching,
-│  │                            # the glossary check (glossary.ts)
-│  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage()
-│  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the neck:
+│  │                            # ?lang= links (linkLanguage); fill.ts; the glossary check (glossary.ts)
+│  ├─ platform/                 # browser APIs behind a safe wrapper: browserStorage(),
+│  │                            # browserLanguages() (languages.ts)
+│  └─ ui/                       # the shared look: tokens/base/controls CSS + controls.tsx; the site
+│                               # header: SiteHeader.tsx, siteSections.ts; the neck:
 │                               # Fretboard.tsx, geometry.ts, PositionFrame.tsx, fretboard.css;
 │                               # BarGrid.tsx (a chord form as bars), GlobeIcon.tsx; useClock,
 │                               # useBacking (hooks taking a player)
@@ -82,34 +92,47 @@ guide to adding a new language.
 
 ## Shared code (`shared/`)
 
-The practice app (`src/`) and the Theory app (`theory/`) never import each other. What both use
-lives in `shared/` and is imported through the `@shared/*` alias (`paths` in `tsconfig.app.json`
-and `tsconfig.theory.json`, `resolve.alias` in `vite.config.ts`, which Vitest also uses):
+The practice app (`src/`), the Theory app (`theory/`) and the ear trainer (`ear/`) never import
+each other. What they share lives in `shared/` and is imported through the `@shared/*` alias
+(`paths` in `tsconfig.app.json`, `tsconfig.theory.json` and `tsconfig.ear.json`, `resolve.alias`
+in `vite.config.ts`, which Vitest also uses):
 
 ```
-src/  ──→ shared/ ←──  theory/        shared/ imports neither app
+src/  ──→ shared/ ←──  theory/        shared/ imports none of the apps
+              ↑
+             ear/
 ```
 
 - `shared/core/` and `shared/i18n/` are pure TypeScript: no React, no browser globals (storage is
   passed in; `shared/platform/` has the safe `browserStorage()` accessor). `shared/ui/` is for React
-  components and design tokens both apps render.
-- ESLint enforces it: `shared/**` may not import `src/` or `theory/`; `shared/core` and
+  components and design tokens the apps render.
+- ESLint enforces it: `shared/**` may not import `src/`, `theory/` or `ear/`; `shared/core` and
   `shared/i18n` may not import React. The apps' own layer rules never apply to `@shared/…` imports.
 - Tests are colocated (`shared/**/*.test.{ts,tsx}`) and run with the rest.
 
 Today it holds `shared/i18n/language.ts` — the `gm.lang` key, carrying an old per-app choice over,
-and the browser-language rule — — used by `src/i18n/detect.ts` and `src/state/persistence.ts` here
-and by `theory/src/i18n/lang.ts` in Theory; `shared/i18n/glossary.ts`, which reads the words
+the browser-language rule, and `linkLanguage()` (a link's `?lang=`, for that visit only) — used by
+`src/i18n/detect.ts` and `src/state/persistence.ts` here, by `theory/src/i18n/lang.ts` in Theory
+and by `ear/src/i18n/lang.ts` (the only user of `linkLanguage()` so far; Practice and Theory read
+`?lang=` themselves); `shared/i18n/fill.ts`, `fill()` for `{name}` placeholders in UI copy, and
+`shared/platform/languages.ts`, `browserLanguages()`, both used by the ear trainer (Theory keeps
+its own copies); `shared/i18n/glossary.ts`, which reads the words
 [`glossary.md`](glossary.md) says to avoid and finds them in copy (each app's glossary test runs it
 over its own strings); `shared/platform/storage.ts`, the localStorage
-accessor both apps use; and the shared look in `shared/ui/` (Theory's, the reference):
+accessor the apps use; and the shared look in `shared/ui/` (Theory's, the reference):
+
+- `SiteHeader.tsx` + `siteSections.ts` — the site header on every page: brand · Lessons · Review ·
+  Practice · Ear training · language (styled in `controls.css`, `.topbar`). `SITE_SECTIONS` lists
+  each section's `href` in header order; each page passes its text (`labels`), the section it
+  belongs to (`current`) and its languages. Links are plain `<a href>`s; Theory moves between its
+  own pages client-side through `onNavigate`.
 
 - `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
   own `--accent`: Theory's blue by default; `<html data-app="practice">` (Practice's
-  `index.html`) switches to lime.
+  `index.html`, and `ear/index.html`) switches to lime.
   Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
 - `base.css` — element styles (body type, headings, links, focus ring, reduced motion).
-- `controls.css` + `controls.tsx` — the site header, card (`.board`), segmented control
+- `controls.css` + `controls.tsx` — the header's styles, card (`.board`), segmented control
   (`ChipGroup`, `OnOff`, `Chip`), `Button`, `Slider`, the key picker (`KeyPicker`, `.finder`: each
   key's name and its fret on the lowest string, "A 5"; the caller spells the keys and finds the
   fret, Practice with `homeFret(tuning, tonic)`) and the "Takeaway / Try it" hint panel
@@ -137,7 +160,7 @@ accessor both apps use; and the shared look in `shared/ui/` (Theory's, the refer
   and a duration row under it) draw with it. Both write a technique into the number as Theory does
   (`h7`, `p5`, `/9`, `7b9`; Practice's `tabText` in `src/ui/labels.ts`), and a number plays its
   note when clicked. A dense lick scrolls sideways rather than shrinking its numbers.
-- `GlobeIcon.tsx` — the globe beside both headers' language switcher.
+- `GlobeIcon.tsx` — the globe beside the site header's language switcher.
 
 **Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
 and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
