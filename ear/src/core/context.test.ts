@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { bassMidi, chordMidis } from '@shared/core/audio';
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
@@ -11,7 +12,7 @@ import {
   pc,
   type Key,
 } from '@shared/core/music';
-import { cadenceChords } from './context';
+import { TONIC_OCTAVE, cadence, cadenceChords } from './context';
 
 const KEYS: Key[] = [
   ...MAJOR_KEY_TONICS.map((tonic) => ({ tonic, mode: 'major' as const })),
@@ -80,6 +81,68 @@ describe('cadenceChords', () => {
       const third = chordNotes(cadenceChords(k)[2]!.chord)[1]!;
       expect(mod(LETTERS.indexOf(k.tonic.letter) - LETTERS.indexOf(third.letter), 7), keyName(k)).toBe(1);
       expect(mod(pc(k.tonic) - pc(third), 12), keyName(k)).toBe(1);
+    }
+  });
+});
+
+describe('cadence', () => {
+  // A beat is 60 / BPM seconds. Full: 3 chords of 1 beat + the last of 2 + the tonic's 1 = 6 beats;
+  // short: 2 × 1 + 2 + 1 = 5 beats. At 60 BPM a beat is 1 s, at 160 BPM 0.375 s.
+  it('lasts 6 beats in full and 5 short: 6 s / 5 s at 60 BPM, 2.25 s / 1.875 s at 160 BPM', () => {
+    const c = key('C', 'major');
+    expect(cadence(c, 60).duration).toBeCloseTo(6, 9);
+    expect(cadence(c, 60, 'short').duration).toBeCloseTo(5, 9);
+    expect(cadence(c, 160).duration).toBeCloseTo(2.25, 9);
+    expect(cadence(c, 160, 'short').duration).toBeCloseTo(1.875, 9);
+  });
+
+  it('follows the tempo from 60 to 160 BPM in every key', () => {
+    for (let bpm = 60; bpm <= 160; bpm += 10) {
+      for (const k of KEYS) {
+        expect(cadence(k, bpm).duration, `${keyName(k)} ${bpm}`).toBeCloseTo((6 * 60) / bpm, 9);
+        expect(cadence(k, bpm, 'short').duration, `${keyName(k)} ${bpm}`).toBeCloseTo((5 * 60) / bpm, 9);
+      }
+    }
+  });
+
+  it('plays one chord per beat, the last for two, then the tonic', () => {
+    const beat = 60 / 120;
+    const full = cadence(key('A', 'minor'), 120);
+    expect(full.chords.map((s) => s.start / beat)).toEqual([0, 1, 2, 3]);
+    expect(full.chords.map((s) => s.duration / beat)).toEqual([1, 1, 1, 2]);
+    expect(full.tonic.time / beat).toBe(5);
+    expect(full.tonic.duration / beat).toBe(1);
+    const short = cadence(key('A', 'minor'), 120, 'short');
+    expect(short.chords.map((s) => s.start / beat)).toEqual([0, 1, 2]);
+    expect(short.chords.map((s) => s.duration / beat)).toEqual([1, 1, 2]);
+    expect(short.tonic.time / beat).toBe(4);
+  });
+
+  it('strums each chord down from its bass root, every string ringing to the end of the chord', () => {
+    for (const k of KEYS) {
+      for (const step of cadence(k, 160).chords) {
+        expect(step.notes.map((n) => n.midi)).toEqual(chordMidis(step.chord));
+        expect(step.notes[0]).toMatchObject({ midi: bassMidi(step.chord.root), time: step.start });
+        for (let i = 1; i < step.notes.length; i++) expect(step.notes[i]!.time).toBeGreaterThan(step.notes[i - 1]!.time);
+        for (const n of step.notes) expect(n.time + n.duration).toBeCloseTo(step.start + step.duration, 9);
+      }
+    }
+  });
+
+  it('voices E7 in A minor with G♯ (MIDI pitch class 8), not G', () => {
+    const e7 = cadence(key('A', 'minor'), 100).chords[2]!;
+    const pcs = e7.notes.map((n) => mod(n.midi, 12));
+    expect(pcs).toContain(8);
+    expect(pcs).not.toContain(7);
+  });
+
+  it('sounds the tonic in octave TONIC_OCTAVE (4: MIDI 60–71) in every key', () => {
+    expect(TONIC_OCTAVE).toBe(4);
+    for (const k of KEYS) {
+      const { midi } = cadence(k, 90).tonic;
+      expect(mod(midi, 12), keyName(k)).toBe(pc(k.tonic));
+      expect(midi, keyName(k)).toBeGreaterThanOrEqual(60);
+      expect(midi, keyName(k)).toBeLessThanOrEqual(71);
     }
   });
 });
