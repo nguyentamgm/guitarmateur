@@ -34,7 +34,7 @@ export interface QuestionSettings {
   readonly degrees: readonly DegreeLabel[];
   readonly register: Register;
   readonly keyChange: KeyChange;
-  /** How often each degree id comes up relative to the others; missing means 1 (uniform). */
+  /** How often each degree comes up relative to the others, by label ('b5' counts for '#4'); missing means 1. */
   readonly weights?: Readonly<Record<DegreeLabel, number>>;
 }
 
@@ -50,9 +50,10 @@ const activeDegrees = (settings: Pick<QuestionSettings, 'degrees'>): DegreeLabel
   ...new Set(settings.degrees.map(degreeId)),
 ];
 
-/** A usable weight: finite and positive, else 0; 1 when not given. */
+/** A degree id's weight: finite and positive, else 0; 1 when no label of it is given. */
 const weightOf = (settings: QuestionSettings, degree: DegreeLabel): number => {
-  const w = settings.weights?.[degree] ?? 1;
+  const given = Object.entries(settings.weights ?? {}).find(([label]) => degreeId(label) === degree);
+  const w = given ? given[1] : 1;
   return Number.isFinite(w) && w > 0 ? w : 0;
 };
 
@@ -101,7 +102,10 @@ export function questionTonic(key: Key, settings: Pick<QuestionSettings, 'degree
   return tonic;
 }
 
-/** The next question, given the questions asked so far this session (oldest first). */
+/**
+ * The next question, given the questions asked so far this session (oldest first). The history
+ * is the current settings' session: the caller starts a new one when the settings change.
+ */
 export function nextQuestion(settings: QuestionSettings, history: readonly Question[], rng: Rng): Question {
   const key = nextKey(settings, history, rng);
   const degree = nextDegree(settings, history, rng);

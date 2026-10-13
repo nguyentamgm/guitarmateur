@@ -92,6 +92,12 @@ describe('nextQuestion: degree', () => {
     }
   });
 
+  it('reads a weight under any label of the degree: b5 weighs the tritone', () => {
+    const settings = make(key('A', 'minor'), ['1', 'b5'], { weights: { b5: 9 } });
+    // Even, it is N/2; never three in a row caps it at 2N/3.
+    expect(counts(run(settings, N, 4))['#4']!).toBeGreaterThan(0.6 * N);
+  });
+
   it('never asks a degree weighted 0, and is uniform when no weight is usable', () => {
     const triad = ['1', '3', '5'];
     expect(counts(run(make(key('C', 'major'), triad, { weights: { '5': 0 } }), 2000, 1))['5']).toBeUndefined();
