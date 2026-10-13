@@ -79,6 +79,26 @@ describe('nextQuestion: degree', () => {
     for (const d of degrees) expect(Math.abs(c[d]! - mean), `${d}: ${c[d]}`).toBeLessThanOrEqual(0.12 * mean);
   });
 
+  it('shifts the distribution toward a weighted degree, and leaves the others even', () => {
+    const scale = presetDegrees('scale', 'major')!;
+    const uniform = counts(run(make(key('C', 'major'), scale), N, 217));
+    const c = counts(run(make(key('C', 'major'), scale, { weights: { '3': 4 } }), N, 217));
+    expect(c['3']!).toBeGreaterThan(2 * uniform['3']!);
+    const others = scale.filter((d) => d !== '3');
+    const mean = (N - c['3']!) / others.length;
+    for (const d of others) {
+      expect(c[d]!, d).toBeLessThan(c['3']! / 2);
+      expect(Math.abs(c[d]! - mean), `${d}: ${c[d]}`).toBeLessThanOrEqual(0.12 * mean);
+    }
+  });
+
+  it('never asks a degree weighted 0, and is uniform when no weight is usable', () => {
+    const triad = ['1', '3', '5'];
+    expect(counts(run(make(key('C', 'major'), triad, { weights: { '5': 0 } }), 2000, 1))['5']).toBeUndefined();
+    const c = counts(run(make(key('C', 'major'), triad, { weights: { '1': 0, '3': -1, '5': Number.NaN } }), N, 1));
+    for (const d of triad) expect(Math.abs(c[d]! - N / 3), `${d}: ${c[d]}`).toBeLessThanOrEqual(0.12 * (N / 3));
+  });
+
   it.each([
     ['two degrees', ['1', '5']],
     ['triad', ['1', '3', '5']],

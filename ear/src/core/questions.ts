@@ -1,5 +1,5 @@
 /** The next question: a degree from the active set, its pitch in guitar range, and the key (docs/ear.md). */
-import { choice, type Rng } from '@shared/core/rng';
+import { choice, weightedChoice, type Rng } from '@shared/core/rng';
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
@@ -34,6 +34,8 @@ export interface QuestionSettings {
   readonly degrees: readonly DegreeLabel[];
   readonly register: Register;
   readonly keyChange: KeyChange;
+  /** How often each degree id comes up relative to the others; missing means 1 (uniform). */
+  readonly weights?: Readonly<Record<DegreeLabel, number>>;
 }
 
 export interface Question {
@@ -48,12 +50,19 @@ const activeDegrees = (settings: Pick<QuestionSettings, 'degrees'>): DegreeLabel
   ...new Set(settings.degrees.map(degreeId)),
 ];
 
-/** The degree to ask: any active one, except a third time in a row. */
+/** A usable weight: finite and positive, else 0; 1 when not given. */
+const weightOf = (settings: QuestionSettings, degree: DegreeLabel): number => {
+  const w = settings.weights?.[degree] ?? 1;
+  return Number.isFinite(w) && w > 0 ? w : 0;
+};
+
+/** The degree to ask, by weight: any active one, except a third time in a row; uniform if no weight is usable. */
 function nextDegree(settings: QuestionSettings, history: readonly Question[], rng: Rng): DegreeLabel {
   const active = activeDegrees(settings);
   const [a, b] = history.slice(-2).map((q) => degreeId(q.degree));
   const allowed = a !== undefined && a === b && active.length > 1 ? active.filter((d) => d !== a) : active;
-  return choice(rng, allowed);
+  const weighted = allowed.map((item) => ({ item, weight: weightOf(settings, item) }));
+  return weighted.some((x) => x.weight > 0) ? weightedChoice(rng, weighted) : choice(rng, allowed);
 }
 
 const sameKey = (a: Key, b: Key): boolean => a.mode === b.mode && sameNote(a.tonic, b.tonic);
