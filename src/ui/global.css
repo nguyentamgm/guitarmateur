@@ -11,11 +11,6 @@ a {
   text-decoration: none;
 }
 
-/* The page header is a block of its own under the site header: 16px gutters like Theory. */
-.site-top {
-  padding: 0 16px;
-}
-
 input[type='range'] {
   accent-color: var(--accent);
 }

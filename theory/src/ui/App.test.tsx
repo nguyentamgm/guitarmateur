@@ -107,7 +107,7 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('shows the shared header: brand, Lessons, Review, Practice, language', () => {
+  it('shows the shared header: brand, Lessons, Review, Practice, Ear training, language', () => {
     render('/theory/fretboard');
     const header = container.querySelector('header.topbar')!;
     expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
@@ -117,12 +117,13 @@ describe('Theory app', () => {
       ['Lessons', '/theory'],
       ['Review', '/theory/review'],
       ['Practice', '/'],
+      ['Ear training', '/ear'],
     ]);
     // A lesson belongs to Lessons.
     expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
     expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
     click(container.querySelector('button[lang="vi"]')!);
-    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập', 'Luyện tai']);
   });
 
   it('highlights Review in the header on the review page', () => {

@@ -29,6 +29,7 @@ const en = {
   navLessons: 'Lessons',
   navReview: 'Review',
   navPractice: 'Practice',
+  navEar: 'Ear training',
   tocReview: 'Review: which quiz to do next →',
   reviewTitle: 'Review',
   reviewLead:
@@ -88,6 +89,7 @@ const vi: UiStrings = {
   navLessons: 'Bài học',
   navReview: 'Ôn tập',
   navPractice: 'Luyện tập',
+  navEar: 'Luyện tai',
   tocReview: 'Ôn tập: nên làm bài đố nào tiếp →',
   reviewTitle: 'Ôn tập',
   reviewLead:

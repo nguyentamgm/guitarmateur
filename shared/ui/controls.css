@@ -1,6 +1,8 @@
 /* Controls both apps use (shared/ui/controls.tsx renders most of them), on the shared tokens. */
 
-/* Site header (Header in theory/, SiteHeader in src/): brand · Lessons · Review · Practice · sound · language */
+/* Site header (shared/ui/SiteHeader.tsx, on every page): brand · Lessons · Review · Practice · Ear training · language */
+/* A page without a body gutter (Practice, the ear trainer) wraps the header in .site-top: 16px gutters, as Theory's body has. */
+.site-top { padding: 0 16px; }
 .topbar { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding-block: 16px; border-bottom: 1px solid var(--line); }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
 .topbar-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }

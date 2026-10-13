@@ -7,8 +7,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.site-top { padding: 0 16px; }
-
 .ear-page { display: grid; gap: 20px; max-width: 1032px; margin: 0 auto; padding: 30px 16px 70px; }
 .ear-head { margin-bottom: 14px; }
 .ear-kicker { font-size: 14px; color: var(--muted); font-weight: 600; }
