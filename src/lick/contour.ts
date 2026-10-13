@@ -1,6 +1,6 @@
 import { midi, toneRole, type Chord, type ToneRole } from '../music';
 import type { Box, FretNote } from '../fretboard';
-import { choice, weightedChoice, type Rng } from './rng';
+import { choice, weightedChoice, type Rng } from '@shared/core/rng';
 import type { LickParams } from './model';
 
 export type Contour = 'ascend' | 'descend' | 'arch' | 'valley' | 'wave';

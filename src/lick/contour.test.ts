@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pickContour, pickChordTone, pickFirstNote, type Contour } from './contour';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@shared/core/rng';
 import type { Box, FretNote } from '../fretboard';
 import { pitch, midi } from '../music';
 import type { Chord } from '../music';

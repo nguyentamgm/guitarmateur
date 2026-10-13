@@ -96,7 +96,7 @@ export default tseslint.config(
     files: ['src/lick/**/*.ts'],
     rules: {
       'no-restricted-imports': ['error', { patterns: [{ group: [...noReact, '**/state/**', '**/audio/**', '**/ui/**', '**/i18n/**', allowShared], message: 'src/lick may only import from src/fretboard and src/music.' }, fromTheory] }],
-      'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from ./rng instead of Math.random.' }],
+      'no-restricted-properties': ['error', { object: 'Math', property: 'random', message: 'Licks must be deterministic — use the seeded RNG from @shared/core/rng instead of Math.random.' }],
     },
   },
   {

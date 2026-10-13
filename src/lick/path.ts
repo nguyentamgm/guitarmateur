@@ -1,6 +1,6 @@
 import { midi } from '../music';
 import type { Box, FretNote } from '../fretboard';
-import { weightedChoice, type Rng } from './rng';
+import { weightedChoice, type Rng } from '@shared/core/rng';
 import type { Contour } from './contour';
 import type { LickParams } from './model';
 

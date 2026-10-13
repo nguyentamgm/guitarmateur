@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@shared/core/rng';
 import { decorateTechniques } from './techniques';
 import type { LickNote, Technique } from './model';
 import type { ToneRole } from '../music';

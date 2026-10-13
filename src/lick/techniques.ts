@@ -1,4 +1,4 @@
-import type { Rng } from './rng';
+import type { Rng } from '@shared/core/rng';
 import type { LickNote, Technique, LickParams } from './model';
 
 const LEVEL_PROB: Record<LickParams['level'], number> = {

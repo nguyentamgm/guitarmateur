@@ -1,6 +1,6 @@
 import { toneRole, type Chord } from '../music';
 import type { Box } from '../fretboard';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@shared/core/rng';
 import { activeSlots, buildRhythm, patternLengthBeats } from './rhythm';
 import { pickChordTone, pickContour, pickFirstNote } from './contour';
 import { countUnplayableMoves, fillPath } from './path';
