@@ -1,4 +1,4 @@
-import { choice, type Rng } from './rng';
+import { choice, type Rng } from '@shared/core/rng';
 import type { LickParams } from './model';
 
 export interface RhythmSlot {

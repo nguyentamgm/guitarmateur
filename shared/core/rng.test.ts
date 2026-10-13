@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { int, mulberry32, weightedChoice } from './rng';
+import { choice, int, mulberry32, weightedChoice } from './rng';
 
 describe('mulberry32', () => {
   it('returns deterministic sequences: same seed => same values', () => {
@@ -8,6 +8,23 @@ describe('mulberry32', () => {
     const seqA = Array.from({ length: 10 }, () => a());
     const seqB = Array.from({ length: 10 }, () => b());
     expect(seqB).toEqual(seqA);
+  });
+
+  it('keeps the sequences it had in src/lick/rng.ts (values recorded before the move)', () => {
+    const a = mulberry32(42);
+    expect(Array.from({ length: 5 }, () => a())).toEqual([
+      0.6011037519201636, 0.44829055899754167, 0.8524657934904099, 0.6697340414393693, 0.17481389874592423,
+    ]);
+    const b = mulberry32(0xdeadbeef);
+    expect(Array.from({ length: 3 }, () => b())).toEqual([0.9413696140982211, 0.26719574979506433, 0.772033357527107]);
+    const c = mulberry32(7);
+    expect(Array.from({ length: 10 }, () => int(c, 0, 9))).toEqual([0, 0, 9, 6, 5, 4, 4, 2, 5, 7]);
+    expect(Array.from({ length: 6 }, () => choice(c, ['a', 'b', 'c']))).toEqual(['a', 'a', 'c', 'b', 'a', 'b']);
+    const w = [
+      { item: 'x', weight: 1 },
+      { item: 'y', weight: 3 },
+    ];
+    expect(Array.from({ length: 6 }, () => weightedChoice(c, w))).toEqual(['y', 'y', 'y', 'y', 'x', 'y']);
   });
 
   it('returns different sequences for different seeds', () => {

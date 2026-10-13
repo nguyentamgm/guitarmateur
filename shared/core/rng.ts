@@ -1,4 +1,4 @@
-/** A seeded random source in [0, 1). No `Math.random` anywhere in `src/lick/` (lint-enforced). */
+/** A seeded random source in [0, 1), for code that must be reproducible (licks, ear questions). */
 export type Rng = () => number;
 
 /** mulberry32 — public-domain 32-bit seeded PRNG. Same seed ⇒ same sequence, forever. */

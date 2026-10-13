@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { countSameFretStringJumps, countUnplayableMoves, fillPath, isSameFretStringJump, isStringSkip } from './path';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@shared/core/rng';
 import { pitch, midi, TONICS } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import type { Box, FretNote } from '../fretboard';

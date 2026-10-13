@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mulberry32 } from './rng';
+import { mulberry32 } from '@shared/core/rng';
 import { buildRhythm, pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
 
 describe('rhythm patterns', () => {
