@@ -82,8 +82,7 @@ Những từ trong `backtick` ở cột *Avoid* được test kiểm tra tự đ
 
 | English | Tiếng Việt | Avoid (en) | Avoid (vi) |
 | --- | --- | --- | --- |
-| root (of a key: tonic) | root | `home note` | `nốt nhà`, `nốt gốc` |
-| tonic; key centre (the root of a key, the note it resolves to) | tonic (lần đầu kèm "chủ âm") | | |
+| root (of a key: tonic, key centre) | root (của giọng: tonic) | `home note` | `nốt nhà`, `nốt gốc` |
 | resolution; resolve (a note moving to the tonic) | resolution; resolve (về tonic) | | |
 | scale; scale note | scale; nốt của scale | | `âm giai` |
 | major scale; natural minor scale | major scale; natural minor scale | | `thứ tự nhiên` |
@@ -114,7 +113,7 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 | --- | --- | --- | --- |
 | chord; chord tone | hợp âm; nốt của hợp âm | | `nốt hợp âm` |
 | chord progression; progression | vòng hợp âm; vòng | | `tiến trình hợp âm` |
-| cadence (chords that set the key: I–IV–V7–I) | cadence (vài hợp âm dẫn về giọng) | | |
+| cadence (chords that set the key: I–IV–V7–I, i–iv–V7–i) | cadence (vài hợp âm dẫn về giọng) | | |
 | I chord; dominant 7th chord | hợp âm I; hợp âm dominant 7 | | `hợp âm át` |
 | major, minor (chord quality) | trưởng, thứ | | |
 | triad | triad ("hợp âm ba" chỉ kèm giải nghĩa) | | |
@@ -164,17 +163,18 @@ còn *parallel* là hai giọng cùng root. Lời giảng dùng *relative*.
 
 ### Ear training · Luyện tai
 
-The ear trainer's words are in the tables above: *tonic*, *scale degree* and *resolution* under
-Scales and keys, *cadence* under Chords and progressions, *drone* under Rhythm and playback.
-Below: the page's name, its score, and when to say *tonic*. Nothing here is checked automatically.
-Các từ của trang Luyện tai nằm trong các bảng trên; phần dưới đây không kiểm tra tự động.
+The ear trainer's words are in the tables above: *root* (of a key), *scale degree* and
+*resolution* under Scales and keys, *cadence* under Chords and progressions, *drone* under Rhythm
+and playback. Below: the page's name, its score, and *tonic*. Nothing here is checked
+automatically. · Các từ của trang Luyện tai nằm trong các bảng trên; phần dưới đây không kiểm tra
+tự động.
 
 - *Ear training* is "luyện tai": the page ("Ear training" / "Luyện tai") and the skill.
 - *Right first try* is "đúng ngay lần đầu": a question counts as right only if the first answer
   was, as in Theory's quizzes.
-- *Tonic* is the root of the key the cadence sets. The ear trainer says *tonic* where it means the
-  key's home, and *root* stays the word for a chord's or a scale's root. · Trang Luyện tai gọi
-  root của giọng là *tonic*; root của hợp âm hay scale vẫn là *root*.
+- The key's home is the *root*, on this page too. *Tonic* and *key centre* are what ear-training
+  books call it: fine to explain it ("the root of the key, its tonic"), not as the label. · Trang
+  Luyện tai cũng gọi là *root*; *tonic* chỉ dùng để giải nghĩa.
 
 ### Not checked automatically · Không kiểm tra tự động
 

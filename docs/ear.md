@@ -18,9 +18,9 @@ ear/
 ├─ index.html            data-app="practice" (Practice's lime accent) → dist/ear/index.html
 └─ src/
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
-   │                     strings; i18n.test.ts
-   ├─ ui/                React: App (the page), Header (the shared SiteHeader, current = Ear
-   │                     training); ear.css
+   │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
+   ├─ ui/                React: App (the page; App.test.tsx), Header (the shared SiteHeader,
+   │                     current = Ear training); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
                          registers the site-wide service worker
 ```
@@ -36,10 +36,11 @@ Planned, not built yet (each folder arrives with its issue):
    └─ ui/                the trainer card (#220), settings (#222), stats (#223), the neck (#224)
 ```
 
-`/ear` is one page with no client-side routes. Every `/ear/*` path serves it: `vercel.json` in
-production (rewrite to `/ear`), the `pageRoutes` plugin in `vite.config.ts` in dev and preview,
-and `public/sw.js` offline (`/ear` is one of its `SHELLS`). `tsconfig.ear.json` typechecks
-`ear/src` (and `shared/`); Vitest picks up `ear/**/*.test.{ts,tsx}` with the rest.
+`/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
+in production; the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
+`/ear` path in dev and preview; `public/sw.js` falls back to the cached `/ear` shell offline
+(`/ear` is one of its `SHELLS`). `tsconfig.ear.json` typechecks `ear/src` (and `shared/`); Vitest
+picks up `ear/**/*.test.{ts,tsx}` with the rest.
 
 ## Import rules (enforced by ESLint)
 
@@ -86,15 +87,17 @@ own theory.
   note, which falls to 4): `interval('#4')` or `interval('b5')`.
 - **Keys** come from `MAJOR_KEY_TONICS` / `MINOR_KEY_TONICS` (`shared/core/music/keys.ts`): 12
   each, around the circle of fifths. Never hand-type a list of keys.
-- **Cadence chords** come from `diatonicChords(key)`: I–IV–V7–I in major (A D E7 A), i–iv–V7–i
-  in minor (Am Dm E7 Am). The V is a dominant 7th in both modes, the degree-5 root with `dom7`:
-  `diatonicChords()` reads the natural minor, so in a minor key it gives a minor v (Em), which does
-  not pull home. The full cadence is #213.
+- **Cadence chords** come from `diatonicChords(key)` (triads): I–IV–V7–I in major (A D E7 A),
+  i–iv–V7–i in minor (Am Dm E7 Am). The V is always its degree-5 root with `dom7`, since neither
+  mode gives a V7 as is: the triads have a plain V in major, and `diatonicChords()` reads the
+  natural minor, so a minor key gets a minor v (Em), which does not pull home. The full cadence is
+  #213.
 - **Voicings are derived:** `chordMidis()` and `bassMidi()` (`shared/core/audio/backing.ts`) voice
   a chord, `strumDelays()` (`shared/core/rhythm`) spreads its strum. Never hand-type a voicing.
 - **The drone** is 1 and 5, low, with no 3rd, so one drone fits both modes (#213).
 - **Resolution** walks the mode's scale to the nearest tonic; a note outside the scale first moves
-  a half step to the scale note in that direction. The tables are in #215.
+  a half step to the scale note in that direction. ♯4 / ♭5, as far from both, follows its spelling:
+  up in major (♯4 → 5), down in minor (♭5 → 4). The tables are in #215.
 
 ## Sound
 

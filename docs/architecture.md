@@ -115,8 +115,8 @@ the browser-language rule, and `linkLanguage()` (a link's `?lang=`, for that vis
 `src/i18n/detect.ts` and `src/state/persistence.ts` here, by `theory/src/i18n/lang.ts` in Theory
 and by `ear/src/i18n/lang.ts` (the only user of `linkLanguage()` so far; Practice and Theory read
 `?lang=` themselves); `shared/i18n/fill.ts`, `fill()` for `{name}` placeholders in UI copy, and
-`shared/platform/languages.ts`, `browserLanguages()`, both used by the ear trainer (Theory keeps
-its own copies); `shared/i18n/glossary.ts`, which reads the words
+`shared/platform/languages.ts`, `browserLanguages()`, both used by the ear trainer (Theory still
+has its own `fill()` and `platform/languages.ts`); `shared/i18n/glossary.ts`, which reads the words
 [`glossary.md`](glossary.md) says to avoid and finds them in copy (each app's glossary test runs it
 over its own strings); `shared/platform/storage.ts`, the localStorage
 accessor the apps use; and the shared look in `shared/ui/` (Theory's, the reference):
