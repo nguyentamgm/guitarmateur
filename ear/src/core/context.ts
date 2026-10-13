@@ -1,13 +1,16 @@
 /** The key context: a cadence that sets the key, then the tonic; and a drone (docs/ear.md "Music rules"). */
 import { bassMidi, chordMidis } from '@shared/core/audio';
 import { diatonicChords, interval, romanFor, type Chord, type Key } from '@shared/core/music';
-import { beatSeconds, strumDelays } from '@shared/core/rhythm';
+import { beatSeconds, clampBpm, strumDelays } from '@shared/core/rhythm';
 import { midiOf } from './degrees';
 
 /** 'full' is I–IV–V7–I (i–iv–V7–i in minor); 'short' is I–V7–I, for when the full one gets tiring. */
 export type CadenceForm = 'full' | 'short';
 
-const FORM_DEGREES: Readonly<Record<CadenceForm, readonly number[]>> = { full: [1, 4, 5, 1], short: [1, 5, 1] };
+const FORM_DEGREES: Readonly<Record<CadenceForm, readonly number[]>> = {
+  full: [1, 4, 5, 1],
+  short: [1, 5, 1],
+};
 
 export interface CadenceChord {
   /** 1..7 */
@@ -25,7 +28,9 @@ export function cadenceChords(key: Key, form: CadenceForm = 'full'): CadenceChor
   const triads = diatonicChords(key);
   return FORM_DEGREES[form].map((degree) => {
     const d = triads[degree - 1]!;
-    return degree === 5 ? { degree, chord: { root: d.chord.root, id: 'dom7' }, roman: romanFor(5, 'dom7') } : d;
+    return degree === 5
+      ? { degree, chord: { root: d.chord.root, id: 'dom7' }, roman: romanFor(5, 'dom7') }
+      : d;
   });
 }
 
@@ -58,14 +63,14 @@ export const LAST_CHORD_BEATS = 2;
 export const TONIC_BEATS = 1;
 
 /**
- * Octave of the tonic note, until the register is a setting (#217): 4 puts it at MIDI 60–71.
- * The question's own register comes from the same setting.
+ * Octave of the tonic note, until the register is a setting (#217): 4 puts the 24 keys' tonics at
+ * MIDI 60–71 (midiOf, as the question's notes use).
  */
 export const TONIC_OCTAVE = 4;
 
-/** The cadence as a timeline at `bpm`: one down-strummed chord per beat, the last for two, then the tonic. */
+/** The cadence as a timeline at `bpm` (clamped to 40–200): one down-strummed chord per beat, the last for two, then the tonic. */
 export function cadence(key: Key, bpm: number, form: CadenceForm = 'full'): Cadence {
-  const beat = beatSeconds(bpm);
+  const beat = beatSeconds(clampBpm(bpm));
   const list = cadenceChords(key, form);
   let start = 0;
   const chords = list.map((c, i): CadenceStep => {
@@ -83,13 +88,12 @@ export function cadence(key: Key, bpm: number, form: CadenceForm = 'full'): Cade
   return { chords, tonic, duration: start + tonic.duration };
 }
 
-/** The drone's range: low E (40) to the E an octave above (52). */
-export const DRONE_LOW = 40;
+/** The drone's top: the E (52) an octave above bassMidi's low E (40). */
 export const DRONE_HIGH = 52;
 
 /**
  * The drone, low to high: 1 and 5 with no 3rd, so it fits major and minor alike. The 5th sits
- * above the bass root, or below it when above would pass DRONE_HIGH.
+ * above the bass root, or below it when above would pass DRONE_HIGH (tonics B♭ to E♭).
  */
 export function droneNotes(key: Key): number[] {
   const root = bassMidi(key.tonic);

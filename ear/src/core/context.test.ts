@@ -12,7 +12,7 @@ import {
   pc,
   type Key,
 } from '@shared/core/music';
-import { DRONE_HIGH, DRONE_LOW, TONIC_OCTAVE, cadence, cadenceChords, droneNotes } from './context';
+import { DRONE_HIGH, TONIC_OCTAVE, cadence, cadenceChords, droneNotes } from './context';
 
 const KEYS: Key[] = [
   ...MAJOR_KEY_TONICS.map((tonic) => ({ tonic, mode: 'major' as const })),
@@ -20,7 +20,8 @@ const KEYS: Key[] = [
 ];
 const keyName = (k: Key) => `${format(k.tonic)} ${k.mode}`;
 const key = (tonic: string, mode: Key['mode']): Key => ({ tonic: parseNote(tonic), mode });
-const symbols = (k: Key, form?: 'full' | 'short') => cadenceChords(k, form).map((c) => chordSymbol(c.chord));
+const symbols = (k: Key, form?: 'full' | 'short') =>
+  cadenceChords(k, form).map((c) => chordSymbol(c.chord));
 
 /** The full cadence, written out by hand for each of the 24 keys (I IV V7 I / i iv V7 i). */
 const FULL: Record<string, string[]> = {
@@ -79,7 +80,10 @@ describe('cadenceChords', () => {
   it('puts the leading tone in the V7 of every key: its 3rd is a letter and a semitone under the tonic', () => {
     for (const k of KEYS) {
       const third = chordNotes(cadenceChords(k)[2]!.chord)[1]!;
-      expect(mod(LETTERS.indexOf(k.tonic.letter) - LETTERS.indexOf(third.letter), 7), keyName(k)).toBe(1);
+      expect(
+        mod(LETTERS.indexOf(k.tonic.letter) - LETTERS.indexOf(third.letter), 7),
+        keyName(k),
+      ).toBe(1);
       expect(mod(pc(k.tonic) - pc(third), 12), keyName(k)).toBe(1);
     }
   });
@@ -100,9 +104,18 @@ describe('cadence', () => {
     for (let bpm = 60; bpm <= 160; bpm += 10) {
       for (const k of KEYS) {
         expect(cadence(k, bpm).duration, `${keyName(k)} ${bpm}`).toBeCloseTo((6 * 60) / bpm, 9);
-        expect(cadence(k, bpm, 'short').duration, `${keyName(k)} ${bpm}`).toBeCloseTo((5 * 60) / bpm, 9);
+        expect(cadence(k, bpm, 'short').duration, `${keyName(k)} ${bpm}`).toBeCloseTo(
+          (5 * 60) / bpm,
+          9,
+        );
       }
     }
+  });
+
+  it('clamps the tempo to 40–200 BPM', () => {
+    const c = key('C', 'major');
+    expect(cadence(c, 0).duration).toBeCloseTo((6 * 60) / 40, 9);
+    expect(cadence(c, 10_000).duration).toBeCloseTo((6 * 60) / 200, 9);
   });
 
   it('plays one chord per beat, the last for two, then the tonic', () => {
@@ -123,8 +136,10 @@ describe('cadence', () => {
       for (const step of cadence(k, 160).chords) {
         expect(step.notes.map((n) => n.midi)).toEqual(chordMidis(step.chord));
         expect(step.notes[0]).toMatchObject({ midi: bassMidi(step.chord.root), time: step.start });
-        for (let i = 1; i < step.notes.length; i++) expect(step.notes[i]!.time).toBeGreaterThan(step.notes[i - 1]!.time);
-        for (const n of step.notes) expect(n.time + n.duration).toBeCloseTo(step.start + step.duration, 9);
+        for (let i = 1; i < step.notes.length; i++)
+          expect(step.notes[i]!.time).toBeGreaterThan(step.notes[i - 1]!.time);
+        for (const n of step.notes)
+          expect(n.time + n.duration).toBeCloseTo(step.start + step.duration, 9);
       }
     }
   });
@@ -149,7 +164,7 @@ describe('cadence', () => {
 
 describe('droneNotes', () => {
   it('is 1 and 5, no 3rd, inside MIDI 40–52, in all 24 keys', () => {
-    expect([DRONE_LOW, DRONE_HIGH]).toEqual([40, 52]);
+    expect(DRONE_HIGH).toBe(52);
     for (const k of KEYS) {
       const notes = droneNotes(k);
       const pcs = notes.map((m) => mod(m, 12));
@@ -166,7 +181,8 @@ describe('droneNotes', () => {
   });
 
   it('is the same in major and minor on the same tonic', () => {
-    for (const tonic of MAJOR_KEY_TONICS) expect(droneNotes({ tonic, mode: 'minor' })).toEqual(droneNotes({ tonic, mode: 'major' }));
+    for (const { tonic } of KEYS)
+      expect(droneNotes({ tonic, mode: 'minor' })).toEqual(droneNotes({ tonic, mode: 'major' }));
   });
 
   it('puts the 5th above the bass root while it fits, else below: E → E2 B2, A → A2 E3, B → F♯2 B2', () => {
