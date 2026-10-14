@@ -19,7 +19,9 @@ ear/
 └─ src/
    ├─ core/              pure TypeScript, unit-tested: degrees.ts (degrees, spelled notes, presets),
    │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
-   │                     (the session reducer, see "Session" below)
+   │                     (the session reducer, see "Session" below), stats.ts (stats math)
+   ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
+   │                     "Storage" below
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
    ├─ ui/                React: App (the page; App.test.tsx), Header (the shared SiteHeader,
@@ -31,8 +33,6 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   ├─ core/              stats math (#217)
-   ├─ store/             settings and stats in localStorage under `gm.ear` (#217)
    ├─ audio/             plays the session on the shared player (#219)
    └─ ui/                the trainer card (#220), settings (#222), stats (#223), the neck (#224)
 ```
@@ -156,10 +156,21 @@ Nothing on the page plays yet. When it does (#219):
   as on the other pages: with nothing stored, the browser's languages decide (`browserLanguages()`,
   `shared/platform/languages.ts`), English is the fallback. A change made in another tab shows
   here (`storage` event). A link's `?lang=` (`linkLanguage()`) sets the language for that visit
-  only: it is not saved, and `App` takes it off the address. This is all the page stores today.
-- **Settings and stats** (#217): one localStorage key, `gm.ear`, holding
+  only: it is not saved, and `App` takes it off the address.
+- **Settings and stats** (`store/store.ts`): one localStorage key, `gm.ear`, holding
   `{ version, settings, stats }`, read and written through `browserStorage()`
-  (`shared/platform/storage.ts`). Missing, corrupt or unknown data falls back to the defaults;
-  never the practice app's or Theory's keys. The language is not part of `gm.ear`.
-- Stats count **right first try** only (as Theory's quizzes do) and are kept per mode: ♭3 is in
-  the scale in minor and outside it in major.
+  (`shared/platform/storage.ts`); never the practice app's or Theory's keys. The language is not
+  part of `gm.ear`.
+  - Missing, corrupt, unversioned or newer-version data gives the defaults; within a readable
+    payload each setting and each stats entry is checked on its own and falls back alone. A
+    version bump adds a step to `MIGRATIONS`. Data a newer build stored is never overwritten.
+  - Every write (`saveSettings`, `storeAnswer`, `resetStats`) starts from what is stored now, so
+    another tab's answers are kept; `onStoredChange()` follows changes made in another tab
+    (`storage` event), as `gm.lang` does. Storage that fails only means nothing is remembered.
+  - Defaults (`DEFAULT_SETTINGS`): A major, 1 3 5, the cadence before every question, above the
+    root, a fixed key, 90 BPM, resolution on, drone and auto-next off, guitar sound. Question
+    weights are never stored: they come from the stats.
+- **Stats** (`core/stats.ts`, pure) count **right first try** only (the session's `score` effect,
+  as Theory's quizzes do), and are kept per mode: ♭3 is in the scale in minor and outside it in
+  major. Per mode: asked and right per degree id; mix-ups (wrong first answers, by degree asked,
+  then heard: "♭3 heard as 3"); per local day, the last 30 days; the streak and best streak.
