@@ -66,7 +66,8 @@ function nextDegree(settings: QuestionSettings, history: readonly Question[], rn
   return weighted.some((x) => x.weight > 0) ? weightedChoice(rng, weighted) : choice(rng, allowed);
 }
 
-const sameKey = (a: Key, b: Key): boolean => a.mode === b.mode && sameNote(a.tonic, b.tonic);
+/** Same mode and the same spelled tonic. */
+export const sameKey = (a: Key, b: Key): boolean => a.mode === b.mode && sameNote(a.tonic, b.tonic);
 
 /**
  * The last question's key until it has been asked `keyChange` times in a row, then a random other

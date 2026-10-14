@@ -63,13 +63,21 @@ export const LAST_CHORD_BEATS = 2;
 export const TONIC_BEATS = 1;
 
 /**
- * Octave of the tonic note, until the register is a setting (#217): 4 puts the 24 keys' tonics at
- * MIDI 60–71 (midiOf, as the question's notes use).
+ * Octave of the tonic note when no tonic is given: 4 puts the 24 keys' tonics at MIDI 60–71
+ * (midiOf). A session passes the question's tonic (questionTonic), which can sit an octave lower.
  */
 export const TONIC_OCTAVE = 4;
 
-/** The cadence as a timeline at `bpm` (clamped to 40–200): one down-strummed chord per beat, the last for two, then the tonic. */
-export function cadence(key: Key, bpm: number, form: CadenceForm = 'full'): Cadence {
+/**
+ * The cadence as a timeline at `bpm` (clamped to 40–200): one down-strummed chord per beat, the
+ * last for two, then the tonic, sounding at `tonicMidi`.
+ */
+export function cadence(
+  key: Key,
+  bpm: number,
+  form: CadenceForm = 'full',
+  tonicMidi: number = midiOf(key, '1', TONIC_OCTAVE),
+): Cadence {
   const beat = beatSeconds(clampBpm(bpm));
   const list = cadenceChords(key, form);
   let start = 0;
@@ -84,7 +92,7 @@ export function cadence(key: Key, bpm: number, form: CadenceForm = 'full'): Cade
     start += duration;
     return step;
   });
-  const tonic = { midi: midiOf(key, '1', TONIC_OCTAVE), time: start, duration: TONIC_BEATS * beat };
+  const tonic = { midi: tonicMidi, time: start, duration: TONIC_BEATS * beat };
   return { chords, tonic, duration: start + tonic.duration };
 }
 

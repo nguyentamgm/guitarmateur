@@ -17,6 +17,9 @@ code that issue adds.
 ear/
 ├─ index.html            data-app="practice" (Practice's lime accent) → dist/ear/index.html
 └─ src/
+   ├─ core/              pure TypeScript, unit-tested: degrees.ts (degrees, spelled notes, presets),
+   │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
+   │                     (the session reducer, see "Session" below)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
    ├─ ui/                React: App (the page; App.test.tsx), Header (the shared SiteHeader,
@@ -28,9 +31,7 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   ├─ core/              pure TypeScript, unit-tested: degrees and spelled notes (#212), the key
-   │                     context: cadence and drone (#213), questions (#214), resolution (#215),
-   │                     the session state machine (#216), stats math (#217)
+   ├─ core/              stats math (#217)
    ├─ store/             settings and stats in localStorage under `gm.ear` (#217)
    ├─ audio/             plays the session on the shared player (#219)
    └─ ui/                the trainer card (#220), settings (#222), stats (#223), the neck (#224)
@@ -98,6 +99,38 @@ own theory.
 - **Resolution** walks the mode's scale to the nearest tonic; a note outside the scale first moves
   a half step to the scale note in that direction. ♯4 / ♭5, as far from both, follows its spelling:
   up in major (♯4 → 5), down in minor (♭5 → 4). The tables are in #215.
+
+## Session
+
+`core/session.ts` is a pure reducer: `step(state, event) → { state, effects }`. The effects say
+what should sound; the audio driver (#219) carries them out and answers with `audioDone(phase)`.
+The question's random draw comes from a seed kept in the state, so the same state and event
+always give the same step (React may call a reducer twice).
+
+```
+idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer─▶ (answered ─done─▶) resolving ─done─▶ review
+                 ▲                │  (an answer during the note is fine)                               │
+                 └──── next, or auto-next's pause ◀─────────────────────────────────────────────────────┘
+```
+
+- **Context policy:** the cadence before every question, or at the start and when the key changes,
+  or never ("drone only": the drone holds the key, alone for `DRONE_LEAD_BEATS` before the first
+  note in a key). A new key restarts the drone in it.
+- **Only the first answer scores** (a `score` effect, the one stats count). A wrong one goes
+  through `answered`: the note picked, then the right note. With resolution on, the walk home
+  follows; off, review comes straight after.
+- **In review**, an answer button plays its note next to the question's (in the octave up from the
+  tonic at or below the question), to compare; replays play the note, the cadence or the tonic.
+  None of these score, carry a `done`, or move the phase, and each cancels what was playing,
+  auto-next's pause included: touching the trainer in review stops auto-next for that question.
+- **Replays** work in `waiting` and `review`; while the cadence, the note or the answer's sounds
+  play, they are ignored.
+- **Settings changed mid-question:** a new key, degree set or register drops the question
+  unscored and asks a new one, with the context again if the key changed (or the cadence was cut
+  short); other settings apply from the next question, and the drone follows its setting at once.
+- **The cadence's tonic** sounds where the questions do, `questionTonic()`: an octave below
+  `TONIC_OCTAVE` when the active degrees would pass the top of the guitar's range.
+- Events that make no sense in the current phase are ignored: same state, no effects.
 
 ## Sound
 
