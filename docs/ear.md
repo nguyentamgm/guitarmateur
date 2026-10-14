@@ -30,6 +30,7 @@ ear/
    │                     (the shared SiteHeader, current = Ear training), Trainer (the card and its
    │                     answer strip; Trainer.test.tsx), useTrainer (session → driver → audioDone,
    │                     first answers → stats), Settings (the settings card; Settings.test.tsx),
+   │                     Stats ("Your ear": the stats card; Stats.test.tsx),
    │                     editSettings.ts (major ↔ minor, before each question), labels.ts
    │                     (degree, note, key, preset text), keys.ts (shortcuts); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
@@ -39,7 +40,7 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   └─ ui/                stats (#223), the neck (#224)
+   └─ ui/                the neck (#224)
 ```
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
@@ -222,4 +223,11 @@ out:
 - **Stats** (`core/stats.ts`, pure) count **right first try** only (the session's `score` effect,
   as Theory's quizzes do), and are kept per mode: ♭3 is in the scale in minor and outside it in
   major. Per mode: asked and right per degree id; mix-ups (wrong first answers, by degree asked,
-  then heard: "♭3 heard as 3"); per local day, the last 30 days; the streak and best streak.
+  then heard: "♭3 heard as 3"); per local day, the last 30 days (a day after the answer's,
+  from a clock set back, is kept, never dropped); the streak and best streak.
+- **The stats card** ("Your ear", `ui/Stats.tsx`) shows one mode at a time, the key's first: the
+  totals, accuracy per degree asked (bars in the accent from 80%, amber from 50%, muted below, the
+  number always written), the three mix-ups heard most, each with "Practise these" (the active
+  degrees become 1 and that pair), and the last 14 days. "Practise weak notes" (`weakNotes`)
+  weighs questions by `weakWeights()`: 1 + 3 × the miss rate, smoothed by one right and one wrong
+  answer more, so 1 to 4 and 2.5 for a degree never asked. Reset asks first and keeps the settings.

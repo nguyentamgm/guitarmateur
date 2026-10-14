@@ -9,6 +9,8 @@ import {
   topMixups,
   totals,
   trimDays,
+  weakWeights,
+  lastDays,
   type Answer,
   type DayCount,
   type Stats,
@@ -118,12 +120,28 @@ describe('recordAnswer', () => {
 describe('trimDays', () => {
   const days = (...list: string[]): DayCount[] => list.map((day) => ({ day, asked: 1, right: 1 }));
 
-  it('keeps today and the 29 days before, drops older and future days', () => {
+  it('keeps today and the 29 days before, drops older ones, keeps a later day (a clock set back)', () => {
     const kept = trimDays(
       days('2026-09-14', '2026-09-15', '2026-10-01', '2026-10-14', '2026-10-15'),
       '2026-10-14',
     );
-    expect(kept.map((d) => d.day)).toEqual(['2026-09-15', '2026-10-01', '2026-10-14']);
+    expect(kept.map((d) => d.day)).toEqual([
+      '2026-09-15',
+      '2026-10-01',
+      '2026-10-14',
+      '2026-10-15',
+    ]);
+  });
+
+  it('an answer dated before the last day goes in its place: no day is lost', () => {
+    let s = recordAnswer(EMPTY_STATS, major('1', '1'), '2026-10-14');
+    s = recordAnswer(s, major('3', '5'), '2026-10-12');
+    s = recordAnswer(s, major('5', '5'), '2026-10-14');
+    s = recordAnswer(s, major('5', '5'), '2026-10-12');
+    expect(s.major.days).toEqual([
+      { day: '2026-10-12', asked: 2, right: 1 },
+      { day: '2026-10-14', asked: 2, right: 2 },
+    ]);
   });
 });
 
@@ -161,5 +179,49 @@ describe('accuracy, totals, topMixups', () => {
       '7>1',
     ]);
     expect(topMixups(EMPTY_STATS.major)).toEqual([]);
+  });
+});
+
+describe('weakWeights', () => {
+  it('weighs a missed degree up to 4 and a known one down to 1; unasked is in between', () => {
+    let s = EMPTY_STATS;
+    for (let i = 0; i < 48; i++) s = recordAnswer(s, major('b3', '3'), DAY);
+    for (let i = 0; i < 48; i++) s = recordAnswer(s, major('5', '5'), DAY);
+    const w = weakWeights(s.major, ['1', 'b3', '5']);
+    expect(w['b3']).toBeCloseTo(1 + 3 * (49 / 50));
+    expect(w['5']).toBeCloseTo(1 + 3 * (1 / 50));
+    expect(w['1']).toBe(2.5);
+  });
+
+  it('smooths a single answer: one miss is not the worst, one hit not the best', () => {
+    const s = record([major('3', '5'), major('5', '5')]);
+    const w = weakWeights(s.major, ['3', '5']);
+    expect(w['3']).toBe(1 + 3 * (2 / 3));
+    expect(w['5']).toBe(1 + 3 * (1 / 3));
+  });
+
+  it('keys by degree id, once each', () => {
+    expect(Object.keys(weakWeights(EMPTY_STATS.minor, ['1', 'b5', '#4']))).toEqual(['1', '#4']);
+  });
+});
+
+describe('lastDays', () => {
+  it('gives n days up to today, oldest first, zeros where nothing was asked', () => {
+    const s = record([major('1', '1'), major('3', '5')], '2026-10-12');
+    const days = lastDays(recordAnswer(s, major('1', '1'), '2026-10-14').major, '2026-10-14', 4);
+    expect(days).toEqual([
+      { day: '2026-10-11', asked: 0, right: 0 },
+      { day: '2026-10-12', asked: 2, right: 1 },
+      { day: '2026-10-13', asked: 0, right: 0 },
+      { day: '2026-10-14', asked: 1, right: 1 },
+    ]);
+  });
+
+  it('crosses a month and a year', () => {
+    expect(lastDays(EMPTY_STATS.major, '2026-01-02', 3).map((d) => d.day)).toEqual([
+      '2025-12-31',
+      '2026-01-01',
+      '2026-01-02',
+    ]);
   });
 });

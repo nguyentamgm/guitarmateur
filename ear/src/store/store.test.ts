@@ -54,6 +54,7 @@ describe('defaults', () => {
       sound: 'guitar',
       cadenceForm: 'full',
       droneLevel: 1,
+      weakNotes: false,
     });
     expect(DEFAULT_DATA).toEqual({ version: 1, settings: DEFAULT_SETTINGS, stats: EMPTY_STATS });
   });

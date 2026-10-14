@@ -92,3 +92,24 @@ body {
 @media (max-width: 560px) {
   .settings > summary, .trainer-keys summary { min-height: 40px; }
 }
+
+/* The stats card (Stats.tsx): accuracy bars per degree, mix-ups, the last 14 days. */
+.stats h3 { margin: 6px 0 0; font-size: var(--t-small); font-family: var(--f-mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.stats-empty, .stats-note { color: var(--muted); }
+.stats-totals { font-weight: 600; }
+.bars-acc, .mixups { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bars-acc li { display: grid; grid-template-columns: 11em 1fr; gap: 12px; align-items: center; }
+.acc-label { font-family: var(--f-mono); font-size: var(--t-small); font-variant-numeric: tabular-nums; }
+.acc-track { height: 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+.acc-bar { display: block; height: 100%; }
+.acc-bar.good { background: var(--accent); }
+.acc-bar.mid { background: var(--amber); }
+.acc-bar.weak { background: var(--muted); }
+.mixups li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.days { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; height: 48px; align-items: end; }
+.days li { height: 100%; display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); }
+.days .day-bar { display: block; width: 100%; min-height: 0; background: var(--accent); border-radius: 3px 3px 0 0; }
+.stats-confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+@media (max-width: 560px) {
+  .bars-acc li { grid-template-columns: 1fr; gap: 2px; }
+}

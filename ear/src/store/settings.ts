@@ -32,6 +32,8 @@ export interface EarSettings extends SessionSettings {
   readonly cadenceForm: CadenceForm;
   /** The drone's level, 0..1, of its quiet maximum: never louder than the notes. */
   readonly droneLevel: number;
+  /** Ask the degrees missed most more often ("practise weak notes", weights from the stats). */
+  readonly weakNotes: boolean;
 }
 
 /** A major (Practice opens on A too), root 3rd 5th, the cadence before every question, 90 BPM. */
@@ -48,6 +50,7 @@ export const DEFAULT_SETTINGS: EarSettings = {
   sound: 'guitar',
   cadenceForm: 'full',
   droneLevel: 1,
+  weakNotes: false,
 };
 
 const CADENCE_FORMS: readonly CadenceForm[] = ['full', 'short'];
@@ -102,5 +105,6 @@ export function readSettings(v: unknown): EarSettings {
       typeof r.droneLevel === 'number' && Number.isFinite(r.droneLevel)
         ? Math.min(1, Math.max(0, r.droneLevel))
         : d.droneLevel,
+    weakNotes: bool(r.weakNotes, d.weakNotes),
   };
 }
