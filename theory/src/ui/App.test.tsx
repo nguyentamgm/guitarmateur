@@ -28,6 +28,9 @@ function fakePlayer() {
     },
     now: () => 0,
     setLevels: () => {},
+    tone: () => {},
+    hold: () => ({ stop() {} }),
+    cancel: () => {},
     get enabled() {
       return enabled;
     },

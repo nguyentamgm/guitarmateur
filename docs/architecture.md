@@ -162,10 +162,13 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
   note when clicked. A dense lick scrolls sideways rather than shrinking its numbers.
 - `GlobeIcon.tsx` — the globe beside the site header's language switcher.
 
-**Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
-and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
-gesture); `setEnabled` turns it on or off, `setLevels({ note, click })` the mix, `now()` the audio
-clock. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
+**Sound (`shared/core/audio`, Theory's).** Plucked strings, clicks and a sustained voice
+(`sustain.ts`: a soft tone looped without a seam) rendered once into buffers and played by a
+`Player` (`createPlayer`): one AudioContext, created on the first sound (a user gesture);
+`setEnabled` turns it on or off, `setLevels({ note, click, drone })` the mix, `now()` the audio
+clock. `tone()` plays a note in the sustained voice (a clean tone), `hold()` holds notes until
+their `stop()`, fading in and out (a drone), and `cancel()` stops every note, click and tone
+scheduled or sounding, with a short fade, leaving holds alone. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
 `useBacking` (a step clock and a backing track over one chord per bar, swung when the style
 swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute) and clicks played
 sample-accurately through the lookahead `Scheduler`, looping pass after pass, reporting each event

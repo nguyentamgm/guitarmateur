@@ -15,6 +15,9 @@ const player: Player = {
   mute: (midi) => calls.plucks.push(midi),
   click: () => calls.clicks++,
   now: () => clock,
+  tone: () => {},
+  hold: () => ({ stop() {} }),
+  cancel: () => {},
 };
 
 vi.mock('@shared/core/audio', async (importOriginal) => ({

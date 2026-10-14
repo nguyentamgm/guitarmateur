@@ -15,6 +15,9 @@ function rig(audio = true) {
     enabled: true,
     now: () => (audio && !clockLost ? time : null),
     setLevels: () => {},
+    tone: () => {},
+    hold: () => ({ stop() {} }),
+    cancel: () => {},
   };
   let tick: (() => void) | null = null;
   const timeouts: { at: number; fn: () => void }[] = [];
