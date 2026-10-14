@@ -22,6 +22,8 @@ ear/
    │                     (the session reducer, see "Session" below), stats.ts (stats math)
    ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
    │                     "Storage" below
+   ├─ audio/             timeline.ts (each sound of the session, note by note, pure), driver.ts
+   │                     (`createEarAudio`: plays the session's effects, sends `audioDone` back)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
    ├─ ui/                React: App (the page; App.test.tsx), Header (the shared SiteHeader,
@@ -33,7 +35,6 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   ├─ audio/             plays the session on the shared player (#219)
    └─ ui/                the trainer card (#220), settings (#222), stats (#223), the neck (#224)
 ```
 
@@ -134,7 +135,22 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
 
 ## Sound
 
-Nothing on the page plays yet. When it does (#219):
+The page does not play yet: the trainer card (#220) wires the session to the audio driver,
+`audio/driver.ts`, which carries out the session's effects:
+
+- **Timing:** each part (the cadence, the note, the comparison, the walk home, a wait) is laid out
+  note by note in `audio/timeline.ts` and handed to the player at once, every note with its exact
+  delay, `LEAD_SEC` (0.05 s) after `player.now()`. One coarse timer (25 ms) only watches the audio
+  clock for the end of a part with a `done`, then sends `audioDone`; a `cancelAudio` drops it.
+- **Lengths, in beats of the cadence tempo:** the question note 2; the comparison: the note picked
+  1, a half-beat gap, the right note 1, a half-beat rest; the walk home an eighth a note and the
+  closing tonic 1.
+- **Voices:** the cadence's chords are always the guitar; single notes (the cadence's tonic, the
+  question, the comparison, the walk home, replays) are the guitar or the clean tone
+  (`player.tone`), as set. A right answer with no walk home (resolution off) is one accented click.
+- **The drone** (`player.hold`) starts with the session, crossfades on a key change, stops on stop
+  and on `dispose()` (leaving the page), and sits at `DRONE_DUCK` (half) while a cadence plays.
+  The drone modes of #222 (only before each question, a level) are not in the session yet.
 
 - Notes and the cadence are the shared guitar pluck: one `Player` from `createPlayer()`
   (`shared/core/audio`). The drone is `player.hold(droneNotes(key))` and the clean tone
