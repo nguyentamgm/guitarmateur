@@ -160,6 +160,12 @@ describe('cadence', () => {
       expect(midi, keyName(k)).toBeLessThanOrEqual(71);
     }
   });
+
+  it('sounds the tonic at the MIDI number given, e.g. the question tonic an octave down', () => {
+    const k = key('B', 'major');
+    expect(cadence(k, 90, 'full', 59).tonic.midi).toBe(59);
+    expect(cadence(k, 90, 'short', 47).tonic.midi).toBe(47);
+  });
 });
 
 describe('droneNotes', () => {
