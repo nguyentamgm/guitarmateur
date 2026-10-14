@@ -33,7 +33,7 @@ const E_MINOR: EarSettings = {
   keyChange: 25,
   context: 'droneOnly',
   resolution: false,
-  drone: true,
+  drone: 'continuous',
   autoNext: true,
   bpm: 120,
   sound: 'clean',
@@ -48,10 +48,12 @@ describe('defaults', () => {
       keyChange: 'fixed',
       context: 'everyQuestion',
       resolution: true,
-      drone: false,
+      drone: 'off',
       autoNext: false,
       bpm: 90,
       sound: 'guitar',
+      cadenceForm: 'full',
+      droneLevel: 1,
     });
     expect(DEFAULT_DATA).toEqual({ version: 1, settings: DEFAULT_SETTINGS, stats: EMPTY_STATS });
   });

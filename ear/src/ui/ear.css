@@ -75,3 +75,20 @@ body {
   .trainer-keys dl div { grid-template-columns: 1fr; gap: 2px; }
 }
 .trainer:focus { outline: none; }
+
+/* The settings card (Settings.tsx): a details, open on a wide screen, folded on a phone. */
+.settings > summary { cursor: pointer; }
+.settings > summary h2 { display: inline; margin: 0; font-size: 1.15rem; }
+.settings[open] > summary { margin-bottom: 4px; }
+.settings-note { color: var(--muted); font-size: var(--t-small); }
+.settings-row { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; }
+.settings-label { font-size: var(--t-label); color: var(--muted); font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
+.settings-hint { color: var(--muted); font-size: var(--t-small); }
+/* Both folds (settings, shortcuts) draw their own marker, inside the card; 40px to tap on a phone. */
+.settings > summary, .trainer-keys summary { display: flex; align-items: center; gap: 6px; list-style: none; }
+.settings > summary::-webkit-details-marker, .trainer-keys summary::-webkit-details-marker { display: none; }
+.settings > summary::before, .trainer-keys summary::before { content: '▸'; color: var(--muted); }
+.settings[open] > summary::before, .trainer-keys[open] summary::before { content: '▾'; }
+@media (max-width: 560px) {
+  .settings > summary, .trainer-keys summary { min-height: 40px; }
+}

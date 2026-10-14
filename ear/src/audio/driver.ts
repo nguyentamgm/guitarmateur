@@ -25,6 +25,8 @@ export interface AudioSettings {
   readonly sound: Voice;
   /** Default 'full'. */
   readonly cadenceForm?: CadenceForm;
+  /** The drone's level, 0..1 (the player's `drone` level). Default 1. */
+  readonly droneLevel?: number;
 }
 
 export interface DriverDeps {
@@ -50,7 +52,7 @@ export interface EarAudio {
 
 /** Head start for a part, so its first note is never scheduled in the past. */
 export const LEAD_SEC = 0.05;
-/** The drone's level while the cadence plays: it sits under the chords. */
+/** The drone's level while the cadence plays, as a share of its own: it sits under the chords. */
 export const DRONE_DUCK = 0.5;
 
 const browserTimers: DriverDeps = {
@@ -71,6 +73,7 @@ export function createEarAudio(
 ): EarAudio {
   let drone: Held | null = null;
   let ducked = false;
+  let level = 1;
   let pending: Pending[] = [];
   let timer: unknown = null;
 
@@ -98,10 +101,11 @@ export function createEarAudio(
     if (timer === null) timer = deps.setInterval(tick, deps.tickMs ?? 25);
   };
 
+  const applyLevel = () => player.setLevels({ drone: ducked ? level * DRONE_DUCK : level });
   const duck = (on: boolean) => {
     if (ducked === on) return;
     ducked = on;
-    player.setLevels({ drone: on ? DRONE_DUCK : 1 });
+    applyLevel();
   };
 
   /** Hand a part's sounds to the player from `now + LEAD_SEC`; returns when it ends on the audio clock. */
@@ -117,6 +121,11 @@ export function createEarAudio(
 
   const run = (effects: readonly Effect[], settings: AudioSettings) => {
     const voice = settings.sound;
+    const wanted = settings.droneLevel ?? 1;
+    if (wanted !== level) {
+      level = wanted;
+      applyLevel();
+    }
     const bpm = settings.bpm;
     const resolves = effects.some((e) => e.type === 'playResolution');
     for (const e of effects) {

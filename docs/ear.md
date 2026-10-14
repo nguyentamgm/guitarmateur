@@ -29,7 +29,9 @@ ear/
    ├─ ui/                React: App (the page: the player, `gm.ear` data; App.test.tsx), Header
    │                     (the shared SiteHeader, current = Ear training), Trainer (the card and its
    │                     answer strip; Trainer.test.tsx), useTrainer (session → driver → audioDone,
-   │                     first answers → stats), labels.ts (degree, note, key, preset text); ear.css
+   │                     first answers → stats), Settings (the settings card; Settings.test.tsx),
+   │                     editSettings.ts (major ↔ minor, before each question), labels.ts
+   │                     (degree, note, key, preset text), keys.ts (shortcuts); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
                          registers the site-wide service worker
 ```
@@ -37,7 +39,7 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   └─ ui/                settings (#222), stats (#223), the neck (#224)
+   └─ ui/                stats (#223), the neck (#224)
 ```
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
@@ -119,6 +121,9 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
 - **Context policy:** the cadence before every question, or at the start and when the key changes,
   or never ("drone only": the drone holds the key, alone for `DRONE_LEAD_BEATS` before the first
   note in a key). A new key restarts the drone in it.
+- **Drone mode:** off; continuous (the whole session); or with each question (it starts with the
+  question's context and stops in review, once the answer's sounds are done). "Drone only" holds
+  it throughout, whatever the mode.
 - **Only the first answer scores** (a `score` effect, the one stats count). A wrong one goes
   through `answered`: the note picked, then the right note. With resolution on, the walk home
   follows; off, review comes straight after.
@@ -128,9 +133,11 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
   auto-next's pause included: touching the trainer in review stops auto-next for that question.
 - **Replays** work in `waiting` and `review`; while the cadence, the note or the answer's sounds
   play, they are ignored.
-- **Settings changed mid-question:** a new key, degree set or register drops the question
-  unscored and asks a new one, with the context again if the key changed (or the cadence was cut
-  short); other settings apply from the next question, and the drone follows its setting at once.
+- **Settings changed mid-question:** only a new key, or switching off the degree being asked,
+  drops the question (unscored) and asks a new one, with the context again if the key changed (or
+  the cadence was cut short). Everything else (other degrees, the register, the tempo…) applies
+  from the next question, so a player can change several settings without losing the question each
+  time; the drone follows its setting at once.
 - **The cadence's tonic** sounds where the questions do, `questionTonic()`: an octave below
   `TONIC_OCTAVE` when the active degrees would pass the top of the guitar's range.
 - Events that make no sense in the current phase are ignored: same state, no effects.
@@ -153,7 +160,7 @@ out:
   (`player.tone`), as set. A right answer with no walk home (resolution off) is one accented click.
 - **The drone** (`player.hold`) starts with the session, crossfades on a key change, stops on stop
   and on `dispose()` (leaving the page), and sits at `DRONE_DUCK` (half) while a cadence plays.
-  The drone modes of #222 (only before each question, a level) are not in the session yet.
+  Its level is the `droneLevel` setting (the player's `drone` level), halved under a cadence.
 
 - Notes and the cadence are the shared guitar pluck: one `Player` from `createPlayer()`
   (`shared/core/audio`). The drone is `player.hold(droneNotes(key))` and the clean tone
@@ -207,9 +214,11 @@ out:
   - Every write (`saveSettings`, `storeAnswer`, `resetStats`) starts from what is stored now, so
     another tab's answers are kept; `onStoredChange()` follows changes made in another tab
     (`storage` event), as `gm.lang` does. Storage that fails only means nothing is remembered.
-  - Defaults (`DEFAULT_SETTINGS`): A major, 1 3 5, the cadence before every question, above the
-    root, a fixed key, 90 BPM, resolution on, drone and auto-next off, guitar sound. Question
-    weights are never stored: they come from the stats.
+  - Defaults (`DEFAULT_SETTINGS`): A major, 1 3 5, the full cadence before every question, above
+    the root, a fixed key, 90 BPM, resolution on, drone off (level 1, its quiet maximum), auto-next
+    off, guitar sound. Question weights are never stored: they come from the stats. A field added
+    later (`cadenceForm`, `droneLevel`) falls back on its own, so it needs no version bump; the
+    first payloads' `drone: true / false` reads as continuous / off.
 - **Stats** (`core/stats.ts`, pure) count **right first try** only (the session's `score` effect,
   as Theory's quizzes do), and are kept per mode: ♭3 is in the scale in minor and outside it in
   major. Per mode: asked and right per degree id; mix-ups (wrong first answers, by degree asked,

@@ -10,7 +10,13 @@ import {
 import { clampBpm } from '@shared/core/rhythm';
 import { DEGREES, MIN_DEGREES, presetDegrees } from '../core/degrees';
 import { KEY_CHANGE_EVERY, REGISTERS, type KeyChange } from '../core/questions';
-import { CONTEXT_POLICIES, type SessionSettings } from '../core/session';
+import type { CadenceForm } from '../core/context';
+import {
+  CONTEXT_POLICIES,
+  DRONE_MODES,
+  type DroneMode,
+  type SessionSettings,
+} from '../core/session';
 
 /** The voice of the question and the walk home: the guitar pluck, or a plain tone. The cadence is always guitar. */
 export type Sound = 'guitar' | 'clean';
@@ -22,6 +28,10 @@ export interface EarSettings extends SessionSettings {
   /** The cadence's tempo; the walk home follows it. */
   readonly bpm: number;
   readonly sound: Sound;
+  /** The full cadence (I–IV–V7–I) or the short one (I–V7–I). */
+  readonly cadenceForm: CadenceForm;
+  /** The drone's level, 0..1, of its quiet maximum: never louder than the notes. */
+  readonly droneLevel: number;
 }
 
 /** A major (Practice opens on A too), root 3rd 5th, the cadence before every question, 90 BPM. */
@@ -32,11 +42,22 @@ export const DEFAULT_SETTINGS: EarSettings = {
   keyChange: 'fixed',
   context: 'everyQuestion',
   resolution: true,
-  drone: false,
+  drone: 'off',
   autoNext: false,
   bpm: 90,
   sound: 'guitar',
+  cadenceForm: 'full',
+  droneLevel: 1,
 };
+
+const CADENCE_FORMS: readonly CadenceForm[] = ['full', 'short'];
+
+/** A drone mode; the first stored data had it on or off. */
+function readDrone(v: unknown): DroneMode | null {
+  if (v === true) return 'continuous';
+  if (v === false) return 'off';
+  return DRONE_MODES.includes(v as DroneMode) ? (v as DroneMode) : null;
+}
 
 const isOneOf = <T>(list: readonly T[], v: unknown): v is T => list.includes(v as T);
 const DEGREE_IDS = DEGREES.map((d) => d.label);
@@ -72,9 +93,14 @@ export function readSettings(v: unknown): EarSettings {
     keyChange: isOneOf(KEY_CHANGES, r.keyChange) ? r.keyChange : d.keyChange,
     context: isOneOf(CONTEXT_POLICIES, r.context) ? r.context : d.context,
     resolution: bool(r.resolution, d.resolution),
-    drone: bool(r.drone, d.drone),
+    drone: readDrone(r.drone) ?? d.drone,
     autoNext: bool(r.autoNext, d.autoNext),
     bpm: typeof r.bpm === 'number' && Number.isFinite(r.bpm) ? clampBpm(r.bpm) : d.bpm,
     sound: isOneOf(SOUNDS, r.sound) ? r.sound : d.sound,
+    cadenceForm: isOneOf(CADENCE_FORMS, r.cadenceForm) ? r.cadenceForm : d.cadenceForm,
+    droneLevel:
+      typeof r.droneLevel === 'number' && Number.isFinite(r.droneLevel)
+        ? Math.min(1, Math.max(0, r.droneLevel))
+        : d.droneLevel,
   };
 }
