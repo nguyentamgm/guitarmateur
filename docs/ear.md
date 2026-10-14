@@ -30,18 +30,16 @@ ear/
    │                     (the shared SiteHeader, current = Ear training), Trainer (the card and its
    │                     answer strip; Trainer.test.tsx), useTrainer (session → driver → audioDone,
    │                     first answers → stats), Settings (the settings card; Settings.test.tsx),
-   │                     Stats ("Your ear": the stats card; Stats.test.tsx),
+   │                     Stats ("Your ear": the stats card; Stats.test.tsx), NeckAnswer (the
+   │                     answer on a neck window, the shared Fretboard),
    │                     editSettings.ts (major ↔ minor, before each question), labels.ts
    │                     (degree, note, key, preset text), keys.ts (shortcuts); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
                          registers the site-wide service worker
 ```
 
-Planned, not built yet (each folder arrives with its issue):
-
-```
-   └─ ui/                the neck (#224)
-```
+Still to come: deep links and a link from Practice (#225), then the checks before announcing
+the page (#226).
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
 in production; the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
@@ -180,6 +178,18 @@ out:
   and out. It is what a listener hears longest, often on headphones. The player sees to the
   fades (a hold fades in over `HOLD_FADE_SEC`, 1 s by default, out over its `stop()`'s fade, never
   under `MIN_FADE_SEC`) and holds at `HOLD_LEVEL` (0.3 of a note's level) times the `drone` level.
+
+## The answer on the neck
+
+After each answer (with "Show on the neck" on, the default) a five-fret window of the shared
+`Fretboard` shows where the note sits: `core/position.ts` picks a root on string 6 or 5 (frets
+0–15) whose window, from a fret below it, holds the note heard **at its pitch**, choosing the root
+nearest in pitch to the tonic the note was heard against (then the lower fret, then string 6). The
+window can reach fret 18: held to 15, the top notes (F major's 7 at E5) could not be shown at the
+pitch heard. Tested over every key, register and degree, the pitch is always found; the fallback
+(the same degree an octave away) is only a guard. Dots: the root and every 1 in `home`, the other
+active degrees `soft`, the note heard `target` with a halo; clicking one plays it in the trainer's
+voice. Standard tuning only.
 
 ## Keyboard and screen readers
 

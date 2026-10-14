@@ -114,6 +114,10 @@ const en = {
   autoNextLabel: 'Next question automatically',
   on: 'On',
   off: 'Off',
+  showNeckLabel: 'Show on the neck',
+  /** The neck window after an answer. */
+  neckLabel: 'On the neck: {degree} ({note}) in {key}, from the root on string {string}',
+  neckWords: { fret: 'fret {n}', string: 'string {n}', root: 'root', target: 'the note you heard' },
   /** The stats card. */
   statsTitle: 'Your ear',
   statsEmpty: 'No {mode} questions answered yet. Your accuracy per degree and the notes you mix up will show here.',
@@ -240,6 +244,9 @@ const vi: UiStrings = {
   autoNextLabel: 'Tự sang câu tiếp',
   on: 'Bật',
   off: 'Tắt',
+  showNeckLabel: 'Hiện trên cần đàn',
+  neckLabel: 'Trên cần đàn: bậc {degree} ({note}) trong giọng {key}, tính từ root trên dây {string}',
+  neckWords: { fret: 'phím {n}', string: 'dây {n}', root: 'root', target: 'nốt vừa nghe' },
   statsTitle: 'Tai của bạn',
   statsEmpty: 'Chưa trả lời câu nào ở giọng {mode}. Độ chính xác theo từng bậc và các nốt bạn hay nhầm sẽ hiện ở đây.',
   statsTotals: '{asked} câu · đúng ngay lần đầu {right} ({pct}%) · chuỗi đúng dài nhất {best}',

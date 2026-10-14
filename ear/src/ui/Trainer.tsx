@@ -12,6 +12,7 @@ import { fill, type UiStrings } from '../i18n';
 import type { EarSettings } from '../store/settings';
 import { ownedByTarget, shortcut } from './keys';
 import { answerText, degreeInKey, degreesText, keyText, noteText } from './labels';
+import { NeckAnswer } from './NeckAnswer';
 import { useTrainer } from './useTrainer';
 
 const RUNNING_PHASES = ['context', 'prompt', 'waiting', 'answered', 'resolving', 'review'];
@@ -167,6 +168,17 @@ export function Trainer({
 
       <AnswerStrip ui={ui} state={state} active={settings.degrees} onAnswer={answer} />
 
+      {/* Once answered, where it sits under the fingers. */}
+      {q && state.answer && settings.showNeck && (
+        <NeckAnswer
+          ui={ui}
+          question={q}
+          active={settings.degrees}
+          player={player}
+          clean={settings.sound === 'clean'}
+        />
+      )}
+
       {state.phase === 'review' && q && (
         <p className="trainer-compare">
           {wrong && (
@@ -277,6 +289,7 @@ function AnswerStrip({
             type="button"
             className={cls}
             data-degree={label}
+            data-fret={fret}
             disabled={!isOn}
             aria-label={fill(ui.cellLabel, {
               shown: answerText(label),
