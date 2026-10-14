@@ -25,13 +25,14 @@ const settings = (over: Partial<SessionSettings> = {}): SessionSettings => ({
   keyChange: 'fixed',
   context: 'everyQuestion',
   resolution: true,
-  drone: false,
+  drone: 'off',
   autoNext: false,
   ...over,
 });
 
 const SEED = 216;
-const fresh = (over: Partial<SessionSettings> = {}) => initialSession(settings(over), SEED);
+const fresh = (over: Partial<SessionSettings> = {}, seed = SEED) =>
+  initialSession(settings(over), seed);
 
 const START: SessionEvent = { type: 'start' };
 const NEXT: SessionEvent = { type: 'next' };
@@ -57,8 +58,8 @@ const near = (s: SessionState, semitones: number) =>
   q(s).midi - ({ '1': 0, '3': 4, '5': 7 } as Record<string, number>)[q(s).degree]! + semitones;
 
 /** The state at `phase`, by the main path (a wrong answer passes through 'answered'). */
-function reach(phase: Phase, over: Partial<SessionSettings> = {}): SessionState {
-  let s = fresh(over);
+function reach(phase: Phase, over: Partial<SessionSettings> = {}, seed = SEED): SessionState {
+  let s = fresh(over, seed);
   const path: Phase[] = ['idle', 'context', 'prompt', 'waiting', 'answered', 'resolving', 'review'];
   for (const p of path.slice(1, path.indexOf(phase) + 1)) {
     if (p === 'context') s = step(s, START).state;
@@ -101,7 +102,7 @@ describe('step: start', () => {
   });
 
   it('starts the drone before the cadence when the drone is on', () => {
-    const { effects } = step(fresh({ drone: true }), START);
+    const { effects } = step(fresh({ drone: 'continuous' }), START);
     expect(effects.map((e) => e.type)).toEqual(['cancelAudio', 'startDrone', 'playContext']);
     expect(effects[1]).toEqual({ type: 'startDrone', key: A_MAJOR });
   });
@@ -387,7 +388,7 @@ describe('step: key changes', () => {
 
   it('restarts the drone in the new key, before the cadence', () => {
     const { state, effects } = untilKeyChange(
-      step(fresh({ context: 'keyChange', keyChange: 10, drone: true }), START).state,
+      step(fresh({ context: 'keyChange', keyChange: 10, drone: 'continuous' }), START).state,
     );
     expect(effects.map((e) => e.type)).toEqual(['cancelAudio', 'startDrone', 'playContext']);
     expect(effects[1]).toEqual({ type: 'startDrone', key: q(state).key });
@@ -405,21 +406,34 @@ describe('step: key changes', () => {
   });
 });
 
+/** `reach(phase)`, on a seed whose first question asks `degree`. */
+function reachAsking(
+  phase: Phase,
+  degree: DegreeLabel,
+  over: Partial<SessionSettings> = {},
+): SessionState {
+  for (let seed = 1; seed < 500; seed++) {
+    const s = reach(phase, over, seed);
+    if (q(s).degree === degree) return s;
+  }
+  throw new Error(`no seed asks ${degree}`);
+}
+
 describe('step: settingsChanged', () => {
   it('in idle, just keeps the new settings', () => {
     const s = fresh();
-    const next = settings({ key: key('E', 'minor'), drone: true });
+    const next = settings({ key: key('E', 'minor'), drone: 'continuous' });
     expect(step(s, changed(next))).toEqual({ state: { ...s, settings: next }, effects: [] });
   });
 
-  it('a new degree set drops the question unscored and asks one at once (same key, "key changes" policy)', () => {
-    const s = reach('waiting', { context: 'keyChange' });
+  it('switching off the question\'s degree drops it unscored and asks one at once (same key, "key changes" policy)', () => {
+    const s = reachAsking('waiting', '3', { context: 'keyChange' });
     const next = settings({ context: 'keyChange', degrees: ['1', 'b3', '5'] });
     const { state, effects } = step(s, changed(next));
     expect(state.phase).toBe('prompt');
     expect(state.score).toEqual(s.score);
     expect(state.history).toEqual([state.question]);
-    expect(['1', '#4', 'b3', '5']).toContain(q(state).degree);
+    expect(['1', 'b3', '5']).toContain(q(state).degree);
     expect(effects).toEqual([
       { type: 'cancelAudio' },
       { type: 'playNote', midi: q(state).midi, done: 'prompt' },
@@ -439,28 +453,32 @@ describe('step: settingsChanged', () => {
   });
 
   it('a new key with the drone on restarts the drone in it, once', () => {
-    const s = reach('review', { drone: true });
+    const s = reach('review', { drone: 'continuous' });
     const e = key('E', 'minor');
-    const { effects } = step(s, changed(settings({ drone: true, key: e })));
+    const { effects } = step(s, changed(settings({ drone: 'continuous', key: e })));
     expect(effects.filter((x) => x.type === 'startDrone')).toEqual([
       { type: 'startDrone', key: e },
     ]);
     expect(effects.map((x) => x.type)).toEqual(['cancelAudio', 'startDrone', 'playContext']);
   });
 
-  it('a new register drops the question', () => {
-    const s = reach('waiting', { context: 'keyChange' });
-    const { state, effects } = step(
-      s,
-      changed(settings({ context: 'keyChange', register: 'twoOctaves' })),
-    );
-    expect(state.phase).toBe('prompt');
-    expect(state.question).not.toBe(s.question);
-    expect(effects[0]).toEqual({ type: 'cancelAudio' });
+  it.each([
+    ['a degree added', { degrees: ['1', 'b3', '3', '5'] }],
+    ['another degree switched off', { degrees: ['1', '3'] }],
+    ['the register', { register: 'twoOctaves' }],
+  ] as const)('%s keeps the question: it applies from the next one', (_, over) => {
+    for (const phase of ['context', 'waiting', 'review'] as const) {
+      const s = reachAsking(phase, '3');
+      const next = settings(over as Partial<SessionSettings>);
+      expect(step(s, changed(next)), phase).toEqual({
+        state: { ...s, settings: next },
+        effects: [],
+      });
+    }
   });
 
   it('a change that cuts the cadence short plays it again', () => {
-    const s = reach('context', { context: 'keyChange' });
+    const s = reachAsking('context', '3', { context: 'keyChange' });
     const { state, effects } = step(
       s,
       changed(settings({ context: 'keyChange', degrees: ['1', '5'] })),
@@ -494,11 +512,11 @@ describe('step: settingsChanged', () => {
 
   it("turning the drone on or off starts or stops it, in the question's key", () => {
     const s = reach('waiting');
-    expect(step(s, changed(settings({ drone: true }))).effects).toEqual([
+    expect(step(s, changed(settings({ drone: 'continuous' }))).effects).toEqual([
       { type: 'startDrone', key: A_MAJOR },
     ]);
-    const on = reach('waiting', { drone: true });
-    expect(step(on, changed(settings({ drone: false }))).effects).toEqual([{ type: 'stopDrone' }]);
+    const on = reach('waiting', { drone: 'continuous' });
+    expect(step(on, changed(settings({ drone: 'off' }))).effects).toEqual([{ type: 'stopDrone' }]);
   });
 
   it('"drone only" holds the drone whatever the drone setting says', () => {
@@ -507,21 +525,66 @@ describe('step: settingsChanged', () => {
       { type: 'startDrone', key: A_MAJOR },
     ]);
     const only = reach('review', { context: 'droneOnly' });
-    expect(step(only, changed(settings({ context: 'droneOnly', drone: true }))).effects).toEqual(
-      [],
-    );
+    expect(
+      step(only, changed(settings({ context: 'droneOnly', drone: 'continuous' }))).effects,
+    ).toEqual([]);
     expect(step(only, changed(settings({ context: 'keyChange' }))).effects).toEqual([
       { type: 'stopDrone' },
     ]);
   });
 
   it("the drone turned on with a degree change starts with the dropped question's key", () => {
-    const s = reach('waiting', { context: 'keyChange' });
+    const s = reachAsking('waiting', '3', { context: 'keyChange' });
     const { effects } = step(
       s,
-      changed(settings({ context: 'keyChange', drone: true, degrees: ['1', '5'] })),
+      changed(settings({ context: 'keyChange', drone: 'continuous', degrees: ['1', '5'] })),
     );
     expect(effects.map((e) => e.type)).toEqual(['cancelAudio', 'startDrone', 'playNote']);
+  });
+});
+
+describe('the drone "before each question"', () => {
+  it("fades in with each question's cadence and out once the answer's sounds are done", () => {
+    const start = step(fresh({ drone: 'question' }), START);
+    expect(start.effects.map((e) => e.type)).toEqual(['cancelAudio', 'startDrone', 'playContext']);
+    // Held through the note, the answer and the walk home…
+    const s = run(start.state, done('context'), done('prompt')).state;
+    const answered = step(s, answer(q(s).degree));
+    expect(answered.effects.map((e) => e.type)).not.toContain('stopDrone');
+    // …and let go in review.
+    const rev = step(answered.state, done('resolving'));
+    expect(rev.effects).toEqual([{ type: 'stopDrone' }]);
+    // The next question brings it back, in the same key.
+    const next = step(rev.state, NEXT);
+    expect(next.effects.map((e) => e.type)).toEqual(['cancelAudio', 'startDrone', 'playContext']);
+    expect(next.effects[1]).toEqual({ type: 'startDrone', key: A_MAJOR });
+  });
+
+  it('with resolution off, it is let go right after the answer; with auto-next, before the pause', () => {
+    const s = reach('waiting', { drone: 'question', resolution: false, autoNext: true });
+    expect(step(s, answer(q(s).degree)).effects).toEqual([
+      { type: 'cancelAudio' },
+      { type: 'score', question: q(s), answer: q(s).degree, right: true },
+      { type: 'stopDrone' },
+      { type: 'wait', beats: AUTO_NEXT_BEATS, done: 'review' },
+    ]);
+  });
+
+  it('switched to mid-question: it sounds now; in review it waits for the next question', () => {
+    expect(step(reach('waiting'), changed(settings({ drone: 'question' }))).effects).toEqual([
+      { type: 'startDrone', key: A_MAJOR },
+    ]);
+    expect(step(reach('review'), changed(settings({ drone: 'question' }))).effects).toEqual([]);
+    // From continuous to "before each question" in review: it stops.
+    expect(
+      step(reach('review', { drone: 'continuous' }), changed(settings({ drone: 'question' })))
+        .effects,
+    ).toEqual([{ type: 'stopDrone' }]);
+  });
+
+  it('"drone only" still holds it in review', () => {
+    const s = reach('resolving', { drone: 'question', context: 'droneOnly' });
+    expect(step(s, done('resolving')).effects).toEqual([]);
   });
 });
 

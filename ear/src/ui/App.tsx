@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPlayer, type Player } from '@shared/core/audio';
 import type { Answer } from '../core/stats';
 import { LANG_STORAGE_KEY, UI, linkLang, loadLang, saveLang, type Lang } from '../i18n';
-import { loadEar, onStoredChange, storeAnswer, type EarData } from '../store/store';
+import type { EarSettings } from '../store/settings';
+import { loadEar, onStoredChange, saveSettings, storeAnswer, type EarData } from '../store/store';
 import { Header } from './Header';
+import { Settings } from './Settings';
 import { Trainer } from './Trainer';
 
 /** `next`, keeping `prev`'s settings object when they are the same, so the trainer sees no change. */
@@ -27,6 +29,11 @@ export function App({ player: given }: { player?: Player }) {
       }),
     [],
   );
+
+  const onSettings = useCallback((settings: EarSettings) => {
+    dataRef.current = saveSettings(dataRef.current, settings);
+    setData(dataRef.current);
+  }, []);
 
   // Recorded here, not in a state updater, so each first answer is stored exactly once.
   const onScore = useCallback((answer: Answer) => {
@@ -80,6 +87,7 @@ export function App({ player: given }: { player?: Player }) {
           <p className="ear-lead">{ui.lead}</p>
         </div>
         <Trainer ui={ui} player={player} settings={data.settings} onScore={onScore} />
+        <Settings ui={ui} settings={data.settings} onChange={onSettings} />
         <p className="ear-footer">{ui.footer}</p>
       </main>
     </>

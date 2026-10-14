@@ -47,7 +47,8 @@ export function useTrainer(
             answer: e.answer,
           });
       }
-      if (effects.length === 0) return;
+      // With nothing to play, the driver (once there is one) still takes new sound settings.
+      if (effects.length === 0 && !driverRef.current) return;
       driverRef.current ??= createEarAudio(player, {
         onDone: (phase) => send({ type: 'audioDone', phase }),
         onNoAudio: () => {
@@ -55,8 +56,8 @@ export function useTrainer(
           send({ type: 'stop' });
         },
       });
-      const { bpm, sound } = settingsRef.current;
-      driverRef.current.run(effects, { bpm, sound });
+      const { bpm, sound, cadenceForm, droneLevel } = settingsRef.current;
+      driverRef.current.run(effects, { bpm, sound, cadenceForm, droneLevel });
     },
     [player],
   );

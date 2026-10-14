@@ -30,8 +30,8 @@ export interface SessionSettings extends QuestionSettings {
   readonly context: ContextPolicy;
   /** Walk the note home to the tonic after each answer. */
   readonly resolution: boolean;
-  /** Hold the drone under the whole session ('droneOnly' holds it whatever this says). */
-  readonly drone: boolean;
+  /** When the drone holds the key ('droneOnly' holds it throughout, whatever this says). */
+  readonly drone: DroneMode;
   /** Go on to the next question by itself, AUTO_NEXT_BEATS after the answer's sounds. */
   readonly autoNext: boolean;
 }
@@ -41,6 +41,13 @@ export interface SessionSettings extends QuestionSettings {
  * 'answered' is the wrong-answer comparison; a right answer goes straight on.
  */
 export type Phase = 'idle' | 'context' | 'prompt' | 'waiting' | 'answered' | 'resolving' | 'review';
+
+/**
+ * The drone: never; under the whole session; or from each question's context to its review
+ * (it fades in with the cadence and out once the answer's sounds are done).
+ */
+export type DroneMode = 'off' | 'continuous' | 'question';
+export const DRONE_MODES: readonly DroneMode[] = ['off', 'continuous', 'question'];
 
 /** Beats of drone alone before the first note in a key, when no cadence plays ('droneOnly'). */
 export const DRONE_LEAD_BEATS = 4;
@@ -141,16 +148,28 @@ export function initialSession(settings: SessionSettings, seed: number): Session
   };
 }
 
-const droneOn = (s: SessionSettings): boolean => s.drone || s.context === 'droneOnly';
+/** Whether the drone sounds in `phase` under `s`. */
+function droneSounds(s: SessionSettings, phase: Phase): boolean {
+  if (phase === 'idle') return false;
+  if (s.context === 'droneOnly' || s.drone === 'continuous') return true;
+  return s.drone === 'question' && phase !== 'review';
+}
 
-const sameDegrees = (a: readonly DegreeLabel[], b: readonly DegreeLabel[]): boolean => {
-  const ids = (d: readonly DegreeLabel[]) => [...new Set(d.map(degreeId))].sort().join();
-  return ids(a) === ids(b);
-};
+/** The drone from one moment to the next: started when it starts sounding or its key changes, stopped when it stops. */
+function droneMoves(was: boolean, wasKey: Key | null, now: boolean, key: Key): Effect[] {
+  if (now && (!was || wasKey === null || !sameKey(wasKey, key)))
+    return [{ type: 'startDrone', key }];
+  if (was && !now) return [{ type: 'stopDrone' }];
+  return [];
+}
 
-/** Settings under which the current question no longer stands: another key, degree set or register. */
-const questionChanged = (a: SessionSettings, b: SessionSettings): boolean =>
-  !sameKey(a.key, b.key) || !sameDegrees(a.degrees, b.degrees) || a.register !== b.register;
+/**
+ * Settings under which the current question no longer stands: another key, or its degree switched
+ * off. Anything else (more or fewer other degrees, the register, the tempo…) applies from the
+ * next question, so a player can change several settings without losing the question each time.
+ */
+const questionDropped = (old: SessionSettings, next: SessionSettings, q: Question): boolean =>
+  !sameKey(old.key, next.key) || !next.degrees.map(degreeId).includes(degreeId(q.degree));
 
 /** Where degree `d` sounds next to the question's note: in the octave up from the tonic at or below it. */
 function midiNear(q: Question, d: DegreeLabel): number {
@@ -162,9 +181,10 @@ const tonicOf = (state: SessionState, q: Question): number => questionTonic(q.ke
 /**
  * Ask the next question from `state.history`: its context first when the policy wants one (or the
  * drone alone, when the key is new and no cadence plays), else the note at once. A context cut
- * short by new settings starts over, as for a new key.
+ * short by new settings starts over, as for a new key. `drone` is whether the drone sounded until
+ * now, and in which key.
  */
-function ask(state: SessionState, effects: Effect[] = []): Step {
+function ask(state: SessionState, drone: { was: boolean; key: Key | null }): Step {
   const rng = mulberry32(state.seed);
   const prev = state.question;
   const q = nextQuestion(state.settings, state.history, rng);
@@ -178,25 +198,40 @@ function ask(state: SessionState, effects: Effect[] = []): Step {
     question: q,
     answer: null,
   };
-  const out: Effect[] = [{ type: 'cancelAudio' }, ...effects];
-  if (keyChanged && droneOn(state.settings)) out.push({ type: 'startDrone', key: q.key });
-  if (context === 'everyQuestion' || (context === 'keyChange' && freshKey)) {
-    out.push({ type: 'playContext', key: q.key, tonic: tonicOf(next, q), done: 'context' });
-    return { state: { ...next, phase: 'context' }, effects: out };
-  }
-  if (context === 'droneOnly' && freshKey) {
+  // Every policy sets a new key first; 'everyQuestion' sets every key.
+  const phase: Phase = context === 'everyQuestion' || freshKey ? 'context' : 'prompt';
+  const out: Effect[] = [
+    { type: 'cancelAudio' },
+    ...droneMoves(drone.was, drone.key, droneSounds(state.settings, phase), q.key),
+  ];
+  if (phase === 'context' && context === 'droneOnly') {
     out.push({ type: 'wait', beats: DRONE_LEAD_BEATS, done: 'context' });
-    return { state: { ...next, phase: 'context' }, effects: out };
+  } else if (phase === 'context') {
+    out.push({ type: 'playContext', key: q.key, tonic: tonicOf(next, q), done: 'context' });
+  } else {
+    out.push({ type: 'playNote', midi: q.midi, done: 'prompt' });
   }
-  out.push({ type: 'playNote', midi: q.midi, done: 'prompt' });
-  return { state: { ...next, phase: 'prompt' }, effects: out };
+  return { state: { ...next, phase }, effects: out };
 }
 
-/** After the answer's sounds: review, with auto-next's pause when it is on. */
+/** Ask the next question after this one: the drone sounded as `state`'s phase has it. */
+const askNext = (state: SessionState): Step =>
+  ask(state, { was: droneSounds(state.settings, state.phase), key: state.question?.key ?? null });
+
+/**
+ * After the answer's sounds: review, with auto-next's pause when it is on. A drone that holds
+ * only for the question fades out here.
+ */
 function review(state: SessionState): Step {
-  const effects: Effect[] = state.settings.autoNext
-    ? [{ type: 'wait', beats: AUTO_NEXT_BEATS, done: 'review' }]
-    : [];
+  const key = state.question!.key;
+  const effects: Effect[] = droneMoves(
+    droneSounds(state.settings, state.phase),
+    key,
+    droneSounds(state.settings, 'review'),
+    key,
+  );
+  if (state.settings.autoNext)
+    effects.push({ type: 'wait', beats: AUTO_NEXT_BEATS, done: 'review' });
   return { state: { ...state, phase: 'review' }, effects };
 }
 
@@ -247,19 +282,12 @@ function changeSettings(state: SessionState, settings: SessionSettings): Step {
   const next = { ...state, settings };
   if (state.phase === 'idle') return { state: next, effects: [] };
   const q = state.question!;
-  if (questionChanged(old, settings)) {
-    // A new key restarts the drone in ask(); otherwise it only follows the drone setting.
-    const effects: Effect[] = [];
-    if (droneOn(old) && !droneOn(settings)) effects.push({ type: 'stopDrone' });
-    if (!droneOn(old) && droneOn(settings) && sameKey(q.key, settings.key)) {
-      effects.push({ type: 'startDrone', key: q.key });
-    }
-    return ask({ ...next, history: [] }, effects);
-  }
-  if (droneOn(old) && !droneOn(settings)) return { state: next, effects: [{ type: 'stopDrone' }] };
-  if (!droneOn(old) && droneOn(settings))
-    return { state: next, effects: [{ type: 'startDrone', key: q.key }] };
-  return { state: next, effects: [] };
+  const was = droneSounds(old, state.phase);
+  if (questionDropped(old, settings, q)) return ask({ ...next, history: [] }, { was, key: q.key });
+  return {
+    state: next,
+    effects: droneMoves(was, q.key, droneSounds(settings, state.phase), q.key),
+  };
 }
 
 /** The replays: the note, the cadence or the tonic, none of them scored. */
@@ -284,7 +312,10 @@ export function step(state: SessionState, event: SessionEvent): Step {
   switch (event.type) {
     case 'start':
       if (phase !== 'idle') return ignored(state);
-      return ask({ ...state, history: [], question: null, answer: null, score: NO_SCORE });
+      return ask(
+        { ...state, history: [], question: null, answer: null, score: NO_SCORE },
+        { was: false, key: null },
+      );
 
     case 'stop':
       if (phase === 'idle') return ignored(state);
@@ -297,7 +328,7 @@ export function step(state: SessionState, event: SessionEvent): Step {
       return changeSettings(state, event.settings);
 
     case 'next':
-      return phase === 'review' ? ask(state) : ignored(state);
+      return phase === 'review' ? askNext(state) : ignored(state);
 
     case 'audioDone':
       if (event.phase !== phase || !q) return ignored(state);
@@ -314,7 +345,7 @@ export function step(state: SessionState, event: SessionEvent): Step {
         case 'resolving':
           return review(state);
         case 'review':
-          return ask(state);
+          return askNext(state);
         default:
           return ignored(state);
       }

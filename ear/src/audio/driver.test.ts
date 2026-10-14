@@ -76,7 +76,7 @@ const SETTINGS: SessionSettings = {
   keyChange: 'fixed',
   context: 'everyQuestion',
   resolution: true,
-  drone: false,
+  drone: 'off',
   autoNext: false,
 };
 
@@ -275,7 +275,7 @@ describe('sound settings', () => {
 
 describe('the drone', () => {
   it('holds 1 and 5 from the start, sits under the cadence, and comes back up after it', () => {
-    const h = harness({ drone: true });
+    const h = harness({ drone: 'continuous' });
     h.dispatch({ type: 'start' });
     expect(h.log.slice(0, 3)).toEqual([
       'cancel',
@@ -289,13 +289,13 @@ describe('the drone', () => {
   });
 
   it('changes key with a crossfade: the old one stops as the new one starts', () => {
-    const h = harness({ drone: true, context: 'keyChange' });
+    const h = harness({ drone: 'continuous', context: 'keyChange' });
     h.dispatch({ type: 'start' });
     h.log.length = 0;
     const e: Key = { tonic: parseNote('E'), mode: 'minor' };
     const next = step(h.state, {
       type: 'settingsChanged',
-      settings: { ...SETTINGS, drone: true, context: 'keyChange', key: e },
+      settings: { ...SETTINGS, drone: 'continuous', context: 'keyChange', key: e },
     });
     h.driver.run(next.effects, { bpm: BPM, sound: 'guitar' });
     expect(h.log.slice(0, 4)).toEqual([
@@ -306,8 +306,23 @@ describe('the drone', () => {
     ]);
   });
 
+  it('plays at the drone level set, half of it under the cadence, and follows a new level at once', () => {
+    const h = harness({ drone: 'continuous' }, { droneLevel: 0.4 });
+    h.dispatch({ type: 'start' });
+    expect(h.log.filter((l) => l.startsWith('levels'))).toEqual([
+      'levels {"drone":0.4}',
+      `levels {"drone":${0.4 * DRONE_DUCK}}`,
+    ]);
+    h.at(10 + LEAD_SEC + 6 * BEAT);
+    expect(h.log.at(-2)).toBe('levels {"drone":0.4}');
+    // A new level with nothing else to do (a settings change): applied straight away.
+    h.log.length = 0;
+    h.driver.run([], { bpm: BPM, sound: 'guitar', droneLevel: 0.7 });
+    expect(h.log).toEqual(['levels {"drone":0.7}']);
+  });
+
   it('stops on stop, and on leaving the page', () => {
-    const h = harness({ drone: true });
+    const h = harness({ drone: 'continuous' });
     h.dispatch({ type: 'start' });
     h.dispatch({ type: 'stop' });
     expect(h.log.slice(-3)).toEqual([
@@ -315,7 +330,7 @@ describe('the drone', () => {
       'levels {"drone":1}',
       `stop hold ${droneNotes(A_MAJOR).join(' ')}`,
     ]);
-    const h2 = harness({ drone: true });
+    const h2 = harness({ drone: 'continuous' });
     h2.dispatch({ type: 'start' });
     h2.log.length = 0;
     h2.driver.dispose();
