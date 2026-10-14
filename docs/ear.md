@@ -38,8 +38,7 @@ ear/
                          registers the site-wide service worker
 ```
 
-Still to come: deep links and a link from Practice (#225), then the checks before announcing
-the page (#226).
+Still to come: the checks before announcing the page (#226).
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
 in production; the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
@@ -190,6 +189,21 @@ pitch heard. Tested over every key, register and degree, the pitch is always fou
 (the same degree an octave away) is only a guard. Dots: the root and every 1 in `home`, the other
 active degrees `soft`, the note heard `target` with a halo; clicking one plays it in the trainer's
 voice. Standard tuning only.
+
+## Deep links
+
+`/ear?key=A&mode=minor&notes=blues` opens with those settings and saves them (`ui/deepLink.ts`);
+`App` then takes `key`, `mode` and `notes` off the address, as it does `?lang=`, so a reload or a
+bookmark never overrides a later choice. The mode is applied first (a preset follows it, as
+switching mode on the page does), then the key, spelled as that mode spells it (`key=A%23` is
+B♭ major), then `notes=`: a preset (`triad`, `major-pentatonic`, `minor-pentatonic`, `blues`,
+`scale`, `all`; the ids work too) or a list of degrees (`1,b3,4,5,b7`, any label within the
+octave, at least two). Anything unknown is ignored, each parameter on its own.
+
+Practice's Step 1 links here ("Train your ear on these notes", `src/ui/earLink.ts`, which writes
+this format itself, since Practice never imports `ear/`): minor and major pentatonic, blues, major
+and natural minor go to their presets; Dorian, Mixolydian and major blues, with no preset, to
+their own degrees.
 
 ## Keyboard and screen readers
 

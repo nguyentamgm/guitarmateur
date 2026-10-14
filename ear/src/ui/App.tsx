@@ -11,6 +11,7 @@ import {
   storeAnswer,
   type EarData,
 } from '../store/store';
+import { LINK_PARAMS, settingsFromLink } from './deepLink';
 import { Header } from './Header';
 import { Settings } from './Settings';
 import { Stats } from './Stats';
@@ -25,7 +26,12 @@ const keepSettings = (prev: EarData, next: EarData): EarData =>
 /** The page. `player` is for tests; the page makes its own, which creates no audio until Start. */
 export function App({ player: given }: { player?: Player }) {
   const [player] = useState(() => given ?? createPlayer());
-  const [data, setData] = useState<EarData>(() => loadEar());
+  // A deep link's settings (?key= &mode= &notes=) are applied and saved once, on arrival.
+  const [data, setData] = useState<EarData>(() => {
+    const stored = loadEar();
+    const linked = settingsFromLink(window.location.search, stored.settings);
+    return linked ? saveSettings(stored, linked) : stored;
+  });
   const dataRef = useRef(data);
 
   // Settings and stats changed in another tab show here too.
@@ -80,11 +86,13 @@ export function App({ player: given }: { player?: Player }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Take ?lang= off the address, so a reload or a bookmark doesn't override a later choice.
+  // Take ?lang= and a deep link's settings off the address, so a reload or a bookmark doesn't
+  // override a later choice.
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (!url.searchParams.has('lang')) return;
-    url.searchParams.delete('lang');
+    const params = ['lang', ...LINK_PARAMS].filter((p) => url.searchParams.has(p));
+    if (params.length === 0) return;
+    for (const p of params) url.searchParams.delete(p);
     window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
   }, []);
 

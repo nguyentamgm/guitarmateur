@@ -139,6 +139,7 @@
   "scaleTitle.natural-minor": "{tonic} natural minor scale",
   "scalebox.boxLabel": "Box {n}",
   "scalebox.boxes": "Boxes",
+  "scalebox.earLink": "Train your ear on these notes",
   "scalebox.fretRange": "frets {min}–{max}",
   "scalebox.intro": "Pick the key of your backing track and a box to play in. Every lick below stays inside the box, so your hand learns one place on the neck at a time.",
   "scalebox.key": "Key",
