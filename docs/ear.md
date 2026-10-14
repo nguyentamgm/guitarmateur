@@ -137,8 +137,10 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
 Nothing on the page plays yet. When it does (#219):
 
 - Notes and the cadence are the shared guitar pluck: one `Player` from `createPlayer()`
-  (`shared/core/audio`). The sustained voice for the drone and the clean tone are added to the
-  shared player (#218), so Practice and Theory can use them too; nothing in `ear/` synthesizes.
+  (`shared/core/audio`). The drone is `player.hold(droneNotes(key))` and the clean tone
+  `player.tone()`, both the shared sustained voice (`sustain.ts`), so Practice and Theory can use
+  them too; nothing in `ear/` synthesizes. The session's `cancelAudio` is `player.cancel()`, which
+  stops every note, click and tone but not a hold: the drone stops with its own `stop()`.
 - The `AudioContext` is created on the first sound, from the Start button (a user gesture), never
   at load. Audio failures are swallowed, but when audio cannot start at all (`player.now()` is
   null), the page says so instead of running a silent quiz. iOS mutes Web Audio while the silent
@@ -148,7 +150,9 @@ Nothing on the page plays yet. When it does (#219):
 - **No error buzzer.** A wrong answer plays the note picked, then the right note, then the
   resolution: hearing the two side by side is the lesson.
 - **Hearing safety:** the drone starts quiet, is never louder than the notes, and always fades in
-  and out. It is what a listener hears longest, often on headphones.
+  and out. It is what a listener hears longest, often on headphones. The player sees to the
+  fades (a hold fades in over `HOLD_FADE_SEC`, 1 s by default, out over its `stop()`'s fade, never
+  under `MIN_FADE_SEC`) and holds at `HOLD_LEVEL` (0.3 of a note's level) times the `drone` level.
 
 ## Storage
 

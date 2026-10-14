@@ -5,3 +5,4 @@ export * from './player';
 export * from './pluck';
 export * from './scheduler';
 export * from './sequencer';
+export * from './sustain';

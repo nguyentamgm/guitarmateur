@@ -67,6 +67,9 @@ describe("Practice's licks as passes for the shared sequencer", () => {
       enabled: true,
       now: () => time,
       setLevels: () => {},
+      tone: () => {},
+      hold: () => ({ stop() {} }),
+      cancel: () => {},
     };
     const clock: { tick: (() => void) | null } = { tick: null };
     const timers: { at: number; fn: () => void }[] = [];
