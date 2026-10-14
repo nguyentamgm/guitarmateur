@@ -55,6 +55,7 @@ describe('defaults', () => {
       cadenceForm: 'full',
       droneLevel: 1,
       weakNotes: false,
+      showNeck: true,
     });
     expect(DEFAULT_DATA).toEqual({ version: 1, settings: DEFAULT_SETTINGS, stats: EMPTY_STATS });
   });

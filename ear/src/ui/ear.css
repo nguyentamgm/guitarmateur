@@ -50,8 +50,12 @@ body {
   .cell { border-left: 0; padding: 4px 0; min-height: 52px; }
   .cell:first-child { box-shadow: none; }
   .cell::before { display: none; }
-  .cell.off, .frets span.off { display: none; }
-  .frets { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; padding: 0; }
+  .cell.off { display: none; }
+  /* The cells wrap here, so the fret row could not stay under them: each cell shows its own fret
+     (generated text, outside the button's name, which says the fret already). */
+  .frets { display: none; }
+  .cell { gap: 2px; }
+  .cell::after { content: attr(data-fret); color: var(--fret); font-size: 11px; }
   .cell-dot { min-width: 48px; height: 36px; border-radius: 18px; font-size: 0.95rem; }
 }
 
@@ -113,3 +117,4 @@ body {
 @media (max-width: 560px) {
   .bars-acc li { grid-template-columns: 1fr; gap: 2px; }
 }
+.neck-answer { margin-top: -4px; }

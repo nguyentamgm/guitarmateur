@@ -178,6 +178,13 @@ export function Settings({
           value={s.autoNext}
           onChange={(autoNext) => set({ autoNext })}
         />
+        <OnOff
+          label={ui.showNeckLabel}
+          on={ui.on}
+          off={ui.off}
+          value={s.showNeck}
+          onChange={(showNeck) => set({ showNeck })}
+        />
       </div>
     </details>
   );

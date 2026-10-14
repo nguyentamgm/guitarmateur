@@ -34,6 +34,8 @@ export interface EarSettings extends SessionSettings {
   readonly droneLevel: number;
   /** Ask the degrees missed most more often ("practise weak notes", weights from the stats). */
   readonly weakNotes: boolean;
+  /** After each answer, show it on a small neck window (#224). */
+  readonly showNeck: boolean;
 }
 
 /** A major (Practice opens on A too), root 3rd 5th, the cadence before every question, 90 BPM. */
@@ -51,6 +53,7 @@ export const DEFAULT_SETTINGS: EarSettings = {
   cadenceForm: 'full',
   droneLevel: 1,
   weakNotes: false,
+  showNeck: true,
 };
 
 const CADENCE_FORMS: readonly CadenceForm[] = ['full', 'short'];
@@ -106,5 +109,6 @@ export function readSettings(v: unknown): EarSettings {
         ? Math.min(1, Math.max(0, r.droneLevel))
         : d.droneLevel,
     weakNotes: bool(r.weakNotes, d.weakNotes),
+    showNeck: bool(r.showNeck, d.showNeck),
   };
 }

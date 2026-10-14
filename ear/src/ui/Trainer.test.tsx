@@ -301,3 +301,40 @@ describe('the keyboard alone', () => {
     ]);
   });
 });
+
+describe('the answer on the neck', () => {
+  it('appears once answered: the root, the active degrees, the note heard as the target', () => {
+    const { player, played } = fakePlayer();
+    render(player);
+    expect(host.querySelector('.neck-answer')).toBeNull();
+    startAndListen();
+    expect(host.querySelector('.neck-answer')).toBeNull();
+    const degree = asked(played);
+    click(cell(degree));
+    const neck = host.querySelector('.neck-answer svg')!;
+    expect(neck.getAttribute('aria-label')).toMatch(new RegExp(`^On the neck: ${degree} \\(`));
+    const dots = [...neck.querySelectorAll('.dot')];
+    expect(dots.filter((d) => d.classList.contains('target'))).toHaveLength(1);
+    expect(dots.some((d) => d.classList.contains('home'))).toBe(true);
+    // Only 1, 3 and 5 are on.
+    expect(new Set(dots.map((d) => d.querySelector('text')!.textContent))).toEqual(
+      new Set(['1', '3', '5']),
+    );
+    // A dot plays its note.
+    played.length = 0;
+    act(() => (dots[0] as SVGGElement).dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(played).toEqual([expect.stringMatching(/^pluck \d+$/)]);
+  });
+
+  it('stays hidden with "Show on the neck" off', () => {
+    localStorage.setItem(
+      EAR_STORAGE_KEY,
+      JSON.stringify({ version: 1, settings: { showNeck: false } }),
+    );
+    const { player, played } = fakePlayer();
+    render(player);
+    startAndListen();
+    click(cell(asked(played)));
+    expect(host.querySelector('.neck-answer')).toBeNull();
+  });
+});
