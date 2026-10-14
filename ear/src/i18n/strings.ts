@@ -114,6 +114,25 @@ const en = {
   autoNextLabel: 'Next question automatically',
   on: 'On',
   off: 'Off',
+  /** The stats card. */
+  statsTitle: 'Your ear',
+  statsEmpty: 'No {mode} questions answered yet. Your accuracy per degree and the notes you mix up will show here.',
+  statsTotals: '{asked} questions · {right} right first try ({pct}%) · best streak {best}',
+  accuracyTitle: 'Accuracy per degree',
+  accuracyRow: '{degree} · {pct}% of {n}',
+  mixupsTitle: 'Mixed up most',
+  mixupsNone: 'No mix-ups yet.',
+  mixupRow: 'You hear {degree} as {heard}: {n} times',
+  practise: 'Practise these',
+  /** The button's name: its text first (WCAG 2.5.3), then the degrees it sets. */
+  practiseLabel: 'Practise these: {degrees}',
+  daysTitle: 'Last 14 days',
+  dayRow: '{date}: {n} questions, {right} right',
+  weakNotesLabel: 'Practise weak notes',
+  reset: 'Reset stats',
+  resetConfirm: 'Clear the stats of both major and minor?',
+  resetYes: 'Clear them',
+  resetNo: 'Keep them',
 };
 
 export type UiStrings = typeof en;
@@ -221,6 +240,23 @@ const vi: UiStrings = {
   autoNextLabel: 'Tự sang câu tiếp',
   on: 'Bật',
   off: 'Tắt',
+  statsTitle: 'Tai của bạn',
+  statsEmpty: 'Chưa trả lời câu nào ở giọng {mode}. Độ chính xác theo từng bậc và các nốt bạn hay nhầm sẽ hiện ở đây.',
+  statsTotals: '{asked} câu · đúng ngay lần đầu {right} ({pct}%) · chuỗi đúng dài nhất {best}',
+  accuracyTitle: 'Độ chính xác theo bậc',
+  accuracyRow: '{degree} · {pct}% của {n} câu',
+  mixupsTitle: 'Hay nhầm nhất',
+  mixupsNone: 'Chưa nhầm lần nào.',
+  mixupRow: 'Bạn nghe {degree} thành {heard}: {n} lần',
+  practise: 'Luyện cặp này',
+  practiseLabel: 'Luyện cặp này: {degrees}',
+  daysTitle: '14 ngày gần nhất',
+  dayRow: '{date}: {n} câu, đúng {right}',
+  weakNotesLabel: 'Luyện nốt còn yếu',
+  reset: 'Xóa thống kê',
+  resetConfirm: 'Xóa thống kê của cả giọng trưởng và giọng thứ?',
+  resetYes: 'Xóa',
+  resetNo: 'Giữ lại',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };

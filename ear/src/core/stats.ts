@@ -63,12 +63,12 @@ export function daysBetween(a: string, b: string): number {
   return Math.round((utc(b) - utc(a)) / DAY_MS);
 }
 
-/** The days within DAYS_KEPT of `today` (today and the 29 before it), oldest first. */
+/**
+ * The days not older than DAYS_KEPT before `today` (today and the 29 before it), oldest first. A
+ * day after `today` stays: the clock went back (a time zone, another tab), and that day is real.
+ */
 export function trimDays(days: readonly DayCount[], today: string): DayCount[] {
-  return days.filter((d) => {
-    const ago = daysBetween(d.day, today);
-    return ago >= 0 && ago < DAYS_KEPT;
-  });
+  return days.filter((d) => daysBetween(d.day, today) < DAYS_KEPT);
 }
 
 const add = (c: Count | undefined, right: boolean): Count => ({
@@ -91,7 +91,7 @@ export function recordAnswer(stats: Stats, { mode, degree, answer }: Answer, tod
   const given = degreeId(answer);
   const right = asked === given;
   const days = trimDays(s.days, today);
-  const last = days[days.length - 1];
+  const at = days.findIndex((d) => d.day >= today);
   const streak = right ? s.streak + 1 : 0;
   const mixups = right
     ? s.mixups
@@ -104,10 +104,15 @@ export function recordAnswer(stats: Stats, { mode, degree, answer }: Answer, tod
     [mode]: {
       degrees: { ...s.degrees, [asked]: add(s.degrees[asked], right) },
       mixups,
+      // Today's entry, or a new one in date order ('YYYY-MM-DD' sorts as text).
       days:
-        last?.day === today
-          ? [...days.slice(0, -1), { day: today, ...add(last, right) }]
-          : [...days, { day: today, ...add(undefined, right) }],
+        at < 0
+          ? [...days, { day: today, ...add(undefined, right) }]
+          : [
+              ...days.slice(0, at),
+              { day: today, ...add(days[at]!.day === today ? days[at] : undefined, right) },
+              ...days.slice(days[at]!.day === today ? at + 1 : at),
+            ],
       streak,
       bestStreak: Math.max(s.bestStreak, streak),
     },
@@ -151,4 +156,33 @@ export function topMixups(s: ModeStats, n = 3): Mixup[] {
         ORDER.get(a.heardAs)! - ORDER.get(b.heardAs)!,
     )
     .slice(0, n);
+}
+
+/**
+ * Question weights for "practise weak notes" (#223), by degree id: 1 + 3 × how often it is missed,
+ * from 1 (always right) to 4 (always missed). The miss rate is smoothed as if each degree had one
+ * right and one wrong answer more, so a degree asked once or never (weight 2.5) is neither ignored
+ * nor drilled to death.
+ */
+export function weakWeights(
+  s: ModeStats,
+  degrees: readonly DegreeLabel[],
+): Record<DegreeLabel, number> {
+  const out: Record<DegreeLabel, number> = {};
+  for (const d of new Set(degrees.map(degreeId))) {
+    const c = s.degrees[d];
+    const missed = ((c?.asked ?? 0) - (c?.right ?? 0) + 1) / ((c?.asked ?? 0) + 2);
+    out[d] = 1 + 3 * missed;
+  }
+  return out;
+}
+
+/** The last `n` days up to `today`, oldest first, a day with no questions counting 0. */
+export function lastDays(s: ModeStats, today: string, n: number): DayCount[] {
+  const byDay = new Map(s.days.map((d) => [d.day, d]));
+  const [y, m, d] = today.split('-').map(Number);
+  return Array.from({ length: n }, (_, i) => {
+    const day = localDay(new Date(y!, m! - 1, d! - (n - 1 - i)).getTime());
+    return byDay.get(day) ?? { day, asked: 0, right: 0 };
+  });
 }
