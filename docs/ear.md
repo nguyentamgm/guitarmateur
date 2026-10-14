@@ -7,9 +7,9 @@ TypeScript, Vitest, ESLint, CI) and the look with Practice (`src/`) and Theory (
 imports either, and shares code with them only through `shared/` (`@shared/…`, see
 [`architecture.md`](architecture.md#shared-code-shared)). The plan and its issues: #227.
 
-Today the page is a shell: the site header, the page head and a "being built" card. The trainer
-itself comes in phases (#212–#226); a rule below that names one of those issues is a rule for the
-code that issue adds.
+Today the page has the trainer card (#220): Start, the cadence, the note, an answer on a strip of
+one string, feedback, Next, with the settings and stats stored. The rest comes in phases
+(#221–#226); a rule below that names one of those issues is a rule for the code that issue adds.
 
 ## Layout
 
@@ -26,8 +26,10 @@ ear/
    │                     (`createEarAudio`: plays the session's effects, sends `audioDone` back)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
-   ├─ ui/                React: App (the page; App.test.tsx), Header (the shared SiteHeader,
-   │                     current = Ear training); ear.css
+   ├─ ui/                React: App (the page: the player, `gm.ear` data; App.test.tsx), Header
+   │                     (the shared SiteHeader, current = Ear training), Trainer (the card and its
+   │                     answer strip; Trainer.test.tsx), useTrainer (session → driver → audioDone,
+   │                     first answers → stats), labels.ts (degree, note, key, preset text); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
                          registers the site-wide service worker
 ```
@@ -35,7 +37,7 @@ ear/
 Planned, not built yet (each folder arrives with its issue):
 
 ```
-   └─ ui/                the trainer card (#220), settings (#222), stats (#223), the neck (#224)
+   └─ ui/                settings (#222), stats (#223), the neck (#224)
 ```
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
@@ -135,8 +137,9 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
 
 ## Sound
 
-The page does not play yet: the trainer card (#220) wires the session to the audio driver,
-`audio/driver.ts`, which carries out the session's effects:
+The trainer card wires the session to the audio driver (`ui/useTrainer.ts`): each event steps the
+reducer once, outside React's render, and its effects go to `audio/driver.ts`, which carries them
+out:
 
 - **Timing:** each part (the cadence, the note, the comparison, the walk home, a wait) is laid out
   note by note in `audio/timeline.ts` and handed to the player at once, every note with its exact

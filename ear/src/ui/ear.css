@@ -14,3 +14,40 @@ body {
 .ear-lead { margin: 0; color: var(--muted); font-size: 16px; max-width: 620px; line-height: 1.5; }
 .board p { margin: 0; }
 .ear-footer { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* The trainer card (Trainer.tsx) */
+.trainer-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; justify-content: space-between; }
+.trainer-head h2 { margin: 0; font-size: 1.15rem; }
+.trainer-key { font-family: var(--f-mono); font-size: var(--t-small); color: var(--muted); }
+.trainer-status { min-height: 1.5em; font-size: 1.05rem; font-weight: 600; }
+.trainer-compare { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); }
+.trainer-foot { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+.trainer-score { font-family: var(--f-mono); font-size: var(--t-small); color: var(--muted); font-variant-numeric: tabular-nums; }
+.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+
+/* The answer strip: one string on the neck's wood, fret 0 (the root) to 11. The mode's scale
+   notes are dots, the others smaller and pale; a degree that is off is dimmed and disabled. */
+.strip { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); background: var(--wood); border: 1px solid var(--wood-edge); border-radius: var(--r-chip); overflow: hidden; }
+.cell { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 0 6px; border: 0; border-left: 2px solid var(--fret); background: transparent; color: var(--dot-ink); font-family: var(--f-mono); cursor: pointer; }
+.cell:first-child { border-left: 0; box-shadow: inset -5px 0 0 var(--nut); }
+.cell::before { content: ''; position: absolute; left: 0; right: 0; top: 24px; height: 2px; background: var(--string); }
+.cell-dot { position: relative; display: grid; place-items: center; min-width: 36px; height: 30px; padding: 0 4px; border-radius: 15px; background: var(--dot); font-size: 0.82rem; font-weight: 700; }
+.cell.out .cell-dot { background: color-mix(in srgb, var(--dot) 55%, var(--wood)); }
+.cell-fret { color: var(--fretnum); font-size: 11px; }
+.cell.off { cursor: default; }
+.cell.off .cell-dot { opacity: 0.35; }
+.cell:not(.off):hover .cell-dot, .cell:focus-visible .cell-dot { outline: 2px solid var(--neck-accent, var(--accent)); outline-offset: 1px; }
+.cell:focus-visible { outline: none; }
+.cell.right .cell-dot { background: var(--neck-accent, var(--accent)); color: var(--neck-accent-ink, var(--accent-ink)); }
+.cell.picked .cell-dot { background: var(--amber); color: var(--amber-ink); }
+
+/* Phone width: twelve cells do not fit at 40px, so only the active degrees show, as big buttons
+   in chromatic order. */
+@media (max-width: 560px) {
+  .strip { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; padding: 6px; }
+  .cell { border-left: 0; padding: 4px 0; min-height: 52px; }
+  .cell:first-child { box-shadow: none; }
+  .cell::before { display: none; }
+  .cell.off { display: none; }
+  .cell-dot { min-width: 48px; height: 36px; border-radius: 18px; font-size: 0.95rem; }
+}
