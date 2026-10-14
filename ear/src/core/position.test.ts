@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { mulberry32 } from '@shared/core/rng';
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
   format,
+  interval,
   mod,
   parseNote,
   pc,
   type Key,
 } from '@shared/core/music';
 import { DEGREES, degreeId, presetDegrees } from './degrees';
-import { REGISTERS, nextQuestion, type Question } from './questions';
+import { REGISTERS, questionTonic } from './questions';
 import { MAX_FRET, OPEN_MIDI, WINDOW_FRETS, neckWindow } from './position';
 
 const KEYS: Key[] = [
@@ -21,43 +21,58 @@ const CHROMATIC = DEGREES.map((d) => d.label);
 const name = (k: Key) => `${format(k.tonic)} ${k.mode}`;
 
 describe('neckWindow, over every key, register and degree', () => {
+  // Every pitch a question can have: each degree, wherever the register puts it, in every key.
+  // Problems are gathered and checked once: an expect per check over ~1,300 cases is slow on CI.
   it.each(REGISTERS)(
     'register %s: the root on string 6 or 5 at frets 0–15, five frets, the note heard at its pitch',
     (register) => {
+      const problems: string[] = [];
+      let cases = 0;
       for (const key of KEYS) {
         const settings = { key, degrees: CHROMATIC, register, keyChange: 'fixed' as const };
-        const rng = mulberry32(224);
-        const history: Question[] = [];
-        for (let i = 0; i < 200; i++) {
-          const q = nextQuestion(settings, history, rng);
-          history.push(q);
-          const w = neckWindow(key, q, settings.degrees);
-          const where = `${name(key)} ${q.degree} @${q.midi}`;
-          expect([5, 6], where).toContain(w.root.string);
-          expect(mod(w.root.midi - pc(key.tonic), 12), where).toBe(0);
-          expect(w.root.midi, where).toBe(OPEN_MIDI[w.root.string] + w.root.fret);
-          expect(w.hi - w.lo + 1, where).toBe(WINDOW_FRETS);
-          expect(w.lo, where).toBe(Math.max(0, w.root.fret - 1));
-          expect(w.lo, where).toBeGreaterThanOrEqual(0);
-          expect(w.root.fret, where).toBeLessThanOrEqual(MAX_FRET);
-          expect(w.hi, where).toBeLessThanOrEqual(MAX_FRET + 3);
-          // The note heard, at the very pitch heard, inside the window.
-          expect(w.target.midi, where).toBe(q.midi);
-          expect(w.target.midi, where).toBe(OPEN_MIDI[w.target.string] + w.target.fret);
-          expect(w.target.fret, where).toBeGreaterThanOrEqual(w.lo);
-          expect(w.target.fret, where).toBeLessThanOrEqual(w.hi);
-          for (const d of w.dots) {
-            expect(d.fret, where).toBeGreaterThanOrEqual(w.lo);
-            expect(d.fret, where).toBeLessThanOrEqual(w.hi);
-            expect(d.degree, where).toBe(DEGREES[mod(d.midi - pc(key.tonic), 12)]!.label);
+        const tonic = questionTonic(key, settings);
+        for (const degree of CHROMATIC) {
+          const s = interval(degree).semitones;
+          const offsets =
+            register === 'above'
+              ? [s]
+              : register === 'around'
+                ? [s <= 6 ? s : s - 12]
+                : [s, s + 12];
+          for (const midi of offsets.map((o) => tonic + o)) {
+            cases++;
+            const w = neckWindow(key, { key, degree, midi }, CHROMATIC);
+            const where = `${name(key)} ${degree} @${midi}`;
+            const check = (ok: boolean, what: string) => ok || problems.push(`${where}: ${what}`);
+            check(w.root.string === 5 || w.root.string === 6, 'root string');
+            check(mod(w.root.midi - pc(key.tonic), 12) === 0, 'root pitch class');
+            check(w.root.midi === OPEN_MIDI[w.root.string] + w.root.fret, 'root midi');
+            check(w.root.fret <= MAX_FRET, 'root fret');
+            check(
+              w.hi - w.lo + 1 === WINDOW_FRETS && w.lo === Math.max(0, w.root.fret - 1),
+              'window',
+            );
+            check(w.target.midi === midi, `target ${w.target.midi}`);
+            check(w.target.midi === OPEN_MIDI[w.target.string] + w.target.fret, 'target midi');
+            check(w.target.fret >= w.lo && w.target.fret <= w.hi, 'target in window');
+            check(
+              w.dots.every((d) => d.fret >= w.lo && d.fret <= w.hi),
+              'dots in window',
+            );
+            check(
+              w.dots.every((d) => d.degree === DEGREES[mod(d.midi - pc(key.tonic), 12)]!.label),
+              'dot degrees',
+            );
+            const targets = w.dots.filter((d) => d.role === 'target');
+            check(
+              targets.length === 1 && targets[0]!.degree === degreeId(degree),
+              'one target, the degree asked',
+            );
           }
-          expect(
-            w.dots.filter((d) => d.role === 'target'),
-            where,
-          ).toHaveLength(1);
-          expect(w.dots.find((d) => d.role === 'target')!.degree, where).toBe(degreeId(q.degree));
         }
       }
+      expect(cases).toBe(register === 'twoOctaves' ? 24 * 12 * 2 : 24 * 12);
+      expect(problems).toEqual([]);
     },
   );
 
