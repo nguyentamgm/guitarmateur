@@ -50,4 +50,25 @@ describe('ear trainer page', () => {
     expect(window.location.search).toBe('');
     expect(localStorage.getItem('gm.lang')).toBe('en');
   });
+
+  it("opens with a deep link's settings, saves them, and takes them off the address", () => {
+    localStorage.setItem('gm.lang', 'en');
+    window.history.replaceState(null, '', '/ear?key=E&mode=minor&notes=blues&x=1');
+    render();
+    expect(host.querySelector('.trainer-key')?.textContent).toBe('E minor · Minor blues scale');
+    const stored = JSON.parse(localStorage.getItem('gm.ear')!);
+    expect(stored.settings.key).toEqual({ tonic: { letter: 'E', alter: 0 }, mode: 'minor' });
+    expect(stored.settings.degrees).toEqual(['1', 'b3', '4', '#4', '5', 'b7']);
+    // Only the link's own parameters go.
+    expect(window.location.search).toBe('?x=1');
+  });
+
+  it('ignores a deep link it cannot read', () => {
+    localStorage.setItem('gm.lang', 'en');
+    window.history.replaceState(null, '', '/ear?key=H&notes=everything');
+    render();
+    expect(host.querySelector('.trainer-key')?.textContent).toBe('A major · Root, 3rd, 5th');
+    expect(localStorage.getItem('gm.ear')).toBeNull();
+    expect(window.location.search).toBe('');
+  });
 });

@@ -139,6 +139,7 @@
   "scaleTitle.natural-minor": "{tonic} natural minor scale",
   "scalebox.boxLabel": "Box {n}",
   "scalebox.boxes": "Box",
+  "scalebox.earLink": "Luyện tai với các nốt này",
   "scalebox.fretRange": "phím {min}–{max}",
   "scalebox.intro": "Chọn giọng của bản backing và một box để chơi. Mọi lick bên dưới đều nằm trong box này, nên tay bạn học từng chỗ trên cần đàn một.",
   "scalebox.key": "Giọng",

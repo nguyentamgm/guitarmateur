@@ -13,6 +13,7 @@ import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
 import { useT } from '../useT';
+import { earHref } from '../earLink';
 
 /** Step 1 — pick key, scale, and position(s); see spelled notes on the fretboard. */
 export function ScalePositionSection({
@@ -76,6 +77,11 @@ export function ScalePositionSection({
             </PillButton>
           ))}
         </Row>
+
+        {/* The same notes, by ear: the ear trainer opens on this key and scale (#225). */}
+        <div style={{ marginTop: 10, fontSize: 14 }}>
+          <a href={earHref(key, state.language)}>{t('scalebox.earLink')}</a>
+        </div>
 
         {/* Boxes: one chip per position, on the neck as numbered frames */}
         <Label style={{ marginTop: 18 }}>{t('scalebox.boxes')}</Label>

@@ -99,6 +99,36 @@ describe('App', () => {
     }
   });
 
+  it('Step 1 links to the ear trainer on the same key and scale, in the page language', async () => {
+    const { App } = await import('./App');
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    try {
+      await act(async () => {
+        root.render(createElement(App));
+      });
+      const ear = () => container.querySelector('section a[href^="/ear?"]')!;
+      expect(ear().textContent).toBe('Train your ear on these notes');
+      // Practice opens on A minor pentatonic.
+      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=minor-pentatonic&lang=en');
+      // Another scale, another link.
+      const blues = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find((b) => b.textContent === 'Minor blues')!;
+      await act(async () => blues.click());
+      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=blues&lang=en');
+      await act(async () => {
+        container.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
+      });
+      expect(ear().textContent).toBe('Luyện tai với các nốt này');
+      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=blues&lang=vi');
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      container.remove();
+    }
+  });
+
   describe('Export button download', () => {
     let originalCreateObjectURL: PropertyDescriptor | undefined;
     let originalRevokeObjectURL: PropertyDescriptor | undefined;
