@@ -173,6 +173,23 @@ out:
   fades (a hold fades in over `HOLD_FADE_SEC`, 1 s by default, out over its `stop()`'s fade, never
   under `MIN_FADE_SEC`) and holds at `HOLD_LEVEL` (0.3 of a note's level) times the `drone` level.
 
+## Keyboard and screen readers
+
+- **Shortcuts** (`ui/keys.ts`, listed under the card): Space / Enter start, then Next; R replays
+  the note, K the key (the cadence), T plays 1; 1–7 answer the degrees, and Shift + digit a half
+  step lower (Shift+3 is ♭3, Shift+5 is ♯4/♭5), read from the physical key (`e.code`), so any
+  layout works. A degree that is off does nothing. Like Practice's shortcuts: never with Ctrl / Alt
+  / ⌘, never on key repeat, never while typing, and Space / Enter on a focused button, link or
+  summary are that control's own.
+- **Focus:** Start moves it to the card (left on the button, now Stop, the next Space would stop);
+  an answer keeps it on the strip, on the cell answered; when the question is done it moves to
+  Next, unless it is elsewhere on the page. Controls the session ignores for now are
+  `aria-disabled`, not `disabled`, so they never drop the focus.
+- **Names:** an answer cell is named by its label, then as spoken, then its fret ("♭3 (flat
+  three), fret 3"): the label first for voice control (WCAG 2.5.3), the words for a screen reader.
+  Fret numbers sit in a row of their own, out of the buttons. Prompts and feedback are in a polite
+  live region. The right / wrong highlight's pop is off with `prefers-reduced-motion`.
+
 ## Storage
 
 - **Language:** the shared `gm.lang`, through `shared/i18n/language.ts` (`ear/src/i18n/lang.ts`),

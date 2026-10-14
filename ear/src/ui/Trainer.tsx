@@ -2,6 +2,7 @@
  * The trainer card (#220): Start → the cadence → the note → an answer on the strip → feedback →
  * Next. The session (core/session.ts) decides what happens; this card shows it and sends events.
  */
+import { useEffect, useRef } from 'react';
 import type { Player } from '@shared/core/audio';
 import type { DegreeLabel } from '@shared/core/music';
 import { DEGREES, degreeId, diatonicDegrees } from '../core/degrees';
@@ -9,6 +10,7 @@ import type { SessionState } from '../core/session';
 import type { Answer } from '../core/stats';
 import { fill, type UiStrings } from '../i18n';
 import type { EarSettings } from '../store/settings';
+import { ownedByTarget, shortcut } from './keys';
 import { answerText, degreeInKey, degreesText, keyText, noteText } from './labels';
 import { useTrainer } from './useTrainer';
 
@@ -59,9 +61,63 @@ export function Trainer({
   const canReplay = state.phase === 'waiting' || state.phase === 'review';
   const key = q?.key ?? settings.key;
   const wrong = q && state.answer && state.answer !== degreeId(q.degree) ? state.answer : null;
+  const cardRef = useRef<HTMLElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const live = useRef({ state, send, active: settings.degrees });
+  live.current = { state, send, active: settings.degrees };
+
+  /** Answer, keeping the focus on the strip: on the cell answered. */
+  const answer = (degree: DegreeLabel) => {
+    send({ type: 'answer', degree });
+    cardRef.current?.querySelector<HTMLButtonElement>(`.cell[data-degree="${degree}"]`)?.focus();
+  };
+  /**
+   * Start, moving the focus to the card: left on the button, which now reads Stop, the next Space
+   * would stop the session instead of going to Next.
+   */
+  const start = () => {
+    send({ type: 'start' });
+    cardRef.current?.focus();
+  };
+  const answerRef = useRef(answer);
+  answerRef.current = answer;
+  const startRef = useRef(start);
+  startRef.current = start;
+
+  // The keyboard shortcuts (keys.ts), for the whole page.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat || e.defaultPrevented) return;
+      const s = shortcut(e);
+      if (!s || ownedByTarget(e.target, s)) return;
+      const { state: now, send: go, active } = live.current;
+      if (s.type === 'primary') {
+        if (now.phase !== 'idle' && now.phase !== 'review') return;
+        e.preventDefault();
+        if (now.phase === 'idle') startRef.current();
+        else go({ type: 'next' });
+      } else if (s.type === 'answer') {
+        if (!active.map(degreeId).includes(s.degree)) return;
+        e.preventDefault();
+        answerRef.current(s.degree);
+      } else {
+        e.preventDefault();
+        go({ type: s.type });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  // When the question is done, the focus moves to Next, unless it is somewhere else on the page.
+  useEffect(() => {
+    if (state.phase !== 'review') return;
+    const at = document.activeElement;
+    if (!at || at === document.body || cardRef.current?.contains(at)) nextRef.current?.focus();
+  }, [state.phase]);
 
   return (
-    <section className="board trainer" aria-labelledby="trainer-title">
+    <section ref={cardRef} className="board trainer" aria-labelledby="trainer-title" tabIndex={-1}>
       <div className="trainer-head">
         <h2 id="trainer-title">{ui.trainerTitle}</h2>
         <span className="trainer-key">
@@ -75,14 +131,14 @@ export function Trainer({
             {ui.stop}
           </button>
         ) : (
-          <button type="button" className="btn" onClick={() => send({ type: 'start' })}>
+          <button type="button" className="btn" onClick={start}>
             {ui.start}
           </button>
         )}
         <button
           type="button"
           className="btn ghost"
-          disabled={!canReplay}
+          aria-disabled={!canReplay}
           onClick={() => send({ type: 'replayContext' })}
         >
           {ui.hearKey}
@@ -90,7 +146,7 @@ export function Trainer({
         <button
           type="button"
           className="btn ghost"
-          disabled={!canReplay}
+          aria-disabled={!canReplay}
           onClick={() => send({ type: 'replayNote' })}
         >
           {ui.replayNote}
@@ -98,7 +154,7 @@ export function Trainer({
         <button
           type="button"
           className="btn ghost"
-          disabled={!canReplay}
+          aria-disabled={!canReplay}
           onClick={() => send({ type: 'playTonic' })}
         >
           {ui.playRoot}
@@ -109,12 +165,7 @@ export function Trainer({
         {noAudio ? ui.noAudio : status(ui, state)}
       </p>
 
-      <AnswerStrip
-        ui={ui}
-        state={state}
-        active={settings.degrees}
-        onAnswer={(degree) => send({ type: 'answer', degree })}
-      />
+      <AnswerStrip ui={ui} state={state} active={settings.degrees} onAnswer={answer} />
 
       {state.phase === 'review' && q && (
         <p className="trainer-compare">
@@ -149,14 +200,38 @@ export function Trainer({
           })}
         </span>
         <button
+          ref={nextRef}
           type="button"
           className="btn"
-          disabled={state.phase !== 'review'}
+          aria-disabled={state.phase !== 'review'}
           onClick={() => send({ type: 'next' })}
         >
           {ui.next} ▶
         </button>
       </div>
+
+      <details className="trainer-keys">
+        <summary>{ui.keysTitle}</summary>
+        <dl>
+          {(
+            [
+              [ui.keyNames.primary, ui.keys.primary],
+              ['R', ui.keys.replayNote],
+              ['K', ui.keys.replayContext],
+              ['T', ui.keys.playTonic],
+              [ui.keyNames.degrees, ui.keys.degrees],
+              [ui.keyNames.lowered, ui.keys.lowered],
+            ] as const
+          ).map(([k, what]) => (
+            <div key={k}>
+              <dt>
+                <kbd>{k}</kbd>
+              </dt>
+              <dd>{what}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
     </section>
   );
 }
@@ -201,17 +276,27 @@ function AnswerStrip({
             key={label}
             type="button"
             className={cls}
+            data-degree={label}
             disabled={!isOn}
-            aria-label={fill(ui.cellLabel, { degree: answerText(label), fret })}
+            aria-label={fill(ui.cellLabel, {
+              shown: answerText(label),
+              spoken: ui.spoken[label as keyof UiStrings['spoken']],
+              fret,
+            })}
             onClick={() => onAnswer(label)}
           >
             <span className="cell-dot">{answerText(label)}</span>
-            <span className="cell-fret" aria-hidden="true">
-              {fret}
-            </span>
           </button>
         );
       })}
+      {/* Fret numbers in a row of their own: inside a button they would run into its label. */}
+      <div className="frets" aria-hidden="true">
+        {DEGREES.map(({ label }, fret) => (
+          <span key={label} className={on.has(label) ? '' : 'off'}>
+            {fret}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

@@ -47,8 +47,13 @@ const button = (text: string) =>
   [...host.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
     b.textContent!.startsWith(text),
   )!;
+/** A cell by its degree as shown: '♭3' → the cell of b3. */
 const cell = (degree: string) =>
-  host.querySelector<HTMLButtonElement>(`.cell[aria-label^="${degree},"]`)!;
+  host.querySelector<HTMLButtonElement>(
+    `.cell[data-degree="${degree.replace('♭', 'b').replace('♯', '#')}"]`,
+  )!;
+/** A control the session ignores right now: aria-disabled, so it keeps the focus. */
+const off = (b: HTMLButtonElement) => b.getAttribute('aria-disabled') === 'true';
 const click = (b: HTMLButtonElement) => act(() => b.click());
 /** Let the audio clock run `sec` seconds. */
 const wait = (sec: number) => act(() => vi.advanceTimersByTime(sec * 1000));
@@ -81,8 +86,8 @@ describe('the trainer card', () => {
     expect(status()).toBe(
       'Press Start: a cadence sets the key, then one note sounds. Name its degree.',
     );
-    expect(button('Hear the key').disabled).toBe(true);
-    expect(button('Next').disabled).toBe(true);
+    expect(off(button('Hear the key'))).toBe(true);
+    expect(off(button('Next'))).toBe(true);
     const cells = [...host.querySelectorAll<HTMLButtonElement>('.cell')];
     expect(cells.map((c) => c.querySelector('.cell-dot')!.textContent)).toEqual([
       '1',
@@ -98,11 +103,14 @@ describe('the trainer card', () => {
       '♭7',
       '7',
     ]);
+    // Named by the label shown (for voice control), then as spoken (for a screen reader).
     expect(cells.filter((c) => !c.disabled).map((c) => c.getAttribute('aria-label'))).toEqual([
-      '1, fret 0',
-      '3, fret 4',
-      '5, fret 7',
+      '1 (one), fret 0',
+      '3 (three), fret 4',
+      '5 (five), fret 7',
     ]);
+    expect(cell('♭3').getAttribute('aria-label')).toBe('♭3 (flat three), fret 3');
+    expect(cell('♯4').getAttribute('aria-label')).toBe('♯4/♭5 (sharp four or flat five), fret 6');
     // The scale's notes stand out; ♭3 is outside A major.
     expect(cell('2').classList.contains('in')).toBe(true);
     expect(cell('♭3').classList.contains('out')).toBe(true);
@@ -113,7 +121,7 @@ describe('the trainer card', () => {
     render(player);
     startAndListen();
     expect(button('Stop')).toBeDefined();
-    expect(button('Replay note').disabled).toBe(false);
+    expect(off(button('Replay note'))).toBe(false);
     const degree = asked(played);
     click(cell(degree));
     const note = { '1': 'A', '3': 'C♯', '5': 'E' }[degree];
@@ -122,9 +130,9 @@ describe('the trainer card', () => {
     expect(host.querySelector('.trainer-score')!.textContent).toBe(
       'Right first try 1 of 1 · 1 in a row',
     );
-    expect(button('Next').disabled).toBe(true);
+    expect(off(button('Next'))).toBe(true);
     wait(3);
-    expect(button('Next').disabled).toBe(false);
+    expect(off(button('Next'))).toBe(false);
     expect(host.querySelector('.trainer-compare')!.textContent).toBe(
       'Tap any degree to hear it, then press Next.',
     );
@@ -172,7 +180,7 @@ describe('the trainer card', () => {
     wait(3);
     click(button('Next'));
     expect(status()).toBe('Hear the key…');
-    expect(button('Next').disabled).toBe(true);
+    expect(off(button('Next'))).toBe(true);
   });
 
   it('Stop goes back to idle', () => {
@@ -205,7 +213,91 @@ describe('the trainer card', () => {
     render(fakePlayer().player);
     expect(host.querySelector('.trainer-key')!.textContent).toBe('E thứ · Minor pentatonic');
     // In minor the tritone's cell still reads ♯4/♭5; ♭3 is now in the scale.
-    expect(cell('bậc ♭3').classList.contains('in')).toBe(true);
-    expect(cell('bậc ♭3').disabled).toBe(false);
+    expect(cell('♭3').classList.contains('in')).toBe(true);
+    expect(cell('♭3').disabled).toBe(false);
+  });
+});
+
+/** A key pressed on whatever has the focus, as a browser sends it. */
+function key(k: string, code: string, init: KeyboardEventInit = {}) {
+  const target = document.activeElement ?? document.body;
+  act(() => {
+    target.dispatchEvent(
+      new KeyboardEvent('keydown', { key: k, code, bubbles: true, cancelable: true, ...init }),
+    );
+  });
+}
+
+describe('the keyboard alone', () => {
+  it('runs a whole session: Space starts, a digit answers, focus goes to Next, Space again', () => {
+    const { player, played } = fakePlayer();
+    render(player);
+    (document.activeElement as HTMLElement | null)?.blur();
+    key(' ', 'Space');
+    expect(status()).toBe('Hear the key…');
+    // The focus left the Start button (now Stop): the card has it, so Space is not Stop.
+    expect(document.activeElement).toBe(host.querySelector('.trainer'));
+    wait(5.6);
+    expect(status()).toBe('Which degree was that?');
+    const degree = asked(played);
+    key(degree, `Digit${degree}`);
+    expect(status()).toMatch(/^Right: /);
+    // The focus stays on the strip, on the cell answered.
+    expect(document.activeElement).toBe(cell(degree));
+    wait(3);
+    expect(document.activeElement).toBe(button('Next'));
+    // Enter on the focused Next is the button's own click.
+    act(() => button('Next').click());
+    expect(status()).toBe('Hear the key…');
+    // From the card, Space does nothing while the key plays.
+    key(' ', 'Space');
+    expect(status()).toBe('Hear the key…');
+  });
+
+  it('R, K and T replay while waiting; a degree that is off, a repeat or a modifier does nothing', () => {
+    const { player, played } = fakePlayer();
+    render(player);
+    startAndListen();
+    for (const [k, code] of [
+      ['r', 'KeyR'],
+      ['k', 'KeyK'],
+      ['t', 'KeyT'],
+    ] as const) {
+      played.length = 0;
+      key(k, code);
+      expect(played[0], k).toBe('cancel');
+      expect(played.length, k).toBeGreaterThan(1);
+    }
+    key('2', 'Digit2');
+    key('3', 'Digit3', { repeat: true });
+    key('3', 'Digit3', { ctrlKey: true });
+    expect(status()).toBe('Which degree was that?');
+  });
+
+  it('Shift + digit answers the lowered degree', () => {
+    localStorage.setItem(
+      EAR_STORAGE_KEY,
+      JSON.stringify({ version: 1, settings: { degrees: ['1', 'b3', '3', '5'] } }),
+    );
+    const { player } = fakePlayer();
+    render(player);
+    startAndListen();
+    key('#', 'Digit3', { shiftKey: true });
+    expect(status()).toMatch(/^(Right: ♭3|You picked ♭3)/);
+    expect(document.activeElement).toBe(cell('♭3'));
+  });
+
+  it('lists the shortcuts', () => {
+    render(fakePlayer().player);
+    const panel = host.querySelector('.trainer-keys')!;
+    expect(panel.querySelector('summary')!.textContent).toBe('Keyboard shortcuts');
+    expect([...panel.querySelectorAll('kbd')].map((k) => k.textContent)).toEqual([
+      'Space / Enter',
+      'R',
+      'K',
+      'T',
+      '1–7',
+      'Shift + 2 3 5 6 7',
+    ]);
   });
 });

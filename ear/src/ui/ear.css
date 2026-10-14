@@ -28,12 +28,14 @@ body {
 /* The answer strip: one string on the neck's wood, fret 0 (the root) to 11. The mode's scale
    notes are dots, the others smaller and pale; a degree that is off is dimmed and disabled. */
 .strip { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); background: var(--wood); border: 1px solid var(--wood-edge); border-radius: var(--r-chip); overflow: hidden; }
-.cell { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 0 6px; border: 0; border-left: 2px solid var(--fret); background: transparent; color: var(--dot-ink); font-family: var(--f-mono); cursor: pointer; }
+.cell { position: relative; display: grid; justify-items: center; padding: 10px 0 4px; border: 0; border-left: 2px solid var(--fret); background: transparent; color: var(--dot-ink); font-family: var(--f-mono); cursor: pointer; }
 .cell:first-child { border-left: 0; box-shadow: inset -5px 0 0 var(--nut); }
 .cell::before { content: ''; position: absolute; left: 0; right: 0; top: 24px; height: 2px; background: var(--string); }
 .cell-dot { position: relative; display: grid; place-items: center; min-width: 36px; height: 30px; padding: 0 4px; border-radius: 15px; background: var(--dot); font-size: 0.82rem; font-weight: 700; }
 .cell.out .cell-dot { background: color-mix(in srgb, var(--dot) 55%, var(--wood)); }
-.cell-fret { color: var(--fretnum); font-size: 11px; }
+.frets { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; padding-bottom: 4px; }
+/* On the wood the fret-number grey is too faint for text (3.4:1): the fret colour is 7:1. */
+.frets span { text-align: center; color: var(--fret); font-family: var(--f-mono); font-size: 11px; }
 .cell.off { cursor: default; }
 .cell.off .cell-dot { opacity: 0.35; }
 .cell:not(.off):hover .cell-dot, .cell:focus-visible .cell-dot { outline: 2px solid var(--neck-accent, var(--accent)); outline-offset: 1px; }
@@ -48,6 +50,28 @@ body {
   .cell { border-left: 0; padding: 4px 0; min-height: 52px; }
   .cell:first-child { box-shadow: none; }
   .cell::before { display: none; }
-  .cell.off { display: none; }
+  .cell.off, .frets span.off { display: none; }
+  .frets { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; padding: 0; }
   .cell-dot { min-width: 48px; height: 36px; border-radius: 18px; font-size: 0.95rem; }
 }
+
+/* A control the session ignores right now: shown off, but it keeps the focus (unlike disabled). */
+.btn[aria-disabled='true'] { opacity: 0.45; cursor: default; filter: none; }
+
+/* The right / wrong highlight pops in, unless the player asks for less motion. */
+@keyframes cell-pop { 50% { transform: scale(1.18); } }
+.cell.right .cell-dot, .cell.picked .cell-dot { animation: cell-pop 0.25s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .cell.right .cell-dot, .cell.picked .cell-dot { animation: none; }
+}
+
+/* The keyboard shortcuts, under the card. */
+.trainer-keys summary { cursor: pointer; color: var(--muted); font-size: var(--t-small); font-weight: 600; }
+.trainer-keys dl { display: grid; gap: 6px; margin: 10px 0 0; }
+.trainer-keys dl div { display: grid; grid-template-columns: 12em 1fr; gap: 12px; }
+.trainer-keys dt, .trainer-keys dd { margin: 0; font-size: var(--t-small); }
+.trainer-keys kbd { font-family: var(--f-mono); font-size: 0.85em; padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--bg); }
+@media (max-width: 560px) {
+  .trainer-keys dl div { grid-template-columns: 1fr; gap: 2px; }
+}
+.trainer:focus { outline: none; }
