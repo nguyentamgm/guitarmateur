@@ -5,7 +5,9 @@
 import {
   MAJOR_KEY_TONICS,
   MINOR_KEY_TONICS,
+  mod,
   parseNote,
+  pc,
   type DegreeLabel,
   type Key,
   type Mode,
@@ -36,6 +38,9 @@ export interface AnswerByKind {
   /** A fret of the thickest string. */
   findRoot: number;
 }
+
+/** Any level's answer id. */
+export type AnswerId = AnswerByKind[QuestionKind];
 
 /** A range of frets (semitones), both ends included. */
 export interface Frets {
@@ -118,6 +123,35 @@ export type Level = { [K in QuestionKind]: LevelOf<K> }[QuestionKind];
 export function stepAnswers<K extends QuestionKind>(level: LevelOf<K>, step: number): readonly AnswerByKind[K][] {
   const given = level.steps.slice(0, step + 1).findLast((s) => s.answers !== undefined);
   return given?.answers ?? level.answers;
+}
+
+/** The thickest string's open note, E2, as a MIDI number. */
+const THICKEST_STRING_MIDI = 40;
+
+/**
+ * The right answers a step can have, in button order: its degrees asked (level 7's other degrees
+ * all as 'notRoot'), the frets of its keys' roots on level 15, else every answer it shows.
+ */
+export function askedAnswers(level: Level, step: number): readonly AnswerId[] {
+  const shown: readonly AnswerId[] = stepAnswers(level as LevelOf<typeof level.kind>, step);
+  if (level.kind === 'degree') {
+    const s = level.steps[step]!;
+    const asked = new Set(
+      s.keys.flatMap((k) => s.asks[k.mode] ?? []).map((d) => (shown.includes(d) ? d : 'notRoot')),
+    );
+    return shown.filter((a) => asked.has(a as string));
+  }
+  if (level.kind === 'findRoot') {
+    const roots = new Set(level.steps[step]!.keys.map((k) => pc(k.tonic)));
+    return shown.filter((fret) => roots.has(mod(THICKEST_STRING_MIDI + (fret as number), 12)));
+  }
+  return shown;
+}
+
+/** Whether `a` answers as `b` does: on level 15 any fret of the same note (0 and 12) is right. */
+export function sameAnswer(level: Level, a: AnswerId, b: AnswerId): boolean {
+  if (level.kind === 'findRoot' && typeof a === 'number' && typeof b === 'number') return mod(a - b, 12) === 0;
+  return a === b;
 }
 
 const key = (tonic: string, mode: Mode): Key => ({ tonic: parseNote(tonic), mode });

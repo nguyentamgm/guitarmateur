@@ -9,6 +9,7 @@ import {
   topMixups,
   totals,
   trimDays,
+  missWeight,
   weakWeights,
   lastDays,
   type Answer,
@@ -179,6 +180,14 @@ describe('accuracy, totals, topMixups', () => {
       '7>1',
     ]);
     expect(topMixups(EMPTY_STATS.major)).toEqual([]);
+  });
+});
+
+describe('missWeight', () => {
+  it('is 2.5 never asked, and 1 + 3 × the smoothed miss rate otherwise', () => {
+    expect(missWeight(undefined)).toBe(2.5);
+    expect(missWeight({ asked: 2, right: 0 })).toBe(1 + 3 * (3 / 4));
+    expect(missWeight({ asked: 2, right: 2 })).toBe(1 + 3 * (1 / 4));
   });
 });
 
