@@ -1,6 +1,7 @@
 import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
 import { CONCEPT_NAMES, LESSONS, conceptName, findLesson, lessonConcepts, lessonNeighbours } from '.';
+import sitemap from '../../../public/sitemap.xml?raw';
 
 /** Concept IDs defined as headings (`## K3.4 …`) in docs/theory-knowledge. */
 const knowledge = import.meta.glob('../../../docs/theory-knowledge/m*.md', {
@@ -46,6 +47,13 @@ describe('lesson registry', () => {
       expect(lessonNeighbours(slug).next?.slug).toBe(slugs[i + 1]);
     });
     expect(lessonNeighbours('nope')).toEqual({});
+  });
+
+  it('lists every lesson in public/sitemap.xml, in contents order', () => {
+    const lessonUrls = [...sitemap.matchAll(/<loc>https:\/\/guitarmateur\.com\/theory\/([^<]+)<\/loc>/g)]
+      .map((m) => m[1])
+      .filter((slug) => slug !== 'review');
+    expect(lessonUrls).toEqual(LESSONS.map((l) => l.slug));
   });
 
   it('links to Practice from the lessons that practise a key there', () => {
