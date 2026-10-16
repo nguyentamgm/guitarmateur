@@ -32,7 +32,7 @@ imports none of the others; what they share is in `shared/` (below).
 │  ├─ i18n.md                   # how to add a language
 │  └─ glossary.md               # one term per idea, EN + VI, for every page
 ├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)
-├─ public/                      # favicon, robots.txt, og image
+├─ public/                      # favicon, robots.txt, sitemap.xml, og image
 ├─ src/
 │  ├─ main.tsx
 │  ├─ music/                    # pitch spelling, keys, intervals, scale registry, chords/harmony
