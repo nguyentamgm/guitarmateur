@@ -22,12 +22,10 @@ afterEach(() => {
 const render = () => act(() => root.render(createElement(App)));
 
 describe('ear trainer page', () => {
-  it('shows the header with Ear training as the current page', () => {
+  it('is named Ear training but stays out of the header for now', () => {
     localStorage.setItem('gm.lang', 'en');
     render();
-    const current = host.querySelector('[aria-current="page"]');
-    expect(current?.getAttribute('href')).toBe('/ear');
-    expect(current?.textContent).toBe('Ear training');
+    expect(host.querySelector('header nav a[href="/ear"]')).toBeNull();
     expect(host.querySelector('h1')?.textContent).toBe('Ear training');
     expect(document.title).toBe('Ear training · Guitarmateur');
   });

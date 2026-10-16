@@ -11,6 +11,9 @@ Today the page has the trainer card (#220): Start, the cadence, the note, an ans
 one string, feedback, Next, with the settings and stats stored. The rest comes in phases
 (#221–#226); a rule below that names one of those issues is a rule for the code that issue adds.
 
+**Being replaced:** [`ear-levels.md`](ear-levels.md) plans a guided path of beginner levels that
+replaces this finished trainer screen; the work is tracked in #249.
+
 ## Layout
 
 ```
