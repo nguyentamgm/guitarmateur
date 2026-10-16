@@ -1,7 +1,8 @@
 # Ear training — the beginner levels plan
 
-**Status:** plan, not built yet. It replaces the current trainer screen at `/ear` and the phases
-still open in #227 (#221–#226). The rest of the site (Lessons, Review, Practice) does not change.
+**Status:** plan, approved, not built yet; the work is tracked in #249. It replaces the trainer
+screen at `/ear` that #227 finished (#220–#225). The rest of the site (Lessons, Review, Practice)
+does not change.
 "Ear training" stays out of the site menu until Stage 1 and Stage 2 are built and tested.
 
 ## Who this is for
@@ -387,9 +388,9 @@ learner-facing sentences in this plan are the English source; the Vietnamese tra
 Each step follows the repo's usual checks (lint, typecheck, tests, build) and ships both
 languages.
 
-## Decisions to confirm
+## Decisions
 
-The plan uses these defaults; each is easy to change:
+Confirmed by the owner (#250):
 
 - **Pass mark:** 8 of 10 in one round, on the level's last difficulty step.
 - **Skipping ahead:** allowed per stage, with a 10-question test (9 right to pass).

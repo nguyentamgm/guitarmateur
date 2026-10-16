@@ -12,7 +12,7 @@ one string, feedback, Next, with the settings and stats stored. The rest comes i
 (#221–#226); a rule below that names one of those issues is a rule for the code that issue adds.
 
 **Being replaced:** [`ear-levels.md`](ear-levels.md) plans a guided path of beginner levels that
-replaces this trainer screen and the open phases.
+replaces this finished trainer screen; the work is tracked in #249.
 
 ## Layout
 
