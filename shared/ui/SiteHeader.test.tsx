@@ -45,7 +45,6 @@ describe('SiteHeader', () => {
       ['Lessons', '/theory'],
       ['Review', '/theory/review'],
       ['Practice', '/'],
-      ['Ear training', '/ear'],
     ]);
   });
 
@@ -53,7 +52,6 @@ describe('SiteHeader', () => {
     ['lessons', '/theory'],
     ['review', '/theory/review'],
     ['practice', '/'],
-    ['ear', '/ear'],
   ] as const)('marks %s as the current page', (current, href) => {
     const { container } = render({ current });
     const marked = container.querySelectorAll('[aria-current="page"]');

@@ -45,7 +45,7 @@ export function SiteHeader<L extends string>({
       </a>
       <div className="topbar-tools">
         <nav className="topnav" aria-label={navLabel}>
-          {SITE_SECTIONS.map(({ id, href }) => (
+          {SITE_SECTIONS.filter(({ hidden }) => !hidden).map(({ id, href }) => (
             <a
               key={id}
               href={href}
