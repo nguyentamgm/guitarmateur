@@ -185,18 +185,18 @@ Boring choices, zero runtime cost. Runtime dependencies are `react` + `react-dom
 addition needs written justification in the PR. `package.json` is authoritative for exact
 versions; roughly:
 
-| Concern | Choice |
-|---|---|
-| Framework | React + React DOM |
-| Language | TypeScript (strict) |
-| Build/dev | Vite |
-| React plugin | `@vitejs/plugin-react` |
-| Tests | Vitest + jsdom |
-| Lint | ESLint (flat config) + typescript-eslint + `eslint-plugin-react-hooks` |
-| Format | Prettier |
-| Package manager | npm |
-| Runtime (CI + local) | Node 22 LTS |
-| Hosting | Vercel Hobby (free) |
+| Concern              | Choice                                                                 |
+| -------------------- | ---------------------------------------------------------------------- |
+| Framework            | React + React DOM                                                      |
+| Language             | TypeScript (strict)                                                    |
+| Build/dev            | Vite                                                                   |
+| React plugin         | `@vitejs/plugin-react`                                                 |
+| Tests                | Vitest + jsdom                                                         |
+| Lint                 | ESLint (flat config) + typescript-eslint + `eslint-plugin-react-hooks` |
+| Format               | Prettier                                                               |
+| Package manager      | npm                                                                    |
+| Runtime (CI + local) | Node 22 LTS                                                            |
+| Hosting              | Vercel Hobby (free)                                                    |
 
 ## `src/audio/` internals
 
