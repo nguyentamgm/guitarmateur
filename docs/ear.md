@@ -22,7 +22,8 @@ ear/
 └─ src/
    ├─ core/              pure TypeScript, unit-tested: degrees.ts (degrees, spelled notes, presets),
    │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
-   │                     (the session reducer, see "Session" below), stats.ts (stats math)
+   │                     (the session reducer, see "Session" below), stats.ts (stats math),
+   │                     levels.ts (the beginner levels as data, see ear-levels.md)
    ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
    │                     "Storage" below
    ├─ audio/             timeline.ts (each sound of the session, note by note, pure), driver.ts
