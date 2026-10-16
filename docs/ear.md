@@ -23,7 +23,8 @@ ear/
    ├─ core/              pure TypeScript, unit-tested: degrees.ts (degrees, spelled notes, presets),
    │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
    │                     (the session reducer, see "Session" below), stats.ts (stats math),
-   │                     levels.ts (the beginner levels as data, see ear-levels.md)
+   │                     levels.ts (the beginner levels as data, see ear-levels.md), round.ts
+   │                     (one round of a level, see "Rounds" below)
    ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
    │                     "Storage" below
    ├─ audio/             timeline.ts (each sound of the session, note by note, pure), driver.ts
@@ -143,6 +144,33 @@ idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer
 - **The cadence's tonic** sounds where the questions do, `questionTonic()`: an octave below
   `TONIC_OCTAVE` when the active degrees would pass the top of the guitar's range.
 - Events that make no sense in the current phase are ignored: same state, no effects.
+
+## Rounds
+
+`core/round.ts` runs one round of a beginner level ([`ear-levels.md`](ear-levels.md)) as a pure
+reducer like the session's: `startRound(level, step, seed, counts)`, then
+`stepRound(state, event) → { state, effects }`.
+
+```
+question ─answer─▶ feedback ─next─▶ question … ─next (after the 10th)─▶ done
+                      └─next (4 wrong in a row)─▶ stuck ─keepGoing─▶ question
+                                                    └─easier─▶ demo ─next─▶ question
+```
+
+- **The round picks each question's right answer and a seed** (`RoundQuestion`); the level kind's
+  generator turns them into sounds, so the same question always sounds the same, and the round
+  knows nothing of notes. The answers come from `askedAnswers(level, step)`, weighted by
+  `missWeight()` (`core/stats.ts`) of the level's counts, never the same one three times in a row.
+- **10 questions**, starting at the step reached. **5 right in a row** move the next question up
+  one step (a `step` effect), never past the last and never down by itself.
+- **4 wrong in a row:** after that answer's feedback, an `offerEasier` instead of the next
+  question; the count starts over, so the next offer needs 4 more. "Easier" goes one step down
+  (none below A) and plays the demo (`playDemo`); "keep going" asks the next question.
+- **Only the first answer counts** (a `score` effect); replays are free, and a changed answer is
+  ignored. On level 15 any fret of the root's note is right (`sameAnswer()`: 0 and 12).
+- **The pass:** `LEVEL_RULES`, 8 of 10 right, and the round ends on the level's last step
+  (`passes()`). The "test me" quiz (#264) is a round with its own `RoundRules`; each question
+  carries its level and step, so a round can mix levels.
 
 ## Sound
 

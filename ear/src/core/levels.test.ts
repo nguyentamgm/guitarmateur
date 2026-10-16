@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { format, type Key } from '@shared/core/music';
 import { degreeId } from './degrees';
-import { FIND_ROOT_FRETS, LEVELS, findLevel, stepAnswers, type Level, type LevelOf } from './levels';
+import {
+  FIND_ROOT_FRETS,
+  LEVELS,
+  askedAnswers,
+  findLevel,
+  sameAnswer,
+  stepAnswers,
+  type Level,
+  type LevelOf,
+} from './levels';
 
 const keyName = (k: Key) => `${format(k.tonic)} ${k.mode}`;
 const degreeLevels = LEVELS.filter((l): l is LevelOf<'degree'> => l.kind === 'degree');
@@ -147,5 +156,35 @@ describe('degree levels', () => {
       for (const step of rest.slice(0, -1)) expect(step.keys.map(keyName)).toEqual(first!.keys.map(keyName));
     }
     expect((findLevel(15) as LevelOf<'findRoot'>).steps[0]!.keys.map(keyName)).toEqual(['A major', 'G major', 'E major', 'C major']);
+  });
+});
+
+describe('askedAnswers', () => {
+  it('asks every button of a two-way level', () => {
+    expect(askedAnswers(findLevel(2)!, 0)).toEqual(['higher', 'lower']);
+    expect(askedAnswers(findLevel(3)!, 2)).toEqual(['up', 'down', 'upDown', 'downUp']);
+  });
+
+  it("asks the step's degrees, level 7's other degrees as 'notRoot'", () => {
+    expect(askedAnswers(findLevel(7)!, 0)).toEqual(['1', 'notRoot']);
+    expect(askedAnswers(findLevel(10)!, 0)).toEqual(['1', 'b3', '5']);
+    expect(askedAnswers(findLevel(10)!, 2)).toEqual(['1', 'b3', '3', '5']);
+    expect(askedAnswers(findLevel(14)!, 0)).toEqual(['1', 'b3', '4', '5', 'b7']);
+    expect(askedAnswers(findLevel(14)!, 1)).toEqual(['1', 'b3', '4', '#4', '5', 'b7']);
+  });
+
+  it("asks level 15's root frets on the thickest string: A G E C at 5 3 0/12 8", () => {
+    expect(askedAnswers(findLevel(15)!, 0)).toEqual([0, 3, 5, 8, 12]);
+    expect(askedAnswers(findLevel(15)!, 1)).toEqual(FIND_ROOT_FRETS);
+  });
+});
+
+describe('sameAnswer', () => {
+  it('compares ids, and on level 15 frets of the same note', () => {
+    expect(sameAnswer(findLevel(2)!, 'higher', 'higher')).toBe(true);
+    expect(sameAnswer(findLevel(2)!, 'higher', 'lower')).toBe(false);
+    expect(sameAnswer(findLevel(15)!, 0, 12)).toBe(true);
+    expect(sameAnswer(findLevel(15)!, 5, 7)).toBe(false);
+    expect(sameAnswer(findLevel(8)!, '1', '5')).toBe(false);
   });
 });

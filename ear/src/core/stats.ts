@@ -159,21 +159,22 @@ export function topMixups(s: ModeStats, n = 3): Mixup[] {
 }
 
 /**
- * Question weights for "practise weak notes" (#223), by degree id: 1 + 3 × how often it is missed,
- * from 1 (always right) to 4 (always missed). The miss rate is smoothed as if each degree had one
- * right and one wrong answer more, so a degree asked once or never (weight 2.5) is neither ignored
- * nor drilled to death.
+ * How often to ask something missed `c` times: 1 + 3 × how often it is missed, from 1 (always
+ * right) to 4 (always missed). The miss rate is smoothed as if it had one right and one wrong
+ * answer more, so something asked once or never (weight 2.5) is neither ignored nor drilled to death.
  */
+export function missWeight(c: Count | undefined): number {
+  const missed = ((c?.asked ?? 0) - (c?.right ?? 0) + 1) / ((c?.asked ?? 0) + 2);
+  return 1 + 3 * missed;
+}
+
+/** Question weights for "practise weak notes" (#223), by degree id: `missWeight()` of each. */
 export function weakWeights(
   s: ModeStats,
   degrees: readonly DegreeLabel[],
 ): Record<DegreeLabel, number> {
   const out: Record<DegreeLabel, number> = {};
-  for (const d of new Set(degrees.map(degreeId))) {
-    const c = s.degrees[d];
-    const missed = ((c?.asked ?? 0) - (c?.right ?? 0) + 1) / ((c?.asked ?? 0) + 2);
-    out[d] = 1 + 3 * missed;
-  }
+  for (const d of new Set(degrees.map(degreeId))) out[d] = missWeight(s.degrees[d]);
   return out;
 }
 
