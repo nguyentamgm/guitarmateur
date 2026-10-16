@@ -32,7 +32,7 @@ imports none of the others; what they share is in `shared/` (below).
 │  ├─ i18n.md                   # how to add a language
 │  └─ glossary.md               # one term per idea, EN + VI, for every page
 ├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)
-├─ public/                      # favicon, robots.txt, og image
+├─ public/                      # favicon, robots.txt, sitemap.xml, og image
 ├─ src/
 │  ├─ main.tsx
 │  ├─ music/                    # pitch spelling, keys, intervals, scale registry, chords/harmony
@@ -185,18 +185,18 @@ Boring choices, zero runtime cost. Runtime dependencies are `react` + `react-dom
 addition needs written justification in the PR. `package.json` is authoritative for exact
 versions; roughly:
 
-| Concern | Choice |
-|---|---|
-| Framework | React + React DOM |
-| Language | TypeScript (strict) |
-| Build/dev | Vite |
-| React plugin | `@vitejs/plugin-react` |
-| Tests | Vitest + jsdom |
-| Lint | ESLint (flat config) + typescript-eslint + `eslint-plugin-react-hooks` |
-| Format | Prettier |
-| Package manager | npm |
-| Runtime (CI + local) | Node 22 LTS |
-| Hosting | Vercel Hobby (free) |
+| Concern              | Choice                                                                 |
+| -------------------- | ---------------------------------------------------------------------- |
+| Framework            | React + React DOM                                                      |
+| Language             | TypeScript (strict)                                                    |
+| Build/dev            | Vite                                                                   |
+| React plugin         | `@vitejs/plugin-react`                                                 |
+| Tests                | Vitest + jsdom                                                         |
+| Lint                 | ESLint (flat config) + typescript-eslint + `eslint-plugin-react-hooks` |
+| Format               | Prettier                                                               |
+| Package manager      | npm                                                                    |
+| Runtime (CI + local) | Node 22 LTS                                                            |
+| Hosting              | Vercel Hobby (free)                                                    |
 
 ## `src/audio/` internals
 

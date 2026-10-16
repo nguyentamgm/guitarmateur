@@ -1,4 +1,4 @@
-/** Every lesson, in contents order. Add a lesson here and give it scenes in theory/src/ui. */
+/** Every lesson, in contents order. Add a lesson here, give it scenes in theory/src/ui and list it in public/sitemap.xml. */
 import type { Lesson } from './types';
 import { barre } from './barre';
 import { blues } from './blues';
