@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MINOR_KEY_TONICS, parseNote } from '@shared/core/music';
 import type { KeyValue } from '@shared/platform/storage';
+import { isUnlocked } from '../core/progress';
 import { EMPTY_STATS, recordAnswer, type Answer } from '../core/stats';
 import { DEFAULT_SETTINGS, readSettings, type EarSettings } from './settings';
 import {
@@ -13,6 +14,8 @@ import {
   resetStats,
   saveSettings,
   storeAnswer,
+  storeRoundEffect,
+  storeWelcomed,
 } from './store';
 
 /** A Map behind the KeyValue interface. */
@@ -57,7 +60,13 @@ describe('defaults', () => {
       weakNotes: false,
       showNeck: true,
     });
-    expect(DEFAULT_DATA).toEqual({ version: 1, settings: DEFAULT_SETTINGS, stats: EMPTY_STATS });
+    expect(DEFAULT_DATA).toEqual({
+      version: 2,
+      welcomed: false,
+      levels: {},
+      settings: DEFAULT_SETTINGS,
+      stats: EMPTY_STATS,
+    });
   });
 });
 
@@ -69,7 +78,7 @@ describe('loadEar', () => {
     ['no version', memory({ [EAR_STORAGE_KEY]: JSON.stringify({ settings: E_MINOR }) })],
     [
       'a newer version',
-      memory({ [EAR_STORAGE_KEY]: JSON.stringify({ version: 2, settings: E_MINOR }) }),
+      memory({ [EAR_STORAGE_KEY]: JSON.stringify({ version: 3, settings: E_MINOR }) }),
     ],
     ['version 0', memory({ [EAR_STORAGE_KEY]: JSON.stringify({ version: 0, settings: E_MINOR }) })],
   ])('gives the defaults for %s', (_, storage) => {
@@ -243,7 +252,7 @@ describe('writes keep what another tab stored', () => {
   });
 
   it('never overwrites data a newer version stored', () => {
-    const newer = JSON.stringify({ version: 2, settings: { whatever: true } });
+    const newer = JSON.stringify({ version: 3, settings: { whatever: true } });
     const s = memory({ [EAR_STORAGE_KEY]: newer });
     const next = storeAnswer(DEFAULT_DATA, B3_AS_3, NOW, s);
     expect(next.stats.major.degrees.b3).toEqual({ asked: 1, right: 0 });
@@ -258,7 +267,7 @@ describe('resetStats', () => {
     data = storeAnswer(data, B3_AS_3, NOW, s);
     data = storeAnswer(data, { mode: 'minor', degree: '1', answer: '1' }, NOW, s);
     const reset = resetStats(data, s);
-    expect(reset).toEqual({ version: 1, settings: E_MINOR, stats: EMPTY_STATS });
+    expect(reset).toEqual({ ...DEFAULT_DATA, settings: E_MINOR });
     expect(loadEar(s)).toEqual(reset);
   });
 });
@@ -274,11 +283,7 @@ describe('onStoredChange', () => {
     window.dispatchEvent(new StorageEvent('storage', { key: 'gm.lang' }));
     expect(listener).not.toHaveBeenCalled();
     window.dispatchEvent(new StorageEvent('storage', { key: EAR_STORAGE_KEY }));
-    expect(listener).toHaveBeenLastCalledWith({
-      version: 1,
-      settings: E_MINOR,
-      stats: EMPTY_STATS,
-    });
+    expect(listener).toHaveBeenLastCalledWith({ ...DEFAULT_DATA, settings: E_MINOR });
     window.dispatchEvent(new StorageEvent('storage', { key: null }));
     expect(listener).toHaveBeenCalledTimes(2);
     off();
@@ -293,5 +298,90 @@ describe('onStoredChange', () => {
     window.dispatchEvent(new StorageEvent('storage', { key: EAR_STORAGE_KEY }));
     expect(listener.mock.calls[0]![0].settings).toEqual(E_MINOR);
     off();
+  });
+});
+
+describe('the beginner levels (version 2)', () => {
+  const V1 = { version: 1, settings: E_MINOR, stats: { major: { degrees: { '1': { asked: 2, right: 1 } } } } };
+
+  it('migrates a version 1 payload to a clean version 2: not welcomed, no level played', () => {
+    const data = migrate(V1);
+    expect(data).toMatchObject({ version: 2, welcomed: false, levels: {} });
+    expect(isUnlocked(data.levels, 1)).toBe(true);
+    expect(isUnlocked(data.levels, 2)).toBe(false);
+    // The old trainer screen keeps its settings and stats until it goes (#257).
+    expect(data.settings).toEqual(E_MINOR);
+    expect(data.stats.major.degrees['1']).toEqual({ asked: 2, right: 1 });
+  });
+
+  it('migrates a stored version 1 payload on the next write, keeping the language out of it', () => {
+    const s = memory({ [EAR_STORAGE_KEY]: JSON.stringify(V1), 'gm.lang': 'vi' });
+    storeWelcomed(DEFAULT_DATA, s);
+    expect(stored(s)).toMatchObject({ version: 2, welcomed: true, levels: {}, settings: { bpm: 120 } });
+    expect(stored(s)).not.toHaveProperty('lang');
+    expect(s.map.get('gm.lang')).toBe('vi');
+  });
+
+  it('reads each level and each field on its own, dropping what is broken', () => {
+    const data = migrate({
+      version: 2,
+      welcomed: 'yes',
+      levels: {
+        '1': { step: 2, best: 9, done: true, counts: { same: { asked: 4, right: 3 }, maybe: { asked: 1, right: 1 } } },
+        '2': { step: 3, best: 11, done: 'true', counts: { higher: { asked: 1, right: 2 }, lower: 'x' } },
+        '7': { step: 1.5, best: -1, counts: { notRoot: { asked: 2, right: 2 } } },
+        '15': { counts: { '0': { asked: 1, right: 0 }, '13': { asked: 1, right: 1 } } },
+        '16': { step: 0 },
+        '3': 'garbage',
+        nope: {},
+      },
+    });
+    expect(data.welcomed).toBe(false);
+    expect(data.levels).toEqual({
+      1: { step: 2, best: 9, done: true, counts: { same: { asked: 4, right: 3 } } },
+      2: { step: 0, best: 0, done: false, counts: {} },
+      7: { step: 0, best: 0, done: false, counts: { notRoot: { asked: 2, right: 2 } } },
+      15: { step: 0, best: 0, done: false, counts: { '0': { asked: 1, right: 0 } } },
+    });
+  });
+
+  it('falls back without throwing on broken payloads', () => {
+    for (const levels of [null, 'x', 42, [], [{ step: 1 }], { '1': null }]) {
+      expect(migrate({ version: 2, welcomed: true, levels }).levels).toEqual({});
+    }
+    expect(loadEar(memory({ [EAR_STORAGE_KEY]: '{"version":2,"levels":' }))).toEqual(DEFAULT_DATA);
+  });
+
+  it('round-trips the stored data', () => {
+    const s = memory();
+    let data = storeWelcomed(DEFAULT_DATA, s);
+    data = storeRoundEffect(data, 2, { type: 'step', step: 1 }, s);
+    data = storeRoundEffect(
+      data,
+      2,
+      { type: 'score', question: { level: 2, step: 1, answer: 'lower', seed: 3 }, answer: 'higher', right: false },
+      s,
+    );
+    data = storeRoundEffect(data, 2, { type: 'end', right: 8, passed: false }, s);
+    expect(data).toMatchObject({
+      welcomed: true,
+      levels: { 2: { step: 1, best: 8, done: false, counts: { lower: { asked: 1, right: 0 } } } },
+    });
+    expect(loadEar(s)).toEqual(data);
+    expect(migrate(JSON.parse(JSON.stringify(data)))).toEqual(data);
+  });
+
+  it('writes nothing for effects that are not progress', () => {
+    const s = memory();
+    expect(storeRoundEffect(DEFAULT_DATA, 1, { type: 'offerEasier' }, s)).toBe(DEFAULT_DATA);
+    expect(s.map.size).toBe(0);
+  });
+
+  it("builds on another tab's progress", () => {
+    const s = memory();
+    storeRoundEffect(DEFAULT_DATA, 1, { type: 'end', right: 9, passed: true }, s);
+    const next = storeRoundEffect(DEFAULT_DATA, 2, { type: 'step', step: 1 }, s);
+    expect(next.levels[1]).toMatchObject({ done: true });
+    expect(isUnlocked(loadEar(s).levels, 2)).toBe(true);
   });
 });

@@ -153,8 +153,8 @@ export function startRound(level: Level, step: number, seed: number, counts: Ans
   });
 }
 
-/** `counts` with one more answer to `id`. */
-function counted(counts: AnswerCounts, id: AnswerId, right: boolean): AnswerCounts {
+/** `counts` with one more answer to `id`, right first try or not. */
+export function counted(counts: AnswerCounts, id: AnswerId, right: boolean): AnswerCounts {
   const c = counts[String(id)];
   return { ...counts, [String(id)]: { asked: (c?.asked ?? 0) + 1, right: (c?.right ?? 0) + (right ? 1 : 0) } };
 }

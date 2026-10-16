@@ -24,7 +24,8 @@ ear/
    │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
    │                     (the session reducer, see "Session" below), stats.ts (stats math),
    │                     levels.ts (the beginner levels as data, see ear-levels.md), round.ts
-   │                     (one round of a level, see "Rounds" below)
+   │                     (one round of a level, see "Rounds" below), progress.ts (level
+   │                     progress and unlocking, pure)
    ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
    │                     "Storage" below
    ├─ audio/             timeline.ts (each sound of the session, note by note, pure), driver.ts
@@ -261,16 +262,26 @@ their own degrees.
   `shared/platform/languages.ts`), English is the fallback. A change made in another tab shows
   here (`storage` event). A link's `?lang=` (`linkLanguage()`) sets the language for that visit
   only: it is not saved, and `App` takes it off the address.
-- **Settings and stats** (`store/store.ts`): one localStorage key, `gm.ear`, holding
-  `{ version, settings, stats }`, read and written through `browserStorage()`
-  (`shared/platform/storage.ts`); never the practice app's or Theory's keys. The language is not
-  part of `gm.ear`.
+- **Level progress, settings and stats** (`store/store.ts`): one localStorage key, `gm.ear`,
+  holding `{ version: 2, welcomed, levels, settings, stats }`, read and written through
+  `browserStorage()` (`shared/platform/storage.ts`); never the practice app's or Theory's keys.
+  The language is not part of `gm.ear`.
+  - `welcomed`: the welcome screen and its sound check are done (`storeWelcomed`). `levels`: by
+    level id, `{ step, best, done, counts }`: the step the next round starts at, the best round,
+    passed once, and every answer asked with how often it was right first try (the round's
+    weighting, #252). `storeRoundEffect` keeps a round's `step`, `score` and `end` effects
+    (`core/progress.ts`). A level is **unlocked** when it is level 1 or the level before it is
+    done (`isUnlocked()`): worked out, never stored.
+  - `settings` and `stats` are the old trainer screen's, kept until it goes (#257). Version 1 had
+    only those: it migrates to version 2 not welcomed, with no level played.
   - Missing, corrupt, unversioned or newer-version data gives the defaults; within a readable
-    payload each setting and each stats entry is checked on its own and falls back alone. A
-    version bump adds a step to `MIGRATIONS`. Data a newer build stored is never overwritten.
-  - Every write (`saveSettings`, `storeAnswer`, `resetStats`) starts from what is stored now, so
-    another tab's answers are kept; `onStoredChange()` follows changes made in another tab
-    (`storage` event), as `gm.lang` does. Storage that fails only means nothing is remembered.
+    payload each setting, each stats entry, each level and each of its fields is checked on its
+    own and falls back alone. A version bump adds a step to `MIGRATIONS`. Data a newer build stored
+    is never overwritten.
+  - Every write (`saveSettings`, `storeAnswer`, `resetStats`, `storeWelcomed`,
+    `storeRoundEffect`) starts from what is stored now, so another tab's answers are kept;
+    `onStoredChange()` follows changes made in another tab (`storage` event), as `gm.lang` does.
+    Storage that fails only means nothing is remembered.
   - Defaults (`DEFAULT_SETTINGS`): A major, 1 3 5, the full cadence before every question, above
     the root, a fixed key, 90 BPM, resolution on, drone off (level 1, its quiet maximum), auto-next
     off, guitar sound. Question weights are never stored: they come from the stats. A field added
