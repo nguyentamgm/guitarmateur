@@ -1,6 +1,6 @@
-/** Text for music values on this page: degrees, notes, keys, presets (docs/glossary.md). */
+/** Text for music values on this page: degrees, notes, keys (docs/glossary.md). */
 import { format, type DegreeLabel, type Key } from '@shared/core/music';
-import { degreeId, noteOf, presetsFor, presetDegrees } from '../core/degrees';
+import { degreeId, noteOf } from '../core/degrees';
 import { fill, type UiStrings } from '../i18n';
 
 /** A degree as the glossary writes it: real accidentals, ♭3 not b3. */
@@ -21,14 +21,3 @@ export const noteText = (key: Key, d: DegreeLabel): string => format(noteOf(key,
 
 export const keyText = (ui: UiStrings, key: Key): string =>
   fill(ui.keyName, { tonic: format(key.tonic), mode: ui.modeName[key.mode] });
-
-/** The preset the degrees make in this key's mode, by name, else how many degrees there are. */
-export function degreesText(ui: UiStrings, key: Key, degrees: readonly DegreeLabel[]): string {
-  const ids = [...new Set(degrees.map(degreeId))].sort().join();
-  const preset = presetsFor(key.mode).find(
-    (p) => [...presetDegrees(p, key.mode)!].sort().join() === ids,
-  );
-  if (preset === 'scale') return ui.presetScale[key.mode];
-  if (preset) return ui.preset[preset];
-  return fill(ui.degreeCount, { n: ids.split(',').length });
-}

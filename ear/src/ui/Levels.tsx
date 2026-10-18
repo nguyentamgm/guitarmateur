@@ -49,11 +49,7 @@ export function Levels({
   const [noAudio, setNoAudio] = useState(false);
   const audioRef = useRef<EarAudio | null>(null);
   const audio = useCallback(
-    () =>
-      (audioRef.current ??= createEarAudio(player, {
-        onDone: () => {},
-        onNoAudio: () => setNoAudio(true),
-      })),
+    () => (audioRef.current ??= createEarAudio(player, { onNoAudio: () => setNoAudio(true) })),
     [player],
   );
   const kindSounds = useCallback((level: Level) => sounds[level.kind], [sounds]);

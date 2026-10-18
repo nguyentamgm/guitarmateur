@@ -1,7 +1,7 @@
 /**
  * The answer on the neck (#224): after each answer, a five-fret window with the root on string 6
  * or 5, the active degrees, and the note heard as the target, so the sound meets the fingers.
- * Clicking a dot plays it, in the trainer's voice.
+ * Clicking a dot plays it. Kept from the old trainer for level 14 (#262).
  */
 import type { Player } from '@shared/core/audio';
 import { Fretboard, type FretDot } from '@shared/ui/Fretboard';
@@ -18,14 +18,11 @@ export function NeckAnswer({
   question: q,
   active,
   player,
-  clean,
 }: {
   ui: UiStrings;
   question: Question;
   active: readonly DegreeLabel[];
   player: Player;
-  /** Play the dots in the clean tone, as the trainer's notes are. */
-  clean: boolean;
 }) {
   const w = neckWindow(q.key, q, active);
   // Fret 0 needs the nut; higher up, the drawing starts at the wire before the window's first fret.
@@ -59,7 +56,7 @@ export function NeckAnswer({
           string: w.root.string,
         })}
         words={words}
-        play={(midi) => (clean ? player.tone(midi) : player.pluck(midi, 0, 1))}
+        play={(midi) => player.pluck(midi, 0, 1)}
       />
     </div>
   );

@@ -1,60 +1,10 @@
-/**
- * The keyboard shortcuts of the trainer (#221) and of a beginner level's question: which key does
- * what. Pure, so it is tested alone.
- */
-import type { DegreeLabel } from '@shared/core/music';
-
-export type Shortcut =
-  /** Space / Enter: Start, then Next. */
-  | { readonly type: 'primary' }
-  | { readonly type: 'replayNote' }
-  | { readonly type: 'replayContext' }
-  | { readonly type: 'playTonic' }
-  | { readonly type: 'answer'; readonly degree: DegreeLabel };
-
-/** Digit → degree id; with Shift, a half step lower. Shift+1 and Shift+4 name no degree. */
-const DIGIT: Readonly<Record<string, DegreeLabel>> = {
-  1: '1',
-  2: '2',
-  3: '3',
-  4: '4',
-  5: '5',
-  6: '6',
-  7: '7',
-};
-const LOWERED: Readonly<Record<string, DegreeLabel>> = {
-  2: 'b2',
-  3: 'b3',
-  5: '#4',
-  6: 'b6',
-  7: 'b7',
-};
+/** The keyboard shortcuts of a beginner level's question: which key does what. Pure, so it is tested alone. */
 
 export interface KeyPress {
   readonly key: string;
   /** The physical key ('Digit3', 'Numpad3', 'Space'): Shift+3 is '#' on one layout and '§' on another. */
   readonly code: string;
   readonly shiftKey: boolean;
-}
-
-export function shortcut(e: KeyPress): Shortcut | null {
-  if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') return { type: 'primary' };
-  const digit =
-    /^(?:Digit|Numpad)([0-9])$/.exec(e.code)?.[1] ?? (/^[0-9]$/.test(e.key) ? e.key : null);
-  if (digit !== null) {
-    const degree = (e.shiftKey ? LOWERED : DIGIT)[digit];
-    return degree ? { type: 'answer', degree } : null;
-  }
-  switch (e.key.toLowerCase()) {
-    case 'r':
-      return { type: 'replayNote' };
-    case 'k':
-      return { type: 'replayContext' };
-    case 't':
-      return { type: 'playTonic' };
-    default:
-      return null;
-  }
 }
 
 /** A beginner level's question screen (docs/ear-levels.md "Question screen"). */
@@ -104,13 +54,10 @@ function activatesOnKey(target: Element): boolean {
   );
 }
 
-/** Where a key belongs to the focused control, not to the page: typing, or activating a button. */
-export function ownedByTarget(target: EventTarget | null, s: Shortcut): boolean {
-  if (!(target instanceof Element)) return false;
-  return typesInto(target) || (activatesOnKey(target) && s.type === 'primary');
-}
-
-/** The same for a level's shortcuts: Space and Enter on a button press that button. */
+/**
+ * Where a key belongs to the focused control, not to the page: typing, or Space and Enter on a
+ * button, which press that button.
+ */
 export function levelKeyOwnedByTarget(target: EventTarget | null, s: LevelShortcut): boolean {
   if (!(target instanceof Element)) return false;
   return typesInto(target) || (activatesOnKey(target) && s.type !== 'answer');

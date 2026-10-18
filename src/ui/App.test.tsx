@@ -98,7 +98,7 @@ describe('App', () => {
     }
   });
 
-  it('Step 1 links to the ear trainer on the same key and scale, in the page language', async () => {
+  it('does not link to the ear trainer (its old screen is gone, #257)', async () => {
     const { App } = await import('./App');
     const container = document.createElement('div');
     document.body.appendChild(container);
@@ -107,19 +107,7 @@ describe('App', () => {
       await act(async () => {
         root.render(createElement(App));
       });
-      const ear = () => container.querySelector('section a[href^="/ear?"]')!;
-      expect(ear().textContent).toBe('Train your ear on these notes');
-      // Practice opens on A minor pentatonic.
-      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=minor-pentatonic&lang=en');
-      // Another scale, another link.
-      const blues = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find((b) => b.textContent === 'Minor blues')!;
-      await act(async () => blues.click());
-      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=blues&lang=en');
-      await act(async () => {
-        container.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
-      });
-      expect(ear().textContent).toBe('Luyện tai với các nốt này');
-      expect(ear().getAttribute('href')).toBe('/ear?key=A&mode=minor&notes=blues&lang=vi');
+      expect(container.querySelector('main a[href^="/ear"]')).toBeNull();
     } finally {
       await act(async () => {
         root.unmount();

@@ -4,7 +4,6 @@ import { MAJOR_KEY_TONICS, parseNote, type Chord, type Key } from '@shared/core/
 import { MIDDLE_RANGE } from '../core/levels';
 import { resolution } from '../core/resolution';
 import {
-  RIGHT_CLICK,
   STRUM_SPREAD_SEC,
   answerComparePart,
   chordPart,
@@ -82,10 +81,9 @@ describe('timeline parts, at 60 BPM (a beat is 1 s)', () => {
     });
   });
 
-  it('wait: silence for its beats; the right click: one accented click', () => {
+  it('wait: silence for its beats', () => {
     expect(waitPart(4, 60)).toEqual({ sounds: [], duration: 4 });
     expect(waitPart(2, 120).duration).toBe(1);
-    expect(RIGHT_CLICK).toEqual({ sounds: [{ kind: 'click', time: 0 }], duration: 0 });
   });
 
   it('clamps the tempo as the cadence does (40–200)', () => {

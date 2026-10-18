@@ -12,7 +12,7 @@ import {
   pc,
   type Key,
 } from '@shared/core/music';
-import { DRONE_HIGH, TONIC_OCTAVE, cadence, cadenceChords, droneNotes } from './context';
+import { TONIC_OCTAVE, cadence, cadenceChords } from './context';
 
 const KEYS: Key[] = [
   ...MAJOR_KEY_TONICS.map((tonic) => ({ tonic, mode: 'major' as const })),
@@ -165,35 +165,5 @@ describe('cadence', () => {
     const k = key('B', 'major');
     expect(cadence(k, 90, 'full', 59).tonic.midi).toBe(59);
     expect(cadence(k, 90, 'short', 47).tonic.midi).toBe(47);
-  });
-});
-
-describe('droneNotes', () => {
-  it('is 1 and 5, no 3rd, inside MIDI 40–52, in all 24 keys', () => {
-    expect(DRONE_HIGH).toBe(52);
-    for (const k of KEYS) {
-      const notes = droneNotes(k);
-      const pcs = notes.map((m) => mod(m, 12));
-      expect(notes, keyName(k)).toHaveLength(2);
-      expect(notes[0]!, keyName(k)).toBeLessThan(notes[1]!);
-      expect(new Set(pcs), keyName(k)).toEqual(new Set([pc(k.tonic), mod(pc(k.tonic) + 7, 12)]));
-      expect(pcs, keyName(k)).not.toContain(mod(pc(k.tonic) + 3, 12));
-      expect(pcs, keyName(k)).not.toContain(mod(pc(k.tonic) + 4, 12));
-      for (const m of notes) {
-        expect(m, keyName(k)).toBeGreaterThanOrEqual(40);
-        expect(m, keyName(k)).toBeLessThanOrEqual(52);
-      }
-    }
-  });
-
-  it('is the same in major and minor on the same tonic', () => {
-    for (const { tonic } of KEYS)
-      expect(droneNotes({ tonic, mode: 'minor' })).toEqual(droneNotes({ tonic, mode: 'major' }));
-  });
-
-  it('puts the 5th above the bass root while it fits, else below: E → E2 B2, A → A2 E3, B → F♯2 B2', () => {
-    expect(droneNotes(key('E', 'minor'))).toEqual([40, 47]);
-    expect(droneNotes(key('A', 'major'))).toEqual([45, 52]);
-    expect(droneNotes(key('B', 'major'))).toEqual([42, 47]);
   });
 });

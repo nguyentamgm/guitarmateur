@@ -1,18 +1,15 @@
 # Ear training — conventions
 
-The ear trainer is a third page in this repo, served at `/ear`: a short chord cadence sets a key,
-one note sounds, and the player names its **degree** in that key (1, ♭3, 5…). It trains
-*functional* hearing, so the skill carries over to any key and any song. It shares tooling (Vite,
-TypeScript, Vitest, ESLint, CI) and the look with Practice (`src/`) and Theory (`theory/`), never
-imports either, and shares code with them only through `shared/` (`@shared/…`, see
-[`architecture.md`](architecture.md#shared-code-shared)). The plan and its issues: #227.
+The ear trainer is a third page in this repo, served at `/ear`: a guided path of beginner levels
+([`ear-levels.md`](ear-levels.md), tracked in #249), from "same or different?" to finding a song's
+root on the guitar. It trains *relative* hearing, so the skill carries over to any key and any
+song. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) and the look with Practice (`src/`)
+and Theory (`theory/`), never imports either, and shares code with them only through `shared/`
+(`@shared/…`, see [`architecture.md`](architecture.md#shared-code-shared)).
 
-Today the page has the trainer card (#220): Start, the cadence, the note, an answer on a strip of
-one string, feedback, Next, with the settings and stats stored. The rest comes in phases
-(#221–#226); a rule below that names one of those issues is a rule for the code that issue adds.
-
-**Being replaced:** [`ear-levels.md`](ear-levels.md) plans a guided path of beginner levels that
-replaces this finished trainer screen; the work is tracked in #249.
+It replaced the first trainer screen ("name the degree", #227), removed in #257 with its settings,
+stats, deep links and Practice's link to it; the levels reuse its core (degrees, the cadence,
+resolution, the neck window).
 
 ## Layout
 
@@ -21,41 +18,34 @@ ear/
 ├─ index.html            data-app="practice" (Practice's lime accent) → dist/ear/index.html
 └─ src/
    ├─ core/              pure TypeScript, unit-tested: degrees.ts (degrees, spelled notes, presets),
-   │                     context.ts (cadence, drone), questions.ts, resolution.ts, session.ts
-   │                     (the session reducer, see "Session" below), stats.ts (stats math),
-   │                     levels.ts (the beginner levels as data, see ear-levels.md), round.ts
-   │                     (one round of a level, see "Rounds" below), progress.ts (level
-   │                     progress and unlocking, pure)
-   ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
-   │                     "Storage" below
-   ├─ audio/             timeline.ts (each sound of the session and of the levels, note by
-   │                     note, pure), driver.ts (`createEarAudio`: plays the session's effects,
-   │                     sends `audioDone` back; plays a level's parts), levelSounds.ts (each
-   │                     level kind's sounds: its questions, comparisons and demo)
+   │                     context.ts (the cadence that sets a key), questions.ts (a degree
+   │                     question's range), resolution.ts (the walk home), position.ts (the neck
+   │                     window), stats.ts (counts and `missWeight`), levels.ts (the levels as
+   │                     data), round.ts (one round of a level, see "Rounds"), progress.ts (level
+   │                     progress and unlocking), stage1.ts (levels 1–4's notes)
+   ├─ store/             store.ts (`gm.ear`): see "Storage"
+   ├─ audio/             timeline.ts (each sound, note by note, pure), driver.ts (`createEarAudio`:
+   │                     plays one part at a time), levelSounds.ts (each level kind's sounds)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
-   ├─ ui/                React: App (the page: the player, `gm.ear` data; App.test.tsx), Header
-   │                     (the shared SiteHeader, current = Ear training), Trainer (the card and its
-   │                     answer strip; Trainer.test.tsx), useTrainer (session → driver → audioDone,
-   │                     first answers → stats), Settings (the settings card; Settings.test.tsx),
-   │                     Stats ("Your ear": the stats card; Stats.test.tsx), NeckAnswer (the
-   │                     answer on a neck window, the shared Fretboard),
-   │                     editSettings.ts (major ↔ minor, before each question), labels.ts
-   │                     (degree, note, key, preset text), keys.ts (shortcuts); the beginner
-   │                     levels: Levels (the flow and its driver; Levels.test.tsx), Welcome,
-   │                     LevelMap, LevelIntro, Question, RoundEnd, useRound (round → driver →
-   │                     store), levelWords.ts (a level's words, `playable`); ear.css
-   └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
-                         registers the site-wide service worker
+   ├─ ui/                React: App (the page: the player, `gm.ear` data), Header (the shared
+   │                     SiteHeader, current = Ear training), Levels (the flow and its driver),
+   │                     Welcome, LevelMap, LevelIntro, Question, RoundEnd, useRound (round →
+   │                     driver → store), NotesPicture (Stage 1's wrong-answer picture),
+   │                     levelWords.ts (a level's words, `playable`), keys.ts (shortcuts),
+   │                     labels.ts (degree, note, key text); kept for levels 14–15: AnswerStrip
+   │                     (answers on one string) and NeckAnswer (the answer on a neck window);
+   │                     ear.css
+   └─ main.tsx           imports @shared/ui tokens, base, controls and fretboard CSS, then
+                         ui/ear.css; registers the site-wide service worker
 ```
-
-Still to come: the checks before announcing the page (#226).
 
 `/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
 in production; the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
 `/ear` path in dev and preview; `public/sw.js` falls back to the cached `/ear` shell offline
 (`/ear` is one of its `SHELLS`). `tsconfig.ear.json` typechecks `ear/src` (and `shared/`); Vitest
-picks up `ear/**/*.test.{ts,tsx}` with the rest.
+picks up `ear/**/*.test.{ts,tsx}` with the rest. An old link's query (`?key=&mode=&notes=`) is
+ignored.
 
 ## Import rules (enforced by ESLint)
 
@@ -69,15 +59,12 @@ ui → store → core          ui → audio → core          ui → i18n
   numbers and spelled notes, never text, so it stays locale-free and testable.
 - `audio/` and `store/` may import `core/`, never React, `ui/`, `i18n/` or each other.
 - `i18n/` imports nothing else in `ear/`, and no React.
-- The rules for `core/`, `store/` and `audio/` are in `eslint.config.js` already, ahead of the
-  folders.
 - Every user-facing string in `ui/**/*.tsx` comes from `i18n` (ESLint rejects literal JSX text and
   literal `aria-label`/`title`/`placeholder`/`alt`), in English and Vietnamese with the same keys
   and placeholders (`i18n/i18n.test.ts`), using the words of [`glossary.md`](glossary.md) (the
   same test runs the glossary check over the strings).
-- The look comes from `shared/ui/`. A neck drawn on this page (#224) uses `@shared/ui/Fretboard`
-  and adds `@shared/ui/fretboard.css` to `main.tsx`, before `ui/ear.css`; what only this page
-  draws stays in `ear.css`.
+- The look comes from `shared/ui/`. A neck drawn on this page uses `@shared/ui/Fretboard`; what
+  only this page draws stays in `ear.css`.
 
 ## Music rules
 
@@ -105,57 +92,18 @@ own theory.
 - **Cadence chords** come from `diatonicChords(key)` (triads): I–IV–V7–I in major (A D E7 A),
   i–iv–V7–i in minor (Am Dm E7 Am). The V is always its degree-5 root with `dom7`, since neither
   mode gives a V7 as is: the triads have a plain V in major, and `diatonicChords()` reads the
-  natural minor, so a minor key gets a minor v (Em), which does not pull home. The full cadence is
-  #213.
+  natural minor, so a minor key gets a minor v (Em), which does not pull home.
 - **Voicings are derived:** `chordMidis()` and `bassMidi()` (`shared/core/audio/backing.ts`) voice
   a chord, `strumDelays()` (`shared/core/rhythm`) spreads its strum. Never hand-type a voicing.
-- **The drone** is 1 and 5, low, with no 3rd, so one drone fits both modes (#213).
 - **Resolution** walks the mode's scale to the nearest tonic; a note outside the scale first moves
   a half step to the scale note in that direction. ♯4 / ♭5, as far from both, follows its spelling:
   up in major (♯4 → 5), down in minor (♭5 → 4). The tables are in #215.
 
-## Session
-
-`core/session.ts` is a pure reducer: `step(state, event) → { state, effects }`. The effects say
-what should sound; the audio driver (#219) carries them out and answers with `audioDone(phase)`.
-The question's random draw comes from a seed kept in the state, so the same state and event
-always give the same step (React may call a reducer twice).
-
-```
-idle ─start─▶ context ─done─▶ prompt ─done─▶ waiting ─answer─▶ (answered ─done─▶) resolving ─done─▶ review
-                 ▲                │  (an answer during the note is fine)                               │
-                 └──── next, or auto-next's pause ◀─────────────────────────────────────────────────────┘
-```
-
-- **Context policy:** the cadence before every question, or at the start and when the key changes,
-  or never ("drone only": the drone holds the key, alone for `DRONE_LEAD_BEATS` before the first
-  note in a key). A new key restarts the drone in it.
-- **Drone mode:** off; continuous (the whole session); or with each question (it starts with the
-  question's context and stops in review, once the answer's sounds are done). "Drone only" holds
-  it throughout, whatever the mode.
-- **Only the first answer scores** (a `score` effect, the one stats count). A wrong one goes
-  through `answered`: the note picked, then the right note. With resolution on, the walk home
-  follows; off, review comes straight after.
-- **In review**, an answer button plays its note next to the question's (in the octave up from the
-  tonic at or below the question), to compare; replays play the note, the cadence or the tonic.
-  None of these score, carry a `done`, or move the phase, and each cancels what was playing,
-  auto-next's pause included: touching the trainer in review stops auto-next for that question.
-- **Replays** work in `waiting` and `review`; while the cadence, the note or the answer's sounds
-  play, they are ignored.
-- **Settings changed mid-question:** only a new key, or switching off the degree being asked,
-  drops the question (unscored) and asks a new one, with the context again if the key changed (or
-  the cadence was cut short). Everything else (other degrees, the register, the tempo…) applies
-  from the next question, so a player can change several settings without losing the question each
-  time; the drone follows its setting at once.
-- **The cadence's tonic** sounds where the questions do, `questionTonic()`: an octave below
-  `TONIC_OCTAVE` when the active degrees would pass the top of the guitar's range.
-- Events that make no sense in the current phase are ignored: same state, no effects.
-
 ## Rounds
 
-`core/round.ts` runs one round of a beginner level ([`ear-levels.md`](ear-levels.md)) as a pure
-reducer like the session's: `startRound(level, step, seed, counts)`, then
-`stepRound(state, event) → { state, effects }`.
+`core/round.ts` runs one round of a level as a pure reducer: `startRound(level, step, seed,
+counts)`, then `stepRound(state, event) → { state, effects }`. The same state and event always
+give the same step (React may call a reducer twice).
 
 ```
 question ─answer─▶ feedback ─next─▶ question … ─next (after the 10th)─▶ done
@@ -178,15 +126,12 @@ question ─answer─▶ feedback ─next─▶ question … ─next (after the 
   (`passes()`). The "test me" quiz (#264) is a round with its own `RoundRules`; each question
   carries its level and step, so a round can mix levels.
 
-## The levels' screens
+## The screens
 
-`ui/Levels.tsx` shows the beginner levels ([`ear-levels.md`](ear-levels.md) "The screens"):
-welcome (first visit only, until `welcomed` is stored) → level map → a level's intro (before its
-first round, or from "How does this level work?") → the questions → the end of the round.
+`ui/Levels.tsx` shows the levels ([`ear-levels.md`](ear-levels.md) "The screens"): welcome (first
+visit only, until `welcomed` is stored) → level map → a level's intro (before its first round, or
+from "How does this level work?") → the questions → the end of the round.
 
-- **Which screen:** the levels, unless the address carries a deep link's parameter (`key`, `mode`,
-  `notes`: Practice's "Train your ear on these notes"), which opens the old trainer screen until
-  #257 removes both.
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
   card says "Coming soon". Each stage issue adds both for its kinds; Stage 1 (levels 1–4) is built
@@ -194,8 +139,8 @@ first round, or from "How does this level work?") → the questions → the end 
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
-  sound plays by itself; a right answer waits `RIGHT_PAUSE_BEATS` (2 at 90 BPM, the old trainer's
-  auto-next) and asks the next; a wrong one plays the kind's `compare` and waits for Next.
+  sound plays by itself; a right answer waits `RIGHT_PAUSE_BEATS` (2 at 90 BPM) and asks the next;
+  a wrong one plays the kind's `compare` and waits for Next.
 - **Stage 1** (`core/stage1.ts`): a question's notes come from its seed, single notes in
   `MIDDLE_RANGE`, each move as many frets as the step says. A wrong answer replays the question
   (level 3's tune at `STAGE_ONE_SLOW_BPM`) and shows `NotesPicture`: the notes as dots by pitch,
@@ -206,103 +151,46 @@ first round, or from "How does this level work?") → the questions → the end 
   the accent, a miss is amber, never red. Two answers sit side by side, three in a row, four to six
   wrap to two rows on a phone.
 - **Keyboard** (`keys.ts` `levelShortcut`): Space plays again, Enter goes on, 1–6 answer by place,
-  and with two answers ← and → too. Space and Enter on a focused button press that button. A new
-  question moves the focus to Play again, an answer to Next, a new screen to its heading; feedback
-  and the "make it easier" question are announced (`aria-live`).
+  and with two answers ← and → too; never with Ctrl / Alt / ⌘, on key repeat, or while typing.
+  Space and Enter on a focused button press that button. A new question moves the focus to Play
+  again, an answer to Next, a new screen to its heading; feedback and the "make it easier"
+  question are announced (`aria-live`).
 
 ## Sound
 
-The trainer card wires the session to the audio driver (`ui/useTrainer.ts`): each event steps the
-reducer once, outside React's render, and its effects go to `audio/driver.ts`, which carries them
-out:
-
-- **Timing:** each part (the cadence, the note, the comparison, the walk home, a wait) is laid out
-  note by note in `audio/timeline.ts` and handed to the player at once, every note with its exact
-  delay, `LEAD_SEC` (0.05 s) after `player.now()`. One coarse timer (25 ms) only watches the audio
-  clock for the end of a part with a `done`, then sends `audioDone`; a `cancelAudio` drops it.
-- **Lengths, in beats of the cadence tempo:** the question note 2; the comparison: the note picked
-  1, a half-beat gap, the right note 1, a half-beat rest; the walk home an eighth a note and the
-  closing tonic 1.
-- **The beginner levels' parts** ([`ear-levels.md`](ear-levels.md)), all in the guitar voice:
-  two notes (levels 1, 2, 4), a tune (3, 15), one chord strummed or arpeggiated (5), a
-  progression of strummed chords (6), a wrong answer's "what you picked, then what it was" for any
-  of them (`answerComparePart`), a level's demo (`demoPart`), and the six open strings to tune by
-  (15). Each length is a named constant in beats (the tuning notes in seconds), starting values to
-  judge by ear on real devices (#265). Voicings come from `chordMidis()` unless a level passes its
-  own; a strum is one down stroke `STRUM_SPREAD_SEC` (20 ms) a string, wider than the cadence's so
-  it reads as a strum; an arpeggio's notes each stop as the next starts, so they sound one by one.
-  The parts play the notes they are given: a level's generator keeps single notes and tunes in
-  `MIDDLE_RANGE` (A2–A4, `core/levels.ts`). The driver plays one with `playPart(part, onEnd)`,
-  which first stops what was playing (so "Play again" starts over), and `cancel()` stops it and
-  drops its `onEnd` (moving on).
-- **Voices:** the cadence's chords are always the guitar; single notes (the cadence's tonic, the
-  question, the comparison, the walk home, replays) are the guitar or the clean tone
-  (`player.tone`), as set. A right answer with no walk home (resolution off) is one accented click.
-- **The drone** (`player.hold`) starts with the session, crossfades on a key change, stops on stop
-  and on `dispose()` (leaving the page), and sits at `DRONE_DUCK` (half) while a cadence plays.
-  Its level is the `droneLevel` setting (the player's `drone` level), halved under a cadence.
-
-- Notes and the cadence are the shared guitar pluck: one `Player` from `createPlayer()`
-  (`shared/core/audio`). The drone is `player.hold(droneNotes(key))` and the clean tone
-  `player.tone()`, both the shared sustained voice (`sustain.ts`), so Practice and Theory can use
-  them too; nothing in `ear/` synthesizes. The session's `cancelAudio` is `player.cancel()`, which
-  stops every note, click and tone but not a hold: the drone stops with its own `stop()`.
-- The `AudioContext` is created on the first sound, from the Start button (a user gesture), never
-  at load. Audio failures are swallowed, but when audio cannot start at all (`player.now()` is
-  null), the page says so instead of running a silent quiz. iOS mutes Web Audio while the silent
+- **Parts:** each sound is laid out note by note in `audio/timeline.ts` (pure): two notes (levels
+  1, 2, 4), a tune (3, 15), one chord strummed or arpeggiated (5), a progression of strummed chords
+  (6), the cadence that sets a key and the walk home (Stage 3 on), a wrong answer's "what you
+  picked, then what it was" (`answerComparePart`), a level's demo (`demoPart`), and the six open
+  strings to tune by (15). Each length is a named constant in beats (the tuning notes in seconds),
+  starting values to judge by ear on real devices (#265). A strum is one down stroke,
+  `STRUM_SPREAD_SEC` (20 ms) a string; an arpeggio's notes each stop as the next starts. The parts
+  play the notes they are given: a level's generator keeps single notes and tunes in
+  `MIDDLE_RANGE` (A2–A4, `core/levels.ts`).
+- **Timing:** the driver (`audio/driver.ts`) hands a part to the player at once, every note with
+  its exact delay, `LEAD_SEC` (0.05 s) after `player.now()`; one coarse timer (25 ms) only watches
+  the audio clock for the part's end. `playPart(part, onEnd)` first stops what was playing (so
+  "Play again" starts over); `cancel()` stops it and drops its `onEnd` (moving on). Never one
+  `setTimeout` per note.
+- **One voice:** the shared guitar pluck, one `Player` from `createPlayer()` (`shared/core/audio`);
+  nothing in `ear/` synthesizes. The `AudioContext` is created on the first sound, from a click,
+  never at load. Audio failures are swallowed, but when audio cannot start at all (`player.now()`
+  is null), the page says so instead of running a silent quiz. iOS mutes Web Audio while the silent
   switch is on.
-- Schedule against `player.now()` (the audio clock), as the shared `Scheduler` and `Sequencer`
-  do; never one `setTimeout` per note.
-- **No error buzzer.** A wrong answer plays the note picked, then the right note, then the
-  resolution: hearing the two side by side is the lesson.
-- **Hearing safety:** the drone starts quiet, is never louder than the notes, and always fades in
-  and out. It is what a listener hears longest, often on headphones. The player sees to the
-  fades (a hold fades in over `HOLD_FADE_SEC`, 1 s by default, out over its `stop()`'s fade, never
-  under `MIN_FADE_SEC`) and holds at `HOLD_LEVEL` (0.3 of a note's level) times the `drone` level.
+- **No error buzzer.** A wrong answer replays what was heard, or the pick and then the right
+  answer: hearing the two side by side is the lesson.
 
-## The answer on the neck
+## The answer on the neck (levels 14–15)
 
-After each answer (with "Show on the neck" on, the default) a five-fret window of the shared
-`Fretboard` shows where the note sits: `core/position.ts` picks a root on string 6 or 5 (frets
-0–15) whose window, from a fret below it, holds the note heard **at its pitch**, choosing the root
-nearest in pitch to the tonic the note was heard against (then the lower fret, then string 6). The
-window can reach fret 18: held to 15, the top notes (F major's 7 at E5) could not be shown at the
-pitch heard. Tested over every key, register and degree, the pitch is always found; the fallback
-(the same degree an octave away) is only a guard. Dots: the root and every 1 in `home`, the other
-active degrees `soft`, the note heard `target` with a halo; clicking one plays it in the trainer's
-voice. Standard tuning only.
-
-## Deep links
-
-`/ear?key=A&mode=minor&notes=blues` opens with those settings and saves them (`ui/deepLink.ts`);
-`App` then takes `key`, `mode` and `notes` off the address, as it does `?lang=`, so a reload or a
-bookmark never overrides a later choice. The mode is applied first (a preset follows it, as
-switching mode on the page does), then the key, spelled as that mode spells it (`key=A%23` is
-B♭ major), then `notes=`: a preset (`triad`, `major-pentatonic`, `minor-pentatonic`, `blues`,
-`scale`, `all`; the ids work too) or a list of degrees (`1,b3,4,5,b7`, any label within the
-octave, at least two). Anything unknown is ignored, each parameter on its own.
-
-Practice's Step 1 links here ("Train your ear on these notes", `src/ui/earLink.ts`, which writes
-this format itself, since Practice never imports `ear/`): minor and major pentatonic, blues, major
-and natural minor go to their presets; Dorian, Mixolydian and major blues, with no preset, to
-their own degrees.
-
-## Keyboard and screen readers
-
-- **Shortcuts** (`ui/keys.ts`, listed under the card): Space / Enter start, then Next; R replays
-  the note, K the key (the cadence), T plays 1; 1–7 answer the degrees, and Shift + digit a half
-  step lower (Shift+3 is ♭3, Shift+5 is ♯4/♭5), read from the physical key (`e.code`), so any
-  layout works. A degree that is off does nothing. Like Practice's shortcuts: never with Ctrl / Alt
-  / ⌘, never on key repeat, never while typing, and Space / Enter on a focused button, link or
-  summary are that control's own.
-- **Focus:** Start moves it to the card (left on the button, now Stop, the next Space would stop);
-  an answer keeps it on the strip, on the cell answered; when the question is done it moves to
-  Next, unless it is elsewhere on the page. Controls the session ignores for now are
-  `aria-disabled`, not `disabled`, so they never drop the focus.
-- **Names:** an answer cell is named by its label, then as spoken, then its fret ("♭3 (flat
-  three), fret 3"): the label first for voice control (WCAG 2.5.3), the words for a screen reader.
-  Fret numbers sit in a row of their own, out of the buttons. Prompts and feedback are in a polite
-  live region. The right / wrong highlight's pop is off with `prefers-reduced-motion`.
+`ui/NeckAnswer.tsx` shows where a note sits on a five-fret window of the shared `Fretboard`:
+`core/position.ts` picks a root on string 6 or 5 (frets 0–15) whose window, from a fret below it,
+holds the note heard **at its pitch**, choosing the root nearest in pitch to the tonic the note was
+heard against (then the lower fret, then string 6). The window can reach fret 18: held to 15, the
+top notes (F major's 7 at E5) could not be shown at the pitch heard. Dots: the root and every 1 in
+`home`, the other active degrees `soft`, the note heard `target` with a halo; clicking one plays
+it. `ui/AnswerStrip.tsx` answers on one string from the root: fret 0 is 1, fret 3 is ♭3… An answer
+is named by its label, then as spoken, then its fret ("♭3 (flat three), fret 3"): the label first
+for voice control (WCAG 2.5.3). Standard tuning only.
 
 ## Storage
 
@@ -311,39 +199,21 @@ their own degrees.
   `shared/platform/languages.ts`), English is the fallback. A change made in another tab shows
   here (`storage` event). A link's `?lang=` (`linkLanguage()`) sets the language for that visit
   only: it is not saved, and `App` takes it off the address.
-- **Level progress, settings and stats** (`store/store.ts`): one localStorage key, `gm.ear`,
-  holding `{ version: 2, welcomed, levels, settings, stats }`, read and written through
-  `browserStorage()` (`shared/platform/storage.ts`); never the practice app's or Theory's keys.
-  The language is not part of `gm.ear`.
+- **Level progress** (`store/store.ts`): one localStorage key, `gm.ear`, holding
+  `{ version: 2, welcomed, levels }`, read and written through `browserStorage()`
+  (`shared/platform/storage.ts`); never the practice app's or Theory's keys, and never the
+  language.
   - `welcomed`: the welcome screen and its sound check are done (`storeWelcomed`). `levels`: by
     level id, `{ step, best, done, counts }`: the step the next round starts at, the best round,
     passed once, and every answer asked with how often it was right first try (the round's
-    weighting, #252). `storeRoundEffect` keeps a round's `step`, `score` and `end` effects
+    weighting). `storeRoundEffect` keeps a round's `step`, `score` and `end` effects
     (`core/progress.ts`). A level is **unlocked** when it is level 1 or the level before it is
     done (`isUnlocked()`): worked out, never stored.
-  - `settings` and `stats` are the old trainer screen's, kept until it goes (#257). Version 1 had
-    only those: it migrates to version 2 not welcomed, with no level played.
+  - Version 1 was the old trainer's settings and stats: it migrates to version 2 not welcomed,
+    with no level played, and those fields are no longer read (the next write drops them).
   - Missing, corrupt, unversioned or newer-version data gives the defaults; within a readable
-    payload each setting, each stats entry, each level and each of its fields is checked on its
-    own and falls back alone. A version bump adds a step to `MIGRATIONS`. Data a newer build stored
-    is never overwritten.
-  - Every write (`saveSettings`, `storeAnswer`, `resetStats`, `storeWelcomed`,
-    `storeRoundEffect`) starts from what is stored now, so another tab's answers are kept;
+    payload each level and each of its fields is checked on its own and falls back alone. A
+    version bump adds a step to `MIGRATIONS`. Data a newer build stored is never overwritten.
+  - Every write starts from what is stored now, so another tab's progress is kept;
     `onStoredChange()` follows changes made in another tab (`storage` event), as `gm.lang` does.
     Storage that fails only means nothing is remembered.
-  - Defaults (`DEFAULT_SETTINGS`): A major, 1 3 5, the full cadence before every question, above
-    the root, a fixed key, 90 BPM, resolution on, drone off (level 1, its quiet maximum), auto-next
-    off, guitar sound. Question weights are never stored: they come from the stats. A field added
-    later (`cadenceForm`, `droneLevel`) falls back on its own, so it needs no version bump; the
-    first payloads' `drone: true / false` reads as continuous / off.
-- **Stats** (`core/stats.ts`, pure) count **right first try** only (the session's `score` effect,
-  as Theory's quizzes do), and are kept per mode: ♭3 is in the scale in minor and outside it in
-  major. Per mode: asked and right per degree id; mix-ups (wrong first answers, by degree asked,
-  then heard: "♭3 heard as 3"); per local day, the last 30 days (a day after the answer's,
-  from a clock set back, is kept, never dropped); the streak and best streak.
-- **The stats card** ("Your ear", `ui/Stats.tsx`) shows one mode at a time, the key's first: the
-  totals, accuracy per degree asked (bars in the accent from 80%, amber from 50%, muted below, the
-  number always written), the three mix-ups heard most, each with "Practise these" (the active
-  degrees become 1 and that pair), and the last 14 days. "Practise weak notes" (`weakNotes`)
-  weighs questions by `weakWeights()`: 1 + 3 × the miss rate, smoothed by one right and one wrong
-  answer more, so 1 to 4 and 2.5 for a degree never asked. Reset asks first and keeps the settings.

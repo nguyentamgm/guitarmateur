@@ -10,9 +10,6 @@ import { cadence, type CadenceForm } from '../core/context';
 import { OPEN_MIDI } from '../core/position';
 import { resolutionNoteSeconds, type ResolutionStep } from '../core/resolution';
 
-/** The voice of single notes (the question, the comparison, the walk home, the tonic): the cadence's chords are always guitar. */
-export type Voice = 'guitar' | 'clean';
-
 export interface TimedSound {
   readonly kind: 'chord' | 'note' | 'click';
   /** MIDI; none for a click. */
@@ -244,6 +241,3 @@ export function tuningPart(): Part {
 export function waitPart(beats: number, bpm: number): Part {
   return { sounds: [], duration: beats * beat(bpm) };
 }
-
-/** A right answer when there is no walk home: one soft accented click. */
-export const RIGHT_CLICK: Part = { sounds: [{ kind: 'click', time: 0 }], duration: 0 };
