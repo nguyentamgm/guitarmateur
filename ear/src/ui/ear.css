@@ -184,3 +184,9 @@ button.lv-open:hover { background: color-mix(in srgb, var(--accent) 8%, var(--su
 @media (max-width: 560px) {
   .lv-keys { display: none; }
 }
+
+/* A Stage 1 wrong answer's picture (NotesPicture.tsx): the notes' shape, or the gap on one string. */
+.lv-shape { width: min(100%, 260px); height: auto; justify-self: center; }
+.lv-shape polyline { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
+.lv-shape circle { fill: var(--accent); }
+.lv-picture:not(svg) { overflow-x: auto; }
