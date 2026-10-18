@@ -35,6 +35,11 @@ merges. Match that order locally before pushing.
 - Respect the layer dependency rule; don't reach for a new dependency to avoid it — an ESLint rule
   fails the build on a bad cross-layer import.
 - Keep new code stylistically consistent with the layer it lives in; colocate its `*.test.ts`.
+- **Test the critical cases only.** This is a small hobby project: a few focused tests per change,
+  not exhaustive coverage. Test core logic and music rules, stored data (reading and migration),
+  and the main user path of a new screen. Skip obvious edge cases, every permutation, copy and
+  styling, and headless-browser checks unless the issue asks for them.
+- **No code review step is needed before merging:** CI (lint → typecheck → test → build) is the gate.
 - **Code the apps share** goes in `shared/` (imported as `@shared/…`; it imports none of them) —
   see the "Shared code" section of [`docs/architecture.md`](docs/architecture.md).
 - **Working on the Theory app (`theory/`)?** It is a separate app with its own rules: read

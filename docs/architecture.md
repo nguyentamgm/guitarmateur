@@ -231,8 +231,8 @@ note (browsers require a user gesture) — never at module load.
 
 - **TypeScript strict**, plus `noUncheckedIndexedAccess` (fretboard math is array-indexed) and
   `verbatimModuleSyntax`. Model techniques/actions as discriminated unions.
-- **No E2E framework by design.** Correctness lives in heavily unit-tested pure engines; UI is
-  checked with manual verification passes. Property-style tests are plain seeded loops — no
+- **No E2E framework by design.** Correctness lives in unit-tested pure engines (the critical
+  cases, see `AGENTS.md`); UI is checked with manual verification passes. Property-style tests are plain seeded loops — no
   `fast-check`.
 - **Correct pitch spelling is a hard requirement:** F minor shows B♭, not A♯, across all 12 keys.
   Work in spelled pitches, not pitch classes.
