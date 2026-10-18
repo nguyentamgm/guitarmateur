@@ -118,3 +118,69 @@ body {
   .bars-acc li { grid-template-columns: 1fr; gap: 2px; }
 }
 .neck-answer { margin-top: -4px; }
+
+/* The beginner levels (Levels.tsx and its screens): big and calm, for a beginner on a phone
+   (docs/ear-levels.md): no text under 18px, answer buttons 56px tall, every other tap 44px. Right
+   is the accent, a miss is amber, never red. */
+.levels { display: grid; gap: 20px; font-size: 18px; line-height: 1.5; }
+.levels .btn { font-size: 18px; min-height: 44px; padding: 8px 18px; }
+.levels .btn.lv-main { min-height: 52px; font-size: 1.15rem; padding: 10px 22px; }
+.lv-screen { gap: 16px; }
+.lv-screen h2 { margin: 0; font-size: clamp(1.35rem, 3.6vw, 1.7rem); line-height: 1.25; }
+.lv-screen h2:focus { outline: none; }
+.lv-screen h3 { margin: 4px 0 0; font-size: 1.2rem; }
+.lv-big { font-size: 1.25rem; font-weight: 600; }
+.lv-muted { color: var(--muted); }
+.lv-warn { padding: 12px 14px; border-radius: var(--r-panel); border: 1px solid var(--amber); background: color-mix(in srgb, var(--amber) 14%, var(--surface)); }
+.lv-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* The level map: five stages, each a grid of large cards. */
+.lv-map { display: grid; gap: 28px; }
+.lv-map-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.lv-stage { display: grid; gap: 12px; }
+.lv-stage h3 { margin: 0; font-size: 1.2rem; }
+.lv-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.lv-card { display: grid; align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-board); overflow: hidden; }
+.lv-open { display: grid; gap: 4px; width: 100%; padding: 16px; border: 0; background: transparent; color: var(--ink); font: inherit; text-align: left; }
+button.lv-open { cursor: pointer; }
+button.lv-open:hover { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.lv-card-num { color: var(--muted); font-weight: 600; }
+.lv-card-name { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
+.lv-card-state { font-weight: 600; }
+.lv-card.done .lv-card-state { color: var(--accent); }
+.lv-card.locked .lv-open, .lv-card.soon .lv-open { color: var(--muted); }
+.lv-card.ready { border-color: var(--accent); }
+.lv-how { min-height: 44px; padding: 8px 16px; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--accent); font: inherit; text-align: left; cursor: pointer; }
+.lv-how:hover { text-decoration: underline; }
+
+/* The intro's examples. */
+.lv-demo { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lv-demo li { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+
+/* The question screen. */
+.lv-q-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+.lv-progress { display: inline-flex; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+.lv-dots { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.lv-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); }
+.lv-dot.right { background: var(--accent); border-color: var(--accent); }
+.lv-dot.wrong { background: var(--amber); border-color: var(--amber); }
+.lv-dot.now { border-color: var(--ink); }
+.lv-dots.big .lv-dot { width: 20px; height: 20px; }
+.levels .lv-replay { justify-self: center; }
+/* Two answers side by side; three in a row; four to six wrap to two rows on a phone. */
+.lv-answers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
+.lv-answers.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lv-answer { min-height: 56px; padding: 10px 14px; border: 2px solid var(--accent); border-radius: var(--r-btn); background: var(--surface); color: var(--ink); font: inherit; font-size: 1.2rem; font-weight: 600; cursor: pointer; }
+.lv-answer:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.lv-answer[aria-disabled='true'] { cursor: default; }
+.lv-answer.right, .lv-answer.right:hover { background: var(--accent); color: var(--accent-ink); }
+.lv-answer.wrong, .lv-answer.wrong:hover { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
+.lv-answer.other { border-color: var(--line); }
+.lv-feedback { min-height: 1.8em; }
+.lv-right, .lv-wrong { font-size: 1.2rem; font-weight: 700; }
+.lv-right { color: var(--accent); }
+.lv-wrong > span { color: var(--amber); }
+.lv-foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--line); }
+@media (max-width: 560px) {
+  .lv-keys { display: none; }
+}

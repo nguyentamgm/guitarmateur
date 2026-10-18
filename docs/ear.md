@@ -30,7 +30,8 @@ ear/
    │                     "Storage" below
    ├─ audio/             timeline.ts (each sound of the session and of the levels, note by
    │                     note, pure), driver.ts (`createEarAudio`: plays the session's effects,
-   │                     sends `audioDone` back; plays a level's parts)
+   │                     sends `audioDone` back; plays a level's parts), levelSounds.ts (each
+   │                     level kind's sounds: its questions, comparisons and demo)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
    ├─ ui/                React: App (the page: the player, `gm.ear` data; App.test.tsx), Header
@@ -40,7 +41,10 @@ ear/
    │                     Stats ("Your ear": the stats card; Stats.test.tsx), NeckAnswer (the
    │                     answer on a neck window, the shared Fretboard),
    │                     editSettings.ts (major ↔ minor, before each question), labels.ts
-   │                     (degree, note, key, preset text), keys.ts (shortcuts); ear.css
+   │                     (degree, note, key, preset text), keys.ts (shortcuts); the beginner
+   │                     levels: Levels (the flow and its driver; Levels.test.tsx), Welcome,
+   │                     LevelMap, LevelIntro, Question, RoundEnd, useRound (round → driver →
+   │                     store), levelWords.ts (a level's words, `playable`); ear.css
    └─ main.tsx           imports @shared/ui tokens, base and controls CSS, then ui/ear.css;
                          registers the site-wide service worker
 ```
@@ -173,6 +177,34 @@ question ─answer─▶ feedback ─next─▶ question … ─next (after the 
 - **The pass:** `LEVEL_RULES`, 8 of 10 right, and the round ends on the level's last step
   (`passes()`). The "test me" quiz (#264) is a round with its own `RoundRules`; each question
   carries its level and step, so a round can mix levels.
+
+## The levels' screens
+
+`ui/Levels.tsx` shows the beginner levels ([`ear-levels.md`](ear-levels.md) "The screens"):
+welcome (first visit only, until `welcomed` is stored) → level map → a level's intro (before its
+first round, or from "How does this level work?") → the questions → the end of the round.
+
+- **Which screen:** the levels, unless the address carries a deep link's parameter (`key`, `mode`,
+  `notes`: Practice's "Train your ear on these notes"), which opens the old trainer screen until
+  #257 removes both.
+- **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
+  `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
+  card says "Coming soon". Each stage issue adds both for its kinds (#256 on). Every level has its
+  map name and one-line "what you'll learn" from the start.
+- **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
+  from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
+  goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
+  sound plays by itself; a right answer waits `RIGHT_PAUSE_BEATS` (2 at 90 BPM, the old trainer's
+  auto-next) and asks the next; a wrong one plays the kind's `compare` and waits for Next.
+- **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
+  welcome and the question screen say so (`levelsNoAudio`) instead of asking.
+- **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is
+  the accent, a miss is amber, never red. Two answers sit side by side, three in a row, four to six
+  wrap to two rows on a phone.
+- **Keyboard** (`keys.ts` `levelShortcut`): Space plays again, Enter goes on, 1–6 answer by place,
+  and with two answers ← and → too. Space and Enter on a focused button press that button. A new
+  question moves the focus to Play again, an answer to Next, a new screen to its heading; feedback
+  and the "make it easier" question are announced (`aria-live`).
 
 ## Sound
 

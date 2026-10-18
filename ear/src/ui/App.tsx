@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPlayer, type Player } from '@shared/core/audio';
+import type { RoundEffect } from '../core/round';
 import { weakWeights, type Answer } from '../core/stats';
+import { LEVEL_SOUNDS, type KindSounds } from '../audio/levelSounds';
 import { LANG_STORAGE_KEY, UI, linkLang, loadLang, saveLang, type Lang } from '../i18n';
 import type { EarSettings } from '../store/settings';
 import {
@@ -9,10 +11,13 @@ import {
   resetStats,
   saveSettings,
   storeAnswer,
+  storeRoundEffect,
+  storeWelcomed,
   type EarData,
 } from '../store/store';
 import { LINK_PARAMS, settingsFromLink } from './deepLink';
 import { Header } from './Header';
+import { Levels } from './Levels';
 import { Settings } from './Settings';
 import { Stats } from './Stats';
 import { Trainer } from './Trainer';
@@ -23,9 +28,18 @@ const keepSettings = (prev: EarData, next: EarData): EarData =>
     ? { ...next, settings: prev.settings }
     : next;
 
-/** The page. `player` is for tests; the page makes its own, which creates no audio until Start. */
-export function App({ player: given }: { player?: Player }) {
+/**
+ * The page. `player` and `sounds` are for tests; the page makes its own player, which creates no
+ * audio until a first sound is asked for.
+ */
+export function App({ player: given, sounds = LEVEL_SOUNDS }: { player?: Player; sounds?: KindSounds }) {
   const [player] = useState(() => given ?? createPlayer());
+  // The beginner levels, unless the address is a link into the old trainer (Practice's "Train your
+  // ear on these notes"), which keeps working until #257 removes it.
+  const [oldTrainer] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return LINK_PARAMS.some((p) => params.has(p));
+  });
   // A deep link's settings (?key= &mode= &notes=) are applied and saved once, on arrival.
   const [data, setData] = useState<EarData>(() => {
     const stored = loadEar();
@@ -46,6 +60,18 @@ export function App({ player: given }: { player?: Player }) {
 
   const onSettings = useCallback((settings: EarSettings) => {
     dataRef.current = saveSettings(dataRef.current, settings);
+    setData(dataRef.current);
+  }, []);
+
+  const onWelcomed = useCallback(() => {
+    dataRef.current = keepSettings(dataRef.current, storeWelcomed(dataRef.current));
+    setData(dataRef.current);
+  }, []);
+
+  const onRoundEffect = useCallback((level: number, effect: RoundEffect) => {
+    const next = storeRoundEffect(dataRef.current, level, effect);
+    if (next === dataRef.current) return;
+    dataRef.current = keepSettings(dataRef.current, next);
     setData(dataRef.current);
   }, []);
 
@@ -115,20 +141,34 @@ export function App({ player: given }: { player?: Player }) {
         <div className="ear-head">
           <div className="ear-kicker">{ui.kicker}</div>
           <h1>{ui.title}</h1>
-          <p className="ear-lead">{ui.lead}</p>
+          {oldTrainer && <p className="ear-lead">{ui.lead}</p>}
         </div>
-        <Trainer ui={ui} player={player} settings={trainerSettings} onScore={onScore} />
-        <Settings ui={ui} settings={settings} onChange={onSettings} />
-        <Stats
-          ui={ui}
-          lang={lang}
-          stats={stats}
-          mode={settings.key.mode}
-          weakNotes={settings.weakNotes}
-          onWeakNotes={(weakNotes) => onSettings({ ...settings, weakNotes })}
-          onPractise={(degrees) => onSettings({ ...settings, degrees })}
-          onReset={onReset}
-        />
+        {oldTrainer ? (
+          <>
+            <Trainer ui={ui} player={player} settings={trainerSettings} onScore={onScore} />
+            <Settings ui={ui} settings={settings} onChange={onSettings} />
+            <Stats
+              ui={ui}
+              lang={lang}
+              stats={stats}
+              mode={settings.key.mode}
+              weakNotes={settings.weakNotes}
+              onWeakNotes={(weakNotes) => onSettings({ ...settings, weakNotes })}
+              onPractise={(degrees) => onSettings({ ...settings, degrees })}
+              onReset={onReset}
+            />
+          </>
+        ) : (
+          <Levels
+            ui={ui}
+            player={player}
+            sounds={sounds}
+            welcomed={data.welcomed}
+            progress={data.levels}
+            onWelcomed={onWelcomed}
+            onRoundEffect={onRoundEffect}
+          />
+        )}
         <p className="ear-footer">{ui.footer}</p>
       </main>
     </>
