@@ -48,6 +48,12 @@ export interface Frets {
   readonly max: number;
 }
 
+/**
+ * The comfortable middle of the guitar, A2 to A4, as MIDI: a level's single notes and tunes stay
+ * in it until a step asks for more. A chord's bass may go lower, as open chords do (E's low E).
+ */
+export const MIDDLE_RANGE = { low: 45, high: 69 } as const;
+
 /** Two or three notes a number of frets apart (levels 1–3; level 1's gap is when they differ). */
 export interface GapStep {
   readonly gap: Frets;

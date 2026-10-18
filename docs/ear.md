@@ -28,8 +28,9 @@ ear/
    │                     progress and unlocking, pure)
    ├─ store/             settings.ts (defaults, reading them back), store.ts (`gm.ear`): see
    │                     "Storage" below
-   ├─ audio/             timeline.ts (each sound of the session, note by note, pure), driver.ts
-   │                     (`createEarAudio`: plays the session's effects, sends `audioDone` back)
+   ├─ audio/             timeline.ts (each sound of the session and of the levels, note by
+   │                     note, pure), driver.ts (`createEarAudio`: plays the session's effects,
+   │                     sends `audioDone` back; plays a level's parts)
    ├─ i18n/              lang.ts: the shared `gm.lang`, `?lang=`, `fill()`; strings.ts: EN + VI UI
    │                     strings; index.ts re-exports both (ui imports '../i18n'); i18n.test.ts
    ├─ ui/                React: App (the page: the player, `gm.ear` data; App.test.tsx), Header
@@ -186,6 +187,18 @@ out:
 - **Lengths, in beats of the cadence tempo:** the question note 2; the comparison: the note picked
   1, a half-beat gap, the right note 1, a half-beat rest; the walk home an eighth a note and the
   closing tonic 1.
+- **The beginner levels' parts** ([`ear-levels.md`](ear-levels.md)), all in the guitar voice:
+  two notes (levels 1, 2, 4), a tune (3, 15), one chord strummed or arpeggiated (5), a
+  progression of strummed chords (6), a wrong answer's "what you picked, then what it was" for any
+  of them (`answerComparePart`), a level's demo (`demoPart`), and the six open strings to tune by
+  (15). Each length is a named constant in beats (the tuning notes in seconds), starting values to
+  judge by ear on real devices (#265). Voicings come from `chordMidis()` unless a level passes its
+  own; a strum is one down stroke `STRUM_SPREAD_SEC` (20 ms) a string, wider than the cadence's so
+  it reads as a strum; an arpeggio's notes each stop as the next starts, so they sound one by one.
+  The parts play the notes they are given: a level's generator keeps single notes and tunes in
+  `MIDDLE_RANGE` (A2–A4, `core/levels.ts`). The driver plays one with `playPart(part, onEnd)`,
+  which first stops what was playing (so "Play again" starts over), and `cancel()` stops it and
+  drops its `onEnd` (moving on).
 - **Voices:** the cadence's chords are always the guitar; single notes (the cadence's tonic, the
   question, the comparison, the walk home, replays) are the guitar or the clean tone
   (`player.tone`), as set. A right answer with no walk home (resolution off) is one accented click.
