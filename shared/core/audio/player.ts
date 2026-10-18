@@ -1,5 +1,5 @@
 /**
- * Plays plucked notes, clicks and a sustained voice (held drones, clean tones) through Web Audio.
+ * Plays plucked notes and clicks through Web Audio.
  * The AudioContext is created lazily on the first sound, which callers must start from a user
  * gesture (a click), because browsers block audio that starts on its own. Nothing is created at
  * import time.
@@ -7,7 +7,6 @@
 import { clickSamples } from './click';
 import { rateOf, type Glide } from './glide';
 import { pluckSamples } from './pluck';
-import { sustainSamples } from './sustain';
 
 /** The slice of the Web Audio API the player uses; lets tests pass a fake. */
 export interface MiniAudioContext {
@@ -28,30 +27,6 @@ export interface PlayerOptions {
   readonly gain?: number;
 }
 
-export interface HoldOptions {
-  /** The held sound's level, 0..1, before the drone level. Default HOLD_LEVEL: well under the notes. */
-  readonly level?: number;
-  /** Seconds to fade in. Default HOLD_FADE_SEC; never under MIN_FADE_SEC. */
-  readonly fadeSec?: number;
-}
-
-/** A sound that holds until stopped. */
-export interface Held {
-  /** Fade out over `fadeSec` (default HOLD_FADE_SEC, never under MIN_FADE_SEC), then stop. Once only. */
-  stop(fadeSec?: number): void;
-}
-
-/** A held sound's default level: quiet, since a drone is what a listener hears longest. */
-export const HOLD_LEVEL = 0.3;
-/** A held sound's default fade in and out. */
-export const HOLD_FADE_SEC = 1;
-/** The shortest fade the player makes: any faster and the cut clicks. */
-export const MIN_FADE_SEC = 0.02;
-/** A clean tone's default length, about as long as a pluck rings. */
-export const TONE_SEC = 1;
-/** A clean tone's attack, and how fast its release falls (the time constant). */
-export const TONE_ATTACK_SEC = 0.01;
-export const TONE_RELEASE_SEC = 0.03;
 /** How fast `cancel()` fades out what is sounding. */
 export const CANCEL_FADE_SEC = 0.03;
 
@@ -66,21 +41,7 @@ export interface Player {
   mute(midi: number, delaySec?: number): void;
   /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
   click(accent?: boolean, delaySec?: number): void;
-  /**
-   * A clean tone: the sustained voice with a short attack, held `lengthSec` (default TONE_SEC),
-   * then released. The pitch without the guitar's colour; at the note level. Same rules as `pluck`.
-   */
-  tone(midi: number, delaySec?: number, lengthSec?: number): void;
-  /**
-   * Hold MIDI notes in the sustained voice (a drone) from now until `stop()`, fading in and out so
-   * it never clicks. At the drone level, which `setLevels` changes as it sounds. Returns a handle
-   * that does nothing when there is no audio.
-   */
-  hold(midis: readonly number[], opts?: HoldOptions): Held;
-  /**
-   * Stop every note, click and tone that is scheduled or still sounding, with a short fade.
-   * Held sounds go on: they stop with their own `stop()`.
-   */
+  /** Stop every note and click that is scheduled or still sounding, with a short fade. */
   cancel(): void;
   setEnabled(on: boolean): void;
   readonly enabled: boolean;
@@ -89,8 +50,8 @@ export interface Player {
    * there is none yet (so call it from a user gesture, like `pluck`); null when there is no audio.
    */
   now(): number | null;
-  /** Levels, 0..1, for the notes (pluck, mute, tone), the click and held sounds: a mix. All default to 1. */
-  setLevels(levels: { readonly note?: number; readonly click?: number; readonly drone?: number }): void;
+  /** Levels, 0..1, for the notes (pluck, mute) and the click: a mix. Both default to 1. */
+  setLevels(levels: { readonly note?: number; readonly click?: number }): void;
 }
 
 export function isAudioSupported(): boolean {
@@ -102,12 +63,10 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
   const make = opts.createContext ?? (() => new AudioContext() as unknown as MiniAudioContext);
   let ctx: MiniAudioContext | null = null;
   let enabled = true;
-  const levels = { note: 1, click: 1, drone: 1 };
+  const levels = { note: 1, click: 1 };
   const cache = new Map<string, AudioBuffer>();
-  /** Notes, clicks and tones scheduled or sounding, for `cancel()`. */
+  /** Notes and clicks scheduled or sounding, for `cancel()`. */
   const active = new Set<{ readonly src: AudioBufferSourceNode; readonly gain: GainNode }>();
-  /** Held sounds, for `setLevels({ drone })`. */
-  const holds = new Set<{ readonly gain: GainNode; readonly level: number; readonly fadeEnd: number }>();
   const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
   const bufferFor = (c: MiniAudioContext, key: string, render: () => Float32Array): AudioBuffer => {
@@ -154,9 +113,6 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     rampTo(gain.gain, 0, t, t + fadeSec);
     for (const src of srcs) src.stop(t + fadeSec + 0.01);
   };
-
-  const sustainBuffer = (c: MiniAudioContext, midi: number) =>
-    bufferFor(c, `s${midi}`, () => sustainSamples({ midi, sampleRate: c.sampleRate }));
 
   /** Start `src` through `g` at `at`, tracked until it ends so `cancel()` can stop it. */
   const track = (src: AudioBufferSourceNode, g: GainNode, at: number) => {
@@ -222,19 +178,6 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     setLevels(next) {
       if (next.note !== undefined) levels.note = clamp(next.note);
       if (next.click !== undefined) levels.click = clamp(next.click);
-      if (next.drone !== undefined) {
-        levels.drone = clamp(next.drone);
-        if (!ctx) return;
-        const t = ctx.currentTime;
-        // Glide to the new level (finishing a fade-in on time), so a held sound never jumps.
-        for (const h of holds) {
-          try {
-            rampTo(h.gain.gain, gainLevel * levels.drone * h.level, t, Math.max(t + 0.1, h.fadeEnd));
-          } catch {
-            // ignore: the level applies to the next held sound
-          }
-        }
-      }
     },
     pluck(midi, delaySec = 0, lengthSec, glide) {
       play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels.note);
@@ -244,69 +187,6 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     },
     click(accent = false, delaySec = 0) {
       play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec, undefined, undefined, levels.click);
-    },
-    tone(midi, delaySec = 0, lengthSec = TONE_SEC) {
-      try {
-        const c = awake();
-        if (!c) return;
-        const src = c.createBufferSource();
-        src.buffer = sustainBuffer(c, midi);
-        src.loop = true;
-        const g = c.createGain();
-        src.connect(g);
-        g.connect(c.destination);
-        const at = c.currentTime + Math.max(0, delaySec);
-        const end = at + Math.max(TONE_ATTACK_SEC, lengthSec);
-        rampTo(g.gain, gainLevel * levels.note, at, at + TONE_ATTACK_SEC, 0);
-        g.gain.setTargetAtTime?.(0, end, TONE_RELEASE_SEC);
-        track(src, g, at);
-        // About 99% faded after five time constants.
-        src.stop(end + 5 * TONE_RELEASE_SEC);
-      } catch {
-        // Audio is a nicety: a failure here must never break a lesson.
-      }
-    },
-    hold(midis, opts = {}) {
-      const none: Held = { stop() {} };
-      try {
-        const c = awake();
-        if (!c || midis.length === 0) return none;
-        const level = clamp(opts.level ?? HOLD_LEVEL);
-        const at = c.currentTime;
-        const fadeEnd = at + Math.max(MIN_FADE_SEC, opts.fadeSec ?? HOLD_FADE_SEC);
-        const g = c.createGain();
-        g.connect(c.destination);
-        rampTo(g.gain, gainLevel * levels.drone * level, at, fadeEnd, 0);
-        // Notes add up: share the level so two notes are about as loud as one.
-        const each = c.createGain();
-        each.gain.value = 1 / Math.sqrt(midis.length);
-        each.connect(g);
-        const srcs = midis.map((midi) => {
-          const src = c.createBufferSource();
-          src.buffer = sustainBuffer(c, midi);
-          src.loop = true;
-          src.connect(each);
-          src.start(at);
-          return src;
-        });
-        const entry = { gain: g, level, fadeEnd };
-        holds.add(entry);
-        let stopped = false;
-        return {
-          stop(fadeSec = HOLD_FADE_SEC) {
-            if (stopped) return;
-            stopped = true;
-            holds.delete(entry);
-            try {
-              fadeOut(c, g, srcs, Math.max(MIN_FADE_SEC, fadeSec));
-            } catch {
-              // ignore: nothing more to do for a sound that cannot be stopped
-            }
-          },
-        };
-      } catch {
-        return none;
-      }
     },
     cancel() {
       if (!ctx) return;

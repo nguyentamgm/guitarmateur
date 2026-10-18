@@ -1,28 +1,15 @@
 /**
- * The ear trainer's data in localStorage: one key, `gm.ear`, holding
- * `{ version, welcomed, levels, settings, stats }` (docs/ear.md "Storage"): the beginner levels'
- * progress, and the old trainer screen's settings and stats until that screen goes (#257). Never
- * the other pages' keys, and never the language (`gm.lang`). Missing, corrupt or unknown data
- * falls back to the defaults; nothing here throws.
+ * The ear trainer's data in localStorage: one key, `gm.ear`, holding `{ version, welcomed, levels }`
+ * (docs/ear.md "Storage"): the beginner levels' progress. Never the other pages' keys, and never
+ * the language (`gm.lang`). Missing, corrupt or unknown data falls back to the defaults; nothing
+ * here throws. The old trainer's `settings` and `stats` (#257 removed it) are no longer read, and
+ * the next write drops them.
  */
-import type { DegreeLabel } from '@shared/core/music';
 import { browserStorage, type KeyValue } from '@shared/platform/storage';
-import { DEGREES } from '../core/degrees';
 import { LEVELS, stepAnswers, type Level, type LevelOf } from '../core/levels';
 import { recordRoundEffect, type LevelProgress, type Progress } from '../core/progress';
 import { ROUND_QUESTIONS, type RoundEffect } from '../core/round';
-import {
-  DAYS_KEPT,
-  EMPTY_STATS,
-  recordAnswer,
-  type Answer,
-  type Count,
-  type DayCount,
-  type ModeStats,
-  type Stats,
-  localDay,
-} from '../core/stats';
-import { DEFAULT_SETTINGS, readSettings, type EarSettings } from './settings';
+import type { Count } from '../core/stats';
 
 export const EAR_STORAGE_KEY = 'gm.ear';
 export const EAR_STORAGE_VERSION = 2;
@@ -33,17 +20,12 @@ export interface EarData {
   readonly welcomed: boolean;
   /** Each beginner level's progress, by level id. */
   readonly levels: Progress;
-  /** The old trainer screen's, until it goes (#257). */
-  readonly settings: EarSettings;
-  readonly stats: Stats;
 }
 
 export const DEFAULT_DATA: EarData = {
   version: EAR_STORAGE_VERSION,
   welcomed: false,
   levels: {},
-  settings: DEFAULT_SETTINGS,
-  stats: EMPTY_STATS,
 };
 
 /**
@@ -60,48 +42,10 @@ const MIGRATIONS: Readonly<
 const isCount = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0;
 const isObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object' && !Array.isArray(v);
-const DEGREE_IDS: readonly DegreeLabel[] = DEGREES.map((d) => d.label);
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 function readCount(v: unknown): Count | null {
   if (!isObject(v) || !isCount(v.asked) || !isCount(v.right) || v.right > v.asked) return null;
   return { asked: v.asked, right: v.right };
-}
-
-/** A mode's stored stats; a broken entry is left out, a broken streak is 0. */
-function readModeStats(v: unknown): ModeStats {
-  if (!isObject(v)) return EMPTY_STATS.major;
-  const degrees: Partial<Record<DegreeLabel, Count>> = {};
-  const mixups: Partial<Record<DegreeLabel, Partial<Record<DegreeLabel, number>>>> = {};
-  const storedDegrees = isObject(v.degrees) ? v.degrees : {};
-  const storedMixups = isObject(v.mixups) ? v.mixups : {};
-  for (const d of DEGREE_IDS) {
-    const c = readCount(storedDegrees[d]);
-    if (c) degrees[d] = c;
-    const heard = storedMixups[d];
-    if (!isObject(heard)) continue;
-    for (const h of DEGREE_IDS) {
-      const n = heard[h];
-      if (h !== d && isCount(n) && n > 0) mixups[d] = { ...mixups[d], [h]: n };
-    }
-  }
-  const days: DayCount[] = [];
-  for (const x of Array.isArray(v.days) ? v.days : []) {
-    const c = readCount(x);
-    const day = isObject(x) ? x.day : null;
-    // Oldest first, one entry a day: anything out of order is dropped.
-    if (
-      c &&
-      typeof day === 'string' &&
-      DAY.test(day) &&
-      (days.length === 0 || day > days[days.length - 1]!.day)
-    ) {
-      days.push({ day, ...c });
-    }
-  }
-  const bestStreak = isCount(v.bestStreak) ? v.bestStreak : 0;
-  const streak = isCount(v.streak) && v.streak <= bestStreak ? v.streak : 0;
-  return { degrees, mixups, days: days.slice(-DAYS_KEPT), streak, bestStreak };
 }
 
 /** Every answer id a level can show, as stored: `String(id)`. */
@@ -137,11 +81,6 @@ export function readProgress(v: unknown): Progress {
   return out;
 }
 
-export function readStats(v: unknown): Stats {
-  const r = isObject(v) ? v : {};
-  return { major: readModeStats(r.major), minor: readModeStats(r.minor) };
-}
-
 /**
  * A stored payload as this version's data. A payload from an older version runs through
  * MIGRATIONS first; one with no version, a newer one or one that is not an object gives the
@@ -160,8 +99,6 @@ export function migrate(raw: unknown): EarData {
     version: EAR_STORAGE_VERSION,
     welcomed: data.welcomed === true,
     levels: readProgress(data.levels),
-    settings: readSettings(data.settings),
-    stats: readStats(data.stats),
   };
 }
 
@@ -179,13 +116,13 @@ function readRaw(storage: KeyValue | null): unknown {
 const storedByNewer = (raw: unknown): boolean =>
   isObject(raw) && typeof raw.version === 'number' && raw.version > EAR_STORAGE_VERSION;
 
-/** The stored settings and stats, or the defaults. Never throws. */
+/** The stored progress, or the defaults. Never throws. */
 export function loadEar(storage: KeyValue | null = browserStorage()): EarData {
   return migrate(readRaw(storage));
 }
 
 /**
- * Write `change` over what is stored now (so another tab's latest stats or settings are the base),
+ * Write `change` over what is stored now (so another tab's latest progress is the base),
  * or over `current` when nothing readable is stored. Returns the new data, even when it could not
  * be saved: it then lasts for this visit only.
  */
@@ -205,29 +142,6 @@ function update(
   return next;
 }
 
-/** Save new settings, keeping the stored stats. */
-export function saveSettings(
-  current: EarData,
-  settings: EarSettings,
-  storage: KeyValue | null = browserStorage(),
-): EarData {
-  return update(current, (base) => ({ ...base, settings }), storage);
-}
-
-/** Count one question's first answer (the session's `score` effect), on the local date of `now`. */
-export function storeAnswer(
-  current: EarData,
-  answer: Answer,
-  now: number,
-  storage: KeyValue | null = browserStorage(),
-): EarData {
-  return update(
-    current,
-    (base) => ({ ...base, stats: recordAnswer(base.stats, answer, localDay(now)) }),
-    storage,
-  );
-}
-
 /** The welcome screen and its sound check are done. */
 export function storeWelcomed(current: EarData, storage: KeyValue | null = browserStorage()): EarData {
   return update(current, (base) => ({ ...base, welcomed: true }), storage);
@@ -245,11 +159,6 @@ export function storeRoundEffect(
 ): EarData {
   if (effect.type !== 'step' && effect.type !== 'score' && effect.type !== 'end') return current;
   return update(current, (base) => ({ ...base, levels: recordRoundEffect(base.levels, id, effect) }), storage);
-}
-
-/** Clear the stats of both modes, keeping the settings. */
-export function resetStats(current: EarData, storage: KeyValue | null = browserStorage()): EarData {
-  return update(current, (base) => ({ ...base, stats: EMPTY_STATS }), storage);
 }
 
 /**

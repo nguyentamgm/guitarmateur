@@ -30,17 +30,14 @@ describe('ear trainer page', () => {
     expect(document.title).toBe('Ear training · Guitarmateur');
   });
 
-  it('opens the beginner levels; a link into the old trainer (Practice\'s) still opens it', () => {
+  it('opens the beginner levels, also from an old link, whose query it ignores', () => {
     localStorage.setItem('gm.lang', 'en');
+    window.history.replaceState(null, '', '/ear?key=A&mode=minor&notes=blues');
     render();
-    expect(host.querySelector('.levels h2')?.textContent).toBe('Train your ear, one small step at a time');
-    expect(host.querySelector('.trainer')).toBeNull();
-    act(() => root.unmount());
-    root = createRoot(host);
-    window.history.replaceState(null, '', '/ear?notes=triad');
-    render();
-    expect(host.querySelector('.trainer')).not.toBeNull();
-    expect(host.querySelector('.levels')).toBeNull();
+    expect(host.querySelector('.levels h2')?.textContent).toBe(
+      'Train your ear, one small step at a time',
+    );
+    expect(localStorage.getItem('gm.ear')).toBeNull();
   });
 
   it('switches language and remembers it for every page', () => {
@@ -60,26 +57,5 @@ describe('ear trainer page', () => {
     expect(host.querySelector('h1')?.textContent).toBe('Luyện tai');
     expect(window.location.search).toBe('');
     expect(localStorage.getItem('gm.lang')).toBe('en');
-  });
-
-  it("opens with a deep link's settings, saves them, and takes them off the address", () => {
-    localStorage.setItem('gm.lang', 'en');
-    window.history.replaceState(null, '', '/ear?key=E&mode=minor&notes=blues&x=1');
-    render();
-    expect(host.querySelector('.trainer-key')?.textContent).toBe('E minor · Minor blues scale');
-    const stored = JSON.parse(localStorage.getItem('gm.ear')!);
-    expect(stored.settings.key).toEqual({ tonic: { letter: 'E', alter: 0 }, mode: 'minor' });
-    expect(stored.settings.degrees).toEqual(['1', 'b3', '4', '#4', '5', 'b7']);
-    // Only the link's own parameters go.
-    expect(window.location.search).toBe('?x=1');
-  });
-
-  it('ignores a deep link it cannot read', () => {
-    localStorage.setItem('gm.lang', 'en');
-    window.history.replaceState(null, '', '/ear?key=H&notes=everything');
-    render();
-    expect(host.querySelector('.trainer-key')?.textContent).toBe('A major · Root, 3rd, 5th');
-    expect(localStorage.getItem('gm.ear')).toBeNull();
-    expect(window.location.search).toBe('');
   });
 });

@@ -7,186 +7,468 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.ear-page { display: grid; gap: 20px; max-width: 1032px; margin: 0 auto; padding: 30px 16px 70px; }
-.ear-head { margin-bottom: 14px; }
-.ear-kicker { font-size: 14px; color: var(--muted); font-weight: 600; }
-.ear-head h1 { font-size: clamp(1.8rem, 4.2vw, 2.5rem); margin: 6px 0 8px; }
-.ear-lead { margin: 0; color: var(--muted); font-size: 16px; max-width: 620px; line-height: 1.5; }
-.board p { margin: 0; }
-.ear-footer { margin: 0; color: var(--muted); font-size: 14px; }
+.ear-page {
+  display: grid;
+  gap: 20px;
+  max-width: 1032px;
+  margin: 0 auto;
+  padding: 30px 16px 70px;
+}
+.ear-head {
+  margin-bottom: 14px;
+}
+.ear-kicker {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.ear-head h1 {
+  font-size: clamp(1.8rem, 4.2vw, 2.5rem);
+  margin: 6px 0 8px;
+}
+.board p {
+  margin: 0;
+}
+.ear-footer {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
 
-/* The trainer card (Trainer.tsx) */
-.trainer-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; justify-content: space-between; }
-.trainer-head h2 { margin: 0; font-size: 1.15rem; }
-.trainer-key { font-family: var(--f-mono); font-size: var(--t-small); color: var(--muted); }
-.trainer-status { min-height: 1.5em; font-size: 1.05rem; font-weight: 600; }
-.trainer-compare { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); }
-.trainer-foot { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
-.trainer-score { font-family: var(--f-mono); font-size: var(--t-small); color: var(--muted); font-variant-numeric: tabular-nums; }
-.btn:disabled { opacity: 0.45; cursor: default; filter: none; }
-
-/* The answer strip: one string on the neck's wood, fret 0 (the root) to 11. The mode's scale
+/* The answer strip (AnswerStrip.tsx, for levels 14–15): one string on the neck's wood, fret 0 (the root) to 11. The mode's scale
    notes are dots, the others smaller and pale; a degree that is off is dimmed and disabled. */
-.strip { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); background: var(--wood); border: 1px solid var(--wood-edge); border-radius: var(--r-chip); overflow: hidden; }
-.cell { position: relative; display: grid; justify-items: center; padding: 10px 0 4px; border: 0; border-left: 2px solid var(--fret); background: transparent; color: var(--dot-ink); font-family: var(--f-mono); cursor: pointer; }
-.cell:first-child { border-left: 0; box-shadow: inset -5px 0 0 var(--nut); }
-.cell::before { content: ''; position: absolute; left: 0; right: 0; top: 24px; height: 2px; background: var(--string); }
-.cell-dot { position: relative; display: grid; place-items: center; min-width: 36px; height: 30px; padding: 0 4px; border-radius: 15px; background: var(--dot); font-size: 0.82rem; font-weight: 700; }
-.cell.out .cell-dot { background: color-mix(in srgb, var(--dot) 55%, var(--wood)); }
-.frets { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; padding-bottom: 4px; }
+.strip {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  background: var(--wood);
+  border: 1px solid var(--wood-edge);
+  border-radius: var(--r-chip);
+  overflow: hidden;
+}
+.cell {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 10px 0 4px;
+  border: 0;
+  border-left: 2px solid var(--fret);
+  background: transparent;
+  color: var(--dot-ink);
+  font-family: var(--f-mono);
+  cursor: pointer;
+}
+.cell:first-child {
+  border-left: 0;
+  box-shadow: inset -5px 0 0 var(--nut);
+}
+.cell::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24px;
+  height: 2px;
+  background: var(--string);
+}
+.cell-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  height: 30px;
+  padding: 0 4px;
+  border-radius: 15px;
+  background: var(--dot);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.cell.out .cell-dot {
+  background: color-mix(in srgb, var(--dot) 55%, var(--wood));
+}
+.frets {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  padding-bottom: 4px;
+}
 /* On the wood the fret-number grey is too faint for text (3.4:1): the fret colour is 7:1. */
-.frets span { text-align: center; color: var(--fret); font-family: var(--f-mono); font-size: 11px; }
-.cell.off { cursor: default; }
-.cell.off .cell-dot { opacity: 0.35; }
-.cell:not(.off):hover .cell-dot, .cell:focus-visible .cell-dot { outline: 2px solid var(--neck-accent, var(--accent)); outline-offset: 1px; }
-.cell:focus-visible { outline: none; }
-.cell.right .cell-dot { background: var(--neck-accent, var(--accent)); color: var(--neck-accent-ink, var(--accent-ink)); }
-.cell.picked .cell-dot { background: var(--amber); color: var(--amber-ink); }
+.frets span {
+  text-align: center;
+  color: var(--fret);
+  font-family: var(--f-mono);
+  font-size: 11px;
+}
+.cell.off {
+  cursor: default;
+}
+.cell.off .cell-dot {
+  opacity: 0.35;
+}
+.cell:not(.off):hover .cell-dot,
+.cell:focus-visible .cell-dot {
+  outline: 2px solid var(--neck-accent, var(--accent));
+  outline-offset: 1px;
+}
+.cell:focus-visible {
+  outline: none;
+}
+.cell.right .cell-dot {
+  background: var(--neck-accent, var(--accent));
+  color: var(--neck-accent-ink, var(--accent-ink));
+}
+.cell.picked .cell-dot {
+  background: var(--amber);
+  color: var(--amber-ink);
+}
 
 /* Phone width: twelve cells do not fit at 40px, so only the active degrees show, as big buttons
    in chromatic order. */
 @media (max-width: 560px) {
-  .strip { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; padding: 6px; }
-  .cell { border-left: 0; padding: 4px 0; min-height: 52px; }
-  .cell:first-child { box-shadow: none; }
-  .cell::before { display: none; }
-  .cell.off { display: none; }
+  .strip {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 6px;
+    padding: 6px;
+  }
+  .cell {
+    border-left: 0;
+    padding: 4px 0;
+    min-height: 52px;
+  }
+  .cell:first-child {
+    box-shadow: none;
+  }
+  .cell::before {
+    display: none;
+  }
+  .cell.off {
+    display: none;
+  }
   /* The cells wrap here, so the fret row could not stay under them: each cell shows its own fret
      (generated text, outside the button's name, which says the fret already). */
-  .frets { display: none; }
-  .cell { gap: 2px; }
-  .cell::after { content: attr(data-fret); color: var(--fret); font-size: 11px; }
-  .cell-dot { min-width: 48px; height: 36px; border-radius: 18px; font-size: 0.95rem; }
+  .frets {
+    display: none;
+  }
+  .cell {
+    gap: 2px;
+  }
+  .cell::after {
+    content: attr(data-fret);
+    color: var(--fret);
+    font-size: 11px;
+  }
+  .cell-dot {
+    min-width: 48px;
+    height: 36px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+  }
 }
-
-/* A control the session ignores right now: shown off, but it keeps the focus (unlike disabled). */
-.btn[aria-disabled='true'] { opacity: 0.45; cursor: default; filter: none; }
 
 /* The right / wrong highlight pops in, unless the player asks for less motion. */
-@keyframes cell-pop { 50% { transform: scale(1.18); } }
-.cell.right .cell-dot, .cell.picked .cell-dot { animation: cell-pop 0.25s ease-out; }
+@keyframes cell-pop {
+  50% {
+    transform: scale(1.18);
+  }
+}
+.cell.right .cell-dot,
+.cell.picked .cell-dot {
+  animation: cell-pop 0.25s ease-out;
+}
 @media (prefers-reduced-motion: reduce) {
-  .cell.right .cell-dot, .cell.picked .cell-dot { animation: none; }
+  .cell.right .cell-dot,
+  .cell.picked .cell-dot {
+    animation: none;
+  }
 }
-
-/* The keyboard shortcuts, under the card. */
-.trainer-keys summary { cursor: pointer; color: var(--muted); font-size: var(--t-small); font-weight: 600; }
-.trainer-keys dl { display: grid; gap: 6px; margin: 10px 0 0; }
-.trainer-keys dl div { display: grid; grid-template-columns: 12em 1fr; gap: 12px; }
-.trainer-keys dt, .trainer-keys dd { margin: 0; font-size: var(--t-small); }
-.trainer-keys kbd { font-family: var(--f-mono); font-size: 0.85em; padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--bg); }
-@media (max-width: 560px) {
-  .trainer-keys dl div { grid-template-columns: 1fr; gap: 2px; }
-}
-.trainer:focus { outline: none; }
-
-/* The settings card (Settings.tsx): a details, open on a wide screen, folded on a phone. */
-.settings > summary { cursor: pointer; }
-.settings > summary h2 { display: inline; margin: 0; font-size: 1.15rem; }
-.settings[open] > summary { margin-bottom: 4px; }
-.settings-note { color: var(--muted); font-size: var(--t-small); }
-.settings-row { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; }
-.settings-label { font-size: var(--t-label); color: var(--muted); font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
-.settings-hint { color: var(--muted); font-size: var(--t-small); }
-/* Both folds (settings, shortcuts) draw their own marker, inside the card; 40px to tap on a phone. */
-.settings > summary, .trainer-keys summary { display: flex; align-items: center; gap: 6px; list-style: none; }
-.settings > summary::-webkit-details-marker, .trainer-keys summary::-webkit-details-marker { display: none; }
-.settings > summary::before, .trainer-keys summary::before { content: '▸'; color: var(--muted); }
-.settings[open] > summary::before, .trainer-keys[open] summary::before { content: '▾'; }
-@media (max-width: 560px) {
-  .settings > summary, .trainer-keys summary { min-height: 40px; }
-}
-
-/* The stats card (Stats.tsx): accuracy bars per degree, mix-ups, the last 14 days. */
-.stats h3 { margin: 6px 0 0; font-size: var(--t-small); font-family: var(--f-mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
-.stats-empty, .stats-note { color: var(--muted); }
-.stats-totals { font-weight: 600; }
-.bars-acc, .mixups { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.bars-acc li { display: grid; grid-template-columns: 11em 1fr; gap: 12px; align-items: center; }
-.acc-label { font-family: var(--f-mono); font-size: var(--t-small); font-variant-numeric: tabular-nums; }
-.acc-track { height: 10px; border-radius: 5px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
-.acc-bar { display: block; height: 100%; }
-.acc-bar.good { background: var(--accent); }
-.acc-bar.mid { background: var(--amber); }
-.acc-bar.weak { background: var(--muted); }
-.mixups li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.days { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; height: 48px; align-items: end; }
-.days li { height: 100%; display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); }
-.days .day-bar { display: block; width: 100%; min-height: 0; background: var(--accent); border-radius: 3px 3px 0 0; }
-.stats-confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-@media (max-width: 560px) {
-  .bars-acc li { grid-template-columns: 1fr; gap: 2px; }
-}
-.neck-answer { margin-top: -4px; }
 
 /* The beginner levels (Levels.tsx and its screens): big and calm, for a beginner on a phone
    (docs/ear-levels.md): no text under 18px, answer buttons 56px tall, every other tap 44px. Right
    is the accent, a miss is amber, never red. */
-.levels { display: grid; gap: 20px; font-size: 18px; line-height: 1.5; }
-.levels .btn { font-size: 18px; min-height: 44px; padding: 8px 18px; }
-.levels .btn.lv-main { min-height: 52px; font-size: 1.15rem; padding: 10px 22px; }
-.lv-screen { gap: 16px; }
-.lv-screen h2 { margin: 0; font-size: clamp(1.35rem, 3.6vw, 1.7rem); line-height: 1.25; }
-.lv-screen h2:focus { outline: none; }
-.lv-screen h3 { margin: 4px 0 0; font-size: 1.2rem; }
-.lv-big { font-size: 1.25rem; font-weight: 600; }
-.lv-muted { color: var(--muted); }
-.lv-warn { padding: 12px 14px; border-radius: var(--r-panel); border: 1px solid var(--amber); background: color-mix(in srgb, var(--amber) 14%, var(--surface)); }
-.lv-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.levels {
+  display: grid;
+  gap: 20px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+.levels .btn {
+  font-size: 18px;
+  min-height: 44px;
+  padding: 8px 18px;
+}
+.levels .btn.lv-main {
+  min-height: 52px;
+  font-size: 1.15rem;
+  padding: 10px 22px;
+}
+.lv-screen {
+  gap: 16px;
+}
+.lv-screen h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 3.6vw, 1.7rem);
+  line-height: 1.25;
+}
+.lv-screen h2:focus {
+  outline: none;
+}
+.lv-screen h3 {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+}
+.lv-big {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.lv-muted {
+  color: var(--muted);
+}
+.lv-warn {
+  padding: 12px 14px;
+  border-radius: var(--r-panel);
+  border: 1px solid var(--amber);
+  background: color-mix(in srgb, var(--amber) 14%, var(--surface));
+}
+.lv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
 
 /* The level map: five stages, each a grid of large cards. */
-.lv-map { display: grid; gap: 28px; }
-.lv-map-head { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
-.lv-stage { display: grid; gap: 12px; }
-.lv-stage h3 { margin: 0; font-size: 1.2rem; }
-.lv-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
-.lv-card { display: grid; align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-board); overflow: hidden; }
-.lv-open { display: grid; gap: 4px; width: 100%; padding: 16px; border: 0; background: transparent; color: var(--ink); font: inherit; text-align: left; }
-button.lv-open { cursor: pointer; }
-button.lv-open:hover { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
-.lv-card-num { color: var(--muted); font-weight: 600; }
-.lv-card-name { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
-.lv-card-state { font-weight: 600; }
-.lv-card.done .lv-card-state { color: var(--accent); }
-.lv-card.locked .lv-open, .lv-card.soon .lv-open { color: var(--muted); }
-.lv-card.ready { border-color: var(--accent); }
-.lv-how { min-height: 44px; padding: 8px 16px; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--accent); font: inherit; text-align: left; cursor: pointer; }
-.lv-how:hover { text-decoration: underline; }
+.lv-map {
+  display: grid;
+  gap: 28px;
+}
+.lv-map-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+.lv-stage {
+  display: grid;
+  gap: 12px;
+}
+.lv-stage h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.lv-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+.lv-card {
+  display: grid;
+  align-content: start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-board);
+  overflow: hidden;
+}
+.lv-open {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+button.lv-open {
+  cursor: pointer;
+}
+button.lv-open:hover {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+.lv-card-num {
+  color: var(--muted);
+  font-weight: 600;
+}
+.lv-card-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.lv-card-state {
+  font-weight: 600;
+}
+.lv-card.done .lv-card-state {
+  color: var(--accent);
+}
+.lv-card.locked .lv-open,
+.lv-card.soon .lv-open {
+  color: var(--muted);
+}
+.lv-card.ready {
+  border-color: var(--accent);
+}
+.lv-how {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lv-how:hover {
+  text-decoration: underline;
+}
 
 /* The intro's examples. */
-.lv-demo { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.lv-demo li { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.lv-demo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.lv-demo li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+}
 
 /* The question screen. */
-.lv-q-head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
-.lv-progress { display: inline-flex; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; color: var(--muted); }
-.lv-dots { display: inline-flex; flex-wrap: wrap; gap: 6px; }
-.lv-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); }
-.lv-dot.right { background: var(--accent); border-color: var(--accent); }
-.lv-dot.wrong { background: var(--amber); border-color: var(--amber); }
-.lv-dot.now { border-color: var(--ink); }
-.lv-dots.big .lv-dot { width: 20px; height: 20px; }
-.levels .lv-replay { justify-self: center; }
+.lv-q-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+.lv-progress {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.lv-dots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lv-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+}
+.lv-dot.right {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.lv-dot.wrong {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+.lv-dot.now {
+  border-color: var(--ink);
+}
+.lv-dots.big .lv-dot {
+  width: 20px;
+  height: 20px;
+}
+.levels .lv-replay {
+  justify-self: center;
+}
 /* Two answers side by side; three in a row; four to six wrap to two rows on a phone. */
-.lv-answers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
-.lv-answers.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.lv-answer { min-height: 56px; padding: 10px 14px; border: 2px solid var(--accent); border-radius: var(--r-btn); background: var(--surface); color: var(--ink); font: inherit; font-size: 1.2rem; font-weight: 600; cursor: pointer; }
-.lv-answer:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
-.lv-answer[aria-disabled='true'] { cursor: default; }
-.lv-answer.right, .lv-answer.right:hover { background: var(--accent); color: var(--accent-ink); }
-.lv-answer.wrong, .lv-answer.wrong:hover { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
-.lv-answer.other { border-color: var(--line); }
-.lv-feedback { min-height: 1.8em; }
-.lv-right, .lv-wrong { font-size: 1.2rem; font-weight: 700; }
-.lv-right { color: var(--accent); }
-.lv-wrong > span { color: var(--amber); }
-.lv-foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--line); }
+.lv-answers {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+}
+.lv-answers.n3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.lv-answer {
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 2px solid var(--accent);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lv-answer:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+.lv-answer[aria-disabled='true'] {
+  cursor: default;
+}
+.lv-answer.right,
+.lv-answer.right:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.lv-answer.wrong,
+.lv-answer.wrong:hover {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--amber-ink);
+}
+.lv-answer.other {
+  border-color: var(--line);
+}
+.lv-feedback {
+  min-height: 1.8em;
+}
+.lv-right,
+.lv-wrong {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.lv-right {
+  color: var(--accent);
+}
+.lv-wrong > span {
+  color: var(--amber);
+}
+.lv-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
 @media (max-width: 560px) {
-  .lv-keys { display: none; }
+  .lv-keys {
+    display: none;
+  }
 }
 
 /* A Stage 1 wrong answer's picture (NotesPicture.tsx): the notes' shape, or the gap on one string. */
-.lv-shape { width: min(100%, 260px); height: auto; justify-self: center; }
-.lv-shape polyline { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linejoin: round; }
-.lv-shape circle { fill: var(--accent); }
-.lv-picture:not(svg) { overflow-x: auto; }
+.lv-shape {
+  width: min(100%, 260px);
+  height: auto;
+  justify-self: center;
+}
+.lv-shape polyline {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.lv-shape circle {
+  fill: var(--accent);
+}
+.lv-picture:not(svg) {
+  overflow-x: auto;
+}

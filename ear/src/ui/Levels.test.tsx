@@ -36,10 +36,8 @@ function fakePlayer(audio = true) {
     now: () => (audio ? Date.now() / 1000 : null),
     pluck: (midi) => played.push(midi),
     mute: () => {},
-    tone: () => {},
     click: () => {},
     setLevels: () => {},
-    hold: () => ({ stop: () => {} }),
     cancel: () => {},
   };
   return { player, played };

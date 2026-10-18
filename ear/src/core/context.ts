@@ -1,6 +1,6 @@
-/** The key context: a cadence that sets the key, then the tonic; and a drone (docs/ear.md "Music rules"). */
-import { bassMidi, chordMidis } from '@shared/core/audio';
-import { diatonicChords, interval, romanFor, type Chord, type Key } from '@shared/core/music';
+/** The key context: a cadence that sets the key, then the tonic (docs/ear.md "Music rules"). */
+import { chordMidis } from '@shared/core/audio';
+import { diatonicChords, romanFor, type Chord, type Key } from '@shared/core/music';
 import { beatSeconds, clampBpm, strumDelays } from '@shared/core/rhythm';
 import { midiOf } from './degrees';
 
@@ -94,17 +94,4 @@ export function cadence(
   });
   const tonic = { midi: tonicMidi, time: start, duration: TONIC_BEATS * beat };
   return { chords, tonic, duration: start + tonic.duration };
-}
-
-/** The drone's top: the E (52) an octave above bassMidi's low E (40). */
-export const DRONE_HIGH = 52;
-
-/**
- * The drone, low to high: 1 and 5 with no 3rd, so it fits major and minor alike. The 5th sits
- * above the bass root, or below it when above would pass DRONE_HIGH (tonics B♭ to E♭).
- */
-export function droneNotes(key: Key): number[] {
-  const root = bassMidi(key.tonic);
-  const fifth = root + interval('5').semitones;
-  return fifth <= DRONE_HIGH ? [root, fifth] : [fifth - 12, root];
 }
