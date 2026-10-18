@@ -5,11 +5,14 @@
  * sounds again. After 4 wrong in a row it offers an easier step instead.
  */
 import { useEffect, useRef } from 'react';
+import type { Player } from '@shared/core/audio';
 import { stepAnswers, type AnswerId, type LevelOf, type QuestionKind } from '../core/levels';
 import type { RoundState } from '../core/round';
+import { stageOneNotes } from '../core/stage1';
 import { fill, type UiStrings } from '../i18n';
 import { levelKeyOwnedByTarget, levelShortcut } from './keys';
 import { answerWords, levelText, playText } from './levelWords';
+import { NotesPicture } from './NotesPicture';
 import type { Round } from './useRound';
 
 export function Question({
@@ -17,12 +20,14 @@ export function Question({
   round,
   state,
   noAudio,
+  player,
   onBack,
 }: {
   ui: UiStrings;
   round: Round;
   state: RoundState;
   noAudio: boolean;
+  player: Player;
   onBack(): void;
 }) {
   const { level, phase } = state;
@@ -182,6 +187,15 @@ export function Question({
                 {ui.next} ▶
               </button>
             </div>
+          )}
+          {answered !== null && !right && level.stage === 1 && (
+            <NotesPicture
+              ui={ui}
+              level={level}
+              notes={stageOneNotes(level, q)}
+              label={rightWords.heard}
+              player={player}
+            />
           )}
           <p className="lv-muted">{words.tip}</p>
         </>

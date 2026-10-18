@@ -189,13 +189,17 @@ first round, or from "How does this level work?") → the questions → the end 
   #257 removes both.
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds (#256 on). Every level has its
-  map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue adds both for its kinds; Stage 1 (levels 1–4) is built
+  (#256). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
   sound plays by itself; a right answer waits `RIGHT_PAUSE_BEATS` (2 at 90 BPM, the old trainer's
   auto-next) and asks the next; a wrong one plays the kind's `compare` and waits for Next.
+- **Stage 1** (`core/stage1.ts`): a question's notes come from its seed, single notes in
+  `MIDDLE_RANGE`, each move as many frets as the step says. A wrong answer replays the question
+  (level 3's tune at `STAGE_ONE_SLOW_BPM`) and shows `NotesPicture`: the notes as dots by pitch,
+  or for level 4 the two notes on one string of the neck.
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is

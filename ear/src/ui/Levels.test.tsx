@@ -187,6 +187,21 @@ describe('the level map', () => {
     );
   });
 
+  it('with the real sounds, Stage 1 opens level by level and levels 5–15 stay locked', () => {
+    const progress = Object.fromEntries(
+      [1, 2, 3].map((id) => [id, { step: 2, best: 9, done: true, counts: {} }]),
+    );
+    localStorage.setItem(
+      EAR_STORAGE_KEY,
+      JSON.stringify({ ...loadEar(), welcomed: true, levels: progress }),
+    );
+    act(() => root.render(createElement(App, { player: fakePlayer().player })));
+    const states = [...host.querySelectorAll('.lv-card')].map((c) => c.className.split(' ')[1]);
+    expect(states).toEqual(['done', 'done', 'done', 'ready', ...Array<string>(11).fill('locked')]);
+    click(button('Continue'));
+    expect(heading()).toBe('Level 4 · Close or far?');
+  });
+
   it('a level whose sounds are not built yet shows as coming soon', () => {
     welcomed();
     render(fakePlayer().player, {});

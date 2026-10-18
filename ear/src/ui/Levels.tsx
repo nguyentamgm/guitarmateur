@@ -178,7 +178,9 @@ export function Levels({
       />
     );
   } else if (s) {
-    body = <Question ui={ui} round={round} state={s} noAudio={noAudio} onBack={toMap} />;
+    body = (
+      <Question ui={ui} round={round} state={s} noAudio={noAudio} player={player} onBack={toMap} />
+    );
   }
 
   return (
