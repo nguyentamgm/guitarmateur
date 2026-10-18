@@ -158,6 +158,26 @@ const en = {
       tip: 'In a solo, most notes move to a close neighbour; a big jump stands out.',
       learned: 'how far apart two notes are',
     },
+    5: {
+      intro: "You'll hear a chord: several notes played together. Does it sound happy or sad?",
+      question: 'Did the chord sound happy or sad?',
+      answers: { major: 'Happy', minor: 'Sad' },
+      heard: { major: 'the chord sounds happy', minor: 'the chord sounds sad' },
+      tip: 'A happy chord sounds bright and open; a sad one sounds darker, a little heavy.',
+      learned:
+        'if a chord sounds happy or sad. Musicians call the happy chord major and the sad one minor',
+    },
+    6: {
+      intro: "You'll hear a few chords. Does it sound finished, like the end of a song, or does it sound like it should keep going?",
+      question: 'Did it sound finished, or not?',
+      answers: { finished: 'Finished', notFinished: 'Not finished' },
+      heard: {
+        finished: 'it sounds finished: it came home',
+        notFinished: 'it does not sound finished: it wants to keep going',
+      },
+      tip: 'Listen to the last chord: does it feel like resting at home, or like a question?',
+      learned: 'when a tune has come home',
+    },
   } as Readonly<Partial<Record<number, PlayText>>>,
   /** A Stage 1 wrong answer's picture: the notes on one string. */
   gapLabel: 'On the neck: the two notes are {n} frets apart',
@@ -316,6 +336,26 @@ const vi: UiStrings = {
       heard: { close: 'hai nốt gần nhau', far: 'hai nốt cách xa nhau' },
       tip: 'Khi solo, hầu hết các nốt đi sang một nốt gần bên cạnh; một bước nhảy lớn sẽ nổi bật.',
       learned: 'hai nốt cách nhau gần hay xa',
+    },
+    5: {
+      intro: 'Bạn sẽ nghe một hợp âm: vài nốt chơi cùng lúc. Nó nghe vui hay buồn?',
+      question: 'Hợp âm đó nghe vui hay buồn?',
+      answers: { major: 'Vui', minor: 'Buồn' },
+      heard: { major: 'hợp âm nghe vui', minor: 'hợp âm nghe buồn' },
+      tip: 'Hợp âm vui nghe sáng và thoáng; hợp âm buồn nghe tối hơn, hơi nặng.',
+      learned:
+        'hợp âm vui hay buồn. Người chơi nhạc gọi hợp âm vui là hợp âm trưởng (major), hợp âm buồn là hợp âm thứ (minor)',
+    },
+    6: {
+      intro: 'Bạn sẽ nghe vài hợp âm. Nghe như đã kết thúc, như đoạn cuối một bài hát, hay như vẫn còn muốn đi tiếp?',
+      question: 'Nghe đã kết thúc hay chưa?',
+      answers: { finished: 'Đã hết', notFinished: 'Chưa hết' },
+      heard: {
+        finished: 'nghe đã kết thúc: đã về nhà',
+        notFinished: 'nghe chưa kết thúc: vẫn muốn đi tiếp',
+      },
+      tip: 'Nghe hợp âm cuối: nó như đã về nhà nghỉ ngơi, hay như một câu hỏi?',
+      learned: 'khi nào một giai điệu đã về nhà',
     },
   },
   gapLabel: 'Trên cần đàn: hai nốt cách nhau {n} phím',

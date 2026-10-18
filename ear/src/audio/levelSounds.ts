@@ -12,7 +12,17 @@ import {
 } from '../core/levels';
 import type { RoundQuestion } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
-import { notePart, tunePart, twoNotesPart, waitPart, type Part } from './timeline';
+import { cadenceQuestion, chordQuestion, homeChord, otherQuality } from '../core/stage2';
+import {
+  answerComparePart,
+  chordPart,
+  notePart,
+  progressionPart,
+  tunePart,
+  twoNotesPart,
+  waitPart,
+  type Part,
+} from './timeline';
 
 /** One of a level intro's examples: an answer, and how it sounds. */
 export interface DemoExample {
@@ -42,25 +52,67 @@ const notesPart = (notes: readonly number[], bpm: number): Part =>
 /** The demo's seeds: fixed, so an intro always plays the same examples. */
 const DEMO_SEEDS = [11, 22, 33, 44];
 
+/** A level intro's examples: one question per answer the step shows, from fixed seeds. */
+const demoOf =
+  (question: LevelSounds['question']): LevelSounds['demo'] =>
+  (level, step) =>
+    stepAnswers(level as LevelOf<QuestionKind>, step).map((answer, i) => ({
+      answer,
+      part: question(level, { level: level.id, step, answer, seed: DEMO_SEEDS[i]! }),
+    }));
+
 /**
  * Stage 1 (levels 1–4): no picked-against-right comparison, since a wrong answer is best heard by
  * hearing the question again (the tune of level 3, slower).
  */
+const stageOneQuestion: LevelSounds['question'] = (level, q) =>
+  notesPart(stageOneNotes(level, q), STAGE_ONE_BPM);
+
 const stageOne: LevelSounds = {
-  question: (level, q) => notesPart(stageOneNotes(level, q), STAGE_ONE_BPM),
+  question: stageOneQuestion,
   compare: (level, q) =>
     notesPart(
       stageOneNotes(level, q),
       level.kind === 'contour' ? STAGE_ONE_SLOW_BPM : STAGE_ONE_BPM,
     ),
-  demo: (level, step) =>
-    stepAnswers(level as LevelOf<QuestionKind>, step).map((answer, i) => ({
-      answer,
-      part: notesPart(
-        stageOneNotes(level, { level: level.id, step, answer, seed: DEMO_SEEDS[i]! }),
-        STAGE_ONE_BPM,
-      ),
-    })),
+  demo: demoOf(stageOneQuestion),
+};
+
+/** Level 5's tempo: how long a chord rings, and an arpeggio's pace. */
+export const CHORD_BPM = 90;
+
+const chordQuestionPart: LevelSounds['question'] = (level, q) => {
+  const { chord, style } = chordQuestion(level, q);
+  return chordPart(chord, style, CHORD_BPM);
+};
+
+/** Level 5: a wrong answer plays the same chord in the quality picked, then as it was. */
+const chordQuality: LevelSounds = {
+  question: chordQuestionPart,
+  compare: (level, q) => {
+    const { chord, style } = chordQuestion(level, q);
+    return answerComparePart(
+      chordPart(otherQuality(chord), style, CHORD_BPM),
+      chordPart(chord, style, CHORD_BPM),
+      CHORD_BPM,
+    );
+  },
+  demo: demoOf(chordQuestionPart),
+};
+
+const cadencePart: LevelSounds['question'] = (level, q) => {
+  const { chords, bpm } = cadenceQuestion(level, q);
+  return progressionPart(chords, bpm);
+};
+
+/** Level 6: a wrong answer plays the same chords, then the home chord after them. */
+const finished: LevelSounds = {
+  question: cadencePart,
+  compare: (level, q) => {
+    const { key, chords, bpm } = cadenceQuestion(level, q);
+    return progressionPart([...chords, homeChord(key)], bpm);
+  },
+  demo: demoOf(cadencePart),
 };
 
 /** The kinds built so far. */
@@ -69,6 +121,8 @@ export const LEVEL_SOUNDS: KindSounds = {
   higherLower: stageOne,
   contour: stageOne,
   distance: stageOne,
+  chordQuality,
+  finished,
 };
 
 /** The welcome's sound check: one guitar note, A3, in the middle of the guitar. */
