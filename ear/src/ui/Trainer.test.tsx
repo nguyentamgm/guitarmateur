@@ -41,7 +41,15 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const render = (player: Player) => act(() => root.render(createElement(App, { player })));
+/**
+ * The old trainer screen opens from a link into it (Practice's), until #257 removes it: an empty
+ * `?key=` changes no setting.
+ */
+const OLD_TRAINER = '/ear?key=';
+const render = (player: Player) => {
+  window.history.replaceState(null, '', OLD_TRAINER);
+  act(() => root.render(createElement(App, { player })));
+};
 const status = () => host.querySelector('.trainer-status')!.textContent;
 const button = (text: string) =>
   [...host.querySelectorAll<HTMLButtonElement>('button')].find((b) =>

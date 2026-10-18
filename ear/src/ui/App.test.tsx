@@ -30,6 +30,19 @@ describe('ear trainer page', () => {
     expect(document.title).toBe('Ear training · Guitarmateur');
   });
 
+  it('opens the beginner levels; a link into the old trainer (Practice\'s) still opens it', () => {
+    localStorage.setItem('gm.lang', 'en');
+    render();
+    expect(host.querySelector('.levels h2')?.textContent).toBe('Train your ear, one small step at a time');
+    expect(host.querySelector('.trainer')).toBeNull();
+    act(() => root.unmount());
+    root = createRoot(host);
+    window.history.replaceState(null, '', '/ear?notes=triad');
+    render();
+    expect(host.querySelector('.trainer')).not.toBeNull();
+    expect(host.querySelector('.levels')).toBeNull();
+  });
+
   it('switches language and remembers it for every page', () => {
     localStorage.setItem('gm.lang', 'en');
     render();

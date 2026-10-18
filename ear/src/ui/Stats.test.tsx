@@ -48,7 +48,15 @@ function answered(list: [Answer, number][]): EarData {
 const major = (degree: string, answer: string): Answer => ({ mode: 'major', degree, answer });
 const times = <T,>(n: number, x: T): T[] => Array<T>(n).fill(x);
 
-const render = () => act(() => root.render(createElement(App, { player })));
+/**
+ * The old trainer screen opens from a link into it (Practice's), until #257 removes it: an empty
+ * `?key=` changes no setting.
+ */
+const OLD_TRAINER = '/ear?key=';
+const render = () => {
+  window.history.replaceState(null, '', OLD_TRAINER);
+  act(() => root.render(createElement(App, { player })));
+};
 const card = () => host.querySelector('.stats')!;
 const text = (sel: string) => [...card().querySelectorAll(sel)].map((e) => e.textContent);
 const button = (t: string) =>
@@ -170,6 +178,7 @@ describe('the stats card', () => {
   it('counts a question answered on the page', () => {
     // The page keeps its first player: render once, with one that logs.
     const pluck: number[] = [];
+    window.history.replaceState(null, '', OLD_TRAINER);
     act(() =>
       root.render(createElement(App, { player: { ...player, pluck: (m) => pluck.push(m) } })),
     );
