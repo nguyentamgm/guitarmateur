@@ -134,8 +134,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds; Stage 1 (levels 1–4) is built
-  (#256). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–2 (levels 1–6) are
+  built (#256, #258). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
@@ -145,6 +145,11 @@ from "How does this level work?") → the questions → the end of the round.
   `MIDDLE_RANGE`, each move as many frets as the step says. A wrong answer replays the question
   (level 3's tune at `STAGE_ONE_SLOW_BPM`) and shows `NotesPicture`: the notes as dots by pitch,
   or for level 4 the two notes on one string of the neck.
+- **Stage 2** (`core/stage2.ts`): level 5 is one chord, major or minor as answered: open roots (E,
+  A, D) at step A, every other root at B, its notes one by one at C; a wrong answer plays the same
+  chord in the other quality, then as it was. Level 6 is four strummed chords from
+  `diatonicChords(key)`: finished is I–IV–V–I, not finished stops on V or IV (I–IV–I–V,
+  I–V–I–IV), in A until step C; a wrong answer plays them again with the home chord after.
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is
