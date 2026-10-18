@@ -14,6 +14,9 @@ import { Legend } from './Legend';
 import { intervalLabel } from '../labels';
 import { useT } from '../useT';
 
+/** The ear trainer's level for a scale it teaches (docs/ear.md "Links"): 12 the minor pentatonic, 13 the blues scale. */
+const EAR_LEVELS: Readonly<Partial<Record<string, number>>> = { minorPentatonic: 12, blues: 13 };
+
 /** Step 1 — pick key, scale, and position(s); see spelled notes on the fretboard. */
 export function ScalePositionSection({
   state,
@@ -76,6 +79,13 @@ export function ScalePositionSection({
             </PillButton>
           ))}
         </Row>
+
+        {/* The same notes, by ear: the ear trainer's level for this scale (#261), a plain link. */}
+        {EAR_LEVELS[key.scaleId] !== undefined && (
+          <div style={{ marginTop: 10, fontSize: 14 }}>
+            <a href={`/ear?level=${EAR_LEVELS[key.scaleId]}&lang=${state.language}`}>{t('scalebox.earLink')}</a>
+          </div>
+        )}
 
         {/* Boxes: one chip per position, on the neck as numbered frames */}
         <Label style={{ marginTop: 18 }}>{t('scalebox.boxes')}</Label>

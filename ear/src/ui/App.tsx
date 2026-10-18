@@ -26,6 +26,11 @@ export function App({
 }) {
   const [player] = useState(() => given ?? createPlayer());
   const [data, setData] = useState<EarData>(() => loadEar());
+  // A link's ?level=n (Practice's "Train your ear on these notes"), read once on arrival.
+  const [startLevel] = useState(() => {
+    const n = Number(new URLSearchParams(window.location.search).get('level'));
+    return Number.isInteger(n) && n > 0 ? n : null;
+  });
   const dataRef = useRef(data);
 
   // Progress made in another tab shows here too.
@@ -64,12 +69,13 @@ export function App({
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Take ?lang= off the address, so a reload or a bookmark doesn't override a later choice. Any
-  // other parameter (an old link's ?key= &mode= &notes=) is left alone and ignored.
+  // Take ?lang= and ?level= off the address, so a reload or a bookmark doesn't override a later
+  // choice. Any other parameter (an old link's ?key= &mode= &notes=) is left alone and ignored.
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (!url.searchParams.has('lang')) return;
-    url.searchParams.delete('lang');
+    const params = ['lang', 'level'].filter((p) => url.searchParams.has(p));
+    if (params.length === 0) return;
+    for (const p of params) url.searchParams.delete(p);
     window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
   }, []);
 
@@ -95,6 +101,8 @@ export function App({
         </div>
         <Levels
           ui={ui}
+          lang={lang}
+          startLevel={startLevel}
           player={player}
           sounds={sounds}
           welcomed={data.welcomed}

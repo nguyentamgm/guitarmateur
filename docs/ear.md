@@ -134,8 +134,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–3 (levels 1–10) are
-  built (#256, #258, #260). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–4 (levels 1–13) are
+  built (#256, #258, #260, #261). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
@@ -158,6 +158,11 @@ from "How does this level work?") → the questions → the end of the round.
   then the note. The feedback names the letter as the key spells it (`feedbackHeard`: "that was
   5: the note E, in the key of A major"), and a degree button with ♭ or ♯ is named as said ("♭3
   (flat three)", "bậc 3 giáng": glossary.md).
+- **Stage 4** (levels 11–13, the same `degree` kind, minor keys): ♭7, then 4 (the minor
+  pentatonic), then the blue note. The blue note's answer id is `#4` (one answer for ♯4 / ♭5); in a
+  minor key it is always spelled and shown ♭5, and a wrong answer to it plays the note sliding
+  down into 4 (`slidePart`, the shared `slide` glide). The blues ♭5's spelling in a *major* key
+  (#212) does not come up: the levels only use it in minor keys.
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is
@@ -168,6 +173,19 @@ from "How does this level work?") → the questions → the end of the round.
   Space and Enter on a focused button press that button. A new question moves the focus to Play
   again, an answer to Next, a new screen to its heading; feedback and the "make it easier"
   question are announced (`aria-live`).
+
+## Links
+
+- **Into a level:** `/ear?level=n` opens level n's intro when it is open (unlocked and built), else
+  the map with "Level n opens once you have passed the levels before it."; after the welcome on a
+  first visit. `App` takes `level` (and `lang`) off the address, so a reload goes back to the map.
+- **From Practice:** Step 1 (`src/ui/components/ScalePositionSection.tsx`) links to
+  `/ear?level=12&lang=…` on the minor pentatonic and `/ear?level=13&lang=…` on the minor blues
+  scale, and nowhere else. The two apps never import each other: the link is this plain URL.
+- **To Practice:** passing level 12 offers "Now play these notes on your guitar." with a link
+  that opens Practice on the A minor pentatonic (`ui/practiceLink.ts`): Practice's share format
+  (`/?s=v1:` + base64 JSON), written by hand as Theory's `trainerLink.ts` does, over Practice's own
+  saved state with only the key replaced (positions and language dropped), plus `&lang=`.
 
 ## Sound
 
