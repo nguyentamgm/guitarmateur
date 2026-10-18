@@ -213,6 +213,9 @@ function sequence(parts: readonly Part[], gap: number): Sequence {
   return { sounds, duration: t, starts };
 }
 
+/** `parts` one after the other, with no gap (a `waitPart` makes one). */
+export const joinParts = (parts: readonly Part[]): Sequence => sequence(parts, 0);
+
 /**
  * A wrong answer, for any kind of question: what the learner picked, a pause, then what it was
  * (two notes, a tune, a chord…). `comparePart` is the old trainer's, for single notes.
