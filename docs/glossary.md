@@ -43,6 +43,9 @@ Cùng một cách viết ở mọi nơi: trên cần đàn, trong tab, chú thí
 - **Degrees are numbers with real accidentals:** 1, ♭2, 2, ♭3, 3, 4, ♯4 / ♭5, 5, ♭6, 6, ♭7, 7, and
   9, 11, 13 above the octave. Use ♭ and ♯, never `b` or `#` (those are only the data format, e.g.
   `'b3'`). Bậc viết bằng số với dấu ♭ ♯ thật.
+- **Said aloud** (a screen reader's name for a degree button): "flat three", "sharp four or flat
+  five"; in Vietnamese the number first, then giáng / thăng: "bậc 3 giáng", "bậc 4 thăng hoặc bậc
+  5 giáng" (decided for #260). Khi đọc thành lời: "bậc 3 giáng", "bậc 4 thăng".
 - **The root is 1.** A mark, a dot, a tab row or a legend shows `1`, never `R`. The *word* root
   (EN and VI) is for prose and for a picker that names a role in any chord: "Root · 3rd · 5th ·
   7th" (vi: "Root · bậc 3 · bậc 5 · bậc 7"). Root là `1` trên mọi nhãn; chữ "root" dùng trong lời

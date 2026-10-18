@@ -11,7 +11,7 @@ import type { RoundState } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
 import { fill, type UiStrings } from '../i18n';
 import { levelKeyOwnedByTarget, levelShortcut } from './keys';
-import { answerWords, levelText, playText } from './levelWords';
+import { answerWords, feedbackHeard, levelText, playText } from './levelWords';
 import { NotesPicture } from './NotesPicture';
 import type { Round } from './useRound';
 
@@ -71,7 +71,7 @@ export function Question({
       ?.focus();
   }, [phase, n]);
 
-  const rightWords = answerWords(ui, level, q.answer);
+  const heard = feedbackHeard(ui, level, q);
 
   return (
     <section ref={screenRef} className="board lv-screen lv-question" aria-labelledby="lv-q">
@@ -150,6 +150,7 @@ export function Question({
                   type="button"
                   className={`lv-answer ${mark}`}
                   aria-disabled={answered !== null}
+                  aria-label={w.name}
                   onClick={() => round.send({ type: 'answer', answer: a })}
                 >
                   {w.icon && <span aria-hidden="true">{w.icon} </span>}
@@ -163,12 +164,12 @@ export function Question({
               (right ? (
                 <p className="lv-right">
                   <span aria-hidden="true">✓ </span>
-                  {fill(ui.rightLine, { heard: rightWords.heard })}
+                  {fill(ui.rightLine, { heard })}
                 </p>
               ) : (
                 <p className="lv-wrong">
                   <span aria-hidden="true">● </span>
-                  {fill(ui.wrongLine, { heard: rightWords.heard })}
+                  {fill(ui.wrongLine, { heard })}
                 </p>
               ))}
           </div>
@@ -193,7 +194,7 @@ export function Question({
               ui={ui}
               level={level}
               notes={stageOneNotes(level, q)}
-              label={rightWords.heard}
+              label={heard}
               player={player}
             />
           )}

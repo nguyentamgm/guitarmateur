@@ -85,7 +85,7 @@ function nextKey(settings: QuestionSettings, history: readonly Question[], rng: 
 }
 
 /** Semitones from the tonic the register can put a degree at. */
-function offsets(register: Register, degree: DegreeLabel): number[] {
+export function registerOffsets(register: Register, degree: DegreeLabel): number[] {
   const s = interval(degree).semitones;
   if (register === 'around') return [s <= 6 ? s : s - 12];
   return register === 'twoOctaves' ? [s, s + 12] : [s];
@@ -97,7 +97,7 @@ function offsets(register: Register, degree: DegreeLabel): number[] {
  * more than 23 semitones, so the lowest note then stays above LOWEST_MIDI.
  */
 export function questionTonic(key: Key, settings: Pick<QuestionSettings, 'degrees' | 'register'>): number {
-  const top = Math.max(...activeDegrees(settings).flatMap((d) => offsets(settings.register, d)));
+  const top = Math.max(...activeDegrees(settings).flatMap((d) => registerOffsets(settings.register, d)));
   let tonic = midiOf(key, '1', TONIC_OCTAVE);
   while (tonic + top > HIGHEST_MIDI) tonic -= 12;
   return tonic;
@@ -110,6 +110,6 @@ export function questionTonic(key: Key, settings: Pick<QuestionSettings, 'degree
 export function nextQuestion(settings: QuestionSettings, history: readonly Question[], rng: Rng): Question {
   const key = nextKey(settings, history, rng);
   const degree = nextDegree(settings, history, rng);
-  const midi = questionTonic(key, settings) + choice(rng, offsets(settings.register, degree));
+  const midi = questionTonic(key, settings) + choice(rng, registerOffsets(settings.register, degree));
   return { key, degree, midi };
 }

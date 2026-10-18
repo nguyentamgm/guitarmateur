@@ -134,8 +134,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–2 (levels 1–6) are
-  built (#256, #258). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–3 (levels 1–10) are
+  built (#256, #258, #260). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
@@ -150,6 +150,14 @@ from "How does this level work?") → the questions → the end of the round.
   chord in the other quality, then as it was. Level 6 is four strummed chords from
   `diatonicChords(key)`: finished is I–IV–V–I, not finished stops on V or IV (I–IV–I–V,
   I–V–I–IV), in A until step C; a wrong answer plays them again with the home chord after.
+- **Stage 3** (`core/stage3.ts`, the `degree` kind): the cadence sets the key, a beat of silence,
+  then one note, placed as the old trainer placed them (`questionTonic`, the step's register). Only
+  a key whose mode asks the answer is drawn, so level 10's mixed step plays 3 in major keys and ♭3
+  in minor ones (a major 3 is never heard in a minor key, so #215's "3 ♭3 2 1" row never plays).
+  A wrong answer walks the note home (`resolution()`); on levels 9–10 it plays the key's chord,
+  then the note. The feedback names the letter as the key spells it (`feedbackHeard`: "that was
+  5: the note E, in the key of A major"), and a degree button with ♭ or ♯ is named as said ("♭3
+  (flat three)", "bậc 3 giáng": glossary.md).
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is

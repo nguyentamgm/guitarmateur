@@ -13,11 +13,16 @@ import {
 import type { RoundQuestion } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
 import { cadenceQuestion, chordQuestion, homeChord, otherQuality } from '../core/stage2';
+import { degreeQuestion } from '../core/stage3';
+import { resolution } from '../core/resolution';
 import {
   answerComparePart,
   chordPart,
+  contextPart,
+  joinParts,
   notePart,
   progressionPart,
+  resolutionPart,
   tunePart,
   twoNotesPart,
   waitPart,
@@ -115,6 +120,39 @@ const finished: LevelSounds = {
   demo: demoOf(cadencePart),
 };
 
+/** Stage 3's tempo: the cadence, the note and the walk home. */
+export const DEGREE_BPM = 90;
+/** Silence between the cadence's tonic and the question's note, so the note stands on its own. */
+export const DEGREE_GAP_BEATS = 1;
+
+const degreePart: LevelSounds['question'] = (level, q) => {
+  const { key, tonic, midi } = degreeQuestion(level, q);
+  return joinParts([
+    contextPart(key, tonic, DEGREE_BPM),
+    waitPart(DEGREE_GAP_BEATS, DEGREE_BPM),
+    notePart(midi, DEGREE_BPM),
+  ]);
+};
+
+/**
+ * Levels 7–14: the cadence that sets the key, then the note. A wrong answer walks the note home to
+ * the root; on levels 9–10 (1, 3 or 5) it plays the key's chord, then the note alone.
+ */
+const degree: LevelSounds = {
+  question: degreePart,
+  compare: (level, q) => {
+    const { key, degree: d, midi } = degreeQuestion(level, q);
+    if (level.id === 9 || level.id === 10)
+      return joinParts([
+        chordPart(homeChord(key), 'strum', DEGREE_BPM),
+        waitPart(DEGREE_GAP_BEATS, DEGREE_BPM),
+        notePart(midi, DEGREE_BPM),
+      ]);
+    return resolutionPart(resolution(key, d, midi), DEGREE_BPM);
+  },
+  demo: demoOf(degreePart),
+};
+
 /** The kinds built so far. */
 export const LEVEL_SOUNDS: KindSounds = {
   sameDifferent: stageOne,
@@ -123,6 +161,7 @@ export const LEVEL_SOUNDS: KindSounds = {
   distance: stageOne,
   chordQuality,
   finished,
+  degree,
 };
 
 /** The welcome's sound check: one guitar note, A3, in the middle of the guitar. */
