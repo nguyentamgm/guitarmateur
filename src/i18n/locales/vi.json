@@ -138,6 +138,7 @@
   "scaleTitle.mixolydian": "{tonic} Mixolydian",
   "scaleTitle.natural-minor": "{tonic} natural minor scale",
   "scalebox.boxLabel": "Box {n}",
+  "scalebox.earLink": "Luyện nghe các nốt này",
   "scalebox.boxes": "Box",
   "scalebox.fretRange": "phím {min}–{max}",
   "scalebox.intro": "Chọn giọng của bản backing và một box để chơi. Mọi lick bên dưới đều nằm trong box này, nên tay bạn học từng chỗ trên cần đàn một.",

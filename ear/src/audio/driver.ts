@@ -84,7 +84,7 @@ export function createEarAudio(
       for (const s of part.sounds) {
         const delay = LEAD_SEC + s.time;
         if (s.kind === 'click') player.click(true, delay);
-        else player.pluck(s.midi!, delay, s.length);
+        else player.pluck(s.midi!, delay, s.length, s.glide);
       }
       if (!onEnd) return;
       pending = { at: now + LEAD_SEC + part.duration, run: onEnd };

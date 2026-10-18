@@ -6,6 +6,9 @@ import type { KindSounds } from '../audio/levelSounds';
 import { fill, type LevelText, type PlayText, type UiStrings } from '../i18n';
 import { degreeInKey, keyText, noteText } from './labels';
 
+/** Passing this level, the minor pentatonic's, links to Practice with that scale open. */
+export const PRACTICE_LINK_LEVEL = 12;
+
 /** A level can be played once its kind has sounds and it has words (the same keys in every language). */
 export const playable = (ui: UiStrings, sounds: KindSounds, level: Level): boolean =>
   sounds[level.kind] !== undefined && ui.play[level.id] !== undefined;

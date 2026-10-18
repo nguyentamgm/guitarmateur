@@ -40,6 +40,26 @@ describe('ear trainer page', () => {
     expect(localStorage.getItem('gm.ear')).toBeNull();
   });
 
+  it('?level=n opens that level when it is open, else the map saying why; then leaves the address', () => {
+    localStorage.setItem('gm.lang', 'en');
+    const levels = Object.fromEntries(
+      [1, 2, 3].map((i) => [i, { step: 2, best: 9, done: true, counts: {} }]),
+    );
+    localStorage.setItem('gm.ear', JSON.stringify({ version: 2, welcomed: true, levels }));
+    window.history.replaceState(null, '', '/ear?level=12');
+    render();
+    expect(host.querySelector('.lv-warn')?.textContent).toBe(
+      'Level 12 opens once you have passed the levels before it.',
+    );
+    expect(host.querySelector('.levels h2')?.textContent).toBe('Your levels');
+    expect(window.location.search).toBe('');
+    act(() => root.unmount());
+    root = createRoot(host);
+    window.history.replaceState(null, '', '/ear?level=4');
+    render();
+    expect(host.querySelector('.levels h2')?.textContent).toBe('Level 4 · Close or far?');
+  });
+
   it('switches language and remembers it for every page', () => {
     localStorage.setItem('gm.lang', 'en');
     render();

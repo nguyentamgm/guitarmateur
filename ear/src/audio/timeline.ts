@@ -2,7 +2,7 @@
  * What each of the session's and the beginner levels' sounds is, note by note, in seconds from its
  * start (docs/ear.md "Sound"). Pure: the driver hands these to the player with their exact delays.
  */
-import { chordMidis } from '@shared/core/audio';
+import { chordMidis, slide, type Glide } from '@shared/core/audio';
 import type { Chord, Key } from '@shared/core/music';
 import { STRINGS } from '@shared/core/neck';
 import { beatSeconds, clampBpm, strumDelays } from '@shared/core/rhythm';
@@ -18,6 +18,8 @@ export interface TimedSound {
   readonly time: number;
   /** How long it rings; none for a click. */
   readonly length?: number;
+  /** A bend or slide of the same pluck (level 13's blue note sliding home). */
+  readonly glide?: Glide;
 }
 
 /** A stretch of sound: its notes, and how long until the next part may start. */
@@ -238,6 +240,17 @@ export function tuningPart(): Part {
     length: TUNING_NOTE_SEC,
   }));
   return { sounds, duration: STRINGS.length * TUNING_NOTE_SEC };
+}
+
+/** The blue note slides into its neighbour after SLIDE_AT_BEATS; the note rings SLIDE_NOTE_BEATS. */
+export const SLIDE_AT_BEATS = 1;
+export const SLIDE_NOTE_BEATS = 3;
+
+/** One pluck that slides `semis` frets along the string, the way guitarists play ♭5 into 4 or 5. */
+export function slidePart(midi: number, semis: number, bpm: number): Part {
+  const length = SLIDE_NOTE_BEATS * beat(bpm);
+  const glide = slide(semis, SLIDE_AT_BEATS * beat(bpm));
+  return { sounds: [{ kind: 'note', midi, time: 0, length, glide }], duration: length };
 }
 
 /** Nothing for `beats`. */

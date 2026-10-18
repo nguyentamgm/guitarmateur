@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { mod, pc, parseNote } from '@shared/core/music';
-import { noteOf } from './degrees';
+import { degreeId, noteOf } from './degrees';
 import { askedAnswers, findLevel } from './levels';
 import { degreeQuestion } from './stage3';
 
 describe('Stage 3 questions (seeded)', () => {
   it('the note is the asked degree of the asked key; keys leave A only on the last step', () => {
-    for (const id of [7, 8, 9, 10]) {
+    for (const id of [7, 8, 9, 10, 11, 12, 13]) {
       const level = findLevel(id)!;
       level.steps.forEach((_, step) => {
         const last = step === level.steps.length - 1;
@@ -34,5 +34,15 @@ describe('Stage 3 questions (seeded)', () => {
       }
     }
     expect([...degrees].sort()).toEqual(['1', '2', '7']);
+  });
+
+  it('level 13 always spells the blue note ♭5, a flat or a natural letter, never a sharp', () => {
+    const level = findLevel(13)!;
+    for (let seed = 1; seed <= 200; seed++) {
+      const q = degreeQuestion(level, { level: 13, step: 2, answer: '#4', seed });
+      expect(degreeId(q.degree)).toBe('#4');
+      expect(q.key.mode).toBe('minor');
+      expect(noteOf(q.key, 'b5').alter).toBeLessThanOrEqual(0);
+    }
   });
 });

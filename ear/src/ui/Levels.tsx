@@ -6,15 +6,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Player } from '@shared/core/audio';
 import { findLevel, type Level } from '../core/levels';
-import { levelProgress, type Progress } from '../core/progress';
+import { isUnlocked, levelProgress, type Progress } from '../core/progress';
 import type { RoundEffect } from '../core/round';
 import { createEarAudio, type EarAudio } from '../audio/driver';
 import { soundCheckPart, type KindSounds } from '../audio/levelSounds';
 import type { Part } from '../audio/timeline';
-import type { UiStrings } from '../i18n';
+import { fill, type Lang, type UiStrings } from '../i18n';
 import { LevelIntro } from './LevelIntro';
 import { LevelMap } from './LevelMap';
-import { playable } from './levelWords';
+import { PRACTICE_LINK_LEVEL, playable } from './levelWords';
+import { minorPentatonicLink } from './practiceLink';
 import { Question } from './Question';
 import { RoundEnd } from './RoundEnd';
 import { useRound } from './useRound';
@@ -22,29 +23,43 @@ import { Welcome } from './Welcome';
 
 type Screen =
   | { readonly name: 'welcome' }
-  | { readonly name: 'map' }
+  /** `locked`: the level a link asked for, not open yet. */
+  | { readonly name: 'map'; readonly locked?: number }
   | { readonly name: 'intro'; readonly level: Level }
   | { readonly name: 'round' };
 
 export function Levels({
   ui,
+  lang,
   player,
   sounds,
   welcomed,
   progress,
   onWelcomed,
   onRoundEffect,
+  startLevel = null,
 }: {
   ui: UiStrings;
+  lang: Lang;
   player: Player;
   sounds: KindSounds;
   welcomed: boolean;
   progress: Progress;
+  /** A link's `?level=n`: open that level's intro when it is open, else the map, saying so. */
+  startLevel?: number | null;
   onWelcomed(): void;
   onRoundEffect(level: number, effect: RoundEffect): void;
 }) {
+  /** Where to land after the welcome: the level a link asked for, or the map. */
+  const landing = (p: Progress): Screen => {
+    const level = startLevel === null ? undefined : findLevel(startLevel);
+    if (startLevel === null) return { name: 'map' };
+    if (level && isUnlocked(p, level.id) && playable(ui, sounds, level))
+      return { name: 'intro', level };
+    return { name: 'map', locked: startLevel };
+  };
   const [screen, setScreen] = useState<Screen>(() =>
-    welcomed ? { name: 'map' } : { name: 'welcome' },
+    welcomed ? landing(progress) : { name: 'welcome' },
   );
   const [noAudio, setNoAudio] = useState(false);
   const audioRef = useRef<EarAudio | null>(null);
@@ -122,19 +137,26 @@ export function Levels({
         onCheck={() => play(soundCheckPart())}
         onDone={() => {
           onWelcomed();
-          setScreen({ name: 'map' });
+          setScreen(landing(progressRef.current));
         }}
       />
     );
   } else if (screen.name === 'map') {
     body = (
-      <LevelMap
-        ui={ui}
-        progress={progress}
-        playable={isPlayable}
-        onOpen={open}
-        onHow={(level) => setScreen({ name: 'intro', level })}
-      />
+      <>
+        {screen.locked !== undefined && (
+          <p className="lv-warn" role="status">
+            {fill(ui.levelLocked, { n: screen.locked })}
+          </p>
+        )}
+        <LevelMap
+          ui={ui}
+          progress={progress}
+          playable={isPlayable}
+          onOpen={open}
+          onHow={(level) => setScreen({ name: 'intro', level })}
+        />
+      </>
     );
   } else if (screen.name === 'intro') {
     body = (
@@ -171,6 +193,7 @@ export function Levels({
         onNext={open}
         onAgain={() => startRound(s.level)}
         onBack={toMap}
+        practiceHref={s.level.id === PRACTICE_LINK_LEVEL ? minorPentatonicLink(lang) : null}
       />
     );
   } else if (s) {

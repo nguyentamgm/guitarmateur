@@ -15,6 +15,7 @@ export function RoundEnd({
   onNext,
   onAgain,
   onBack,
+  practiceHref = null,
 }: {
   ui: UiStrings;
   state: RoundState;
@@ -24,6 +25,8 @@ export function RoundEnd({
   onNext(level: Level): void;
   onAgain(): void;
   onBack(): void;
+  /** Where Practice opens on the scale this level taught, when it links there once passed. */
+  practiceHref?: string | null;
 }) {
   const { level, right } = state;
   const total = state.rules.questions;
@@ -50,6 +53,11 @@ export function RoundEnd({
           ? fill(ui.passed, { learned: playText(ui, level).learned })
           : fill(ui.notYet, { right, total })}
       </p>
+      {passed && practiceHref && (
+        <p>
+          {ui.practiceNudge} <a href={practiceHref}>{ui.practiceLink}</a>
+        </p>
+      )}
       {passed && !next && <p className="lv-muted">{ui.moreSoon}</p>}
       <div className="lv-actions">
         {passed && next && (

@@ -98,7 +98,7 @@ describe('App', () => {
     }
   });
 
-  it('does not link to the ear trainer (its old screen is gone, #257)', async () => {
+  it('Step 1 links to the ear trainer level of the minor pentatonic and the blues scale, and only those', async () => {
     const { App } = await import('./App');
     const container = document.createElement('div');
     document.body.appendChild(container);
@@ -107,7 +107,18 @@ describe('App', () => {
       await act(async () => {
         root.render(createElement(App));
       });
-      expect(container.querySelector('main a[href^="/ear"]')).toBeNull();
+      const ear = () => container.querySelector('main a[href^="/ear"]');
+      const pick = async (name: string) => {
+        const b = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find((x) => x.textContent === name)!;
+        await act(async () => b.click());
+      };
+      // Practice opens on A minor pentatonic.
+      expect(ear()?.getAttribute('href')).toBe('/ear?level=12&lang=en');
+      expect(ear()?.textContent).toBe('Train your ear on these notes');
+      await pick('Minor blues');
+      expect(ear()?.getAttribute('href')).toBe('/ear?level=13&lang=en');
+      await pick('Major scale');
+      expect(ear()).toBeNull();
     } finally {
       await act(async () => {
         root.unmount();
