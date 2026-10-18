@@ -17,10 +17,13 @@ import {
   COMPARE_GAP_BEATS,
   NOTE_BEATS,
   RESOLUTION_LAST_BEATS,
+  answerComparePart,
+  chordPart,
   comparePart,
   contextPart,
   notePart,
   resolutionPart,
+  twoNotesPart,
 } from './timeline';
 
 const A_MAJOR: Key = { tonic: parseNote('A'), mode: 'major' };
@@ -404,5 +407,71 @@ describe('no audio', () => {
     expect(h.noAudio).toBe(1);
     expect(h.timers.running).toBe(0);
     expect(h.done).toEqual([]);
+  });
+});
+
+describe("a beginner level's parts (playPart)", () => {
+  const A_CHORD = { root: parseNote('A'), id: 'major' } as const;
+
+  it('plays a part in the guitar voice, even with the clean tone set, then calls back at its end', () => {
+    const h = harness({}, { sound: 'clean' });
+    const part = twoNotesPart(57, 64, BPM);
+    let ended = 0;
+    h.driver.playPart(part, () => ended++);
+    expect(h.log).toEqual(['cancel', ...expected(part, 10)]);
+    const end = 10 + LEAD_SEC + part.duration;
+    h.at(end - 0.01);
+    expect(ended).toBe(0);
+    h.at(end);
+    expect(ended).toBe(1);
+    expect(h.timers.running).toBe(0);
+  });
+
+  it('a strum goes to the player as one pick per string, at its exact delays', () => {
+    const h = harness();
+    const part = chordPart(A_CHORD, 'strum', BPM);
+    h.driver.playPart(part);
+    expect(h.log).toEqual(['cancel', ...expected(part, 10)]);
+    expect(h.timers.running).toBe(0);
+  });
+
+  it('"Play again" starts it over: the sound before is cut, and only the new end calls back', () => {
+    const h = harness();
+    const part = twoNotesPart(57, 64, BPM);
+    const ends: string[] = [];
+    h.driver.playPart(part, () => ends.push('first'));
+    h.at(11);
+    h.log.length = 0;
+    h.driver.playPart(part, () => ends.push('again'));
+    expect(h.log).toEqual(['cancel', ...expected(part, 11)]);
+    h.at(10 + LEAD_SEC + part.duration);
+    expect(ends).toEqual([]);
+    h.at(11 + LEAD_SEC + part.duration);
+    expect(ends).toEqual(['again']);
+  });
+
+  it('moving on cancels: the sound stops and its end never comes', () => {
+    const h = harness();
+    const picked = chordPart({ ...A_CHORD, id: 'minor' }, 'strum', BPM);
+    const right = chordPart(A_CHORD, 'strum', BPM);
+    let ended = 0;
+    h.driver.playPart(answerComparePart(picked, right, BPM), () => ended++);
+    h.log.length = 0;
+    h.driver.cancel();
+    expect(h.log).toEqual(['cancel']);
+    expect(h.timers.running).toBe(0);
+    h.at(1000);
+    expect(ended).toBe(0);
+  });
+
+  it('says so when there is no audio, and calls nothing back', () => {
+    const h = harness();
+    h.clock.now = null;
+    let ended = 0;
+    h.driver.playPart(twoNotesPart(57, 64, BPM), () => ended++);
+    expect(h.noAudio).toBe(1);
+    expect(h.log).toEqual(['cancel']);
+    expect(h.timers.running).toBe(0);
+    expect(ended).toBe(0);
   });
 });

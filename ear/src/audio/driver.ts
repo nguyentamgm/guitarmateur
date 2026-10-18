@@ -1,6 +1,7 @@
 /**
  * Plays the session (#216) on the shared player: it carries out each step's effects and sends
- * `audioDone(phase)` back when a part with a `done` ends (docs/ear.md "Sound"). Every note goes to
+ * `audioDone(phase)` back when a part with a `done` ends (docs/ear.md "Sound"); a beginner level's
+ * parts it plays one at a time (`playPart`). Every note goes to
  * the player at once with its exact delay on the audio clock; one coarse timer only watches that
  * clock for the ends of parts, so timer jitter never moves a sound.
  */
@@ -46,6 +47,13 @@ export interface DriverCallbacks {
 export interface EarAudio {
   /** Carry out one step's effects, in order. */
   run(effects: readonly Effect[], settings: AudioSettings): void;
+  /**
+   * Play one part in the guitar voice (a level's question, its replay, an answer's comparison, a
+   * demo), first stopping whatever was playing; `onEnd` when it has ended, unless cut short.
+   */
+  playPart(part: Part, onEnd?: () => void): void;
+  /** Stop what is playing, and drop its `onEnd` (moving on). The drone goes on. */
+  cancel(): void;
   /** Leaving the page: silence everything, the drone included, and stop the clock watch. */
   dispose(): void;
 }
@@ -108,6 +116,13 @@ export function createEarAudio(
     applyLevel();
   };
 
+  const cancel = () => {
+    player.cancel();
+    pending = [];
+    stopWatch();
+    duck(false);
+  };
+
   /** Hand a part's sounds to the player from `now + LEAD_SEC`; returns when it ends on the audio clock. */
   const play = (part: Part, voice: Voice, now: number): number => {
     for (const s of part.sounds) {
@@ -131,10 +146,7 @@ export function createEarAudio(
     for (const e of effects) {
       switch (e.type) {
         case 'cancelAudio':
-          player.cancel();
-          pending = [];
-          stopWatch();
-          duck(false);
+          cancel();
           continue;
         case 'startDrone':
           drone?.stop();
@@ -179,6 +191,17 @@ export function createEarAudio(
 
   return {
     run,
+    playPart(part, onEnd) {
+      cancel();
+      const now = player.now();
+      if (now === null) {
+        cb.onNoAudio?.();
+        return;
+      }
+      const end = play(part, 'guitar', now);
+      if (onEnd) at(end, onEnd);
+    },
+    cancel,
     dispose() {
       player.cancel();
       drone?.stop();
