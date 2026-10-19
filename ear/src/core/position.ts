@@ -50,6 +50,9 @@ export interface NeckWindow {
   readonly dots: readonly NeckDot[];
 }
 
+/** The fret a degree sits at on one string, the root at fret 0 (level 14's answer): ♭3 is 3, 5 is 7. */
+export const fretFromRoot = (d: DegreeLabel): number => mod(interval(d).semitones, 12);
+
 /** The degree id a MIDI note is in the key. */
 const degreeOf = (key: Key, midi: number): DegreeLabel =>
   DEGREES[mod(midi - pc(key.tonic), 12)]!.label;

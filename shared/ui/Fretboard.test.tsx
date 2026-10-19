@@ -92,6 +92,28 @@ describe('shared Fretboard', () => {
     const silent = render({ dots });
     expect(() => act(() => (dot(silent, 'a') as SVGGElement).dispatchEvent(new MouseEvent('click', { bubbles: true })))).not.toThrow();
   });
+
+  it('a tap beside a dot plays the nearest one within 20px, at the size the neck is drawn', () => {
+    const g = neckGeometry(12);
+    const tapAt = (c: HTMLElement, x: number, y: number) =>
+      act(() => c.querySelector('svg')!.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y })));
+    const play = vi.fn();
+    const c = render({ dots, play });
+    // Drawn at half size, as a phone shrinks a long neck: 20 CSS px reach 40 of the drawing's units.
+    c.querySelector('svg')!.getBoundingClientRect = () => new DOMRect(0, 0, g.width / 2, g.height / 2);
+    const css = (fret: number, string: 1 | 2 | 3 | 4 | 5 | 6) => [g.x(fret) / 2, g.y(string) / 2] as const;
+    const [ax, ay] = css(5, 6);
+    tapAt(c, ax, ay + 15); // below string 6, under the root
+    tapAt(c, ax + 21, ay + 3); // 21px from A: the nearest dot is E♭ (fret 6, string 5), 17px away
+    tapAt(c, ax, ay + 21); // too far from every dot
+    expect(play.mock.calls).toEqual([[45], [51]]);
+    // Mirrored for a left-handed player: the same dot, tapped where it is drawn.
+    const left = vi.fn();
+    const m = render({ dots, play: left, leftHanded: true });
+    m.querySelector('svg')!.getBoundingClientRect = () => new DOMRect(0, 0, g.width / 2, g.height / 2);
+    tapAt(m, (g.width - g.x(5)) / 2, ay + 15);
+    expect(left.mock.calls).toEqual([[45]]);
+  });
 });
 
 describe('keyboard and screen reader', () => {

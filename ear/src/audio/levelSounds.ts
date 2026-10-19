@@ -137,8 +137,8 @@ const degreePart: LevelSounds['question'] = (level, q) => {
 
 /**
  * Levels 7–14: the cadence that sets the key, then the note. A wrong answer walks the note home to
- * the root; on levels 9–10 (1, 3 or 5) it plays the key's chord, then the note alone; on level 13
- * the blue note (♭5) slides down into 4, as guitarists play it.
+ * the root; on levels 9–10 (1, 3 or 5) it plays the key's chord, then the note alone; on levels 13
+ * and 14 the blue note (♭5) slides down into 4, as guitarists play it.
  */
 const degree: LevelSounds = {
   question: degreePart,
@@ -150,7 +150,7 @@ const degree: LevelSounds = {
         waitPart(DEGREE_GAP_BEATS, DEGREE_BPM),
         notePart(midi, DEGREE_BPM),
       ]);
-    if (level.id === 13 && d === '#4') return slidePart(midi, -1, DEGREE_BPM);
+    if ((level.id === 13 || level.id === 14) && d === '#4') return slidePart(midi, -1, DEGREE_BPM);
     return resolutionPart(resolution(key, d, midi), DEGREE_BPM);
   },
   demo: demoOf(degreePart),

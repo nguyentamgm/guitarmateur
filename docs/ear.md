@@ -33,8 +33,8 @@ ear/
    │                     Welcome, LevelMap, LevelIntro, Question, RoundEnd, useRound (round →
    │                     driver → store), NotesPicture (Stage 1's wrong-answer picture),
    │                     levelWords.ts (a level's words, `playable`), keys.ts (shortcuts),
-   │                     labels.ts (degree, note, key text); kept for levels 14–15: AnswerStrip
-   │                     (answers on one string) and NeckAnswer (the answer on a neck window);
+   │                     labels.ts (degree, note, key text); AnswerStrip (level 14's answers
+   │                     on one string) and NeckAnswer (the note on a neck window after it);
    │                     ear.css
    └─ main.tsx           imports @shared/ui tokens, base, controls and fretboard CSS, then
                          ui/ear.css; registers the site-wide service worker
@@ -134,13 +134,15 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–4 (levels 1–13) are
-  built (#256, #258, #260, #261). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–4 and level 14 are
+  built (#256, #258, #260, #261, #262). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
   sound plays by itself; a right answer waits `RIGHT_PAUSE_BEATS` (2 at 90 BPM) and asks the next;
-  a wrong one plays the kind's `compare` and waits for Next.
+  a wrong one plays the kind's `compare` and waits for Next. A level answered on the neck
+  (`answerOn: 'string'`, levels 14–15) waits for Next after a right answer too, so its neck window
+  can be looked at.
 - **Stage 1** (`core/stage1.ts`): a question's notes come from its seed, single notes in
   `MIDDLE_RANGE`, each move as many frets as the step says. A wrong answer replays the question
   (level 3's tune at `STAGE_ONE_SLOW_BPM`) and shows `NotesPicture`: the notes as dots by pitch,
@@ -163,6 +165,12 @@ from "How does this level work?") → the questions → the end of the round.
   minor key it is always spelled and shown ♭5, and a wrong answer to it plays the note sliding
   down into 4 (`slidePart`, the shared `slide` glide). The blues ♭5's spelling in a *major* key
   (#212) does not come up: the levels only use it in minor keys.
+- **Level 14** (the `degree` kind, `answerOn: 'string'`): Stage 4's notes, answered on one string
+  from the root (`AnswerStrip`): the minor pentatonic in A minor, then with the blue note, then in
+  every minor key, each note within an octave above the root, so its fret is 0–11. Only the step's
+  degrees can be tapped. The feedback names the fret first (`heardFret`, `fretFromRoot()` in
+  `core/position.ts`: "fret 3 from the root is ♭3: the note C, in the key of A minor"), then the
+  note lights up on a neck window (`NeckAnswer`). A wrong blue note slides into 4, as on level 13.
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is
@@ -219,9 +227,12 @@ holds the note heard **at its pitch**, choosing the root nearest in pitch to the
 heard against (then the lower fret, then string 6). The window can reach fret 18: held to 15, the
 top notes (F major's 7 at E5) could not be shown at the pitch heard. Dots: the root and every 1 in
 `home`, the other active degrees `soft`, the note heard `target` with a halo; clicking one plays
-it. `ui/AnswerStrip.tsx` answers on one string from the root: fret 0 is 1, fret 3 is ♭3… An answer
-is named by its label, then as spoken, then its fret ("♭3 (flat three), fret 3"): the label first
-for voice control (WCAG 2.5.3). Standard tuning only.
+it. Its strings are 46 units apart, not the shared 26, so at phone width (drawn at ~0.9) a box's
+dots stay 43px apart and each keeps a 40px tap (the shared neck's tap reach, `TAP_REACH_PX`).
+`ui/AnswerStrip.tsx` answers on one string from the root: fret 0 is 1, fret 3 is ♭3… each degree
+as the key spells it (♭5 in minor); at phone width only the active frets show, as large buttons.
+An answer is named by its label, then as spoken, then its fret ("♭3 (flat three), fret 3"): the
+label first for voice control (WCAG 2.5.3). Standard tuning only.
 
 ## Storage
 

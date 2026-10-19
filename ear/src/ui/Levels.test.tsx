@@ -380,6 +380,52 @@ describe('a level, start to end', () => {
   });
 });
 
+describe('level 14: answer on the neck', () => {
+  it("only the level's frets answer; the feedback names the fret; the neck shows that note; Next waits", () => {
+    const levels = Object.fromEntries(
+      Array.from({ length: 13 }, (_, i) => [i + 1, { step: 2, best: 9, done: true, counts: {} }]),
+    );
+    localStorage.setItem(EAR_STORAGE_KEY, JSON.stringify({ ...loadEar(), welcomed: true, levels }));
+    act(() => root.render(createElement(App, { player: fakePlayer().player })));
+    click(button('Continue'));
+    expect(heading()).toBe('Level 14 · See it on the neck');
+    click(button("I'm ready"));
+    expect(text()).toContain('Where is that note? Tap its fret.');
+    const cells = [...host.querySelectorAll<HTMLButtonElement>('.strip .cell')];
+    expect(cells).toHaveLength(12);
+    // Step A: the minor pentatonic, each at its fret from the root.
+    expect(cells.filter((c) => !c.disabled).map((c) => [c.dataset.fret, c.textContent])).toEqual([
+      ['0', '1'],
+      ['3', '♭3'],
+      ['5', '4'],
+      ['7', '5'],
+      ['10', '♭7'],
+    ]);
+    expect(host.querySelector('.neck-answer')).toBeNull();
+
+    click(cells[0]!);
+    const right = host.querySelector<HTMLButtonElement>('.cell.right')!;
+    const line = host.querySelector('.lv-feedback')!.textContent!;
+    const fret = right.dataset.fret!;
+    expect(line).toContain(
+      fret === '0'
+        ? 'fret 0 is the root: the note A, in the key of A minor'
+        : `fret ${fret} from the root is ${right.textContent}: the note `,
+    );
+    const note = /the note ([A-G][♭♯]?)/.exec(line)![1]!;
+    const target = host.querySelector('.neck-answer g.dot.target')!;
+    expect(target.getAttribute('aria-label')).toMatch(
+      new RegExp(`^${note}, fret \\d+, string \\d, ${right.textContent}`),
+    );
+    // Right or wrong, it waits for Next, so the neck can be looked at.
+    wait(10);
+    expect(host.querySelector('.lv-progress')!.getAttribute('aria-label')).toBe('Question 1 of 10');
+    click(button('Next'));
+    expect(host.querySelector('.lv-progress')!.getAttribute('aria-label')).toBe('Question 2 of 10');
+    expect(host.querySelector('.neck-answer')).toBeNull();
+  });
+});
+
 describe('in Vietnamese', () => {
   it('the same path, every screen in Vietnamese', () => {
     localStorage.setItem('gm.lang', 'vi');
