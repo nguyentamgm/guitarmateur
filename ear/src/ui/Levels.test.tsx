@@ -404,6 +404,10 @@ describe('level 14: answer on the neck', () => {
     expect(host.querySelector('.neck-answer')).toBeNull();
 
     click(cells[0]!);
+    // Answered: the frets say so, as the answer buttons of the other levels do.
+    expect(cells.filter((c) => !c.disabled).map((c) => c.getAttribute('aria-disabled'))).toEqual(
+      Array<string>(5).fill('true'),
+    );
     const right = host.querySelector<HTMLButtonElement>('.cell.right')!;
     const line = host.querySelector('.lv-feedback')!.textContent!;
     const fret = right.dataset.fret!;

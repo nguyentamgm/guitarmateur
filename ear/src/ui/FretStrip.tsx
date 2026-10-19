@@ -37,6 +37,7 @@ export function FretStrip({
             className={cls}
             data-fret={fret}
             data-marker={marker(fret)}
+            aria-disabled={answer !== null}
             aria-label={fill(ui.fretCellLabel, { fret })}
             onClick={() => onAnswer(fret)}
           >
