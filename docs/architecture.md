@@ -152,6 +152,11 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
   `leftHanded` mirrors the neck with its text kept upright. A merged box is one `box` span.
   `neckGeometry(frets, { from })` draws a window of the neck (frets `from + 1`…`frets`, no nut),
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
+  **Tap size:** a tap on the wood plays the nearest dot within `TAP_REACH_PX` (20 CSS px,
+  `nearestDot()` in `geometry.ts`), so each dot takes the room around it, up to a 40px target,
+  as far as its neighbours allow. On a phone a long neck shrinks to 62%, where dots on neighbouring
+  strings are only 16px apart: those stay under 40px (#279). A neck that must be tapped spreads its
+  strings instead (`neckGeometry(…, { stringGap })`, as the ear trainer's level 14 does).
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
   clicked note through `src/ui/notePlayer.ts`.
 - The tab look is in `fretboard.css` too (`.tab`, `.tabline`, `.tabname`, `.tabnum` boxes, the

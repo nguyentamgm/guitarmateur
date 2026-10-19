@@ -1,12 +1,12 @@
 /**
- * The answers as one string from the root, kept from the old trainer for levels 14–15 (#262, #263):
- * fret 0 is 1, fret 3 is ♭3, fret 7 is 5… Degrees that are off are dimmed and disabled (and hidden at
- * phone width); the mode's scale notes are dots. Styles: `.strip`, `.cell` in ear.css.
+ * Level 14's answers as one string from the root (#262): fret 0 is 1, fret 3 is ♭3, fret 7 is 5…
+ * each degree as the key spells it (♭5 in a minor key). Degrees that are off are dimmed and disabled
+ * (and hidden at phone width); the mode's scale notes are dots. Styles: `.strip`, `.cell` in ear.css.
  */
 import type { DegreeLabel, Key } from '@shared/core/music';
 import { DEGREES, degreeId, diatonicDegrees } from '../core/degrees';
 import { fill, type UiStrings } from '../i18n';
-import { answerText } from './labels';
+import { degreeInKey } from './labels';
 
 export function AnswerStrip({
   ui,
@@ -48,13 +48,13 @@ export function AnswerStrip({
             data-fret={fret}
             disabled={!isOn}
             aria-label={fill(ui.cellLabel, {
-              shown: answerText(label),
+              shown: degreeInKey(musicKey, label),
               spoken: ui.spoken[label as keyof UiStrings['spoken']],
               fret,
             })}
             onClick={() => onAnswer(label)}
           >
-            <span className="cell-dot">{answerText(label)}</span>
+            <span className="cell-dot">{degreeInKey(musicKey, label)}</span>
           </button>
         );
       })}

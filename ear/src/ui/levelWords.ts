@@ -1,6 +1,7 @@
 /** A level's words from the strings (i18n/strings.ts `levels`, `play`), looked up by id. */
 import type { AnswerId, Level } from '../core/levels';
 import type { RoundQuestion } from '../core/round';
+import { fretFromRoot } from '../core/position';
 import { degreeQuestion } from '../core/stage3';
 import type { KindSounds } from '../audio/levelSounds';
 import { fill, type LevelText, type PlayText, type UiStrings } from '../i18n';
@@ -36,7 +37,8 @@ export function answerWords(ui: UiStrings, level: Level, answer: AnswerId) {
 
 /**
  * What a question was, in the feedback after an answer. From Stage 3 on it names the note's letter
- * in the key ("that was 5: the note E, in the key of A major"); before, it is the answer's words.
+ * in the key ("that was 5: the note E, in the key of A major"), on level 14 its fret first ("fret 7
+ * from the root is 5: …"); before, it is the answer's words.
  */
 export function feedbackHeard(ui: UiStrings, level: Level, q: RoundQuestion): string {
   if (level.kind !== 'degree') return answerWords(ui, level, q.answer).heard;
@@ -46,6 +48,11 @@ export function feedbackHeard(ui: UiStrings, level: Level, q: RoundQuestion): st
     note: noteText(key, degree),
     key: keyText(ui, key),
   };
+  if (level.answerOn === 'string')
+    return fill(degree === '1' ? ui.heardFretRoot : ui.heardFret, {
+      ...words,
+      fret: fretFromRoot(degree),
+    });
   if (degree === '1') return fill(ui.heardRoot, words);
   return fill(q.answer === 'notRoot' ? ui.heardNotRoot : ui.heardDegree, words);
 }

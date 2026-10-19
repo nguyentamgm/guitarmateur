@@ -2,16 +2,21 @@
  * The question screen, the same for every level (docs/ear-levels.md "Question screen"): the sound
  * plays by itself, Play again as often as wanted, then the answer buttons. Right: a tick and one
  * line, and the next question after a short pause. Wrong: an orange mark, what it was, and both
- * sounds again. After 4 wrong in a row it offers an easier step instead.
+ * sounds again. After 4 wrong in a row it offers an easier step instead. Level 14 answers on one
+ * string (AnswerStrip), then shows the note on the neck (NeckAnswer) and waits for Next.
  */
 import { useEffect, useRef } from 'react';
 import type { Player } from '@shared/core/audio';
+import type { DegreeLabel } from '@shared/core/music';
 import { stepAnswers, type AnswerId, type LevelOf, type QuestionKind } from '../core/levels';
 import type { RoundState } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
+import { degreeQuestion } from '../core/stage3';
 import { fill, type UiStrings } from '../i18n';
+import { AnswerStrip } from './AnswerStrip';
 import { levelKeyOwnedByTarget, levelShortcut } from './keys';
 import { answerWords, feedbackHeard, levelText, playText } from './levelWords';
+import { NeckAnswer } from './NeckAnswer';
 import { NotesPicture } from './NotesPicture';
 import type { Round } from './useRound';
 
@@ -72,6 +77,10 @@ export function Question({
   }, [phase, n]);
 
   const heard = feedbackHeard(ui, level, q);
+  // Level 14: the degree question it asks, for the strip's key and the neck window.
+  const onNeck =
+    level.kind === 'degree' && level.answerOn === 'string' ? degreeQuestion(level, q) : null;
+  const degrees = answers as readonly DegreeLabel[];
 
   return (
     <section ref={screenRef} className="board lv-screen lv-question" aria-labelledby="lv-q">
@@ -129,36 +138,50 @@ export function Question({
             ▶ {ui.playAgain}
           </button>
           <p className="lv-big">{words.question}</p>
-          <div
-            className={`lv-answers n${answers.length}`}
-            role="group"
-            aria-label={ui.answersLabel}
-          >
-            {answers.map((a) => {
-              const w = answerWords(ui, level, a);
-              const mark =
+          {onNeck ? (
+            <AnswerStrip
+              ui={ui}
+              musicKey={onNeck.key}
+              active={degrees}
+              answer={
                 answered === null
-                  ? ''
-                  : a === q.answer
-                    ? 'right'
-                    : a === answered
-                      ? 'wrong'
-                      : 'other';
-              return (
-                <button
-                  key={String(a)}
-                  type="button"
-                  className={`lv-answer ${mark}`}
-                  aria-disabled={answered !== null}
-                  aria-label={w.name}
-                  onClick={() => round.send({ type: 'answer', answer: a })}
-                >
-                  {w.icon && <span aria-hidden="true">{w.icon} </span>}
-                  {w.label}
-                </button>
-              );
-            })}
-          </div>
+                  ? null
+                  : { right: q.answer as DegreeLabel, picked: answered as DegreeLabel }
+              }
+              onAnswer={(a) => round.send({ type: 'answer', answer: a })}
+            />
+          ) : (
+            <div
+              className={`lv-answers n${answers.length}`}
+              role="group"
+              aria-label={ui.answersLabel}
+            >
+              {answers.map((a) => {
+                const w = answerWords(ui, level, a);
+                const mark =
+                  answered === null
+                    ? ''
+                    : a === q.answer
+                      ? 'right'
+                      : a === answered
+                        ? 'wrong'
+                        : 'other';
+                return (
+                  <button
+                    key={String(a)}
+                    type="button"
+                    className={`lv-answer ${mark}`}
+                    aria-disabled={answered !== null}
+                    aria-label={w.name}
+                    onClick={() => round.send({ type: 'answer', answer: a })}
+                  >
+                    {w.icon && <span aria-hidden="true">{w.icon} </span>}
+                    {w.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <div className="lv-feedback" aria-live="polite">
             {answered !== null &&
               (right ? (
@@ -188,6 +211,9 @@ export function Question({
                 {ui.next} ▶
               </button>
             </div>
+          )}
+          {answered !== null && onNeck && (
+            <NeckAnswer ui={ui} question={onNeck} active={degrees} player={player} />
           )}
           {answered !== null && !right && level.stage === 1 && (
             <NotesPicture

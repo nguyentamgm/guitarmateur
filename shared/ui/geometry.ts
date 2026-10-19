@@ -53,6 +53,32 @@ export function boxSpan(g: NeckGeometry, minFret: number, maxFret: number): { le
   return { left: minFret === 0 ? g.nutX - 36 : g.wireX(minFret - 1), right: g.wireX(maxFret) };
 }
 
+/** How far from a dot's centre a tap still reaches it, in CSS px: a 40px target (#182, #262). */
+export const TAP_REACH_PX = 20;
+
+/**
+ * The dot a tap at (x, y), in the drawing's units, is for: the nearest one within `reach` units, so
+ * each dot takes the room around it up to halfway to its neighbours. Undefined when none is that close.
+ */
+export function nearestDot<D extends { readonly string: StringNumber; readonly fret: number }>(
+  g: NeckGeometry,
+  dots: readonly D[],
+  x: number,
+  y: number,
+  reach: number,
+): D | undefined {
+  let best: D | undefined;
+  let bestDist = reach;
+  for (const d of dots) {
+    const dist = Math.hypot(g.x(d.fret) - x, g.y(d.string) - y);
+    if (dist <= bestDist) {
+      best = d;
+      bestDist = dist;
+    }
+  }
+  return best;
+}
+
 /** Fret markers: single dots, and the double dot at 12. */
 export const INLAYS: readonly number[] = [3, 5, 7, 9, 15, 17, 19, 21];
 export const DOUBLE_INLAYS: readonly number[] = [12, 24];

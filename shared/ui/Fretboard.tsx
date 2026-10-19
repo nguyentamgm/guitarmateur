@@ -3,9 +3,9 @@
  * to hear. Callers add their own SVG (lines, arcs) through `children`, drawn under the dots.
  * Styled by shared/ui/fretboard.css. Sound is the caller's (`play`), so this holds no audio.
  */
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { STANDARD_STRING_NAMES, STRINGS, type StringNames, type StringNumber } from '../core/neck';
-import { DOUBLE_INLAYS, INLAYS, boxSpan, stringName, upright as uprightAt, type NeckGeometry } from './geometry';
+import { DOUBLE_INLAYS, INLAYS, TAP_REACH_PX, boxSpan, nearestDot, stringName, upright as uprightAt, type NeckGeometry } from './geometry';
 import { dotName, type DotWords } from './dotName';
 
 /**
@@ -112,6 +112,17 @@ export function Fretboard({
     setFlash(d.key);
     onDot?.(d);
   };
+  // A tap beside a dot plays the nearest one within TAP_REACH_PX: on a phone the dots are drawn
+  // 14–22px wide, so each takes the room around it, up to a 40px target, where its neighbours allow.
+  const onNeckClick = (e: MouseEvent<SVGSVGElement>) => {
+    if (e.target instanceof Element && e.target.closest('.dot')) return;
+    const box = e.currentTarget.getBoundingClientRect();
+    if (box.width === 0) return;
+    const scale = box.width / g.width;
+    const x = (e.clientX - box.left) / scale;
+    const d = nearestDot(g, dots, leftHanded ? g.width - x : x, (e.clientY - box.top) / scale, TAP_REACH_PX / scale);
+    if (d) play(d);
+  };
   const onKey = (e: KeyboardEvent, d: FretDot) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -143,6 +154,7 @@ export function Fretboard({
         style={{ minWidth: Math.round(g.width * 0.62), maxWidth: Math.round(g.width * 1.2) }}
         role="group"
         aria-label={label}
+        onClick={onNeckClick}
       >
         <g transform={mirror}>
           <rect className="wood" x={g.nutX} y={woodTop} width={(g.frets - g.from) * g.fretWidth} height={woodHeight} rx={3} />

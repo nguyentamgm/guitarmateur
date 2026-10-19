@@ -68,10 +68,11 @@ export function useRound(
           case 'score':
             resultsRef.current = [...resultsRef.current, e.right];
             setResults(resultsRef.current);
-            // Right: a short pause, then the next question. Wrong: the pick, then what it was.
-            if (e.right)
+            // Right: a short pause, then the next question; on the neck (levels 14–15) it waits for
+            // Next, so the neck window can be looked at. Wrong: the pick, then what it was.
+            if (!e.right) compare(s);
+            else if (s.level.answerOn === 'buttons')
               audio().playPart(rightPausePart(), () => sendRef.current({ type: 'next' }));
-            else compare(s);
             break;
           case 'playDemo':
           case 'offerEasier':

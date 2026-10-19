@@ -23,6 +23,22 @@ describe('Stage 3 feedback', () => {
     );
   });
 
+  it('on level 14, names the fret from the root for every degree, then the note', () => {
+    const level = findLevel(14)!;
+    // Step B: the blues scale, in A minor.
+    const heard = (answer: string, ui = UI.en) =>
+      feedbackHeard(ui, level, { level: 14, step: 1, answer, seed: 5 });
+    expect(['1', 'b3', '4', '#4', '5', 'b7'].map((d) => heard(d))).toEqual([
+      'fret 0 is the root: the note A, in the key of A minor',
+      'fret 3 from the root is ♭3: the note C, in the key of A minor',
+      'fret 5 from the root is 4: the note D, in the key of A minor',
+      'fret 6 from the root is ♭5: the note E♭, in the key of A minor',
+      'fret 7 from the root is 5: the note E, in the key of A minor',
+      'fret 10 from the root is ♭7: the note G, in the key of A minor',
+    ]);
+    expect(heard('5', UI.vi)).toBe('phím 7 tính từ root là bậc 5: nốt E, trong giọng A thứ');
+  });
+
   it('a ♭ degree button is also named as said; plain ones are not', () => {
     const level = findLevel(10)!;
     expect(answerWords(UI.en, level, 'b3').name).toBe('♭3 (flat three)');

@@ -454,6 +454,22 @@ button.lv-open:hover {
   }
 }
 
+/* Level 14's strip on the beginner screens: its degrees and fret numbers at 18px too, the string
+   through the dots' middle. */
+.levels .cell-dot {
+  min-width: 44px;
+  height: 40px;
+  border-radius: 20px;
+  font-size: 18px;
+}
+.levels .cell::before {
+  top: 29px;
+}
+.levels .frets span,
+.levels .cell::after {
+  font-size: 18px;
+}
+
 /* A Stage 1 wrong answer's picture (NotesPicture.tsx): the notes' shape, or the gap on one string. */
 .lv-shape {
   width: min(100%, 260px);
