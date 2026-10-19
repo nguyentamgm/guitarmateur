@@ -125,8 +125,14 @@ question ─answer─▶ feedback ─next─▶ question … ─next (after the 
 - **Only the first answer counts** (a `score` effect); replays are free, and a changed answer is
   ignored. On level 15 any fret of the root's note is right (`sameAnswer()`: 0 and 12).
 - **The pass:** `LEVEL_RULES`, 8 of 10 right, and the round ends on the level's last step
-  (`passes()`). The "test me" quiz (#264) is a round with its own `RoundRules`; each question
-  carries its level and step, so a round can mix levels.
+  (`passes()`).
+- **A stage's test** ("I already know this: test me", #264): `startTest(stage, seed)` is a round
+  on `TEST_RULES`, 9 of 10 and no easier step, its questions on the stage's levels in turn (Stage
+  3: 7, 8, 9, 10, 7…), each at its level's last step. Each question carries its level and step
+  (`questionLevel()`), so the screens and sounds follow the question, not the round. Its `end`
+  effect names the stage (`test`): passed, every level of that stage and the stages before it is
+  marked done, scores and counts untouched; failed, nothing changes. Its first answers count
+  under their own levels, as any round's do.
 
 ## The screens
 
@@ -267,7 +273,9 @@ label first for voice control (WCAG 2.5.3). Standard tuning only.
     passed once, and every answer asked with how often it was right first try (the round's
     weighting). `storeRoundEffect` keeps a round's `step`, `score` and `end` effects
     (`core/progress.ts`). A level is **unlocked** when it is level 1 or the level before it is
-    done (`isUnlocked()`): worked out, never stored.
+    done (`isUnlocked()`): worked out, never stored. A level done with no round played (`best`
+    0) was skipped by a stage's test (`skipped()`): that is how the test is stored, and its card
+    says so ("Done · skipped by the test").
   - Version 1 was the old trainer's settings and stats: it migrates to version 2 not welcomed,
     with no level played, and those fields are no longer read (the next write drops them).
   - Missing, corrupt, unversioned or newer-version data gives the defaults; within a readable

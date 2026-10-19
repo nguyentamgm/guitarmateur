@@ -7,7 +7,9 @@ import {
   ROUND_QUESTIONS,
   UP_AFTER,
   passes,
+  questionLevel,
   startRound,
+  startTest,
   stepRound,
   type AnswerCounts,
   type RoundEffect,
@@ -22,8 +24,9 @@ const level2 = findLevel(2)!;
 function answerFor(state: RoundState, right: boolean): AnswerId {
   const q = state.questions.at(-1)!;
   if (right) return q.answer;
-  const shown: readonly AnswerId[] = stepAnswers(state.level as LevelOf<typeof state.level.kind>, q.step);
-  return shown.find((a) => !sameAnswer(state.level, a, q.answer))!;
+  const level = questionLevel(state, q);
+  const shown: readonly AnswerId[] = stepAnswers(level as LevelOf<typeof level.kind>, q.step);
+  return shown.find((a) => !sameAnswer(level, a, q.answer))!;
 }
 
 /** Steps through events, collecting every effect. */
@@ -237,7 +240,7 @@ describe('the pass', () => {
 
   it("passes on the level's rules: the pass mark and the last step", () => {
     const at = (level: Level, right: number, step: number) => passes({ level, rules: LEVEL_RULES, right, step });
-    expect(LEVEL_RULES).toEqual({ questions: 10, passMark: 8 });
+    expect(LEVEL_RULES).toEqual({ questions: 10, passMark: 8, offersEasier: true });
     expect(at(level2, 10, 2)).toBe(true);
     expect(at(level2, 10, 1)).toBe(false);
     expect(at(level2, 7, 2)).toBe(false);
@@ -287,5 +290,25 @@ describe('level 15', () => {
       return;
     }
     throw new Error('no seed asked the E root');
+  });
+});
+
+describe('a stage test ("test me")', () => {
+  it("asks 10 questions over the stage's levels in turn, each on its last step, and never offers easier", () => {
+    for (const seed of SEEDS) {
+      const { state, effects } = play(startTest(3, seed).state, W(ROUND_QUESTIONS));
+      expect(state.questions.map((q) => q.level)).toEqual([7, 8, 9, 10, 7, 8, 9, 10, 7, 8]);
+      for (const q of state.questions) expect(q.step).toBe(findLevel(q.level)!.steps.length - 1);
+      expect(offers(effects)).toBe(0);
+      expect(steps(effects)).toEqual([]);
+      expect(state.phase).toBe('done');
+    }
+  });
+
+  it('passes with 9 of 10, not 8, and its end names the stage', () => {
+    const end = (rights: boolean[]) =>
+      play(startTest(1, 5).state, rights).effects.find((e) => e.type === 'end');
+    expect(end([...W(1), ...R(9)])).toEqual({ type: 'end', right: 9, passed: true, test: 1 });
+    expect(end([...W(2), ...R(8)])).toEqual({ type: 'end', right: 8, passed: false, test: 1 });
   });
 });

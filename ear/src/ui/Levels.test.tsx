@@ -2,7 +2,7 @@ import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Player } from '@shared/core/audio';
-import type { AnswerId, Level } from '../core/levels';
+import { stepAnswers, type AnswerId, type Level, type LevelOf } from '../core/levels';
 import type { KindSounds, LevelSounds } from '../audio/levelSounds';
 import { SOUND_CHECK_MIDI } from '../audio/levelSounds';
 import type { Part } from '../audio/timeline';
@@ -463,6 +463,63 @@ describe('level 15: find the root on your guitar', () => {
       '/?lang=en',
     );
     expect(loadEar().levels[15]).toMatchObject({ done: true, best: 10 });
+  });
+});
+
+describe('"I already know this: test me"', () => {
+  it('a fresh learner tests out of Stage 1 with 9 of 10 and lands on level 5', () => {
+    welcomed();
+    // Each kind plays 100 + its answer's place among the buttons, so the test knows the answer.
+    const place: LevelSounds = {
+      question: (level, q) =>
+        note(
+          100 + stepAnswers(level as LevelOf<typeof level.kind>, q.step).indexOf(q.answer as never),
+        ),
+      compare: () => note(COMPARE_MIDI),
+      demo: (level: Level) => [{ answer: level.answers[0] as AnswerId, part: note(DEMO_MIDI) }],
+    };
+    const sounds: KindSounds = {
+      sameDifferent: place,
+      higherLower: place,
+      contour: place,
+      distance: place,
+      chordQuality: place,
+    };
+    const { player, played } = fakePlayer();
+    render(player, sounds);
+    // Under every stage not done whose levels all have sounds: only Stage 1 here (level 6 has none).
+    expect(host.querySelectorAll('.lv-test')).toHaveLength(1);
+    const test = host.querySelector<HTMLButtonElement>('.lv-test')!;
+    expect(test.textContent).toBe('I already know this: test me');
+    expect(test.getAttribute('aria-label')).toBe(
+      'I already know this: test me on stage 1, Hearing differences',
+    );
+    click(test);
+    expect(heading()).toBe('Test · Stage 1 · Hearing differences');
+    const levels: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      levels.push(host.querySelector('.lv-big')!.textContent!);
+      const right = played.at(-1)! - 100;
+      const pick = i === 0 ? (right === 0 ? 1 : 0) : right;
+      click(answerButtons()[pick]!);
+      // On its level's last step: level 3's four shapes.
+      if (levels.length === 3) expect(answerButtons()).toHaveLength(4);
+      if (i === 0) click(button('Next'));
+      else wait(2);
+    }
+    // Each level in turn: their questions differ.
+    expect(new Set(levels).size).toBe(4);
+    expect(heading()).toBe('9 of 10 right!');
+    expect(text()).toContain('Well done! You skipped Stage 1.');
+    expect([1, 2, 3, 4].map((id) => loadEar().levels[id]?.done)).toEqual([true, true, true, true]);
+    click(button('Continue'));
+    expect(heading()).toBe('Level 5 · Happy or sad?');
+    click(button('Back to the map'));
+    const cards = [...host.querySelectorAll('.lv-card')];
+    expect(cards[0]!.querySelector('.lv-card-state')!.textContent).toBe(
+      '✓ Done · skipped by the test',
+    );
+    expect(cards[4]!.className).toBe('lv-card ready');
   });
 });
 

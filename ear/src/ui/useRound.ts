@@ -5,9 +5,11 @@
  * starts from a click, never from a render or a mount, so its first sound comes from a user gesture.
  */
 import { useCallback, useRef, useState } from 'react';
-import type { Level } from '../core/levels';
+import type { Level, Stage } from '../core/levels';
 import {
+  questionLevel,
   startRound,
+  startTest,
   stepRound,
   type AnswerCounts,
   type RoundEffect,
@@ -26,6 +28,8 @@ export interface Round {
   /** Right first try, one per question answered this round, in order. */
   readonly results: readonly boolean[];
   start(level: Level, step: number, counts: AnswerCounts): void;
+  /** A stage's "test me". */
+  startTest(stage: Stage): void;
   send(event: RoundEvent): void;
   /** After a wrong answer: the pick, then what it was, again. */
   listenBoth(): void;
@@ -46,8 +50,10 @@ export function useRound(
   const compare = useCallback(
     (s: RoundState) => {
       const q = s.questions.at(-1);
-      const kind = sounds(s.level);
-      if (q && s.answer !== null && kind) audio().playPart(kind.compare(s.level, q, s.answer));
+      if (!q || s.answer === null) return;
+      const level = questionLevel(s, q);
+      const kind = sounds(level);
+      if (kind) audio().playPart(kind.compare(level, q, s.answer));
     },
     [audio, sounds],
   );
@@ -57,21 +63,24 @@ export function useRound(
 
   const run = useCallback(
     (s: RoundState, effects: readonly RoundEffect[]) => {
-      const kind = sounds(s.level);
       for (const e of effects) {
         onEffectRef.current(s.level.id, e);
         switch (e.type) {
           case 'ask':
-          case 'replay':
-            if (kind) audio().playPart(kind.question(s.level, e.question));
+          case 'replay': {
+            // In a test each question is on its own level.
+            const level = questionLevel(s, e.question);
+            const kind = sounds(level);
+            if (kind) audio().playPart(kind.question(level, e.question));
             break;
+          }
           case 'score':
             resultsRef.current = [...resultsRef.current, e.right];
             setResults(resultsRef.current);
             // Right: a short pause, then the next question; on the neck (levels 14–15) it waits for
             // Next, so the neck window can be looked at. Wrong: the pick, then what it was.
             if (!e.right) compare(s);
-            else if (s.level.answerOn === 'buttons')
+            else if (questionLevel(s, e.question).answerOn === 'buttons')
               audio().playPart(rightPausePart(), () => sendRef.current({ type: 'next' }));
             break;
           case 'playDemo':
@@ -100,9 +109,8 @@ export function useRound(
   );
   sendRef.current = send;
 
-  const start = useCallback(
-    (level: Level, step: number, counts: AnswerCounts) => {
-      const { state: first, effects } = startRound(level, step, newSeed(), counts);
+  const begin = useCallback(
+    ({ state: first, effects }: { state: RoundState; effects: readonly RoundEffect[] }) => {
       stateRef.current = first;
       resultsRef.current = [];
       setState(first);
@@ -111,10 +119,16 @@ export function useRound(
     },
     [run],
   );
+  const start = useCallback(
+    (level: Level, step: number, counts: AnswerCounts) =>
+      begin(startRound(level, step, newSeed(), counts)),
+    [begin],
+  );
+  const startStageTest = useCallback((stage: Stage) => begin(startTest(stage, newSeed())), [begin]);
 
   const listenBoth = useCallback(() => {
     if (stateRef.current) compare(stateRef.current);
   }, [compare]);
 
-  return { state, results, start, send, listenBoth };
+  return { state, results, start, startTest: startStageTest, send, listenBoth };
 }

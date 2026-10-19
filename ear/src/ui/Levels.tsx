@@ -5,8 +5,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Player } from '@shared/core/audio';
-import { LEVELS, findLevel, type Level } from '../core/levels';
-import { isUnlocked, levelProgress, type Progress } from '../core/progress';
+import { LEVELS, findLevel, type Level, type Stage } from '../core/levels';
+import { currentLevel, isUnlocked, levelProgress, type Progress } from '../core/progress';
 import type { RoundEffect } from '../core/round';
 import { createEarAudio, type EarAudio } from '../audio/driver';
 import { soundCheckPart, type KindSounds } from '../audio/levelSounds';
@@ -18,6 +18,7 @@ import { PRACTICE_LINK_LEVEL, playable } from './levelWords';
 import { minorPentatonicLink } from './practiceLink';
 import { Question } from './Question';
 import { RoundEnd } from './RoundEnd';
+import { TestEnd } from './TestEnd';
 import { useRound } from './useRound';
 import { Welcome } from './Welcome';
 
@@ -92,6 +93,16 @@ export function Levels({
     [round],
   );
 
+  /** A stage's "test me": straight to its questions, from the click. */
+  const startTest = useCallback(
+    (stage: Stage) => {
+      setNoAudio(false);
+      setScreen({ name: 'round' });
+      round.startTest(stage);
+    },
+    [round],
+  );
+
   /** A level's first round opens with its intro; later ones go straight to the questions. */
   const open = useCallback(
     (level: Level) => {
@@ -155,6 +166,7 @@ export function Levels({
           playable={isPlayable}
           onOpen={open}
           onHow={(level) => setScreen({ name: 'intro', level })}
+          onTest={startTest}
         />
       </>
     );
@@ -179,6 +191,20 @@ export function Levels({
         sounds={sounds[s.level.kind]!}
         play={play}
         onReady={() => round.send({ type: 'next' })}
+        onBack={toMap}
+      />
+    );
+  } else if (s?.phase === 'done' && s.test) {
+    const { stage } = s.test;
+    body = (
+      <TestEnd
+        ui={ui}
+        state={s}
+        stage={stage}
+        results={round.results}
+        onContinue={() => open(findLevel(currentLevel(progressRef.current))!)}
+        onFirstLevel={() => open(s.test!.levels[0]!)}
+        onAgain={() => startTest(stage)}
         onBack={toMap}
       />
     );

@@ -94,3 +94,28 @@ describe('recordRoundEffect', () => {
     expect(unlocked(p)).toEqual([1, 2]);
   });
 });
+
+describe('a stage test', () => {
+  const test = (stage: 1 | 2 | 3 | 4 | 5, right: number, passed: boolean): RoundEffect => ({
+    type: 'end',
+    right,
+    passed,
+    test: stage,
+  });
+
+  it('9 of 10 marks the stage and every one before it done, so the next stage opens', () => {
+    const start: Progress = { 2: { ...NEW_LEVEL, best: 6, counts: { higher: { asked: 3, right: 2 } } } };
+    const p = recordRoundEffect(start, 10, test(3, 9, true));
+    expect(ids.filter((id) => levelProgress(p, id).done)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(unlocked(p)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(currentLevel(p)).toBe(11);
+    // Scores and counts stay as they were: a skipped level has played no round.
+    expect(p[2]).toEqual({ ...start[2], done: true });
+    expect(levelProgress(p, 10).best).toBe(0);
+  });
+
+  it('8 of 10 changes nothing', () => {
+    const start = done(1);
+    expect(recordRoundEffect(start, 4, test(1, 8, false))).toBe(start);
+  });
+});

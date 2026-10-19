@@ -68,8 +68,8 @@ After "Yes", the learner goes to the level map.
   ▶ ready, or ✓ done (with the best score).
 - One button stands out: **Continue** — it opens the next level not done yet.
 - Any unlocked or done level can be played again at any time.
-- Under each locked stage: a small link **"I already know this — test me"** (see "Skipping
-  ahead").
+- Under each stage not done yet: a small link **"I already know this — test me"** (see
+  "Skipping ahead").
 
 ### 3. Level intro (before the first round of each level)
 
@@ -316,9 +316,11 @@ Now the ear meets the guitar in the learner's hands.
 
 ## Skipping ahead
 
-Under every locked stage: **"I already know this — test me"**. It is a 10-question mix of that
-stage's last steps. 9 or more right unlocks the whole stage; otherwise *"Good try! Start from the
-first level of this stage — it'll be quick."*
+Under every stage not done yet (Stage 1 too, for a learner who already plays a little): **"I
+already know this — test me"**. It is a 10-question mix of that stage's last steps, with no demo
+and no "make it easier". 9 or more right marks that stage and every stage before it done, so the
+next stage opens: *"Well done! You skipped Stage n."* Otherwise *"Good try! Start from the first
+level of this stage — it'll be quick."*: nothing is lost, and the test can be taken again.
 
 ## Words the levels teach, in order
 
