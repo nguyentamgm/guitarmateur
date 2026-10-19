@@ -323,6 +323,7 @@ const en = {
   roundAgain: 'Play again',
   /** A stage's "test me" (#264): under the stage on the map, its questions, its end. */
   testMe: 'I already know this: test me',
+  /** The visible text first, then the stage (WCAG 2.5.3, label in name). */
   testMeLabel: 'I already know this: test me on stage {n}, {name}',
   testTitle: 'Test · Stage {n} · {name}',
   testPassed: 'Well done! You skipped Stage {n}.',
@@ -609,7 +610,7 @@ const vi: UiStrings = {
   nextLevel: 'Cấp tiếp theo',
   roundAgain: 'Chơi lại',
   testMe: 'Tôi biết phần này rồi: kiểm tra tôi',
-  testMeLabel: 'Tôi biết phần này rồi: kiểm tra chặng {n}, {name}',
+  testMeLabel: 'Tôi biết phần này rồi: kiểm tra tôi, chặng {n}, {name}',
   testTitle: 'Kiểm tra · Chặng {n} · {name}',
   testPassed: 'Giỏi lắm! Bạn đã bỏ qua chặng {n}.',
   testFailed: 'Cố gắng tốt! Hãy bắt đầu từ cấp đầu tiên của chặng này: sẽ nhanh thôi.',

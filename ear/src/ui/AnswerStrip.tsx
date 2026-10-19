@@ -47,6 +47,7 @@ export function AnswerStrip({
             data-degree={label}
             data-fret={fret}
             disabled={!isOn}
+            aria-disabled={answer !== null}
             aria-label={fill(ui.cellLabel, {
               shown: degreeInKey(musicKey, label),
               spoken: ui.spoken[label as keyof UiStrings['spoken']],

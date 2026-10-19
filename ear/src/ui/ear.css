@@ -98,7 +98,8 @@ body {
   font-family: var(--f-mono);
   font-size: 11px;
 }
-.cell.off {
+.cell.off,
+.cell[aria-disabled='true'] {
   cursor: default;
 }
 .cell.off .cell-dot {
