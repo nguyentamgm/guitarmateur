@@ -321,6 +321,16 @@ const en = {
   notYet: '{right} of {total}: almost! Play another round; most people need a few.',
   nextLevel: 'Next level',
   roundAgain: 'Play again',
+  /** A stage's "test me" (#264): under the stage on the map, its questions, its end. */
+  testMe: 'I already know this: test me',
+  testMeLabel: 'I already know this: test me on stage {n}, {name}',
+  testTitle: 'Test · Stage {n} · {name}',
+  testPassed: 'Well done! You skipped Stage {n}.',
+  testFailed: "Good try! Start from the first level of this stage: it'll be quick.",
+  testFirstLevel: 'Start this stage',
+  testAgain: 'Take the test again',
+  /** A level the test skipped, on its card. */
+  levelSkipped: 'Done · skipped by the test',
 };
 
 export type UiStrings = typeof en;
@@ -598,6 +608,14 @@ const vi: UiStrings = {
   notYet: '{right}/{total}: gần được rồi! Chơi thêm một lượt nữa; hầu hết mọi người cần vài lượt.',
   nextLevel: 'Cấp tiếp theo',
   roundAgain: 'Chơi lại',
+  testMe: 'Tôi biết phần này rồi: kiểm tra tôi',
+  testMeLabel: 'Tôi biết phần này rồi: kiểm tra chặng {n}, {name}',
+  testTitle: 'Kiểm tra · Chặng {n} · {name}',
+  testPassed: 'Giỏi lắm! Bạn đã bỏ qua chặng {n}.',
+  testFailed: 'Cố gắng tốt! Hãy bắt đầu từ cấp đầu tiên của chặng này: sẽ nhanh thôi.',
+  testFirstLevel: 'Bắt đầu chặng này',
+  testAgain: 'Làm lại bài kiểm tra',
+  levelSkipped: 'Xong · bỏ qua nhờ bài kiểm tra',
 };
 
 export const UI: Readonly<Record<Lang, UiStrings>> = { en, vi };

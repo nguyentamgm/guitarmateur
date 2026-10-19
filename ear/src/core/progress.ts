@@ -3,7 +3,7 @@
  * keeps per level. Whether a level is unlocked is worked out from the levels before it, never
  * stored.
  */
-import { LEVELS, findLevel } from './levels';
+import { LEVELS, findLevel, type Stage } from './levels';
 import { counted, type AnswerCounts, type RoundEffect } from './round';
 
 export interface LevelProgress {
@@ -40,10 +40,22 @@ const withLevel = (progress: Progress, id: number, change: (p: LevelProgress) =>
   [id]: change(levelProgress(progress, id)),
 });
 
+/** Every level of `stage` and the stages before it, done: skipped by a test. */
+const skipTo = (progress: Progress, stage: Stage): Progress =>
+  LEVELS.filter((l) => l.stage <= stage).reduce((p, l) => withLevel(p, l.id, (lp) => ({ ...lp, done: true })), progress);
+
+/** A level done with no round played: passed by a stage's test. */
+export const skipped = (progress: Progress, id: number): boolean => {
+  const p = levelProgress(progress, id);
+  return p.done && p.best === 0;
+};
+
 /**
  * One effect of a round of level `id` (core/round.ts), kept: the step it moved to, the first answer
  * to a question (counted under the question's own level, as a test round mixes them), and the
- * round's end (the best score, and done once passed). Other effects change nothing.
+ * round's end (the best score, and done once passed). A stage's test passed marks every level of
+ * that stage and the stages before it done, their scores untouched; failed, it changes nothing.
+ * Other effects change nothing.
  */
 export function recordRoundEffect(progress: Progress, id: number, effect: RoundEffect): Progress {
   switch (effect.type) {
@@ -55,6 +67,7 @@ export function recordRoundEffect(progress: Progress, id: number, effect: RoundE
         counts: counted(p.counts, effect.question.answer, effect.right),
       }));
     case 'end':
+      if (effect.test !== undefined) return effect.passed ? skipTo(progress, effect.test) : progress;
       return withLevel(progress, id, (p) => ({
         ...p,
         best: Math.max(p.best, effect.right),

@@ -5,7 +5,7 @@
  * file knows nothing of notes, chords or audio.
  */
 import { int, mulberry32, weightedChoice, type Rng } from '@shared/core/rng';
-import { askedAnswers, sameAnswer, type AnswerId, type Level } from './levels';
+import { LEVELS, askedAnswers, sameAnswer, type AnswerId, type Level, type Stage } from './levels';
 import { missWeight, type Count } from './stats';
 
 /** Questions in a round. */
@@ -20,10 +20,14 @@ export interface RoundRules {
   readonly questions: number;
   /** Right first try needed to pass. */
   readonly passMark: number;
+  /** After EASIER_AFTER wrong in a row, offer an easier step (a test never does). */
+  readonly offersEasier: boolean;
 }
 
 /** A level's round: 8 of 10, on the level's last step. */
-export const LEVEL_RULES: RoundRules = { questions: ROUND_QUESTIONS, passMark: 8 };
+export const LEVEL_RULES: RoundRules = { questions: ROUND_QUESTIONS, passMark: 8, offersEasier: true };
+/** A stage's "test me": 9 of 10, no easier step. */
+export const TEST_RULES: RoundRules = { questions: ROUND_QUESTIONS, passMark: 9, offersEasier: false };
 
 /**
  * A question: its level and step (a test round mixes levels), its right answer, and the seed the
@@ -48,7 +52,10 @@ export type RoundPhase = 'question' | 'feedback' | 'stuck' | 'demo' | 'done';
 export type AnswerCounts = Readonly<Partial<Record<string, Count>>>;
 
 export interface RoundState {
+  /** The level played; in a test, the stage's last level. */
   readonly level: Level;
+  /** A stage's test: its levels, each question on the next of them in turn, at its last step. */
+  readonly test: { readonly stage: Stage; readonly levels: readonly Level[] } | null;
   readonly rules: RoundRules;
   readonly phase: RoundPhase;
   /** The step the next question is asked at, 0 for A. */
@@ -88,7 +95,8 @@ export type RoundEffect =
   | { readonly type: 'offerEasier' }
   /** Play the level's demo at `step`. */
   | { readonly type: 'playDemo'; readonly level: number; readonly step: number }
-  | { readonly type: 'end'; readonly right: number; readonly passed: boolean };
+  /** The round is over; a test's end names its stage. */
+  | { readonly type: 'end'; readonly right: number; readonly passed: boolean; readonly test?: Stage };
 
 export interface RoundStep {
   readonly state: RoundState;
@@ -102,12 +110,16 @@ export function passes(state: Pick<RoundState, 'level' | 'rules' | 'right' | 'st
   return state.right >= state.rules.passMark && state.step === lastStep(state.level);
 }
 
+/** The level a question of this round is on: in a test, one of the stage's. */
+export const questionLevel = (state: Pick<RoundState, 'level' | 'test'>, q: RoundQuestion): Level =>
+  state.test?.levels.find((l) => l.id === q.level) ?? state.level;
+
 /**
  * The next right answer, by `missWeight()`: any the step can ask, except the same one a third time
  * in a row.
  */
-function nextAnswer(state: RoundState, rng: Rng): AnswerId {
-  const asked = askedAnswers(state.level, state.step);
+function nextAnswer(state: RoundState, level: Level, step: number, rng: Rng): AnswerId {
+  const asked = askedAnswers(level, step);
   const [a, b] = state.questions.slice(-2).map((q) => q.answer);
   const allowed = a !== undefined && a === b && asked.length > 1 ? asked.filter((x) => x !== a) : asked;
   return weightedChoice(
@@ -116,11 +128,13 @@ function nextAnswer(state: RoundState, rng: Rng): AnswerId {
   );
 }
 
-/** Ask the next question. */
+/** Ask the next question: in a test, on the stage's next level in turn, at its last step. */
 function ask(state: RoundState): RoundStep {
   const rng = mulberry32(state.seed);
-  const answer = nextAnswer(state, rng);
-  const question: RoundQuestion = { level: state.level.id, step: state.step, answer, seed: int(rng, 0, 0xffffffff) };
+  const level = state.test ? state.test.levels[state.questions.length % state.test.levels.length]! : state.level;
+  const step = state.test ? lastStep(level) : state.step;
+  const answer = nextAnswer(state, level, step, rng);
+  const question: RoundQuestion = { level: level.id, step, answer, seed: int(rng, 0, 0xffffffff) };
   return {
     state: {
       ...state,
@@ -140,6 +154,7 @@ function ask(state: RoundState): RoundStep {
 export function startRound(level: Level, step: number, seed: number, counts: AnswerCounts = {}): RoundStep {
   return ask({
     level,
+    test: null,
     rules: LEVEL_RULES,
     phase: 'question',
     step: Math.min(Math.max(0, Math.trunc(step)), lastStep(level)),
@@ -150,6 +165,29 @@ export function startRound(level: Level, step: number, seed: number, counts: Ans
     rightInRow: 0,
     wrongInRow: 0,
     counts,
+  });
+}
+
+/**
+ * A stage's "test me" (docs/ear-levels.md "Skipping ahead"): TEST_RULES' questions over its
+ * levels in turn, each at its last step, its first question asked. No intro, no easier step.
+ */
+export function startTest(stage: Stage, seed: number): RoundStep {
+  const inStage = LEVELS.filter((l) => l.stage === stage);
+  const last = inStage.at(-1)!;
+  return ask({
+    level: last,
+    test: { stage, levels: inStage },
+    rules: TEST_RULES,
+    phase: 'question',
+    step: lastStep(last),
+    seed,
+    questions: [],
+    answer: null,
+    right: 0,
+    rightInRow: 0,
+    wrongInRow: 0,
+    counts: {},
   });
 }
 
@@ -164,7 +202,7 @@ export function counted(counts: AnswerCounts, id: AnswerId, right: boolean): Ans
  * (never past the last); a wrong one breaks the run.
  */
 function firstAnswer(state: RoundState, q: RoundQuestion, answer: AnswerId): RoundStep {
-  const right = sameAnswer(state.level, answer, q.answer);
+  const right = sameAnswer(questionLevel(state, q), answer, q.answer);
   const effects: RoundEffect[] = [{ type: 'score', question: q, answer, right }];
   let next: RoundState = {
     ...state,
@@ -186,9 +224,12 @@ function firstAnswer(state: RoundState, q: RoundQuestion, answer: AnswerId): Rou
 function afterFeedback(state: RoundState): RoundStep {
   if (state.questions.length >= state.rules.questions) {
     const passed = passes(state);
-    return { state: { ...state, phase: 'done' }, effects: [{ type: 'end', right: state.right, passed }] };
+    const end: RoundEffect = state.test
+      ? { type: 'end', right: state.right, passed, test: state.test.stage }
+      : { type: 'end', right: state.right, passed };
+    return { state: { ...state, phase: 'done' }, effects: [end] };
   }
-  if (state.wrongInRow >= EASIER_AFTER) {
+  if (state.rules.offersEasier && state.wrongInRow >= EASIER_AFTER) {
     return { state: { ...state, phase: 'stuck', wrongInRow: 0 }, effects: [{ type: 'offerEasier' }] };
   }
   return ask(state);

@@ -519,3 +519,16 @@ button.lv-open:hover {
   border: 1px solid var(--line);
   border-radius: var(--r-panel);
 }
+
+/* Under a stage on the map: "I already know this: test me", a quiet link-like button. */
+.lv-test {
+  justify-self: start;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -16,7 +16,7 @@ import {
   type LevelOf,
   type QuestionKind,
 } from '../core/levels';
-import type { RoundState } from '../core/round';
+import { questionLevel, type RoundState } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
 import { degreeQuestion } from '../core/stage3';
 import { fill, type UiStrings } from '../i18n';
@@ -43,8 +43,10 @@ export function Question({
   player: Player;
   onBack(): void;
 }) {
-  const { level, phase } = state;
+  const { phase } = state;
   const q = state.questions.at(-1)!;
+  // In a stage's test, each question is on one of its levels.
+  const level = questionLevel(state, q);
   // The buttons of the step the question was asked at: a step up applies from the next one.
   const answers: readonly AnswerId[] = stepAnswers(level as LevelOf<QuestionKind>, q.step);
   const answered = phase === 'feedback' ? state.answer : null;
@@ -96,7 +98,9 @@ export function Question({
     <section ref={screenRef} className="board lv-screen lv-question" aria-labelledby="lv-q">
       <div className="lv-q-head">
         <h2 id="lv-q" tabIndex={-1}>
-          {fill(ui.levelTitle, { n: level.id, name: levelText(ui, level).name })}
+          {state.test
+            ? fill(ui.testTitle, { n: state.test.stage, name: ui.stages[state.test.stage] })
+            : fill(ui.levelTitle, { n: level.id, name: levelText(ui, level).name })}
         </h2>
         <span
           className="lv-progress"

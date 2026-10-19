@@ -1,10 +1,11 @@
 /**
  * The level map (docs/ear-levels.md "Level map"): the five stages in a column, each level a large
  * card that is locked, ready or done, and one main button, Continue. A level not built yet shows
- * as coming soon. "Test me" under a locked stage comes with #264.
+ * as coming soon. Under each stage not done yet, "I already know this: test me" (#264) starts that
+ * stage's test; a level it skipped says so.
  */
 import { LEVELS, type Level, type Stage } from '../core/levels';
-import { currentLevel, isUnlocked, levelProgress, type Progress } from '../core/progress';
+import { currentLevel, isUnlocked, levelProgress, skipped, type Progress } from '../core/progress';
 import { ROUND_QUESTIONS } from '../core/round';
 import { fill, type UiStrings } from '../i18n';
 import { levelText } from './levelWords';
@@ -19,18 +20,25 @@ export function LevelMap({
   playable,
   onOpen,
   onHow,
+  onTest,
 }: {
   ui: UiStrings;
   progress: Progress;
   playable(level: Level): boolean;
   onOpen(level: Level): void;
   onHow(level: Level): void;
+  onTest(stage: Stage): void;
 }) {
   const current = LEVELS.find((l) => l.id === currentLevel(progress))!;
   const cardState = (level: Level): CardState => {
     if (!isUnlocked(progress, level.id)) return 'locked';
     if (!playable(level)) return 'soon';
     return levelProgress(progress, level.id).done ? 'done' : 'ready';
+  };
+  /** A stage can be tested once all its levels are built, until all of them are done. */
+  const testable = (stage: Stage): boolean => {
+    const inStage = LEVELS.filter((l) => l.stage === stage);
+    return inStage.every(playable) && inStage.some((l) => !levelProgress(progress, l.id).done);
   };
 
   return (
@@ -74,10 +82,12 @@ export function LevelMap({
                     <span aria-hidden="true">
                       {{ locked: '🔒', ready: '▶', done: '✓', soon: '·' }[state]}{' '}
                     </span>
-                    {fill(ui.levelState[state], {
-                      best: levelProgress(progress, level.id).best,
-                      total: ROUND_QUESTIONS,
-                    })}
+                    {state === 'done' && skipped(progress, level.id)
+                      ? ui.levelSkipped
+                      : fill(ui.levelState[state], {
+                          best: levelProgress(progress, level.id).best,
+                          total: ROUND_QUESTIONS,
+                        })}
                   </span>
                 </>
               );
@@ -104,6 +114,16 @@ export function LevelMap({
               );
             })}
           </ul>
+          {testable(stage) && (
+            <button
+              type="button"
+              className="lv-test"
+              aria-label={fill(ui.testMeLabel, { n: stage, name: ui.stages[stage] })}
+              onClick={() => onTest(stage)}
+            >
+              {ui.testMe}
+            </button>
+          )}
         </section>
       ))}
     </section>
