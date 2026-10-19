@@ -132,7 +132,7 @@ export function stepAnswers<K extends QuestionKind>(level: LevelOf<K>, step: num
 }
 
 /** The thickest string's open note, E2, as a MIDI number. */
-const THICKEST_STRING_MIDI = 40;
+export const THICKEST_STRING_MIDI = 40;
 
 /**
  * The right answers a step can have, in button order: its degrees asked (level 7's other degrees

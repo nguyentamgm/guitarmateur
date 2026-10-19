@@ -3,19 +3,27 @@
  * plays by itself, Play again as often as wanted, then the answer buttons. Right: a tick and one
  * line, and the next question after a short pause. Wrong: an orange mark, what it was, and both
  * sounds again. After 4 wrong in a row it offers an easier step instead. Level 14 answers on one
- * string (AnswerStrip), then shows the note on the neck (NeckAnswer) and waits for Next.
+ * string (AnswerStrip), then shows the note on the neck (NeckAnswer) and waits for Next; level 15
+ * on the thickest string's frets (FretStrip), the whole feedback line its own.
  */
 import { useEffect, useRef } from 'react';
 import type { Player } from '@shared/core/audio';
 import type { DegreeLabel } from '@shared/core/music';
-import { stepAnswers, type AnswerId, type LevelOf, type QuestionKind } from '../core/levels';
+import {
+  sameAnswer,
+  stepAnswers,
+  type AnswerId,
+  type LevelOf,
+  type QuestionKind,
+} from '../core/levels';
 import type { RoundState } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
 import { degreeQuestion } from '../core/stage3';
 import { fill, type UiStrings } from '../i18n';
 import { AnswerStrip } from './AnswerStrip';
+import { FretStrip } from './FretStrip';
 import { levelKeyOwnedByTarget, levelShortcut } from './keys';
-import { answerWords, feedbackHeard, levelText, playText } from './levelWords';
+import { answerWords, feedbackHeard, findRootLine, levelText, playText } from './levelWords';
 import { NeckAnswer } from './NeckAnswer';
 import { NotesPicture } from './NotesPicture';
 import type { Round } from './useRound';
@@ -45,8 +53,10 @@ export function Question({
   const n = state.questions.length;
   const total = state.rules.questions;
   const screenRef = useRef<HTMLElement>(null);
-  const live = useRef({ phase, answers, round });
-  live.current = { phase, answers, round };
+  // Thirteen frets have no digit keys: level 15's are reached with Tab.
+  const keyed = level.kind === 'findRoot' ? [] : answers;
+  const live = useRef({ phase, answers: keyed, round });
+  live.current = { phase, answers: keyed, round };
 
   // The keyboard shortcuts (keys.ts `levelShortcut`), for the whole page.
   useEffect(() => {
@@ -138,7 +148,21 @@ export function Question({
             ▶ {ui.playAgain}
           </button>
           <p className="lv-big">{words.question}</p>
-          {onNeck ? (
+          {level.kind === 'findRoot' ? (
+            <FretStrip
+              ui={ui}
+              frets={answers as readonly number[]}
+              answer={
+                answered === null
+                  ? null
+                  : {
+                      right: (fret) => sameAnswer(level, fret, q.answer),
+                      picked: answered as number,
+                    }
+              }
+              onAnswer={(fret) => round.send({ type: 'answer', answer: fret })}
+            />
+          ) : onNeck ? (
             <AnswerStrip
               ui={ui}
               musicKey={onNeck.key}
@@ -187,12 +211,16 @@ export function Question({
               (right ? (
                 <p className="lv-right">
                   <span aria-hidden="true">✓ </span>
-                  {fill(ui.rightLine, { heard })}
+                  {level.kind === 'findRoot'
+                    ? findRootLine(ui, level, q, answered as number)
+                    : fill(ui.rightLine, { heard })}
                 </p>
               ) : (
                 <p className="lv-wrong">
                   <span aria-hidden="true">● </span>
-                  {fill(ui.wrongLine, { heard })}
+                  {level.kind === 'findRoot'
+                    ? findRootLine(ui, level, q, answered as number)
+                    : fill(ui.wrongLine, { heard })}
                 </p>
               ))}
           </div>
@@ -232,7 +260,9 @@ export function Question({
         <button type="button" className="btn ghost" onClick={onBack}>
           {ui.backToMap}
         </button>
-        <span className="lv-muted lv-keys">{fill(ui.levelKeys, { n: answers.length })}</span>
+        <span className="lv-muted lv-keys">
+          {keyed.length === 0 ? ui.levelKeysTab : fill(ui.levelKeys, { n: keyed.length })}
+        </span>
       </div>
     </section>
   );

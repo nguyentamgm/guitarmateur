@@ -22,7 +22,9 @@ ear/
    │                     question's range), resolution.ts (the walk home), position.ts (the neck
    │                     window), stats.ts (counts and `missWeight`), levels.ts (the levels as
    │                     data), round.ts (one round of a level, see "Rounds"), progress.ts (level
-   │                     progress and unlocking), stage1.ts (levels 1–4's notes)
+   │                     progress and unlocking), stage1.ts (levels 1–4's notes), stage2.ts
+   │                     (levels 5–6), stage3.ts (levels 7–14's degree question), stage5.ts
+   │                     (level 15's song)
    ├─ store/             store.ts (`gm.ear`): see "Storage"
    ├─ audio/             timeline.ts (each sound, note by note, pure), driver.ts (`createEarAudio`:
    │                     plays one part at a time), levelSounds.ts (each level kind's sounds)
@@ -35,7 +37,7 @@ ear/
    │                     levelWords.ts (a level's words, `playable`), keys.ts (shortcuts),
    │                     labels.ts (degree, note, key text); AnswerStrip (level 14's answers
    │                     on one string) and NeckAnswer (the note on a neck window after it);
-   │                     ear.css
+   │                     FretStrip (level 15's answers: the thickest string's frets); ear.css
    └─ main.tsx           imports @shared/ui tokens, base, controls and fretboard CSS, then
                          ui/ear.css; registers the site-wide service worker
 ```
@@ -134,8 +136,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue adds both for its kinds; Stages 1–4 and level 14 are
-  built (#256, #258, #260, #261, #262). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue added both for its kinds; all 15 levels are built
+  (#256, #258, #260, #261, #262, #263). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
@@ -171,6 +173,20 @@ from "How does this level work?") → the questions → the end of the round.
   degrees can be tapped. The feedback names the fret first (`heardFret`, `fretFromRoot()` in
   `core/position.ts`: "fret 3 from the root is ♭3: the note C, in the key of A minor"), then the
   note lights up on a neck window (`NeckAnswer`). A wrong blue note slides into 4, as on level 13.
+- **Level 15** (`core/stage5.ts`, the `findRoot` kind): a key whose root is at the answer's fret of
+  the thickest string (E2 + fret; E at 0 or 12, both right: `sameAnswer()`), and a song in it at
+  `FIND_ROOT_BPM` (80), slow enough to play along: eight notes, two over each chord of the cadence
+  (I–IV–V7–I, i–iv–V7–i), each a tone of its chord (over V7 only 5 and 2: its 3rd is the raised 7th
+  in minor), from the 5 below the root to the 5 above it. It starts on the root; at step A (keys A,
+  G, E, C) it ends on it too, else on the home chord's 3 or 5; step C plays the tune alone
+  (`songPart`). The intro first asks for a guitar in tune and plays the open strings
+  (`tuningPart`). The answer is a fret of the thickest string (`FretStrip`, frets 0–12 with the
+  guitar's fret markers; no digit keys, Tab reaches them). The feedback is its own line
+  (`findRootLine`: "Right! Fret 5: that's A. The song is in A major." / "Close! You picked fret 7
+  (B). The root was fret 5 (A). …", each note spelled from the key); a wrong answer plays the home
+  chord and the fret picked, then the chord and the root's fret. Like level 14 it waits for Next.
+  Passing it, the last level, says "You finished every level!" with a link to Practice
+  (`/?lang=`). The app never listens to the guitar.
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is
@@ -199,7 +215,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Parts:** each sound is laid out note by note in `audio/timeline.ts` (pure): two notes (levels
   1, 2, 4), a tune (3, 15), one chord strummed or arpeggiated (5), a progression of strummed chords
-  (6), the cadence that sets a key and the walk home (Stage 3 on), a wrong answer's "what you
+  (6), the cadence that sets a key and the walk home (Stage 3 on), level 15's song (a tune over
+  strummed chords, `songPart`), a wrong answer's "what you
   picked, then what it was" (`answerComparePart`), a level's demo (`demoPart`), and the six open
   strings to tune by (15). Each length is a named constant in beats (the tuning notes in seconds),
   starting values to judge by ear on real devices (#265). A strum is one down stroke,
