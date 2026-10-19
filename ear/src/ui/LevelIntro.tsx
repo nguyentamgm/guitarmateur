@@ -1,11 +1,12 @@
 /**
  * A level's intro (docs/ear-levels.md "Level intro"): what to listen for, then the demo, each
  * example with its answer and a Play button, then "I'm ready". The same screen replays the demo
- * after "Yes, easier", at the easier step.
+ * after "Yes, easier", at the easier step. Level 15 first asks for a guitar in tune, with the six open
+ * strings to tune by.
  */
 import type { Level } from '../core/levels';
 import type { LevelSounds } from '../audio/levelSounds';
-import type { Part } from '../audio/timeline';
+import { tuningPart, type Part } from '../audio/timeline';
 import { fill, type UiStrings } from '../i18n';
 import { answerWords, levelText, playText } from './levelWords';
 
@@ -33,6 +34,15 @@ export function LevelIntro({
       <h2 id="lv-intro" tabIndex={-1}>
         {fill(ui.levelTitle, { n: level.id, name: levelText(ui, level).name })}
       </h2>
+      {level.kind === 'findRoot' && (
+        <div className="lv-tuning">
+          <p className="lv-big">{ui.tuneFirst}</p>
+          <button type="button" className="btn ghost" onClick={() => play(tuningPart())}>
+            ▶ {ui.playOpenStrings}
+          </button>
+          <p className="lv-muted">{ui.tunerTip}</p>
+        </div>
+      )}
       <p>{playText(ui, level).intro}</p>
       <h3>{ui.listenFirst}</h3>
       <ul className="lv-demo">

@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Player } from '@shared/core/audio';
-import { findLevel, type Level } from '../core/levels';
+import { LEVELS, findLevel, type Level } from '../core/levels';
 import { isUnlocked, levelProgress, type Progress } from '../core/progress';
 import type { RoundEffect } from '../core/round';
 import { createEarAudio, type EarAudio } from '../audio/driver';
@@ -194,6 +194,7 @@ export function Levels({
         onAgain={() => startRound(s.level)}
         onBack={toMap}
         practiceHref={s.level.id === PRACTICE_LINK_LEVEL ? minorPentatonicLink(lang) : null}
+        finishedHref={s.level.id === LEVELS.at(-1)!.id ? `/?lang=${lang}` : null}
       />
     );
   } else if (s) {

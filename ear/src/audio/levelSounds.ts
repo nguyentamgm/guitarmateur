@@ -1,9 +1,10 @@
 /**
  * What each level kind sounds like (docs/ear-levels.md): the bridge from a round's question
- * (core/round.ts) to the parts of timeline.ts. Each stage issue adds its kinds (#256 on); until a
+ * (core/round.ts) to the parts of timeline.ts. Each stage issue added its kinds (#256–#263); until a
  * level's kind is here, the map shows that level as coming soon.
  */
 import {
+  THICKEST_STRING_MIDI,
   stepAnswers,
   type AnswerId,
   type Level,
@@ -14,6 +15,7 @@ import type { RoundQuestion } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
 import { cadenceQuestion, chordQuestion, homeChord, otherQuality } from '../core/stage2';
 import { degreeQuestion } from '../core/stage3';
+import { findRootQuestion } from '../core/stage5';
 import { resolution } from '../core/resolution';
 import {
   answerComparePart,
@@ -24,6 +26,7 @@ import {
   progressionPart,
   resolutionPart,
   slidePart,
+  songPart,
   tunePart,
   twoNotesPart,
   waitPart,
@@ -156,7 +159,41 @@ const degree: LevelSounds = {
   demo: demoOf(degreePart),
 };
 
-/** The kinds built so far. */
+/** Level 15's tempo: slow enough to play along on the guitar, a fret at a time. */
+export const FIND_ROOT_BPM = 80;
+/** The intro's examples: songs in A, G and E, whose roots (frets 5, 3, 0) every step asks. */
+const FIND_ROOT_DEMO_FRETS = [5, 3, 0];
+
+const songOf: LevelSounds['question'] = (level, q) => {
+  const { melody, chords } = findRootQuestion(level, q);
+  return songPart(melody, chords, FIND_ROOT_BPM);
+};
+
+/** The key's home chord, then the note a fret of the thickest string sounds: does it feel like home? */
+const homeThen = (level: Level, q: RoundQuestion, fret: number): Part =>
+  joinParts([
+    chordPart(homeChord(findRootQuestion(level, q).key), 'strum', FIND_ROOT_BPM),
+    waitPart(DEGREE_GAP_BEATS, FIND_ROOT_BPM),
+    notePart(THICKEST_STRING_MIDI + fret, FIND_ROOT_BPM),
+  ]);
+
+/** Level 15: a wrong answer plays the home chord and the fret picked, then the chord and the root's fret. */
+const findRoot: LevelSounds = {
+  question: songOf,
+  compare: (level, q, picked) =>
+    answerComparePart(
+      homeThen(level, q, picked as number),
+      homeThen(level, q, q.answer as number),
+      FIND_ROOT_BPM,
+    ),
+  demo: (level, step) =>
+    FIND_ROOT_DEMO_FRETS.map((answer, i) => ({
+      answer,
+      part: songOf(level, { level: level.id, step, answer, seed: DEMO_SEEDS[i]! }),
+    })),
+};
+
+/** Every kind's sounds. */
 export const LEVEL_SOUNDS: KindSounds = {
   sameDifferent: stageOne,
   higherLower: stageOne,
@@ -165,6 +202,7 @@ export const LEVEL_SOUNDS: KindSounds = {
   chordQuality,
   finished,
   degree,
+  findRoot,
 };
 
 /** The welcome's sound check: one guitar note, A3, in the middle of the guitar. */

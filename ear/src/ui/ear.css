@@ -470,6 +470,27 @@ button.lv-open:hover {
   font-size: 18px;
 }
 
+/* Level 15's strip (FretStrip.tsx): the thickest string's 13 frets, each with its fret markers
+   under the number instead of a fret row (at phone width too, where they wrap like level 14's). */
+.strip.frets13 {
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+}
+.strip.frets13 .cell {
+  gap: 2px;
+}
+.strip.frets13 .cell::after {
+  content: attr(data-marker);
+  min-height: 1.5em;
+  color: var(--fret);
+  font-size: 18px;
+  line-height: 1.5;
+}
+@media (max-width: 560px) {
+  .strip.frets13 {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  }
+}
+
 /* A Stage 1 wrong answer's picture (NotesPicture.tsx): the notes' shape, or the gap on one string. */
 .lv-shape {
   width: min(100%, 260px);
@@ -487,4 +508,14 @@ button.lv-open:hover {
 }
 .lv-picture:not(svg) {
   overflow-x: auto;
+}
+
+/* Level 15's intro: tune the guitar first. */
+.lv-tuning {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
 }

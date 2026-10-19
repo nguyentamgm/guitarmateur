@@ -1,8 +1,11 @@
 /** A level's words from the strings (i18n/strings.ts `levels`, `play`), looked up by id. */
-import type { AnswerId, Level } from '../core/levels';
+import { mod, pc } from '@shared/core/music';
+import { DEGREES } from '../core/degrees';
+import { sameAnswer, type AnswerId, type Level } from '../core/levels';
 import type { RoundQuestion } from '../core/round';
 import { fretFromRoot } from '../core/position';
 import { degreeQuestion } from '../core/stage3';
+import { findRootQuestion, fretPitchClass } from '../core/stage5';
 import type { KindSounds } from '../audio/levelSounds';
 import { fill, type LevelText, type PlayText, type UiStrings } from '../i18n';
 import { degreeInKey, keyText, noteText } from './labels';
@@ -55,4 +58,24 @@ export function feedbackHeard(ui: UiStrings, level: Level, q: RoundQuestion): st
     });
   if (degree === '1') return fill(ui.heardRoot, words);
   return fill(q.answer === 'notRoot' ? ui.heardNotRoot : ui.heardDegree, words);
+}
+
+/**
+ * Level 15's feedback, the whole line (#263): right, the fret, its note and the song's key ("Right!
+ * Fret 5: that's A. The song is in A major."); wrong, the fret picked and the root's, each with its
+ * note as the key spells it, and what to do on the guitar.
+ */
+export function findRootLine(
+  ui: UiStrings,
+  level: Level,
+  q: RoundQuestion,
+  picked: number,
+): string {
+  const { key } = findRootQuestion(level, q);
+  const noteAt = (fret: number) =>
+    noteText(key, DEGREES[mod(fretPitchClass(fret) - pc(key.tonic), 12)]!.label);
+  if (sameAnswer(level, picked, q.answer))
+    return fill(ui.findRootRight, { fret: picked, note: noteAt(picked), key: keyText(ui, key) });
+  const fret = q.answer as number;
+  return fill(ui.findRootWrong, { picked, pickedNote: noteAt(picked), fret, note: noteAt(fret) });
 }

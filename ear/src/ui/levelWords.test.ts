@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { findLevel } from '../core/levels';
 import { degreeQuestion } from '../core/stage3';
 import { UI } from '../i18n';
-import { answerWords, feedbackHeard } from './levelWords';
+import { answerWords, feedbackHeard, findRootLine } from './levelWords';
 import { keyText, noteText } from './labels';
 
 describe('Stage 3 feedback', () => {
@@ -44,5 +44,27 @@ describe('Stage 3 feedback', () => {
     expect(answerWords(UI.en, level, 'b3').name).toBe('♭3 (flat three)');
     expect(answerWords(UI.vi, level, 'b3').name).toBe('♭3 (bậc 3 giáng)');
     expect(answerWords(UI.en, level, '5').name).toBeUndefined();
+  });
+});
+
+describe('level 15 feedback', () => {
+  it('names the fret, its note and the key; a miss names both frets, spelled from the key', () => {
+    const level = findLevel(15)!;
+    // Step A: songs in A, G, E or C major. Fret 5 is A.
+    const q = { level: 15, step: 0, answer: 5, seed: 1 };
+    expect(findRootLine(UI.en, level, q, 5)).toBe(
+      "Right! Fret 5: that's A. The song is in A major.",
+    );
+    expect(findRootLine(UI.en, level, q, 6)).toBe(
+      'Close! You picked fret 6 (B♭). The root was fret 5 (A). Play both on your guitar and hear which one feels like home.',
+    );
+    expect(findRootLine(UI.vi, level, q, 5)).toBe(
+      'Đúng! Phím 5: đó là A. Bài này ở giọng A trưởng.',
+    );
+    // E sits at both 0 and 12: either is right.
+    const e = { level: 15, step: 0, answer: 0, seed: 1 };
+    expect(findRootLine(UI.en, level, e, 12)).toBe(
+      "Right! Fret 12: that's E. The song is in E major.",
+    );
   });
 });

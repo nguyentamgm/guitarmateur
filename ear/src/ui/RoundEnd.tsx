@@ -1,6 +1,7 @@
 /**
  * The end of a round (docs/ear-levels.md "End of a round"): the score and the ten dots, then "Level
- * done!" with the next level, or "almost" with another round.
+ * done!" with the next level, or "almost" with another round. Passing the last level finishes the
+ * path, with a link back to Practice.
  */
 import type { Level } from '../core/levels';
 import { passes, type RoundState } from '../core/round';
@@ -16,6 +17,7 @@ export function RoundEnd({
   onAgain,
   onBack,
   practiceHref = null,
+  finishedHref = null,
 }: {
   ui: UiStrings;
   state: RoundState;
@@ -27,6 +29,8 @@ export function RoundEnd({
   onBack(): void;
   /** Where Practice opens on the scale this level taught, when it links there once passed. */
   practiceHref?: string | null;
+  /** On the last level: Practice, where passing it sends the learner, every level done. */
+  finishedHref?: string | null;
 }) {
   const { level, right } = state;
   const total = state.rules.questions;
@@ -58,7 +62,15 @@ export function RoundEnd({
           {ui.practiceNudge} <a href={practiceHref}>{ui.practiceLink}</a>
         </p>
       )}
-      {passed && !next && <p className="lv-muted">{ui.moreSoon}</p>}
+      {passed && finishedHref && (
+        <>
+          <p className="lv-big lv-finished">{ui.allDone}</p>
+          <p>
+            {ui.allDoneNudge} <a href={finishedHref}>{ui.allDoneLink}</a>
+          </p>
+        </>
+      )}
+      {passed && !next && !finishedHref && <p className="lv-muted">{ui.moreSoon}</p>}
       <div className="lv-actions">
         {passed && next && (
           <button type="button" className="btn lv-main" onClick={() => onNext(next)}>

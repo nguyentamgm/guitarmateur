@@ -147,6 +147,24 @@ export function tunePart(midis: readonly number[], bpm: number): Part {
   return { sounds, duration: midis.length === 0 ? 0 : (midis.length - 1) * step + last };
 }
 
+/** Level 15's song: a chord strummed under every SONG_NOTES_PER_CHORD notes of the tune. */
+export const SONG_NOTES_PER_CHORD = 2;
+
+/** A tune with a strummed chord under every two of its notes, the last ringing to its end; or alone. */
+export function songPart(
+  melody: readonly number[],
+  chords: readonly Chord[] | null,
+  bpm: number,
+): Part {
+  const tune = tunePart(melody, bpm);
+  if (!chords) return tune;
+  const step = SONG_NOTES_PER_CHORD * TUNE_NOTE_BEATS * beat(bpm);
+  const strums = chords.flatMap((c, i) =>
+    strum(chordMidis(c), i * step, i === chords.length - 1 ? tune.duration : (i + 1) * step),
+  );
+  return { sounds: [...tune.sounds, ...strums], duration: tune.duration };
+}
+
 /** A chord's strings struck together in one down strum, or its notes one by one, low to high. */
 export type ChordStyle = 'strum' | 'arpeggio';
 

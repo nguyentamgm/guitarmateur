@@ -426,6 +426,46 @@ describe('level 14: answer on the neck', () => {
   });
 });
 
+describe('level 15: find the root on your guitar', () => {
+  it('tune first; tap a fret of the thickest string; passing it finishes every level', () => {
+    const levels = Object.fromEntries(
+      Array.from({ length: 14 }, (_, i) => [i + 1, { step: 2, best: 9, done: true, counts: {} }]),
+    );
+    localStorage.setItem(EAR_STORAGE_KEY, JSON.stringify({ ...loadEar(), welcomed: true, levels }));
+    // The stub plays 100 + the root's fret, so the test knows the answer.
+    const findRoot: LevelSounds = {
+      question: (_level, q) => note(100 + Number(q.answer)),
+      compare: () => note(COMPARE_MIDI),
+      demo: () => [{ answer: 5, part: note(DEMO_MIDI) }],
+    };
+    const { player, played } = fakePlayer();
+    render(player, { findRoot });
+    click(button('Continue'));
+    expect(heading()).toBe('Level 15 · Find the root on your guitar');
+    expect(text()).toContain('Your guitar needs to be in tune.');
+    click(button('Play the open strings'));
+    expect(played).toEqual([40, 45, 50, 55, 59, 64]);
+    click(button("I'm ready"));
+    const cells = () => [...host.querySelectorAll<HTMLButtonElement>('.strip .cell')];
+    expect(cells().map((c) => c.textContent)).toEqual(
+      Array.from({ length: 13 }, (_, f) => String(f)),
+    );
+    expect(cells()[5]!.getAttribute('aria-label')).toBe('fret 5');
+    const rootFret = () => played.at(-1)! - 100;
+    for (let i = 0; i < 10; i++) {
+      click(cells()[rootFret()]!);
+      expect(host.querySelector('.lv-right')!.textContent).toMatch(/^✓ Right! Fret \d+: that's /);
+      click(button('Next'));
+    }
+    expect(heading()).toBe('10 of 10 right!');
+    expect(text()).toContain('You finished every level!');
+    expect(host.querySelector<HTMLAnchorElement>('.lv-end a')!.getAttribute('href')).toBe(
+      '/?lang=en',
+    );
+    expect(loadEar().levels[15]).toMatchObject({ done: true, best: 10 });
+  });
+});
+
 describe('in Vietnamese', () => {
   it('the same path, every screen in Vietnamese', () => {
     localStorage.setItem('gm.lang', 'vi');
