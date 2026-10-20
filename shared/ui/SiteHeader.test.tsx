@@ -1,6 +1,6 @@
 import { act, createElement, type MouseEvent } from 'react';
-import { createRoot } from 'react-dom/client';
-import { describe, expect, it, vi } from 'vitest';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './siteSections';
 
@@ -10,10 +10,20 @@ const LANGUAGES = [
   { id: 'vi', tag: 'vi', name: 'Tiếng Việt' },
 ] as const;
 
+const mounted: { root: Root; container: HTMLElement }[] = [];
+
+afterEach(() => {
+  for (const { root, container } of mounted.splice(0)) {
+    act(() => root.unmount());
+    container.remove();
+  }
+});
+
 function render(props: { current?: SiteSection; language?: 'en' | 'vi'; onNavigate?: (e: MouseEvent<HTMLAnchorElement>, href: string) => void } = {}) {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
+  mounted.push({ root, container });
   const onLanguage = vi.fn();
   act(() =>
     root.render(

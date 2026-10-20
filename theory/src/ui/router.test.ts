@@ -1,3 +1,4 @@
+import { SITE_SECTIONS } from '@shared/ui/siteSections';
 import { hrefFor, parseRoute } from './router';
 
 const isLesson = (slug: string) => slug === 'pentatonic-map';
@@ -30,5 +31,13 @@ describe('hrefFor', () => {
     for (const route of [{ page: 'contents' }, { page: 'review' }, { page: 'lesson', slug: 'pentatonic-map' }] as const) {
       expect(parseRoute(hrefFor(route), isLesson)).toEqual(route);
     }
+  });
+});
+
+describe('the site header', () => {
+  it('links Lessons and Review to the routes Theory serves them at', () => {
+    const href = (id: string) => SITE_SECTIONS.find((s) => s.id === id)?.href;
+    expect(href('lessons')).toBe(hrefFor({ page: 'contents' }));
+    expect(href('review')).toBe(hrefFor({ page: 'review' }));
   });
 });

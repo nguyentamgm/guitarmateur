@@ -1,11 +1,13 @@
 import type { MouseEvent } from 'react';
 import { SiteHeader } from '@shared/ui/SiteHeader';
+import type { SiteSection } from '@shared/ui/siteSections';
 import { LANGS } from '../i18n';
 import { useTheory } from './context';
+import { isPlainClick } from './plainClick';
 import { BASE } from './router';
 
 /** Which section of the site a page belongs to: highlighted in the header. */
-export type Section = 'lessons' | 'review';
+export type Section = Extract<SiteSection, 'lessons' | 'review'>;
 
 /**
  * The site header (shared/ui/SiteHeader.tsx) with Theory's text. Lessons and Review are Theory's
@@ -15,7 +17,7 @@ export function Header({ section }: { section: Section }) {
   const { ui, lang, setLang, navigate } = useTheory();
   const onNavigate = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href !== BASE && !href.startsWith(`${BASE}/`)) return;
-    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!isPlainClick(e)) return;
     e.preventDefault();
     navigate(href);
   };
