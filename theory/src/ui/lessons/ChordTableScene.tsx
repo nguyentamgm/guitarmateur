@@ -35,7 +35,7 @@ import {
 import { useTheory } from '../context';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { neckGeometry, type NeckGeometry } from '../geometry';
+import { useNeckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
 
@@ -117,7 +117,7 @@ function MutedMarks({ g, view, mark }: { g: NeckGeometry; view: VoicingView; mar
 
 function SeventhsScene({ copy }: { copy: SceneCopy }) {
   const play = usePlay();
-  const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [root, setRoot] = useState('G');
   const [id, setId] = useState<ChordId>('maj7');
   const view = useMemo(() => stackView(rootOf(root), id), [root, id]);
@@ -162,7 +162,7 @@ function SeventhsScene({ copy }: { copy: SceneCopy }) {
 
 function TableScene({ copy }: { copy: SceneCopy }) {
   const play = usePlay();
-  const g = useMemo(() => neckGeometry(TABLE_FRETS, { fretWidth: 48 }), []);
+  const g = useNeckGeometry(TABLE_FRETS, { fretWidth: 48 });
   const [root, setRoot] = useState('D');
   const [group, setGroup] = useState<Group>('sevenths');
   const [id, setId] = useState<ChordId>('m7');
@@ -224,8 +224,8 @@ function TableScene({ copy }: { copy: SceneCopy }) {
 function OpenSeventhsScene({ copy }: { copy: SceneCopy }) {
   const c = copy.openSevenths;
   const play = usePlay();
-  const g = useMemo(() => neckGeometry(4, { fretWidth: 72 }), []);
-  const gm = useMemo(() => neckGeometry(15, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(4, { fretWidth: 72 });
+  const gm = useNeckGeometry(15, { fretWidth: 46 });
   const [index, setIndex] = useState(0);
   const [compare, setCompare] = useState(false);
   const [kind, setKind] = useState<ChordId>('m11');
@@ -298,7 +298,7 @@ function OpenSeventhsScene({ copy }: { copy: SceneCopy }) {
 function InversionsScene({ copy }: { copy: SceneCopy }) {
   const c = copy.inversions;
   const play = usePlay();
-  const g = useMemo(() => neckGeometry(4, { fretWidth: 72 }), []);
+  const g = useNeckGeometry(4, { fretWidth: 72 });
   const [index, setIndex] = useState(0);
   const [bass, setBass] = useState('3');
   const chord = INVERSION_CHORDS[index]!;
@@ -356,7 +356,7 @@ function InversionsScene({ copy }: { copy: SceneCopy }) {
 function SimplifyScene({ copy }: { copy: SceneCopy }) {
   const c = copy.simplify;
   const play = usePlay();
-  const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(12, { fretWidth: 52 });
   const [index, setIndex] = useState(0);
   const [rung, setRung] = useState(0);
   const rungs = useMemo(() => ladder(LADDERS[index]!), [index]);

@@ -248,3 +248,28 @@ describe('larger dots (dotRadius)', () => {
     expect(fnumY).toBeLessThan(g.height);
   });
 });
+
+describe('drawn for touch (#279)', () => {
+  // The closest two dots, in px once drawn at the smallest scale the neck allows.
+  const closest = (g: ReturnType<typeof neckGeometry>) =>
+    Math.min(g.stringGap, g.fretWidth, g.from === 0 ? g.x(1) - g.x(0) : Infinity) * g.minScale;
+
+  it('spreads the strings and never shrinks the dots under a 40px tap apart', () => {
+    for (const opts of [{ fretWidth: 46 }, { fretWidth: 40 }, { fretWidth: 72 }, { from: 4, fretWidth: 50 }]) {
+      const g = neckGeometry(12, { ...opts, touch: true });
+      expect(g.stringGap).toBe(40);
+      expect(closest(g)).toBeGreaterThanOrEqual(40);
+    }
+    // Strings already wider apart stay so (level 14's window), and then it may shrink a little.
+    const wide = neckGeometry(8, { from: 3, stringGap: 46, fretWidth: 48, dotRadius: 20, touch: true });
+    expect([wide.stringGap, closest(wide)]).toEqual([46, 40]);
+  });
+
+  it('leaves the neck as it was without touch, and draws its smallest size from minScale', () => {
+    const g = neckGeometry(12, { fretWidth: 46 });
+    expect([g.stringGap, g.minScale]).toEqual([26, 0.62]);
+    const t = neckGeometry(12, { fretWidth: 46, touch: true });
+    const c = render({ dots: [], geometry: t });
+    expect(c.querySelector('svg')!.style.minWidth).toBe(`${Math.round(t.width * t.minScale)}px`);
+  });
+});

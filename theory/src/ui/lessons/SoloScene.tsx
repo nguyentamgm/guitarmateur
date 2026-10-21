@@ -48,7 +48,7 @@ import { useQuizScore } from '../useQuizScore';
 import { TrainerLink } from '../TrainerLink';
 import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useBacking, type Backing } from '../useBacking';
@@ -73,7 +73,7 @@ export function SoloScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   }
 }
 
-const useNeck = () => useMemo(() => neckGeometry(SOLO_FRETS, { fretWidth: 46 }), []);
+const useNeck = () => useNeckGeometry(SOLO_FRETS, { fretWidth: 46 });
 
 /** Where each backing's tempo is remembered, shared by every step that plays it. */
 const backingTempo = (id: BackingId) => loadTempo(`solo-${id}`, BACKINGS[id].bpm).last;

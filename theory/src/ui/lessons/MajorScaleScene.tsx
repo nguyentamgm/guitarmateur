@@ -31,7 +31,7 @@ import { useTheory } from '../context';
 import { degreeText, posKey, signed } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { useSequence } from '../useSequence';
 
 const keyItems = KEYS.map((k) => ({ value: format(k), text: format(k) }));
@@ -64,7 +64,7 @@ export function MajorScaleScene({ step, copy }: { step: StepId; copy: SceneCopy 
 
 function FormulaScene({ copy }: { copy: SceneCopy['formula'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(FORMULA_FRETS, { fretWidth: 40 }), []);
+  const g = useNeckGeometry(FORMULA_FRETS, { fretWidth: 40 });
   const [key, setKey] = useState('C');
   const run = useMemo(() => formulaRun(keyOf(key)), [key]);
   const seq = useSequence(run.notes.length, 520, (i) => player.pluck(run.notes[i]!.midi));
@@ -133,7 +133,7 @@ function FormulaScene({ copy }: { copy: SceneCopy['formula'] }) {
 // --- Step 2 ---
 
 function SpellingScene({ copy }: { copy: SceneCopy['spelling'] }) {
-  const g = useMemo(() => neckGeometry(SPELLING_FRETS, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(SPELLING_FRETS, { fretWidth: 52 });
   const [key, setKey] = useState('F');
   const [misspell, setMisspell] = useState(false);
   const [names, setNames] = useState<'show' | 'hide'>('show');
@@ -210,7 +210,7 @@ interface Picked {
 
 function IntervalsScene({ copy, names }: { copy: SceneCopy['intervals']; names: IntervalCopy }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(INTERVAL_FRETS, { fretWidth: 64 }), []);
+  const g = useNeckGeometry(INTERVAL_FRETS, { fretWidth: 64 });
   const targets = useMemo(() => intervalTargets(), []);
   const [picked, setPicked] = useState<Picked | null>(null);
   const rootMidi = midiAt(INTERVAL_ROOT);
@@ -292,7 +292,7 @@ function IntervalsScene({ copy, names }: { copy: SceneCopy['intervals']; names: 
 
 function ShapesScene({ copy, names }: { copy: SceneCopy['shapes']; names: IntervalCopy }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(SHAPE_FRETS, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(SHAPE_FRETS, { fretWidth: 52 });
   const [label, setLabel] = useState<DegreeLabel>('3');
   const [root, setRoot] = useState<FretPos>(SHAPE_START);
   const shape = SHAPES.find((s) => s.label === label)!;
@@ -378,7 +378,7 @@ function ShapesScene({ copy, names }: { copy: SceneCopy['shapes']; names: Interv
 
 function DegreesScene({ copy, names }: { copy: SceneCopy['degrees']; names: IntervalCopy }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(DEGREE_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(DEGREE_FRETS, { fretWidth: 50 });
   const [key, setKey] = useState('C');
   const [labels, setLabels] = useState<'degrees' | 'notes'>('degrees');
   const [heard, setHeard] = useState<DegreeLabel | null>(null);

@@ -150,9 +150,16 @@ export function Fretboard({
     <div className="scroll">
       <svg
         viewBox={`0 0 ${g.width} ${g.height}`}
-        // Shrink to scroll no further than ~60%, grow no further than ~120%: a short neck must
-        // not blow up to fill a wide column. Its text grows with its dots (fretboard.css).
-        style={{ minWidth: Math.round(g.width * 0.62), maxWidth: Math.round(g.width * 1.2), '--neck-text': g.textScale } as CSSProperties}
+        // Shrink to scroll no further than `minScale` (~60%; for touch, as far as a 40px tap
+        // allows), grow no further than ~120%: a short neck must not blow up to fill a wide
+        // column. Its text grows with its dots (fretboard.css).
+        style={
+          {
+            minWidth: Math.round(g.width * g.minScale),
+            maxWidth: Math.round(g.width * Math.max(1.2, g.minScale)),
+            '--neck-text': g.textScale,
+          } as CSSProperties
+        }
         role="group"
         aria-label={label}
         onClick={onNeckClick}

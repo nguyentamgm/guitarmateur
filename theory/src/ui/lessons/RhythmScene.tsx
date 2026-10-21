@@ -44,7 +44,7 @@ import { useTheory } from '../context';
 import { posKey } from '../keys';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
 import { useLastTempo, useStoredTempo } from '../useStoredTempo';
@@ -309,7 +309,7 @@ function FingersScene({ copy }: { copy: SceneCopy }) {
     if (isBeat(i, perBeat)) player.click(isBeat(i, perBeat * BEATS_PER_BAR), delay);
     player.pluck(drill[i]!.midi, delay, cell * 0.9);
   });
-  const g = useMemo(() => neckGeometry(9, { fretWidth: 54 }), []);
+  const g = useNeckGeometry(9, { fretWidth: 54 });
 
   const now = clock.current === null ? null : drill[clock.current]!;
   const columns = drill.map((n): TabNote[] => [{ key: posKey(n), string: n.string, fret: n.fret, midi: n.midi }]);

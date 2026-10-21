@@ -22,6 +22,11 @@ export interface NeckGeometry {
   readonly dotRadius: number;
   /** How much larger than the shared neck's (dots of radius 11) its text is drawn. */
   readonly textScale: number;
+  /**
+   * The smallest scale the neck is drawn at: a long neck shrinks to fit its column down to this,
+   * then scrolls. 0.62 by default; for touch, the scale at which its closest dots are 40px apart.
+   */
+  readonly minScale: number;
   /** Centre x of a fret's playing space (open strings: just left of the nut). */
   x(fret: number): number;
   /** x of the fret wire on the right of a fret's space. */
@@ -32,13 +37,28 @@ export interface NeckGeometry {
 /** The shared neck's dot radius: Practice and Theory draw every neck with it. */
 export const DOT_RADIUS = 11;
 
-export function neckGeometry(
-  frets: number,
-  opts: { fretWidth?: number; stringGap?: number; from?: number; dotRadius?: number } = {},
-): NeckGeometry {
+/** How far a long neck shrinks to fit its column before it scrolls, unless drawn for touch. */
+export const MIN_SCALE = 0.62;
+
+/** How far apart a neck drawn for touch keeps its strings, at least: a 40px tap at full size (#279). */
+export const TOUCH_STRING_GAP = 40;
+
+export interface NeckOptions {
+  readonly fretWidth?: number;
+  readonly stringGap?: number;
+  readonly from?: number;
+  readonly dotRadius?: number;
+  /**
+   * Drawn for a finger (a phone, #279): strings at least `TOUCH_STRING_GAP` apart, and never
+   * shrunk below the scale at which its closest dots are a 40px tap apart (it scrolls instead).
+   */
+  readonly touch?: boolean;
+}
+
+export function neckGeometry(frets: number, opts: NeckOptions = {}): NeckGeometry {
   const from = Math.max(0, Math.min(opts.from ?? 0, frets - 1));
   const fretWidth = opts.fretWidth ?? 52;
-  const stringGap = opts.stringGap ?? 26;
+  const stringGap = Math.max(opts.stringGap ?? 26, opts.touch ? TOUCH_STRING_GAP : 0);
   const dotRadius = opts.dotRadius ?? DOT_RADIUS;
   const grow = dotRadius - DOT_RADIUS;
   // Larger dots need more room: at the nut, for the open-string dots between it and the string
@@ -47,6 +67,9 @@ export function neckGeometry(
   const top = dotRadius + 11;
   const right = 14;
   const bottom = dotRadius + 29;
+  const x = (f: number) => (f === 0 ? nutX - dotRadius - 7 : nutX + (f - from - 0.5) * fretWidth);
+  // The closest two dots can be: on neighbouring strings, neighbouring frets, or open and fret 1.
+  const pitch = Math.min(stringGap, fretWidth, from === 0 ? x(1) - x(0) : Infinity);
   return {
     frets,
     from,
@@ -58,7 +81,8 @@ export function neckGeometry(
     stringGap,
     dotRadius,
     textScale: dotRadius / DOT_RADIUS,
-    x: (f) => (f === 0 ? nutX - dotRadius - 7 : nutX + (f - from - 0.5) * fretWidth),
+    minScale: opts.touch ? Math.max(MIN_SCALE, (2 * TAP_REACH_PX) / pitch) : MIN_SCALE,
+    x,
     wireX: (f) => nutX + (f - from) * fretWidth,
     y: (s) => top + (s - 1) * stringGap,
   };

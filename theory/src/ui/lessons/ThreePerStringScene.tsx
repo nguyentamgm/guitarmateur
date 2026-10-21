@@ -37,7 +37,7 @@ import { useTheory } from '../context';
 import { PositionFrame } from '../PositionFrame';
 import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { boxSpan, neckGeometry } from '../geometry';
+import { boxSpan, useNeckGeometry } from '../geometry';
 import { degreeText, posKey, signed } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
@@ -77,7 +77,7 @@ const TAG_WIDTH = 46;
 
 function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(STRINGS_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(STRINGS_FRETS, { fretWidth: 50 });
   const pos = useMemo(() => sevenPositions()[0]!, []);
   const rows = useMemo(() => stringRows(pos), [pos]);
   const fingers = useMemo(() => fingerMap(pos), [pos]);
@@ -137,7 +137,7 @@ function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
 
 function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 46 });
   const all = useMemo(() => sevenPositions(), []);
   const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, 'major', NECK_FRETS), []);
   const [k, setK] = useState(1);
@@ -185,7 +185,7 @@ function TileScene({ copy }: { copy: SceneCopy['tile'] }) {
 
 function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 46 });
   const all = useMemo(() => sevenPositions(), []);
   const [index, setIndex] = useState(1);
   const [pattern, setPattern] = useState<SequenceId>('straight');
@@ -253,7 +253,7 @@ function TripletsScene({ copy }: { copy: SceneCopy['triplets'] }) {
 
 function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 46 });
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
   const [mode, setMode] = useState<Mode>('major');
   /** The chosen position in major numbering, so switching scale keeps the same frets. */

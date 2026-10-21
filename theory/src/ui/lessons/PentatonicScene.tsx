@@ -38,7 +38,7 @@ import { useQuizScore } from '../useQuizScore';
 import { PositionFrame } from '../PositionFrame';
 import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
@@ -75,7 +75,7 @@ const dotOf = (n: NeckNote, label: string, tone: DotTone = 'plain', dim = false)
 
 function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const all = useMemo(() => boxes(), []);
   const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, 'minorPentatonic', NECK_FRETS), []);
   const [index, setIndex] = useState(1);
@@ -148,7 +148,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
 
 function ConnectScene({ copy }: { copy: SceneCopy['connect'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(PAIR_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(PAIR_FRETS, { fretWidth: 46 });
   const [k, setK] = useState(1);
   const pair = useMemo(() => boxPair(k), [k]);
   const run = useMemo(() => crossRun(pair), [pair]);
@@ -201,7 +201,7 @@ function ConnectScene({ copy }: { copy: SceneCopy['connect'] }) {
 
 function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const all = useMemo(() => boxes(), []);
   const [index, setIndex] = useState(1);
   const [pattern, setPattern] = useState<SequenceId>('threes');
@@ -288,7 +288,7 @@ function SequencesScene({ copy }: { copy: SceneCopy['sequences'] }) {
 
 function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [tonic, setTonic] = useState<NoteName>(MAJOR_KEYS[3]!);
   const view = useMemo(() => majorView(tonic), [tonic]);
   const cell = cellSeconds(80, 2);
@@ -348,7 +348,7 @@ function MajorScene({ copy }: { copy: SceneCopy['major'] }) {
 
 function ChooseScene({ copy }: { copy: SceneCopy['choose'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
   const [verdict, setVerdict] = useState<{ kind: Verdict; fret: number } | null>(null);
   const [missed, setMissed] = useState(false);

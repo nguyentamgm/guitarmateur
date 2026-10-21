@@ -28,7 +28,7 @@ import { useTheory } from '../context';
 import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry, type NeckGeometry } from '../geometry';
+import { useNeckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
 
@@ -110,7 +110,7 @@ function Labeller({ copy, value, onChange }: { copy: SceneCopy; value: Labels; o
 function StackScene({ copy }: { copy: SceneCopy }) {
   const { player } = useTheory();
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [root, setRoot] = useState('D');
   const [id, setId] = useState<ChordId>('major');
   const view = useMemo(() => stackView(rootOf(root), id), [root, id]);
@@ -165,7 +165,7 @@ function StackScene({ copy }: { copy: SceneCopy }) {
 
 function QualitiesScene({ copy }: { copy: SceneCopy }) {
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [root, setRoot] = useState('A');
   const [id, setId] = useState<ChordId>('major');
   const [labels, setLabels] = useState<Labels>('degrees');
@@ -207,7 +207,7 @@ function QualitiesScene({ copy }: { copy: SceneCopy }) {
 
 function SusScene({ copy }: { copy: SceneCopy }) {
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [root, setRoot] = useState('D');
   const [id, setId] = useState<ChordId>('sus4');
   const view = useMemo(() => stackView(rootOf(root), id), [root, id]);
@@ -252,7 +252,7 @@ const OPEN_FRETS = 4;
 
 function OpenScene({ copy }: { copy: SceneCopy }) {
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(OPEN_FRETS, { fretWidth: 72 }), []);
+  const g = useNeckGeometry(OPEN_FRETS, { fretWidth: 72 });
   const [index, setIndex] = useState(0);
   const [labels, setLabels] = useState<Labels>('degrees');
   const view = useMemo(() => openView(OPEN_CHORDS[index]!), [index]);
@@ -301,7 +301,7 @@ const WINDOW = { below: 5, above: 3 };
 function BuildScene({ copy }: { copy: SceneCopy }) {
   const c = copy.build;
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(STACK_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [pool, setPool] = useState<Pool>('basic');
   const [q, setQ] = useState<BuildQuestion>(() => buildQuestion(Math.random, undefined, POOL_KINDS.basic));
   const [found, setFound] = useState<(FretPos & { degree: string })[]>([]);

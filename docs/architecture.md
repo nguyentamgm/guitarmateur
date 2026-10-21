@@ -154,9 +154,15 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
   as Practice's lick cards do. On the dark wood an app may set a lighter `--neck-accent`.
   **Tap size:** a tap on the wood plays the nearest dot within `TAP_REACH_PX` (20 CSS px,
   `nearestDot()` in `geometry.ts`), so each dot takes the room around it, up to a 40px target,
-  as far as its neighbours allow. On a phone a long neck shrinks to 62%, where dots on neighbouring
-  strings are only 16px apart: those stay under 40px (#279). A neck that must be tapped spreads its
-  strings instead (`neckGeometry(…, { stringGap })`, as the ear trainer's level 14 does).
+  as far as its neighbours allow. **On a phone every neck is drawn for touch (#279):** callers get
+  their geometry from `useNeckGeometry` (`shared/ui/useNeckGeometry.ts`), which at the site's
+  phone width (≤ 560px) passes `touch` to `neckGeometry`. Its strings are then at least 40 units
+  apart (`TOUCH_STRING_GAP`), and it shrinks only down to the scale at which its closest dots
+  (neighbouring strings, frets, or open and fret 1) are 40px apart (`minScale`); a longer neck
+  scrolls sideways instead. The cost, chosen over a zoom view or accepting 16px taps: at 360px a
+  long neck is ~2.2× taller (119 → 262px) and scrolls further. Wider screens keep the 26-unit
+  strings and the 62% floor. A caller that draws its own extras on the neck (`children`) places
+  them from the geometry (`g.y`, `g.stringGap`), never from fixed offsets.
   `neckGeometry(…, { dotRadius })` draws larger dots (default 11) with the room around them, and
   `Fretboard` scales the neck's text with them (`--neck-text` in `fretboard.css`): level 14 uses
   radius 20 so its labels reach the beginner screens' 18px (#283). Practice and Theory keep 11.

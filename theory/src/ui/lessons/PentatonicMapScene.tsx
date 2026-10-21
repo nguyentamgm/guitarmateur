@@ -22,7 +22,7 @@ import { useTheory } from '../context';
 import { posKey, signed } from '../keys';
 import { Button, ChipGroup, KeyFinder } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry, stringName } from '../geometry';
+import { useNeckGeometry, stringName } from '../geometry';
 import { useSequence } from '../useSequence';
 import { VampLink } from '../TrainerLink';
 
@@ -47,7 +47,7 @@ export function PentatonicMapScene({ step, copy }: { step: StepId; copy: SceneCo
 
 function GridScene({ copy }: { copy: SceneCopy['grid'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(6, { fretWidth: 64 }), []);
+  const g = useNeckGeometry(6, { fretWidth: 64 });
   const pairs = useMemo(() => stringPairs(), []);
   const seq = useSequence(pairs.length, 1100, (i) => {
     const p = pairs[i]!;
@@ -94,7 +94,7 @@ function GridScene({ copy }: { copy: SceneCopy['grid'] }) {
 
 function FormulaScene({ copy }: { copy: SceneCopy['formula'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(17, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(17, { fretWidth: 46 });
   const strip = useMemo(() => formulaStrip(), []);
   const seq = useSequence(strip.notes.length, 520, (i) => player.pluck(strip.notes[i]!.midi));
   const reached = (i: number) => seq.current === null || i <= seq.current;
@@ -145,7 +145,7 @@ function FormulaScene({ copy }: { copy: SceneCopy['formula'] }) {
 
 function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const all = useMemo(() => boxes(), []);
   const neck = useMemo(() => scaleNeck(EXAMPLE_TONIC, SCALE, NECK_FRETS), []);
   const [index, setIndex] = useState(1);
@@ -204,7 +204,7 @@ function BoxesScene({ copy }: { copy: SceneCopy['boxes'] }) {
 
 function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
   const [shift, setShift] = useState<number | null>(null);
   const view = useMemo(() => keyView(tonic), [tonic]);
@@ -264,7 +264,7 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [mode, setMode] = useState<HomeMode>('minor');
   const view = useMemo(() => homeView(mode), [mode]);
   const choose = (m: HomeMode) => {
