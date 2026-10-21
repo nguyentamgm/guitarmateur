@@ -1,6 +1,7 @@
 /* The neck both apps draw (shared/ui/Fretboard.tsx, PositionFrame.tsx), on the shared tokens.
    On the dark wood the accent may need to be lighter than on the page: `--neck-accent` (and its ink),
-   when an app sets one, wins over `--accent` here. */
+   when an app sets one, wins over `--accent` here. A neck with larger dots sets `--neck-text`
+   (Fretboard.tsx, from its geometry) and its text grows with them. */
 .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .scroll svg { display: block; width: 100%; height: auto; margin-inline: auto; }
 
@@ -10,12 +11,12 @@
 .nutbar { fill: var(--nut); }
 .str { stroke: var(--string); }
 .inlay { fill: var(--inlay); }
-.fnum { fill: var(--fretnum); font-family: var(--f-mono); font-size: 11px; text-anchor: middle; }
-.sname { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; dominant-baseline: middle; }
+.fnum { fill: var(--fretnum); font-family: var(--f-mono); font-size: calc(11px * var(--neck-text, 1)); text-anchor: middle; }
+.sname { fill: var(--muted); font-family: var(--f-mono); font-size: calc(11px * var(--neck-text, 1)); dominant-baseline: middle; }
 .boxrect { fill: var(--neck-accent, var(--accent)); fill-opacity: 0.16; stroke: var(--neck-accent, var(--accent)); stroke-opacity: 0.7; stroke-width: 1.5; transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.45s cubic-bezier(0.3, 0.7, 0.2, 1); }
 .dot { cursor: pointer; transition: opacity 0.3s; outline: none; }
 .dot circle { fill: var(--dot); stroke: var(--wood-edge); stroke-width: 1; transform-box: fill-box; transform-origin: center; transition: transform 0.16s ease-out; }
-.dot text { fill: var(--dot-ink); font-family: var(--f-mono); font-size: 10.5px; font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.dot text { fill: var(--dot-ink); font-family: var(--f-mono); font-size: calc(10.5px * var(--neck-text, 1)); font-weight: 600; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .dot.home circle { fill: var(--neck-accent, var(--accent)); stroke: none; }
 .dot.home text { fill: var(--neck-accent-ink, var(--accent-ink)); }
 .dot.homeMajor circle { fill: var(--amber); stroke: none; }
@@ -49,7 +50,7 @@
 .dot.target circle { fill: var(--amber); stroke: none; }
 .dot.target text { fill: var(--amber-ink); }
 .halo { fill: none; stroke: var(--neck-accent, var(--accent)); stroke-width: 1.6; stroke-dasharray: 3 3; pointer-events: none; }
-.dot + text.mark { fill: var(--neck-accent, var(--accent)); font-family: var(--f-mono); font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
+.dot + text.mark { fill: var(--neck-accent, var(--accent)); font-family: var(--f-mono); font-size: calc(9px * var(--neck-text, 1)); font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; paint-order: stroke; stroke: var(--wood); stroke-width: 3px; }
 
 /* Tab (Theory's Tab, Practice's TabStaff): string lines and names, a number box per note (the
    sounding one filled), bar lines and a row of counts under it. Practice adds beat ticks and

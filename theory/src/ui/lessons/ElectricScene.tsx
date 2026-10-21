@@ -33,7 +33,7 @@ import { BeatGrid, type Block } from '../BeatGrid';
 import { useTheory } from '../context';
 import { Button, ChipGroup, KeyFinder, OnOff, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useClock } from '../useClock';
 import { useSequence } from '../useSequence';
@@ -80,7 +80,7 @@ function PowerScene({ copy }: { copy: SceneCopy }) {
   const c = copy.power;
   const { player } = useTheory();
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(POWER_FRETS, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(POWER_FRETS, { fretWidth: 52 });
   const [root, setRoot] = useState<FretPos>({ string: 6, fret: 5 });
   const [octave, setOctave] = useState(true);
   const view = powerView(root, octave);
@@ -143,7 +143,7 @@ function PowerScene({ copy }: { copy: SceneCopy }) {
 function MuteScene({ copy }: { copy: SceneCopy }) {
   const c = copy.mute;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(9, { fretWidth: 56 }), []);
+  const g = useNeckGeometry(9, { fretWidth: 56 });
   const chords = useMemo(() => riffChords(), []);
   const [palm, setPalm] = useState(true);
   const [bpm, setBpm] = useLastTempo('electric-mute', RIFF_BPM);
@@ -199,7 +199,7 @@ function MuteScene({ copy }: { copy: SceneCopy }) {
 function DoubleStopsScene({ copy }: { copy: SceneCopy }) {
   const c = copy.doubleStops;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(15, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(15, { fretWidth: 50 });
   const [k, setK] = useState(1);
   const [index, setIndex] = useState(0);
   const view = useMemo(() => stopsView(k), [k]);
@@ -270,7 +270,7 @@ function DoubleStopsScene({ copy }: { copy: SceneCopy }) {
 function OctavesScene({ copy }: { copy: SceneCopy }) {
   const c = copy.octaves;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(15, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(15, { fretWidth: 50 });
   const [lower, setLower] = useState(OCTAVE_STRINGS[1]!);
   const view = useMemo(() => octaveView(lower), [lower]);
   const seq = useSequence(view.pairs.length, 480, (i) => {
@@ -332,7 +332,7 @@ function OctavesScene({ copy }: { copy: SceneCopy }) {
 function BoogieScene({ copy }: { copy: SceneCopy }) {
   const c = copy.boogie;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(BOOGIE_FRETS, { fretWidth: 42 }), []);
+  const g = useNeckGeometry(BOOGIE_FRETS, { fretWidth: 42 });
   const [tonic, setTonic] = useState<NoteName>(BOOGIE_TONIC);
   const [quickChange, setQuickChange] = useState(false);
   const [turnaround, setTurnaround] = useState(false);

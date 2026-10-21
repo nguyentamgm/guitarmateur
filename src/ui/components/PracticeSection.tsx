@@ -7,7 +7,7 @@ import { font, theme } from '../theme';
 import { Panel, PillButton, StepHead, StepHints, Toggle } from './primitives';
 import { RadioGroup } from '@shared/ui/controls';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
-import { neckGeometry } from '@shared/ui/geometry';
+import { useNeckGeometry } from '@shared/ui/useNeckGeometry';
 import { boxDots, dotWords, stringNumber, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
 import { Legend } from './Legend';
@@ -79,10 +79,7 @@ export function PracticeSection({
   // The tab names its strings as the neck does (low → high here): one source, 'e' for the thinnest.
   const stringLabels = TUNINGS[state.tuningId].strings.map((_, i) => names[stringNumber(i)]);
   // Each card shows just the box's frets: a window of the neck (with the nut when the box starts at 0).
-  const cardGeometry = useMemo(
-    () => neckGeometry(box.maxFret, { from: box.minFret > 0 ? box.minFret - 1 : 0, fretWidth: 50 }),
-    [box.minFret, box.maxFret],
-  );
+  const cardGeometry = useNeckGeometry(box.maxFret, { from: box.minFret > 0 ? box.minFret - 1 : 0, fretWidth: 50 });
 
   const chordMap = useMemo(() => {
     const m = new Map<string, (typeof stateProgression)[number]>();

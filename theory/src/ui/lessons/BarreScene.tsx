@@ -28,7 +28,7 @@ import { BarreBar } from '../BarreBar';
 import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup, KeyFinder, Slider, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry, type NeckGeometry } from '../geometry';
+import { useNeckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useStrum } from '../useStrum';
@@ -80,7 +80,7 @@ const kindOf = (copy: SceneCopy, id: ChordId) => copy.kinds[id as keyof SceneCop
 
 function SlideScene({ copy }: { copy: SceneCopy }) {
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(BARRE_FRETS, { fretWidth: 46 });
   const [fret, setFret] = useState(1);
   const view = useMemo(() => slideView(fret), [fret]);
   const caption = fret === 0 ? fill(copy.slide.open, { symbol: view.symbol }) : fill(copy.slide.caption, { symbol: view.symbol, fret });
@@ -108,7 +108,7 @@ function SlideScene({ copy }: { copy: SceneCopy }) {
 
 function ShapeScene({ copy, shape, defaultRoot }: { copy: SceneCopy; shape: BarreShape; defaultRoot: string }) {
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(BARRE_FRETS, { fretWidth: 46 });
   const [root, setRoot] = useState(defaultRoot);
   const [id, setId] = useState<ChordId>('major');
   const [labels, setLabels] = useState<Labels>('degrees');
@@ -165,7 +165,7 @@ function ShapeScene({ copy, shape, defaultRoot }: { copy: SceneCopy; shape: Barr
 function FindScene({ copy }: { copy: SceneCopy }) {
   const c = copy.find;
   const strum = useStrum();
-  const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(BARRE_FRETS, { fretWidth: 46 });
   const [q, setQ] = useState<FindQuestion>(() => findQuestion(Math.random));
   const [result, setResult] = useState<FindResult | null>(null);
   const [missed, setMissed] = useState(false);
@@ -241,7 +241,7 @@ function FindScene({ copy }: { copy: SceneCopy }) {
 
 function ChangesScene({ copy }: { copy: SceneCopy }) {
   const c = copy.changes;
-  const g = useMemo(() => neckGeometry(BARRE_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(BARRE_FRETS, { fretWidth: 46 });
   const [tonic, setTonic] = useState<NoteName>(PROGRESSION_TONIC);
   const [mode, setMode] = useState<PathMode>('near');
   const [bpm, setBpm] = useLastTempo('barre-changes', STRUM_LOOP_BPM);

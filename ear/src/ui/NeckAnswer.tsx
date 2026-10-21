@@ -5,7 +5,7 @@
  */
 import type { Player } from '@shared/core/audio';
 import { Fretboard, type FretDot } from '@shared/ui/Fretboard';
-import { neckGeometry } from '@shared/ui/geometry';
+import { useNeckGeometry } from '@shared/ui/useNeckGeometry';
 import type { DotWords } from '@shared/ui/dotName';
 import { neckWindow } from '../core/position';
 import type { Question } from '../core/questions';
@@ -16,8 +16,11 @@ import { degreeInKey, keyText, noteText } from './labels';
 /**
  * Wider apart than the shared neck's strings (26): a box holds a dot on every string, and at phone
  * width the window is drawn a little under full size, so each dot still keeps 40px to tap (#262).
+ * The dots are near twice the shared neck's (radius 11), so their labels, the fret numbers and the
+ * string names reach the beginner screens' 18px (#283); the frets are a little narrower (48, not
+ * 52) so that the window is drawn at full size on a phone.
  */
-const STRING_GAP = 46;
+const SIZES = { stringGap: 46, dotRadius: 20, fretWidth: 48 };
 
 export function NeckAnswer({
   ui,
@@ -32,10 +35,7 @@ export function NeckAnswer({
 }) {
   const w = neckWindow(q.key, q, active);
   // Fret 0 needs the nut; higher up, the drawing starts at the wire before the window's first fret.
-  const geometry =
-    w.lo === 0
-      ? neckGeometry(w.hi, { stringGap: STRING_GAP })
-      : neckGeometry(w.hi, { from: w.lo - 1, stringGap: STRING_GAP });
+  const geometry = useNeckGeometry(w.hi, { ...SIZES, from: w.lo === 0 ? 0 : w.lo - 1 });
   const dots: FretDot[] = w.dots.map((d) => ({
     key: `${d.string}-${d.fret}`,
     string: d.string,

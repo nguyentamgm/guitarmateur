@@ -39,7 +39,7 @@ import { useQuizScore } from '../useQuizScore';
 import { TrainerLink } from '../TrainerLink';
 import { Button, ChipGroup, KeyFinder, Tempo } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { STRUM_LOOP_BPM, useStrumLoop } from '../useBacking';
 import { useSequence } from '../useSequence';
@@ -64,7 +64,7 @@ export function KeysScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 /** Seconds between chords of a lead-in. */
 const LEAD_MS = 1100;
 
-const useNeck = () => useMemo(() => neckGeometry(KEYS_FRETS, { fretWidth: 46 }), []);
+const useNeck = () => useNeckGeometry(KEYS_FRETS, { fretWidth: 46 });
 
 const chordDots = (view: ChordView): FretDot[] =>
   view.notes.map((n) => ({

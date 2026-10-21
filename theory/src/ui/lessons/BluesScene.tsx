@@ -50,7 +50,7 @@ import { useTheory } from '../context';
 import { useQuizScore } from '../useQuizScore';
 import { Button, ChipGroup, KeyFinder, OnOff, Slider, Tempo } from '../controls';
 import { Fretboard, type DotTone, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { PitchCurve } from '../PitchCurve';
 import { Tab, type TabNote } from '../Tab';
@@ -84,7 +84,7 @@ const EIGHTHS = 8;
 function BlueNoteScene({ copy }: { copy: SceneCopy }) {
   const c = copy.blueNote;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [kind, setKind] = useState<BluesKind>('minor');
   const [index, setIndex] = useState(1);
   const [blueOn, setBlueOn] = useState(true);
@@ -255,7 +255,7 @@ const BEND_GLIDE = (semis: number) => bend(semis, 0.15, 0.2);
 function BendsScene({ copy }: { copy: SceneCopy }) {
   const c = copy.bends;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(12, { fretWidth: 52 });
   const [index, setIndex] = useState(0);
   const [run, setRun] = useState(0);
   const view = useMemo(() => bendView(BENDS[index]!), [index]);
@@ -383,7 +383,7 @@ const DEMO_BPM = 72;
 function LegatoScene({ copy }: { copy: SceneCopy }) {
   const c = copy.legato;
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(LICK_FRETS, { fretWidth: 46 }), []);
+  const g = useNeckGeometry(LICK_FRETS, { fretWidth: 46 });
   const [mode, setMode] = useState<DemoId | 'lick'>('hammer');
   const [tonic, setTonic] = useState<NoteName>(EXAMPLE_TONIC);
   /** The hand-written lick in box 1 first; New lick, or another box, makes one from `generateLick()`. */

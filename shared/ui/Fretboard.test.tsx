@@ -222,3 +222,54 @@ describe('a window of the neck (from > 0)', () => {
     expect(g.wireX(0)).toBe(g.nutX);
   });
 });
+
+describe('larger dots (dotRadius)', () => {
+  it('keeps the shared neck as it was by default', () => {
+    const g = neckGeometry(12);
+    expect([g.dotRadius, g.textScale, g.nutX, g.top, g.height, g.x(0)]).toEqual([11, 1, 44, 22, 192, 26]);
+    const c = render({ dots: [{ key: 'a', string: 6, fret: 5, midi: 45 }] });
+    expect(c.querySelector('g.dot circle')!.getAttribute('r')).toBe('11');
+  });
+
+  it('grows the dots, their text and the room around them', () => {
+    const g = neckGeometry(4, { dotRadius: 20, stringGap: 46, fretWidth: 48 });
+    const c = render({ dots: [{ key: 'e', string: 1, fret: 0, midi: 64, halo: true }], geometry: g });
+    expect(c.querySelector('g.dot circle')!.getAttribute('r')).toBe('20');
+    expect(c.querySelector('circle.halo')!.getAttribute('r')).toBe('25');
+    expect(c.querySelector('svg')!.style.getPropertyValue('--neck-text')).toBe(String(20 / 11));
+    // An open-string dot sits between the string names (drawn from x 4) and the nut, clear of both.
+    expect(g.x(0) - 20).toBeGreaterThan(20);
+    expect(g.x(0) + 20).toBeLessThan(g.nutX - 5);
+    // The top string's dots fit in the drawing; the fret numbers (11px × textScale, ~3/4 of it above
+    // the line) sit below the bottom string's.
+    expect(g.y(1) - 20 - 5).toBeGreaterThanOrEqual(0);
+    const fnumY = Number(c.querySelector('text.fnum')!.getAttribute('y'));
+    expect(fnumY - 11 * g.textScale * 0.75).toBeGreaterThan(g.y(6) + 20);
+    expect(fnumY).toBeLessThan(g.height);
+  });
+});
+
+describe('drawn for touch (#279)', () => {
+  // The closest two dots, in px once drawn at the smallest scale the neck allows.
+  const closest = (g: ReturnType<typeof neckGeometry>) =>
+    Math.min(g.stringGap, g.fretWidth, g.from === 0 ? g.x(1) - g.x(0) : Infinity) * g.minScale;
+
+  it('spreads the strings and never shrinks the dots under a 40px tap apart', () => {
+    for (const opts of [{ fretWidth: 46 }, { fretWidth: 40 }, { fretWidth: 72 }, { from: 4, fretWidth: 50 }]) {
+      const g = neckGeometry(12, { ...opts, touch: true });
+      expect(g.stringGap).toBe(40);
+      expect(closest(g)).toBeGreaterThanOrEqual(40);
+    }
+    // Strings already wider apart stay so (level 14's window), and then it may shrink a little.
+    const wide = neckGeometry(8, { from: 3, stringGap: 46, fretWidth: 48, dotRadius: 20, touch: true });
+    expect([wide.stringGap, closest(wide)]).toEqual([46, 40]);
+  });
+
+  it('leaves the neck as it was without touch, and draws its smallest size from minScale', () => {
+    const g = neckGeometry(12, { fretWidth: 46 });
+    expect([g.stringGap, g.minScale]).toEqual([26, 0.62]);
+    const t = neckGeometry(12, { fretWidth: 46, touch: true });
+    const c = render({ dots: [], geometry: t });
+    expect(c.querySelector('svg')!.style.minWidth).toBe(`${Math.round(t.width * t.minScale)}px`);
+  });
+});

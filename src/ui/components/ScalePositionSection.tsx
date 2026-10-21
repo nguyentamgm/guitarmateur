@@ -6,7 +6,7 @@ import { font, theme } from '../theme';
 import { Panel, PillButton, StepHead, StepHints } from './primitives';
 import { Fretboard, type LabelMode } from '@shared/ui/Fretboard';
 import { PositionFrame } from '@shared/ui/PositionFrame';
-import { neckGeometry } from '@shared/ui/geometry';
+import { useNeckGeometry } from '@shared/ui/useNeckGeometry';
 import { ChipGroup, KeyPicker, RadioGroup } from '@shared/ui/controls';
 import { boxDots, dotWords, tuningNames } from '../neck';
 import { notePlayer } from '../notePlayer';
@@ -42,7 +42,7 @@ export function ScalePositionSection({
   const tuning = TUNINGS[state.tuningId];
   const names = useMemo(() => tuningNames(tuning), [tuning]);
   // Up to the highest box, at least 12 frets, as Theory draws the whole neck.
-  const geometry = useMemo(() => neckGeometry(Math.max(12, ...pos.map((p) => p.maxFret)), { fretWidth: 46 }), [pos]);
+  const geometry = useNeckGeometry(Math.max(12, ...pos.map((p) => p.maxFret)), { fretWidth: 46 });
   const dots = useMemo(() => boxDots(box, key), [box, key]);
 
   return (

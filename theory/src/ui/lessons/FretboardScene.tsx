@@ -26,7 +26,7 @@ import { useQuizScore } from '../useQuizScore';
 import { posKey } from '../keys';
 import { Button, ChipGroup } from '../controls';
 import { Fretboard, type FretDot } from '../Fretboard';
-import { neckGeometry } from '../geometry';
+import { useNeckGeometry } from '../geometry';
 import { Tab, type TabNote } from '../Tab';
 import { useSequence } from '../useSequence';
 
@@ -50,7 +50,7 @@ export function FretboardScene({ step, copy }: { step: StepId; copy: SceneCopy }
 
 function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(4, { fretWidth: 60 }), []);
+  const g = useNeckGeometry(4, { fretWidth: 60 });
   const open = useMemo(() => openStrings(), []);
   const lowFirst = useMemo(() => [...open].reverse(), [open]);
   const [picked, setPicked] = useState<StringNumber | null>(null);
@@ -94,7 +94,7 @@ function StringsScene({ copy }: { copy: SceneCopy['strings'] }) {
 
 function SemitonesScene({ copy }: { copy: SceneCopy['semitones'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(12, { fretWidth: 52 });
   const [string, setString] = useState<StringNumber>(6);
   const run = useMemo(() => semitoneRun(string), [string]);
   const last = run.length - 1;
@@ -155,7 +155,7 @@ function SemitonesScene({ copy }: { copy: SceneCopy['semitones'] }) {
 
 function TabScene({ copy }: { copy: SceneCopy['tab'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(9, { fretWidth: 54 }), []);
+  const g = useNeckGeometry(9, { fretWidth: 54 });
   const columns = useMemo(
     () => tabExample().map((c) => c.notes.map((n): TabNote => ({ ...n, key: posKey(n) }))),
     [],
@@ -201,7 +201,7 @@ function TabScene({ copy }: { copy: SceneCopy['tab'] }) {
 
 function OctavesScene({ copy }: { copy: SceneCopy['octaves'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(NECK_FRETS, { fretWidth: 50 }), []);
+  const g = useNeckGeometry(NECK_FRETS, { fretWidth: 50 });
   const [tonic, setTonic] = useState<NoteName>(OCTAVE_KEYS[3]!);
   const view = useMemo(() => octaveView(tonic), [tonic]);
   const seq = useSequence(view.notes.length, 450, (i) => player.pluck(view.notes[i]!.midi));
@@ -285,7 +285,7 @@ type Feedback =
 
 function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   const { player } = useTheory();
-  const g = useMemo(() => neckGeometry(12, { fretWidth: 52 }), []);
+  const g = useNeckGeometry(12, { fretWidth: 52 });
   const [names, setNames] = useState<'show' | 'hide'>('show');
   const [pool, setPool] = useState<QuizNotes>('naturals');
   const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
