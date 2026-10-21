@@ -250,8 +250,11 @@ holds the note heard **at its pitch**, choosing the root nearest in pitch to the
 heard against (then the lower fret, then string 6). The window can reach fret 18: held to 15, the
 top notes (F major's 7 at E5) could not be shown at the pitch heard. Dots: the root and every 1 in
 `home`, the other active degrees `soft`, the note heard `target` with a halo; clicking one plays
-it. Its strings are 46 units apart, not the shared 26, so at phone width (drawn at ~0.9) a box's
-dots stay 43px apart and each keeps a 40px tap (the shared neck's tap reach, `TAP_REACH_PX`).
+it. Its strings are 46 units apart, not the shared 26, its frets 48 (not 52), and its dots of
+radius 20, not the shared 11 (`neckGeometry`'s `dotRadius`; the neck's text grows with its dots):
+at phone width (360px) the window is drawn at full size, so the dot labels, fret numbers and string
+names are 19px or more, the 18px of the beginner screens (#283), and each dot keeps a 40px tap
+(the shared neck's tap reach, `TAP_REACH_PX`).
 `ui/AnswerStrip.tsx` answers on one string from the root: fret 0 is 1, fret 3 is ♭3… each degree
 as the key spells it (♭5 in minor); at phone width only the active frets show, as large buttons.
 An answer is named by its label, then as spoken, then its fret ("♭3 (flat three), fret 3"): the

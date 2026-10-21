@@ -157,6 +157,9 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
   as far as its neighbours allow. On a phone a long neck shrinks to 62%, where dots on neighbouring
   strings are only 16px apart: those stay under 40px (#279). A neck that must be tapped spreads its
   strings instead (`neckGeometry(…, { stringGap })`, as the ear trainer's level 14 does).
+  `neckGeometry(…, { dotRadius })` draws larger dots (default 11) with the room around them, and
+  `Fretboard` scales the neck's text with them (`--neck-text` in `fretboard.css`): level 14 uses
+  radius 20 so its labels reach the beginner screens' 18px (#283). Practice and Theory keep 11.
   Practice maps its notes onto it in `src/ui/neck.ts` (`boxDots`, `tuningNames`) and sounds a
   clicked note through `src/ui/notePlayer.ts`.
 - The tab look is in `fretboard.css` too (`.tab`, `.tabline`, `.tabname`, `.tabnum` boxes, the

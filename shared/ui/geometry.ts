@@ -18,6 +18,10 @@ export interface NeckGeometry {
   readonly fretWidth: number;
   readonly top: number;
   readonly stringGap: number;
+  /** A note dot's radius; the neck's text and margins grow with it (`textScale`). */
+  readonly dotRadius: number;
+  /** How much larger than the shared neck's (dots of radius 11) its text is drawn. */
+  readonly textScale: number;
   /** Centre x of a fret's playing space (open strings: just left of the nut). */
   x(fret: number): number;
   /** x of the fret wire on the right of a fret's space. */
@@ -25,14 +29,24 @@ export interface NeckGeometry {
   y(string: StringNumber): number;
 }
 
-export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGap?: number; from?: number } = {}): NeckGeometry {
+/** The shared neck's dot radius: Practice and Theory draw every neck with it. */
+export const DOT_RADIUS = 11;
+
+export function neckGeometry(
+  frets: number,
+  opts: { fretWidth?: number; stringGap?: number; from?: number; dotRadius?: number } = {},
+): NeckGeometry {
   const from = Math.max(0, Math.min(opts.from ?? 0, frets - 1));
   const fretWidth = opts.fretWidth ?? 52;
   const stringGap = opts.stringGap ?? 26;
-  const nutX = 44;
-  const top = 22;
+  const dotRadius = opts.dotRadius ?? DOT_RADIUS;
+  const grow = dotRadius - DOT_RADIUS;
+  // Larger dots need more room: at the nut, for the open-string dots between it and the string
+  // names; above and below, for the top string's dots and the fret numbers.
+  const nutX = from === 0 ? 44 + 3 * grow : 44;
+  const top = dotRadius + 11;
   const right = 14;
-  const bottom = 40;
+  const bottom = dotRadius + 29;
   return {
     frets,
     from,
@@ -42,7 +56,9 @@ export function neckGeometry(frets: number, opts: { fretWidth?: number; stringGa
     fretWidth,
     top,
     stringGap,
-    x: (f) => (f === 0 ? nutX - 18 : nutX + (f - from - 0.5) * fretWidth),
+    dotRadius,
+    textScale: dotRadius / DOT_RADIUS,
+    x: (f) => (f === 0 ? nutX - dotRadius - 7 : nutX + (f - from - 0.5) * fretWidth),
     wireX: (f) => nutX + (f - from) * fretWidth,
     y: (s) => top + (s - 1) * stringGap,
   };

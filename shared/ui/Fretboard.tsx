@@ -3,7 +3,7 @@
  * to hear. Callers add their own SVG (lines, arcs) through `children`, drawn under the dots.
  * Styled by shared/ui/fretboard.css. Sound is the caller's (`play`), so this holds no audio.
  */
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { STANDARD_STRING_NAMES, STRINGS, type StringNames, type StringNumber } from '../core/neck';
 import { DOUBLE_INLAYS, INLAYS, TAP_REACH_PX, boxSpan, nearestDot, stringName, upright as uprightAt, type NeckGeometry } from './geometry';
 import { dotName, type DotWords } from './dotName';
@@ -136,8 +136,9 @@ export function Fretboard({
     }
   };
 
-  const woodTop = g.top - 14;
-  const woodHeight = 5 * g.stringGap + 28;
+  const r = g.dotRadius;
+  const woodTop = g.top - r - 3;
+  const woodHeight = 5 * g.stringGap + 2 * (r + 3);
   const mid = (a: StringNumber, b: StringNumber) => (g.y(a) + g.y(b)) / 2;
   const span = box ? boxSpan(g, box.minFret, box.maxFret) : { left: 0, right: 0 };
   // Left-handed: the neck is mirrored as a whole, and each text is mirrored back around its own x
@@ -150,8 +151,8 @@ export function Fretboard({
       <svg
         viewBox={`0 0 ${g.width} ${g.height}`}
         // Shrink to scroll no further than ~60%, grow no further than ~120%: a short neck must
-        // not blow up to fill a wide column.
-        style={{ minWidth: Math.round(g.width * 0.62), maxWidth: Math.round(g.width * 1.2) }}
+        // not blow up to fill a wide column. Its text grows with its dots (fretboard.css).
+        style={{ minWidth: Math.round(g.width * 0.62), maxWidth: Math.round(g.width * 1.2), '--neck-text': g.textScale } as CSSProperties}
         role="group"
         aria-label={label}
         onClick={onNeckClick}
@@ -168,7 +169,7 @@ export function Fretboard({
           {Array.from({ length: g.frets - g.from }, (_, i) => g.from + i + 1).map((f) => (
             <g key={f}>
               <line className="fretline" x1={g.wireX(f)} x2={g.wireX(f)} y1={woodTop} y2={woodTop + woodHeight} />
-              <text className="fnum" x={g.x(f)} y={g.y(6) + 32} transform={upright(g.x(f))}>
+              <text className="fnum" x={g.x(f)} y={g.y(6) + r + 21} transform={upright(g.x(f))}>
                 {f}
               </text>
             </g>
@@ -208,10 +209,10 @@ export function Fretboard({
             const cx = g.x(d.fret);
             const cy = g.y(d.string);
             // The mark sits at the dot's top right as seen, so on a mirrored neck it is drawn left.
-            const markX = leftHanded ? cx - 11 : cx + 11;
+            const markX = leftHanded ? cx - r : cx + r;
             return [
               // The landing halo is not part of the dot's look (tone, faint, hit): drawn on its own.
-              d.halo && <circle key={`${d.key}-halo`} className="halo" cx={cx} cy={cy} r={16} />,
+              d.halo && <circle key={`${d.key}-halo`} className="halo" cx={cx} cy={cy} r={r + 5} />,
               <g
                 key={d.key}
                 ref={(el) => {
@@ -226,7 +227,7 @@ export function Fretboard({
                 onKeyDown={(e) => onKey(e, d)}
                 onFocus={() => setFocused(d.key)}
               >
-                <circle cx={cx} cy={cy} r={11} />
+                <circle cx={cx} cy={cy} r={r} />
                 {text !== undefined && (
                   <text x={cx} y={cy} transform={upright(cx)}>
                     {text}
@@ -236,7 +237,7 @@ export function Fretboard({
               // Beside the button, not in it: its visible text stays the label, which leads the
               // name; the mark is said in the name after the tone ("chord tone 3").
               d.mark !== undefined && (
-                <text key={`${d.key}-mark`} className="mark" x={markX} y={cy - 9} transform={upright(markX)}>
+                <text key={`${d.key}-mark`} className="mark" x={markX} y={cy - r + 2} transform={upright(markX)}>
                   {d.mark}
                 </text>
               ),

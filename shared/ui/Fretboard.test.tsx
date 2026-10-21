@@ -222,3 +222,29 @@ describe('a window of the neck (from > 0)', () => {
     expect(g.wireX(0)).toBe(g.nutX);
   });
 });
+
+describe('larger dots (dotRadius)', () => {
+  it('keeps the shared neck as it was by default', () => {
+    const g = neckGeometry(12);
+    expect([g.dotRadius, g.textScale, g.nutX, g.top, g.height, g.x(0)]).toEqual([11, 1, 44, 22, 192, 26]);
+    const c = render({ dots: [{ key: 'a', string: 6, fret: 5, midi: 45 }] });
+    expect(c.querySelector('g.dot circle')!.getAttribute('r')).toBe('11');
+  });
+
+  it('grows the dots, their text and the room around them', () => {
+    const g = neckGeometry(4, { dotRadius: 20, stringGap: 46, fretWidth: 48 });
+    const c = render({ dots: [{ key: 'e', string: 1, fret: 0, midi: 64, halo: true }], geometry: g });
+    expect(c.querySelector('g.dot circle')!.getAttribute('r')).toBe('20');
+    expect(c.querySelector('circle.halo')!.getAttribute('r')).toBe('25');
+    expect(c.querySelector('svg')!.style.getPropertyValue('--neck-text')).toBe(String(20 / 11));
+    // An open-string dot sits between the string names (drawn from x 4) and the nut, clear of both.
+    expect(g.x(0) - 20).toBeGreaterThan(20);
+    expect(g.x(0) + 20).toBeLessThan(g.nutX - 5);
+    // The top string's dots fit in the drawing; the fret numbers (11px × textScale, ~3/4 of it above
+    // the line) sit below the bottom string's.
+    expect(g.y(1) - 20 - 5).toBeGreaterThanOrEqual(0);
+    const fnumY = Number(c.querySelector('text.fnum')!.getAttribute('y'));
+    expect(fnumY - 11 * g.textScale * 0.75).toBeGreaterThan(g.y(6) + 20);
+    expect(fnumY).toBeLessThan(g.height);
+  });
+});
