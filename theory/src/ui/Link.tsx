@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useTheory } from './context';
+import { isPlainClick } from './plainClick';
 
 /** An in-app link: a real <a href> (open in new tab still works), navigated client-side. */
 export function Link({
@@ -15,7 +16,7 @@ export function Link({
 }) {
   const { navigate } = useTheory();
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!isPlainClick(e)) return;
     e.preventDefault();
     navigate(href);
   };
