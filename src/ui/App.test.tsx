@@ -31,7 +31,10 @@ describe('App', () => {
       // The shared site header: brand · Practice (current) · Ear training | Theory · Tests · language.
       const header = container.querySelector('header.topbar')!;
       expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
-      const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
+      const nav = [...header.querySelectorAll('nav a')].map((a) => [
+        a.textContent,
+        a.getAttribute('href'),
+      ]);
       expect(nav).toEqual([
         ['Practice', '/'],
         ['Ear training', '/ear'],
@@ -46,13 +49,20 @@ describe('App', () => {
 
       // The page's own actions stay in the page, out of the site header.
       expect(header.textContent).not.toContain('Share');
-      expect(container.querySelector('[role="group"][aria-label="Practice actions"]')?.textContent).toContain('Share');
+      expect(
+        container.querySelector('[role="group"][aria-label="Practice actions"]')?.textContent,
+      ).toContain('Share');
 
       // The EN/VI switch translates the nav: no untranslated labels in VI.
       await act(async () => {
         language.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
-      expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Luyện tập', 'Luyện tai', 'Lý thuyết', 'Kiểm tra']);
+      expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual([
+        'Luyện tập',
+        'Luyện tai',
+        'Lý thuyết',
+        'Kiểm tra',
+      ]);
       expect(container.querySelector('h1')?.textContent).toBe('Luyện tập');
       expect(document.title).toBe('Luyện tập · Guitarmateur');
       expect(description.getAttribute('content')).toMatch(/^Guitarmateur Luyện tập: /);
@@ -76,21 +86,28 @@ describe('App', () => {
       });
       // Lesson links in the page, not the site header's.
       const why = () =>
-        [...container.querySelectorAll('section a[href^="/theory/"]')].map((a) => [a.textContent, a.getAttribute('href')]);
+        [...container.querySelectorAll('section a[href^="/theory/"]')].map((a) => [
+          a.textContent,
+          a.getAttribute('href'),
+        ]);
       expect(why()).toEqual([
         ['The Pentatonic Map', '/theory/pentatonic-map?lang=en#boxes'],
         ['Pentatonic, the Whole Neck', '/theory/pentatonic?lang=en#connect'],
         ['Keys and Progressions: Chords by Number', '/theory/keys?lang=en'],
         ['Soloing over the Changes: Aim for the Chord', '/theory/solo?lang=en#tones'],
       ]);
-      expect(container.querySelector('section')!.textContent).toContain('Why? The Pentatonic Map · Pentatonic, the Whole Neck');
+      expect(container.querySelector('section')!.textContent).toContain(
+        'Why? The Pentatonic Map · Pentatonic, the Whole Neck',
+      );
 
       await act(async () => {
         container.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
       // The lesson opens in the page's language too.
       expect(why()[0]).toEqual(['Bản đồ Pentatonic', '/theory/pentatonic-map?lang=vi#boxes']);
-      expect(container.querySelector('section')!.textContent).toContain('Vì sao? Bản đồ Pentatonic');
+      expect(container.querySelector('section')!.textContent).toContain(
+        'Vì sao? Bản đồ Pentatonic',
+      );
     } finally {
       await act(async () => {
         root.unmount();
@@ -110,7 +127,9 @@ describe('App', () => {
       });
       const ear = () => container.querySelector('main a[href^="/ear"]');
       const pick = async (name: string) => {
-        const b = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find((x) => x.textContent === name)!;
+        const b = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find(
+          (x) => x.textContent === name,
+        )!;
         await act(async () => b.click());
       };
       // Practice opens on A minor pentatonic.
@@ -178,7 +197,7 @@ describe('App', () => {
       });
 
       const exportBtn = [...container.querySelectorAll('button')].find(
-        b => b.textContent?.trim() === 'Export',
+        (b) => b.textContent?.trim() === 'Export',
       )!;
 
       let anchorWasInBody = false;
@@ -203,7 +222,7 @@ describe('App', () => {
       expect(revokeCalledSynchronously).toBe(false);
 
       // After the next macrotask, revoke fires exactly once with the blob URL
-      await new Promise(r => setTimeout(r, 15));
+      await new Promise((r) => setTimeout(r, 15));
       expect(revokeSpy).toHaveBeenCalledOnce();
       expect(revokeSpy).toHaveBeenCalledWith('blob:fake-url');
 
@@ -259,7 +278,7 @@ describe('App', () => {
       });
 
       const shareBtn = [...container.querySelectorAll('button')].find(
-        b => b.textContent?.trim() === 'Share',
+        (b) => b.textContent?.trim() === 'Share',
       )!;
 
       await act(async () => {
@@ -292,7 +311,7 @@ describe('App', () => {
       });
 
       const shareBtn = [...container.querySelectorAll('button')].find(
-        b => b.textContent?.trim() === 'Share',
+        (b) => b.textContent?.trim() === 'Share',
       )!;
 
       await act(async () => {

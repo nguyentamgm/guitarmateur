@@ -35,7 +35,12 @@ const en = {
   reviewLead:
     'Each quiz in the lessons keeps its score on this device. The list puts the quiz that needs you most at the top: ones you have not tried, then ones you often miss, then ones you have not practised for a week.',
   reviewNext: 'Do this next',
-  reviewReason: { new: 'Not tried yet', weak: 'Needs work', stale: 'Due again', fresh: 'Up to date' },
+  reviewReason: {
+    new: 'Not tried yet',
+    weak: 'Needs work',
+    stale: 'Due again',
+    fresh: 'Up to date',
+  },
   reviewStats: '{acc}% right in the last {n} · best streak {best}',
   reviewLastToday: 'Last practised today',
   reviewLastYesterday: 'Last practised yesterday',
@@ -95,7 +100,12 @@ const vi: UiStrings = {
   reviewLead:
     'Mỗi bài đố trong các bài học lưu điểm ngay trên máy này. Danh sách đặt bài đố cần bạn nhất lên đầu: bài chưa thử, rồi bài hay sai, rồi bài đã một tuần chưa tập.',
   reviewNext: 'Làm bài này trước',
-  reviewReason: { new: 'Chưa thử', weak: 'Cần tập thêm', stale: 'Đến lúc ôn lại', fresh: 'Đang ổn' },
+  reviewReason: {
+    new: 'Chưa thử',
+    weak: 'Cần tập thêm',
+    stale: 'Đến lúc ôn lại',
+    fresh: 'Đang ổn',
+  },
   reviewStats: 'Đúng {acc}% trong {n} câu gần nhất · chuỗi đúng dài nhất {best}',
   reviewLastToday: 'Tập lần cuối hôm nay',
   reviewLastYesterday: 'Tập lần cuối hôm qua',

@@ -47,7 +47,9 @@ export function SiteHeader<L extends string>({
         <nav className="topnav" aria-label={navLabel}>
           {SITE_SECTIONS.filter(({ hidden }) => !hidden).map(({ id, href, group }, i, shown) => (
             <Fragment key={id}>
-              {i > 0 && shown[i - 1]!.group !== group && <span className="navsep" aria-hidden="true" />}
+              {i > 0 && shown[i - 1]!.group !== group && (
+                <span className="navsep" aria-hidden="true" />
+              )}
               <a
                 href={href}
                 className="navlink"

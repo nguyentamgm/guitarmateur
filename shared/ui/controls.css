@@ -2,88 +2,347 @@
 
 /* Site header (shared/ui/SiteHeader.tsx, on every page): brand · Lessons · Review · Practice · Ear training · language */
 /* A page without a body gutter (Practice, the ear trainer) wraps the header in .site-top: 16px gutters, as Theory's body has. */
-.site-top { padding: 0 16px; }
-.topbar { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding-block: 16px; border-bottom: 1px solid var(--line); }
-.brand { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
-.topbar-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.navlink { font-size: var(--t-small); font-weight: 600; text-decoration: none; }
-.topnav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
-.navsep { align-self: stretch; width: 1px; margin: 4px 0; background: var(--line); }
-.navlink[aria-current='page'] { color: var(--ink); text-decoration: underline 2px var(--accent); text-underline-offset: 6px; }
+.site-top {
+  padding: 0 16px;
+}
+.topbar {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.topbar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.navlink {
+  font-size: var(--t-small);
+  font-weight: 600;
+  text-decoration: none;
+}
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: center;
+}
+.navsep {
+  align-self: stretch;
+  width: 1px;
+  margin: 4px 0;
+  background: var(--line);
+}
+.navlink[aria-current='page'] {
+  color: var(--ink);
+  text-decoration: underline 2px var(--accent);
+  text-underline-offset: 6px;
+}
 
 /* Card: a surface holding a scene or a set of controls; `.controls` is a row of them. */
-.board { display: grid; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-board); padding: var(--s-4); min-width: 0; }
-.controls { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; }
+.board {
+  display: grid;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-board);
+  padding: var(--s-4);
+  min-width: 0;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  align-items: center;
+}
 
 /* Segmented control: a labelled radio group of chips, one checked (ChipGroup, OnOff). */
-.group { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
-.group > .globe { color: var(--muted); margin-right: 2px; }
-.group > span { font-size: var(--t-label); color: var(--muted); margin-right: 2px; font-family: var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; }
-.chip { font-family: var(--f-mono); font-size: var(--t-chip); padding: 5px 10px; min-width: 34px; border-radius: var(--r-chip); border: 1px solid var(--line); background: transparent; color: var(--ink); }
-.chip:hover { border-color: var(--muted); }
-.chip[aria-pressed='true'], .chip[aria-checked='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+.group > .globe {
+  color: var(--muted);
+  margin-right: 2px;
+}
+.group > span {
+  font-size: var(--t-label);
+  color: var(--muted);
+  margin-right: 2px;
+  font-family: var(--f-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chip {
+  font-family: var(--f-mono);
+  font-size: var(--t-chip);
+  padding: 5px 10px;
+  min-width: 34px;
+  border-radius: var(--r-chip);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+.chip:hover {
+  border-color: var(--muted);
+}
+.chip[aria-pressed='true'],
+.chip[aria-checked='true'] {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
 
 /* Button; `.ghost` is the outlined one. */
-.btn { font-size: var(--t-small); font-weight: 600; padding: 7px 14px; border-radius: var(--r-btn); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
-.btn.ghost { background: transparent; color: var(--accent); }
-.btn:hover { filter: brightness(1.07); }
+.btn {
+  font-size: var(--t-small);
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--r-btn);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--accent);
+}
+.btn:hover {
+  filter: brightness(1.07);
+}
 
 /* Slider: label, range, value (Slider); `.best` is an optional badge after it. */
-.slider { display: inline-flex; align-items: center; gap: var(--s-3); font-family: var(--f-mono); font-size: var(--t-chip); }
-.slider > span { font-size: var(--t-label); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
-.slider input { width: min(220px, 40vw); accent-color: var(--accent); }
-.slider output { min-width: 5.5em; font-variant-numeric: tabular-nums; }
-.slider > span.best { color: var(--accent); text-transform: none; letter-spacing: 0; }
+.slider {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--f-mono);
+  font-size: var(--t-chip);
+}
+.slider > span {
+  font-size: var(--t-label);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.slider input {
+  width: min(220px, 40vw);
+  accent-color: var(--accent);
+}
+.slider output {
+  min-width: 5.5em;
+  font-variant-numeric: tabular-nums;
+}
+.slider > span.best {
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 /* Hint panel: "Takeaway" / "Try it" (Ghi nhớ / Tự thử) as a two-column list. */
-.takeaways { display: grid; gap: 10px; margin: 0; }
-.takeaways div { display: grid; grid-template-columns: 7.5em 1fr; gap: 12px; }
-.takeaways dt { font-family: var(--f-mono); font-size: var(--t-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
-.takeaways dd { margin: 0; }
-.takeaways div:first-child dd { font-weight: 600; }
+.takeaways {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.takeaways div {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 12px;
+}
+.takeaways dt {
+  font-family: var(--f-mono);
+  font-size: var(--t-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 3px;
+}
+.takeaways dd {
+  margin: 0;
+}
+.takeaways div:first-child dd {
+  font-weight: 600;
+}
 @media (max-width: 560px) {
-  .takeaways div { grid-template-columns: 1fr; gap: 2px; }
+  .takeaways div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
 }
 
 /* Key picker (KeyPicker): each key's name, then its fret on the lowest string. */
-.finder { display: flex; flex-wrap: wrap; gap: 6px; }
-.finder button { font-family: var(--f-mono); font-size: 0.82rem; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 7px; padding: 5px 9px; font-variant-numeric: tabular-nums; }
-.finder button b { color: var(--accent); }
-.finder button:hover { border-color: var(--accent); }
-.finder button[aria-checked='true'] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
+.finder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.finder button {
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-variant-numeric: tabular-nums;
+}
+.finder button b {
+  color: var(--accent);
+}
+.finder button:hover {
+  border-color: var(--accent);
+}
+.finder button[aria-checked='true'] {
+  border-color: var(--accent);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
 
 /* Bar grid (BarGrid): lines of four bars, degree above the chord, the bar being heard filled. */
-.bars .bar rect { fill: var(--bg); stroke: var(--line); transition: fill 0.12s, stroke 0.12s; }
-.bars .bar text { text-anchor: middle; dominant-baseline: central; font-family: var(--f-mono); }
-.bars .deg { fill: var(--muted); font-size: 13px; }
-.bars .sym { fill: var(--ink); font-size: 18px; font-weight: 600; }
-.bars .bar.on rect { fill: var(--accent); stroke: var(--accent); }
-.bars .bar.on text { fill: var(--accent-ink); }
-.bars .mark { font-family: var(--f-mono); font-size: 12px; font-weight: 700; text-anchor: end; }
-.bars .mark.good { fill: var(--accent); }
-.bars .mark.bad { fill: var(--amber); }
+.bars .bar rect {
+  fill: var(--bg);
+  stroke: var(--line);
+  transition:
+    fill 0.12s,
+    stroke 0.12s;
+}
+.bars .bar text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-family: var(--f-mono);
+}
+.bars .deg {
+  fill: var(--muted);
+  font-size: 13px;
+}
+.bars .sym {
+  fill: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+}
+.bars .bar.on rect {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.bars .bar.on text {
+  fill: var(--accent-ink);
+}
+.bars .mark {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: end;
+}
+.bars .mark.good {
+  fill: var(--accent);
+}
+.bars .mark.bad {
+  fill: var(--amber);
+}
 
 /* A chip holding words rather than a short value: the body font. */
-.chip.text { font-family: var(--f-body); padding: 5px 12px; }
+.chip.text {
+  font-family: var(--f-body);
+  padding: 5px 12px;
+}
 
 /* Switch (Practice's Toggle): a track and a thumb; on = accent. The button is the 34×20 track
    grown by --hit-x / --hit-y a side (0 here, 40px to tap at phone width) and pulled back by its
    margins; ::before draws the track. Its baseline is its bottom edge, so the margins keep that
    edge on the track's and `top` centres it. */
-.toggle { --hit-x: 0px; --hit-y: 0px; position: relative; top: var(--hit-y); width: calc(34px + 2 * var(--hit-x)); height: calc(20px + 2 * var(--hit-y)); margin: calc(-2 * var(--hit-y)) calc(-1 * var(--hit-x)) 0; padding: 0; border: 0; background: none; flex-shrink: 0; }
-.toggle::before { content: ''; position: absolute; inset: var(--hit-y) var(--hit-x); border-radius: 999px; border: 1px solid var(--muted); background: var(--bg); transition: background-color 0.15s ease, border-color 0.15s ease; }
-.toggle--on::before { background: var(--accent); border-color: var(--accent); }
-.toggle:focus-visible { outline: none; }
-.toggle:focus-visible::before { outline: 2px solid var(--accent); outline-offset: 2px; }
-.toggle__thumb { position: absolute; top: calc(var(--hit-y) + 3px); left: calc(var(--hit-x) + 3px); width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform 0.15s ease, background-color 0.15s ease; }
-.toggle--on .toggle__thumb { transform: translateX(14px); background: var(--accent-ink); }
+.toggle {
+  --hit-x: 0px;
+  --hit-y: 0px;
+  position: relative;
+  top: var(--hit-y);
+  width: calc(34px + 2 * var(--hit-x));
+  height: calc(20px + 2 * var(--hit-y));
+  margin: calc(-2 * var(--hit-y)) calc(-1 * var(--hit-x)) 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  flex-shrink: 0;
+}
+.toggle::before {
+  content: '';
+  position: absolute;
+  inset: var(--hit-y) var(--hit-x);
+  border-radius: 999px;
+  border: 1px solid var(--muted);
+  background: var(--bg);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.toggle--on::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.toggle:focus-visible {
+  outline: none;
+}
+.toggle:focus-visible::before {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toggle__thumb {
+  position: absolute;
+  top: calc(var(--hit-y) + 3px);
+  left: calc(var(--hit-x) + 3px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+.toggle--on .toggle__thumb {
+  transform: translateX(14px);
+  background: var(--accent-ink);
+}
 
 /* Phone width: every control is at least 40px to tap. `.hit` is for an app's own small icon or
    text buttons. */
 @media (max-width: 560px) {
-  .chip, .finder button, .hit { min-width: 40px; min-height: 40px; }
-  .btn { min-height: 40px; }
-  .toggle { --hit-x: 3px; --hit-y: 10px; }
-  a.btn, .navlink, .brand { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; }
-  input[type='range'] { height: 40px; }
+  .chip,
+  .finder button,
+  .hit {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .btn {
+    min-height: 40px;
+  }
+  .toggle {
+    --hit-x: 3px;
+    --hit-y: 10px;
+  }
+  a.btn,
+  .navlink,
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+  }
+  input[type='range'] {
+    height: 40px;
+  }
 }

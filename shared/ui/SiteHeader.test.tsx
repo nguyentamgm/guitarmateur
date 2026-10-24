@@ -19,7 +19,13 @@ afterEach(() => {
   }
 });
 
-function render(props: { current?: SiteSection; language?: 'en' | 'vi'; onNavigate?: (e: MouseEvent<HTMLAnchorElement>, href: string) => void } = {}) {
+function render(
+  props: {
+    current?: SiteSection;
+    language?: 'en' | 'vi';
+    onNavigate?: (e: MouseEvent<HTMLAnchorElement>, href: string) => void;
+  } = {},
+) {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);

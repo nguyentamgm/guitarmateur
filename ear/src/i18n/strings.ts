@@ -68,9 +68,11 @@ const en = {
   /** The beginner levels (docs/ear-levels.md). The welcome, first visit only. */
   welcomeTitle: 'Train your ear, one small step at a time',
   welcomeLines: {
-    noMusic: "You don't need to know anything about music. You only need your ears, and later your guitar.",
+    noMusic:
+      "You don't need to know anything about music. You only need your ears, and later your guitar.",
     time: 'Each level takes a few minutes. 10 minutes a day is plenty.',
-    headphones: '🎧 Headphones or good speakers help. A phone speaker can make low notes hard to hear.',
+    headphones:
+      '🎧 Headphones or good speakers help. A phone speaker can make low notes hard to hear.',
   },
   checkSound: 'Check my sound',
   soundCheckQuestion: 'Can you hear the guitar?',
@@ -78,7 +80,8 @@ const en = {
   no: 'No',
   soundCheckHelp: 'Turn up the volume. On an iPhone, turn off the silent switch. Then try again.',
   tryAgain: 'Try again',
-  levelsNoAudio: 'Sound could not start in this browser, so the levels cannot play. On an iPhone, turn off the silent switch, then try again.',
+  levelsNoAudio:
+    'Sound could not start in this browser, so the levels cannot play. On an iPhone, turn off the silent switch, then try again.',
   /** The level map. */
   mapTitle: 'Your levels',
   continue: 'Continue',
@@ -117,7 +120,10 @@ const en = {
     12: { name: 'Add 4: the minor pentatonic', learn: 'All five notes of the minor pentatonic.' },
     13: { name: 'The blues note', learn: 'The ♭5, the tense note of the blues scale.' },
     14: { name: 'See it on the neck', learn: 'Where each sound you know sits on the guitar.' },
-    15: { name: 'Find the root on your guitar', learn: 'Hear a song, then find its root on your own guitar.' },
+    15: {
+      name: 'Find the root on your guitar',
+      learn: 'Hear a song, then find its root on your own guitar.',
+    },
   } as Readonly<Record<number, LevelText>>,
   /** The words of each level that can be played so far, by level id. */
   play: {
@@ -130,7 +136,8 @@ const en = {
       learned: 'if two notes are the same or different',
     },
     2: {
-      intro: "You'll hear two notes. Is the second one higher or lower than the first? 'Higher' is the sound of a thinner string, or a fret closer to your body.",
+      intro:
+        "You'll hear two notes. Is the second one higher or lower than the first? 'Higher' is the sound of a thinner string, or a fret closer to your body.",
       question: 'Was the second note higher or lower?',
       answers: { higher: 'Higher', lower: 'Lower' },
       heard: { higher: 'the second note is higher', lower: 'the second note is lower' },
@@ -151,7 +158,8 @@ const en = {
       learned: 'which way a short tune goes',
     },
     4: {
-      intro: "You'll hear two notes. Are they close together, or far apart? Close means 1 or 2 frets apart; far means a big jump.",
+      intro:
+        "You'll hear two notes. Are they close together, or far apart? Close means 1 or 2 frets apart; far means a big jump.",
       question: 'Were the two notes close together, or far apart?',
       answers: { close: 'Close', far: 'Far' },
       heard: { close: 'the notes are close together', far: 'the notes are far apart' },
@@ -168,7 +176,8 @@ const en = {
         'if a chord sounds happy or sad. Musicians call the happy chord major and the sad one minor',
     },
     6: {
-      intro: "You'll hear a few chords. Does it sound finished, like the end of a song, or does it sound like it should keep going?",
+      intro:
+        "You'll hear a few chords. Does it sound finished, like the end of a song, or does it sound like it should keep going?",
       question: 'Did it sound finished, or not?',
       answers: { finished: 'Finished', notFinished: 'Not finished' },
       heard: {
@@ -179,15 +188,20 @@ const en = {
       learned: 'when a tune has come home',
     },
     7: {
-      intro: "Every song has one note that feels like home: musicians call it the root. You'll hear some chords, then one note. Is it the root, or not?",
+      intro:
+        "Every song has one note that feels like home: musicians call it the root. You'll hear some chords, then one note. Is it the root, or not?",
       question: 'Was that note the root?',
       answers: { '1': 'Root', notRoot: 'Not the root' },
-      heard: { '1': 'the root, the note that sounds like home', notRoot: 'not the root: it wants to move' },
+      heard: {
+        '1': 'the root, the note that sounds like home',
+        notRoot: 'not the root: it wants to move',
+      },
       tip: 'A note that is not the root wants to go somewhere; the root can rest.',
       learned: 'the root, the note that sounds like home',
     },
     8: {
-      intro: 'After the root, the most solid note is called 5. It sounds strong, but not quite home. Musicians call the root 1.',
+      intro:
+        'After the root, the most solid note is called 5. It sounds strong, but not quite home. Musicians call the root 1.',
       question: 'Was that note 1 (the root) or 5?',
       answers: { '1': '1 (root)', '5': '5' },
       heard: { '1': '1, the root', '5': '5, strong but not quite home' },
@@ -195,7 +209,8 @@ const en = {
       learned: 'the root and the 5',
     },
     9: {
-      intro: 'Remember happy chords? They have three notes: 1, 3 and 5. The 3 is the one that makes them happy.',
+      intro:
+        'Remember happy chords? They have three notes: 1, 3 and 5. The 3 is the one that makes them happy.',
       question: 'Was that note 1, 3 or 5?',
       answers: { '1': '1', '3': '3', '5': '5' },
       heard: { '1': '1, the root', '3': '3, the happy note', '5': '5' },
@@ -203,7 +218,8 @@ const en = {
       learned: 'the 1, 3 and 5 of a happy chord',
     },
     10: {
-      intro: 'Sad chords have a 3 that is one fret lower. Musicians call it flat 3, written ♭3. This is the note that makes the blues sound bluesy.',
+      intro:
+        'Sad chords have a 3 that is one fret lower. Musicians call it flat 3, written ♭3. This is the note that makes the blues sound bluesy.',
       question: 'Which note was that?',
       answers: { '1': '1', b3: '♭3', '3': '3', '5': '5' },
       heard: { '1': '1, the root', b3: '♭3, the sad note', '3': '3, the happy note', '5': '5' },
@@ -211,7 +227,8 @@ const en = {
       learned: 'the ♭3 that makes a chord sad',
     },
     11: {
-      intro: "One more note: ♭7, two frets below the root. It's the note that makes a riff sound like rock or blues.",
+      intro:
+        "One more note: ♭7, two frets below the root. It's the note that makes a riff sound like rock or blues.",
       question: 'Which note was that?',
       answers: { '1': '1', b3: '♭3', '5': '5', b7: '♭7' },
       heard: { '1': '1, the root', b3: '♭3', '5': '5', b7: '♭7, the rock and blues note' },
@@ -219,7 +236,8 @@ const en = {
       learned: 'the ♭7, the note of rock and blues riffs',
     },
     12: {
-      intro: 'The last note of the scale: 4. Now you know all five notes of the minor pentatonic: 1, ♭3, 4, 5, ♭7.',
+      intro:
+        'The last note of the scale: 4. Now you know all five notes of the minor pentatonic: 1, ♭3, 4, 5, ♭7.',
       question: 'Which note was that?',
       answers: { '1': '1', b3: '♭3', '4': '4', '5': '5', b7: '♭7' },
       heard: { '1': '1, the root', b3: '♭3', '4': '4', '5': '5', b7: '♭7' },
@@ -227,15 +245,24 @@ const en = {
       learned: 'all five notes of the minor pentatonic',
     },
     13: {
-      intro: 'Add one note between 4 and 5, the blue note, written ♭5, and the pentatonic becomes the blues scale. It sounds tense and gritty, and it always wants to move.',
+      intro:
+        'Add one note between 4 and 5, the blue note, written ♭5, and the pentatonic becomes the blues scale. It sounds tense and gritty, and it always wants to move.',
       question: 'Which note was that?',
       answers: { '1': '1', b3: '♭3', '4': '4', '#4': '♭5', '5': '5', b7: '♭7' },
-      heard: { '1': '1, the root', b3: '♭3', '4': '4', '#4': '♭5, the blue note', '5': '5', b7: '♭7' },
+      heard: {
+        '1': '1, the root',
+        b3: '♭3',
+        '4': '4',
+        '#4': '♭5, the blue note',
+        '5': '5',
+        b7: '♭7',
+      },
       tip: 'The blue note never stays: listen for the note that wants to slide away.',
       learned: 'the blue note, and every note of the blues scale',
     },
     14: {
-      intro: 'Same notes as before, but now you answer on the guitar neck: tap the fret where the note is, counting from the root.',
+      intro:
+        'Same notes as before, but now you answer on the guitar neck: tap the fret where the note is, counting from the root.',
       question: 'Where is that note? Tap its fret.',
       answers: { '1': '1', b3: '♭3', '4': '4', '#4': '♭5', '5': '5', b7: '♭7' },
       heard: {
@@ -250,7 +277,8 @@ const en = {
       learned: 'where each note of the blues scale sits on the guitar',
     },
     15: {
-      intro: "You'll hear a short tune. Play along on your thickest string (string 6), one fret at a time, until a note sounds like home. Then tap that fret here.",
+      intro:
+        "You'll hear a short tune. Play along on your thickest string (string 6), one fret at a time, until a note sounds like home. Then tap that fret here.",
       question: 'Which fret of the thickest string sounds like home?',
       answers: {},
       heard: {
@@ -265,7 +293,16 @@ const en = {
   /** A Stage 1 wrong answer's picture: the notes on one string. */
   gapLabel: 'On the neck: the two notes are {n} frets apart',
   /** Shown before an answer's words, hidden from screen readers; the same in every language. */
-  answerIcons: { higher: '⬆', lower: '⬇', up: '⬆', down: '⬇', upDown: '⛰', downUp: '⌄', major: '🙂', minor: '🙁' } as Readonly<Record<string, string>>,
+  answerIcons: {
+    higher: '⬆',
+    lower: '⬇',
+    up: '⬆',
+    down: '⬇',
+    upDown: '⛰',
+    downUp: '⌄',
+    major: '🙂',
+    minor: '🙁',
+  } as Readonly<Record<string, string>>,
   /** From Stage 3 on, the feedback names the note's letter in the key. */
   heardRoot: 'that was the root: {note}',
   heardNotRoot: 'that was not the root: the note {note}, in the key of {key}',
@@ -289,7 +326,8 @@ const en = {
   fretCellLabel: 'fret {fret}',
   levelKeysTab: 'Keys: Space plays again, Tab to a fret, Enter goes on.',
   findRootRight: "Right! Fret {fret}: that's {note}. The song is in {key}.",
-  findRootWrong: 'Close! You picked fret {picked} ({pickedNote}). The root was fret {fret} ({note}). Play both on your guitar and hear which one feels like home.',
+  findRootWrong:
+    'Close! You picked fret {picked} ({pickedNote}). The root was fret {fret} ({note}). Play both on your guitar and hear which one feels like home.',
   /** Passing level 15, the last: the whole path done. */
   allDone: 'You finished every level!',
   allDoneNudge: 'Take your ears to your guitar:',
@@ -368,13 +406,15 @@ const vi: UiStrings = {
     '7': 'bậc 7',
   },
   footer: 'Âm thanh được tổng hợp ngay trong trình duyệt. Không theo dõi, không tải gì lên.',
-  neckLabel: 'Trên cần đàn: bậc {degree} ({note}) trong giọng {key}, tính từ root trên dây {string}',
+  neckLabel:
+    'Trên cần đàn: bậc {degree} ({note}) trong giọng {key}, tính từ root trên dây {string}',
   neckWords: { fret: 'phím {n}', string: 'dây {n}', root: 'root', target: 'nốt vừa nghe' },
   welcomeTitle: 'Luyện tai, từng bước nhỏ một',
   welcomeLines: {
     noMusic: 'Bạn không cần biết gì về nhạc. Bạn chỉ cần đôi tai, và sau này là cây đàn.',
     time: 'Mỗi cấp chỉ mất vài phút. Mỗi ngày 10 phút là đủ.',
-    headphones: '🎧 Tai nghe hoặc loa tốt sẽ giúp nghe rõ hơn. Loa điện thoại có thể làm nốt trầm khó nghe.',
+    headphones:
+      '🎧 Tai nghe hoặc loa tốt sẽ giúp nghe rõ hơn. Loa điện thoại có thể làm nốt trầm khó nghe.',
   },
   checkSound: 'Kiểm tra âm thanh',
   soundCheckQuestion: 'Bạn có nghe thấy tiếng đàn không?',
@@ -382,7 +422,8 @@ const vi: UiStrings = {
   no: 'Không',
   soundCheckHelp: 'Hãy tăng âm lượng. Trên iPhone, hãy tắt công tắc im lặng. Rồi thử lại.',
   tryAgain: 'Thử lại',
-  levelsNoAudio: 'Trình duyệt này không phát được âm thanh, nên chưa luyện được. Trên iPhone, hãy tắt công tắc im lặng rồi thử lại.',
+  levelsNoAudio:
+    'Trình duyệt này không phát được âm thanh, nên chưa luyện được. Trên iPhone, hãy tắt công tắc im lặng rồi thử lại.',
   mapTitle: 'Các cấp của bạn',
   continue: 'Tiếp tục',
   continueLabel: 'Tiếp tục: cấp {n}, {name}',
@@ -419,7 +460,10 @@ const vi: UiStrings = {
     12: { name: 'Thêm 4: minor pentatonic', learn: 'Đủ năm nốt của minor pentatonic.' },
     13: { name: 'Blue note', learn: 'Bậc ♭5, nốt căng của blues scale.' },
     14: { name: 'Xem trên cần đàn', learn: 'Mỗi âm bạn đã biết nằm ở đâu trên đàn.' },
-    15: { name: 'Tìm root trên đàn của bạn', learn: 'Nghe một bài, rồi tìm root của nó trên chính cây đàn của bạn.' },
+    15: {
+      name: 'Tìm root trên đàn của bạn',
+      learn: 'Nghe một bài, rồi tìm root của nó trên chính cây đàn của bạn.',
+    },
   },
   play: {
     1: {
@@ -431,7 +475,8 @@ const vi: UiStrings = {
       learned: 'hai nốt giống hay khác nhau',
     },
     2: {
-      intro: 'Bạn sẽ nghe hai nốt. Nốt thứ hai cao hơn hay thấp hơn nốt đầu? "Cao hơn" là tiếng của dây mảnh hơn, hoặc phím gần thân đàn hơn.',
+      intro:
+        'Bạn sẽ nghe hai nốt. Nốt thứ hai cao hơn hay thấp hơn nốt đầu? "Cao hơn" là tiếng của dây mảnh hơn, hoặc phím gần thân đàn hơn.',
       question: 'Nốt thứ hai cao hơn hay thấp hơn?',
       answers: { higher: 'Cao hơn', lower: 'Thấp hơn' },
       heard: { higher: 'nốt thứ hai cao hơn', lower: 'nốt thứ hai thấp hơn' },
@@ -452,7 +497,8 @@ const vi: UiStrings = {
       learned: 'một giai điệu ngắn đi lên hay đi xuống',
     },
     4: {
-      intro: 'Bạn sẽ nghe hai nốt. Chúng gần nhau, hay cách xa nhau? Gần là cách 1 hoặc 2 phím; xa là một bước nhảy lớn.',
+      intro:
+        'Bạn sẽ nghe hai nốt. Chúng gần nhau, hay cách xa nhau? Gần là cách 1 hoặc 2 phím; xa là một bước nhảy lớn.',
       question: 'Hai nốt đó gần nhau hay cách xa nhau?',
       answers: { close: 'Gần', far: 'Xa' },
       heard: { close: 'hai nốt gần nhau', far: 'hai nốt cách xa nhau' },
@@ -469,7 +515,8 @@ const vi: UiStrings = {
         'hợp âm vui hay buồn. Người chơi nhạc gọi hợp âm vui là hợp âm trưởng (major), hợp âm buồn là hợp âm thứ (minor)',
     },
     6: {
-      intro: 'Bạn sẽ nghe vài hợp âm. Nghe như đã kết thúc, như đoạn cuối một bài hát, hay như vẫn còn muốn đi tiếp?',
+      intro:
+        'Bạn sẽ nghe vài hợp âm. Nghe như đã kết thúc, như đoạn cuối một bài hát, hay như vẫn còn muốn đi tiếp?',
       question: 'Nghe đã kết thúc hay chưa?',
       answers: { finished: 'Đã hết', notFinished: 'Chưa hết' },
       heard: {
@@ -480,7 +527,8 @@ const vi: UiStrings = {
       learned: 'khi nào một giai điệu đã về nhà',
     },
     7: {
-      intro: 'Mỗi bài hát có một nốt nghe như ở nhà: người chơi nhạc gọi nó là root. Bạn sẽ nghe vài hợp âm, rồi một nốt. Đó có phải root không?',
+      intro:
+        'Mỗi bài hát có một nốt nghe như ở nhà: người chơi nhạc gọi nó là root. Bạn sẽ nghe vài hợp âm, rồi một nốt. Đó có phải root không?',
       question: 'Nốt đó có phải root không?',
       answers: { '1': 'Root', notRoot: 'Không phải root' },
       heard: { '1': 'root, nốt nghe như ở nhà', notRoot: 'không phải root: nốt đó muốn đi tiếp' },
@@ -488,7 +536,8 @@ const vi: UiStrings = {
       learned: 'root, nốt nghe như ở nhà',
     },
     8: {
-      intro: 'Sau root, nốt vững nhất gọi là bậc 5. Nó nghe chắc, nhưng chưa hẳn là nhà. Người chơi nhạc gọi root là bậc 1.',
+      intro:
+        'Sau root, nốt vững nhất gọi là bậc 5. Nó nghe chắc, nhưng chưa hẳn là nhà. Người chơi nhạc gọi root là bậc 1.',
       question: 'Nốt đó là bậc 1 (root) hay bậc 5?',
       answers: { '1': '1 (root)', '5': '5' },
       heard: { '1': 'bậc 1, root', '5': 'bậc 5, chắc nhưng chưa hẳn là nhà' },
@@ -504,7 +553,8 @@ const vi: UiStrings = {
       learned: 'bậc 1, 3 và 5 của hợp âm vui',
     },
     10: {
-      intro: 'Hợp âm buồn có bậc 3 thấp hơn một phím. Người chơi nhạc gọi nó là bậc 3 giáng (flat 3), viết là ♭3. Đây là nốt làm nhạc blues nghe chất blues.',
+      intro:
+        'Hợp âm buồn có bậc 3 thấp hơn một phím. Người chơi nhạc gọi nó là bậc 3 giáng (flat 3), viết là ♭3. Đây là nốt làm nhạc blues nghe chất blues.',
       question: 'Đó là nốt nào?',
       answers: { '1': '1', b3: '♭3', '3': '3', '5': '5' },
       heard: { '1': 'bậc 1, root', b3: 'bậc ♭3, nốt buồn', '3': 'bậc 3, nốt vui', '5': 'bậc 5' },
@@ -512,15 +562,22 @@ const vi: UiStrings = {
       learned: 'bậc ♭3 làm hợp âm nghe buồn',
     },
     11: {
-      intro: 'Thêm một nốt: bậc ♭7, thấp hơn root hai phím. Đây là nốt làm riff nghe chất rock, chất blues.',
+      intro:
+        'Thêm một nốt: bậc ♭7, thấp hơn root hai phím. Đây là nốt làm riff nghe chất rock, chất blues.',
       question: 'Đó là nốt nào?',
       answers: { '1': '1', b3: '♭3', '5': '5', b7: '♭7' },
-      heard: { '1': 'bậc 1, root', b3: 'bậc ♭3', '5': 'bậc 5', b7: 'bậc ♭7, nốt của rock và blues' },
+      heard: {
+        '1': 'bậc 1, root',
+        b3: 'bậc ♭3',
+        '5': 'bậc 5',
+        b7: 'bậc ♭7, nốt của rock và blues',
+      },
       tip: 'Bậc ♭7 nằm dưới root hai phím: nó muốn nhích lên về root.',
       learned: 'bậc ♭7, nốt của các riff rock và blues',
     },
     12: {
-      intro: 'Nốt cuối cùng của scale: bậc 4. Giờ bạn đã biết đủ năm nốt của minor pentatonic: 1, ♭3, 4, 5, ♭7.',
+      intro:
+        'Nốt cuối cùng của scale: bậc 4. Giờ bạn đã biết đủ năm nốt của minor pentatonic: 1, ♭3, 4, 5, ♭7.',
       question: 'Đó là nốt nào?',
       answers: { '1': '1', b3: '♭3', '4': '4', '5': '5', b7: '♭7' },
       heard: { '1': 'bậc 1, root', b3: 'bậc ♭3', '4': 'bậc 4', '5': 'bậc 5', b7: 'bậc ♭7' },
@@ -528,15 +585,24 @@ const vi: UiStrings = {
       learned: 'đủ năm nốt của minor pentatonic',
     },
     13: {
-      intro: 'Thêm một nốt giữa bậc 4 và bậc 5, blue note, viết là ♭5, và pentatonic thành blues scale. Nó nghe căng và gai góc, và luôn muốn đi tiếp.',
+      intro:
+        'Thêm một nốt giữa bậc 4 và bậc 5, blue note, viết là ♭5, và pentatonic thành blues scale. Nó nghe căng và gai góc, và luôn muốn đi tiếp.',
       question: 'Đó là nốt nào?',
       answers: { '1': '1', b3: '♭3', '4': '4', '#4': '♭5', '5': '5', b7: '♭7' },
-      heard: { '1': 'bậc 1, root', b3: 'bậc ♭3', '4': 'bậc 4', '#4': 'bậc ♭5, blue note', '5': 'bậc 5', b7: 'bậc ♭7' },
+      heard: {
+        '1': 'bậc 1, root',
+        b3: 'bậc ♭3',
+        '4': 'bậc 4',
+        '#4': 'bậc ♭5, blue note',
+        '5': 'bậc 5',
+        b7: 'bậc ♭7',
+      },
       tip: 'Blue note không bao giờ đứng yên: hãy nghe nốt muốn trượt đi.',
       learned: 'blue note, và mọi nốt của blues scale',
     },
     14: {
-      intro: 'Vẫn là những nốt cũ, nhưng giờ bạn trả lời trên cần đàn: bấm vào phím có nốt đó, đếm từ root.',
+      intro:
+        'Vẫn là những nốt cũ, nhưng giờ bạn trả lời trên cần đàn: bấm vào phím có nốt đó, đếm từ root.',
       question: 'Nốt đó ở đâu? Bấm vào phím của nó.',
       answers: { '1': '1', b3: '♭3', '4': '4', '#4': '♭5', '5': '5', b7: '♭7' },
       heard: {
@@ -551,7 +617,8 @@ const vi: UiStrings = {
       learned: 'mỗi nốt của blues scale nằm ở đâu trên đàn',
     },
     15: {
-      intro: 'Bạn sẽ nghe một giai điệu ngắn. Hãy chơi theo trên dây to nhất (dây 6), từng phím một, đến khi có một nốt nghe như về nhà. Rồi bấm vào phím đó ở đây.',
+      intro:
+        'Bạn sẽ nghe một giai điệu ngắn. Hãy chơi theo trên dây to nhất (dây 6), từng phím một, đến khi có một nốt nghe như về nhà. Rồi bấm vào phím đó ở đây.',
       question: 'Phím nào trên dây 6 nghe như về nhà?',
       answers: {},
       heard: {
@@ -564,7 +631,16 @@ const vi: UiStrings = {
     },
   },
   gapLabel: 'Trên cần đàn: hai nốt cách nhau {n} phím',
-  answerIcons: { higher: '⬆', lower: '⬇', up: '⬆', down: '⬇', upDown: '⛰', downUp: '⌄', major: '🙂', minor: '🙁' },
+  answerIcons: {
+    higher: '⬆',
+    lower: '⬇',
+    up: '⬆',
+    down: '⬇',
+    upDown: '⛰',
+    downUp: '⌄',
+    major: '🙂',
+    minor: '🙁',
+  },
   heardRoot: 'đó là root: {note}',
   heardNotRoot: 'đó không phải root: nốt {note}, trong giọng {key}',
   heardDegree: 'đó là bậc {degree}: nốt {note}, trong giọng {key}',
@@ -581,7 +657,8 @@ const vi: UiStrings = {
   fretCellLabel: 'phím {fret}',
   levelKeysTab: 'Phím tắt: Space để nghe lại, Tab để chọn phím, Enter để đi tiếp.',
   findRootRight: 'Đúng! Phím {fret}: đó là {note}. Bài này ở giọng {key}.',
-  findRootWrong: 'Gần rồi! Bạn chọn phím {picked} ({pickedNote}). Root là phím {fret} ({note}). Hãy chơi cả hai trên đàn và nghe xem nốt nào nghe như về nhà.',
+  findRootWrong:
+    'Gần rồi! Bạn chọn phím {picked} ({pickedNote}). Root là phím {fret} ({note}). Hãy chơi cả hai trên đàn và nghe xem nốt nào nghe như về nhà.',
   allDone: 'Bạn đã xong mọi cấp!',
   allDoneNudge: 'Giờ mang đôi tai đó lên đàn:',
   allDoneLink: 'sang Luyện tập',
