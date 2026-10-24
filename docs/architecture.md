@@ -18,7 +18,7 @@ No accounts, no server-side state: the app is a fully static SPA on free-tier ho
 everything the user does persists in `localStorage`.
 
 Two more pages share the site, its header and its look: **Theory** at `/theory`, visual
-music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear`, naming the degree
+music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, naming the degree
 of a note heard in a key ([`ear.md`](ear.md); being built, see #227). Each is a separate app that
 imports none of the others; what they share is in `shared/` (below).
 
@@ -43,7 +43,7 @@ imports none of the others; what they share is in `shared/` (below).
 │  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
-├─ ear/                         # the ear trainer (/ear) — see docs/ear.md
+├─ ear/                         # the ear trainer (/ear-training) — see docs/ear.md
 ├─ shared/                      # code the apps share, imported as @shared/… — see below
 │  ├─ core/                     # pure: neck.ts (string numbering, names per tuning); music/, rhythm/
 │  │                            # (Theory's); audio/ (synths, player, backings, scheduler, sequencer)

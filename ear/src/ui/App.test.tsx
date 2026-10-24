@@ -26,7 +26,7 @@ describe('ear trainer page', () => {
     localStorage.setItem('gm.lang', 'en');
     render();
     expect(host.querySelector('header nav a[aria-current="page"]')?.getAttribute('href')).toBe(
-      '/ear',
+      '/ear-training',
     );
     expect(host.querySelector('h1')?.textContent).toBe('Ear training');
     expect(document.title).toBe('Ear training · Guitarmateur');

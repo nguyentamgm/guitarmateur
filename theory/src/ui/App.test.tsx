@@ -125,7 +125,7 @@ describe('Theory app', () => {
     ]);
     expect(nav).toEqual([
       ['Practice', '/'],
-      ['Ear training', '/ear'],
+      ['Ear training', '/ear-training'],
       ['Theory', '/theory'],
       ['Tests', '/theory/review'],
     ]);

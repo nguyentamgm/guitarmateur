@@ -37,7 +37,7 @@ describe('App', () => {
       ]);
       expect(nav).toEqual([
         ['Practice', '/'],
-        ['Ear training', '/ear'],
+        ['Ear training', '/ear-training'],
         ['Theory', '/theory'],
         ['Tests', '/theory/review'],
       ]);
@@ -125,7 +125,7 @@ describe('App', () => {
       await act(async () => {
         root.render(createElement(App));
       });
-      const ear = () => container.querySelector('main a[href^="/ear"]');
+      const ear = () => container.querySelector('main a[href^="/ear-training"]');
       const pick = async (name: string) => {
         const b = [...container.querySelectorAll<HTMLButtonElement>('section [role="radio"]')].find(
           (x) => x.textContent === name,
@@ -133,10 +133,10 @@ describe('App', () => {
         await act(async () => b.click());
       };
       // Practice opens on A minor pentatonic.
-      expect(ear()?.getAttribute('href')).toBe('/ear?level=12&lang=en');
+      expect(ear()?.getAttribute('href')).toBe('/ear-training?level=12&lang=en');
       expect(ear()?.textContent).toBe('Train your ear on these notes');
       await pick('Minor blues');
-      expect(ear()?.getAttribute('href')).toBe('/ear?level=13&lang=en');
+      expect(ear()?.getAttribute('href')).toBe('/ear-training?level=13&lang=en');
       await pick('Major scale');
       expect(ear()).toBeNull();
     } finally {

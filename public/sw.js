@@ -4,8 +4,8 @@
 const CACHE_NAME = 'guitarmateur-v1';
 
 // Each app has its own shell document: the practice app at '/', the Theory app at '/theory', the
-// ear trainer at '/ear'.
-const SHELLS = ['/theory', '/ear'];
+// ear trainer at '/ear-training'.
+const SHELLS = ['/theory', '/ear-training'];
 const shellFor = (url) => {
   const { pathname } = new URL(url);
   return SHELLS.find((shell) => pathname === shell || pathname.startsWith(shell + '/')) ?? '/';
@@ -15,7 +15,14 @@ const shellFor = (url) => {
 // navigation; Chrome rejects it. Re-wrap it as a plain response.
 const servable = (res) =>
   res && res.redirected
-    ? res.blob().then((body) => new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers }))
+    ? res.blob().then(
+        (body) =>
+          new Response(body, {
+            status: res.status,
+            statusText: res.statusText,
+            headers: res.headers,
+          }),
+      )
     : res;
 
 // On install, cache the shell documents and nothing else — assets are cached on first fetch.
@@ -25,7 +32,9 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) =>
-        cache.add('/').then(() => Promise.all(SHELLS.map((shell) => cache.add(shell).catch(() => undefined)))),
+        cache
+          .add('/')
+          .then(() => Promise.all(SHELLS.map((shell) => cache.add(shell).catch(() => undefined)))),
       )
       .then(() => self.skipWaiting()),
   );
@@ -36,14 +45,16 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))),
+      )
       .then(() => self.clients.claim()),
   );
 });
 
 // Fetch strategy:
 //   - Navigation (HTML): network-first, fall back to the cached page, then to its app's shell
-//     ('/theory' for /theory/*, '/ear' for /ear, '/' otherwise).
+//     ('/theory' for /theory/*, '/ear-training' for /ear-training, '/' otherwise).
 //   - Everything else (JS/CSS/images/fonts): cache-first, update cache in background.
 self.addEventListener('fetch', (event) => {
   const { request } = event;

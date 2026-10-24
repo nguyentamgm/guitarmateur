@@ -61,7 +61,7 @@ describe('SiteHeader', () => {
     );
     expect(items).toEqual([
       ['Practice', '/'],
-      ['Ear training', '/ear'],
+      ['Ear training', '/ear-training'],
       '|',
       ['Theory', '/theory'],
       ['Tests', '/theory/review'],
@@ -70,7 +70,7 @@ describe('SiteHeader', () => {
 
   it.each([
     ['practice', '/'],
-    ['ear', '/ear'],
+    ['ear', '/ear-training'],
     ['lessons', '/theory'],
     ['review', '/theory/review'],
   ] as const)('marks %s as the current page', (current, href) => {

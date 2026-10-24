@@ -1,6 +1,13 @@
 import { useMemo } from 'react';
 import { format, SCALE_IDS, SCALES, TONICS } from '../../music';
-import { homeFret, mergedBox, positions, recommendedPosition, TUNINGS, type TuningId } from '../../fretboard';
+import {
+  homeFret,
+  mergedBox,
+  positions,
+  recommendedPosition,
+  TUNINGS,
+  type TuningId,
+} from '../../fretboard';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
 import { Panel, PillButton, StepHead, StepHints } from './primitives';
@@ -38,7 +45,10 @@ export function ScalePositionSection({
   const box = useMemo(() => mergedBox(pos, state.positions), [pos, state.positions]);
   // "A minor pentatonic": each scale's own phrase, since word order and case differ by scale.
   const name = t(`scaleTitle.${key.scaleId}`, { tonic: format(key.tonic) });
-  const title = state.positions.length > 1 ? t('scalebox.titleCombined', { name, min: box.minFret, max: box.maxFret }) : name;
+  const title =
+    state.positions.length > 1
+      ? t('scalebox.titleCombined', { name, min: box.minFret, max: box.maxFret })
+      : name;
   const tuning = TUNINGS[state.tuningId];
   const names = useMemo(() => tuningNames(tuning), [tuning]);
   // Up to the highest box, at least 12 frets, as Theory draws the whole neck.
@@ -53,7 +63,13 @@ export function ScalePositionSection({
         <Label style={{ marginTop: 0 }}>{t('scalebox.tuning')}</Label>
         <Row label={t('scalebox.tuning')}>
           {(Object.keys(TUNINGS) as TuningId[]).map((tuningId) => (
-            <PillButton key={tuningId} radio selected={tuningId === state.tuningId} wide onClick={() => dispatch({ type: 'setTuning', tuningId })}>
+            <PillButton
+              key={tuningId}
+              radio
+              selected={tuningId === state.tuningId}
+              wide
+              onClick={() => dispatch({ type: 'setTuning', tuningId })}
+            >
               {t(`tuning.${tuningId}`)}
             </PillButton>
           ))}
@@ -74,7 +90,13 @@ export function ScalePositionSection({
         <Label style={{ marginTop: 16 }}>{t('scalebox.scale')}</Label>
         <Row label={t('scalebox.scale')}>
           {SCALE_IDS.map((id) => (
-            <PillButton key={id} radio selected={id === key.scaleId} wide onClick={() => dispatch({ type: 'setScale', scaleId: id })}>
+            <PillButton
+              key={id}
+              radio
+              selected={id === key.scaleId}
+              wide
+              onClick={() => dispatch({ type: 'setScale', scaleId: id })}
+            >
               {t(`scale.${id}`)}
             </PillButton>
           ))}
@@ -83,7 +105,9 @@ export function ScalePositionSection({
         {/* The same notes, by ear: the ear trainer's level for this scale (#261), a plain link. */}
         {EAR_LEVELS[key.scaleId] !== undefined && (
           <div style={{ marginTop: 10, fontSize: 14 }}>
-            <a href={`/ear?level=${EAR_LEVELS[key.scaleId]}&lang=${state.language}`}>{t('scalebox.earLink')}</a>
+            <a href={`/ear-training?level=${EAR_LEVELS[key.scaleId]}&lang=${state.language}`}>
+              {t('scalebox.earLink')}
+            </a>
           </div>
         )}
 
@@ -99,7 +123,9 @@ export function ScalePositionSection({
               onClick={() => dispatch({ type: 'togglePosition', index: p.index })}
             >
               {t('scalebox.boxLabel', { n: i + 1 })}{' '}
-              <span style={{ fontFamily: font.mono, opacity: 0.75 }}>{t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}</span>
+              <span style={{ fontFamily: font.mono, opacity: 0.75 }}>
+                {t('scalebox.fretRange', { min: p.minFret, max: p.maxFret })}
+              </span>
               {p.index === rec && (
                 <span style={{ marginLeft: 6, fontWeight: 700 }}>{t('scalebox.recommended')}</span>
               )}
@@ -109,7 +135,16 @@ export function ScalePositionSection({
 
         {/* The whole neck: every box framed, the selected one(s) highlighted with their notes */}
         <div style={{ marginTop: 20 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px 18px',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}
+          >
             <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>{title}</div>
             <ChipGroup<LabelMode>
               label={t('scalebox.labels')}
@@ -163,7 +198,9 @@ export function ScalePositionSection({
 
 function Label({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 8, ...style }}>{children}</div>
+    <div style={{ fontSize: 13, color: theme.muted, fontWeight: 600, marginBottom: 8, ...style }}>
+      {children}
+    </div>
   );
 }
 

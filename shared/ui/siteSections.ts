@@ -13,7 +13,7 @@ export const SITE_SECTIONS: readonly {
   readonly hidden?: boolean;
 }[] = [
   { id: 'practice', href: '/', group: 'play' },
-  { id: 'ear', href: '/ear', group: 'play' },
+  { id: 'ear', href: '/ear-training', group: 'play' },
   { id: 'lessons', href: '/theory', group: 'theory' },
   { id: 'review', href: '/theory/review', group: 'theory' },
 ];

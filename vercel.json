@@ -1,8 +1,13 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/ear", "destination": "/ear-training", "permanent": true },
+    { "source": "/ear/:path*", "destination": "/ear-training", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/theory/(.*)", "destination": "/theory" },
-    { "source": "/ear/(.*)", "destination": "/ear" }
+    { "source": "/ear-training", "destination": "/ear" },
+    { "source": "/ear-training/(.*)", "destination": "/ear" }
   ],
   "headers": [
     {
