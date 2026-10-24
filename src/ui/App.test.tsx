@@ -28,14 +28,15 @@ describe('App', () => {
       expect(document.title).toBe('Practice · Guitarmateur');
       expect(description.getAttribute('content')).toMatch(/^Guitarmateur Practice: /);
 
-      // The shared site header: brand · Lessons · Review · Practice (current) · language.
+      // The shared site header: brand · Practice (current) · Ear training | Theory · Tests · language.
       const header = container.querySelector('header.topbar')!;
       expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
       const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
       expect(nav).toEqual([
-        ['Lessons', '/theory'],
-        ['Review', '/theory/review'],
         ['Practice', '/'],
+        ['Ear training', '/ear'],
+        ['Theory', '/theory'],
+        ['Tests', '/theory/review'],
       ]);
       expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
       // No sound toggle: nothing sounds until a click asks for it.
@@ -51,7 +52,7 @@ describe('App', () => {
       await act(async () => {
         language.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
-      expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+      expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Luyện tập', 'Luyện tai', 'Lý thuyết', 'Kiểm tra']);
       expect(container.querySelector('h1')?.textContent).toBe('Luyện tập');
       expect(document.title).toBe('Luyện tập · Guitarmateur');
       expect(description.getAttribute('content')).toMatch(/^Guitarmateur Luyện tập: /);

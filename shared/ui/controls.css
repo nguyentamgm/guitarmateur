@@ -8,6 +8,7 @@
 .topbar-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .navlink { font-size: var(--t-small); font-weight: 600; text-decoration: none; }
 .topnav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.navsep { align-self: stretch; width: 1px; margin: 4px 0; background: var(--line); }
 .navlink[aria-current='page'] { color: var(--ink); text-decoration: underline 2px var(--accent); text-underline-offset: 6px; }
 
 /* Card: a surface holding a scene or a set of controls; `.controls` is a row of them. */

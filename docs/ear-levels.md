@@ -3,7 +3,7 @@
 **Status:** plan, approved, not built yet; the work is tracked in #249. It replaces the trainer
 screen at `/ear` that #227 finished (#220–#225). The rest of the site (Lessons, Review, Practice)
 does not change.
-"Ear training" stays out of the site menu until Stage 1 and Stage 2 are built and tested.
+"Ear training" is back in the site menu (moved up front, next to Practice).
 
 ## Who this is for
 

@@ -108,27 +108,28 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('shows the shared header: brand, Lessons, Review, Practice, language', () => {
+  it('shows the shared header: brand, Practice, Ear training, Theory, Tests, language', () => {
     render('/theory/fretboard');
     const header = container.querySelector('header.topbar')!;
     expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
     expect(header.querySelector('a.brand')!.textContent).toBe('Guitarmateur');
     const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
     expect(nav).toEqual([
-      ['Lessons', '/theory'],
-      ['Review', '/theory/review'],
       ['Practice', '/'],
+      ['Ear training', '/ear'],
+      ['Theory', '/theory'],
+      ['Tests', '/theory/review'],
     ]);
-    // A lesson belongs to Lessons.
-    expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
+    // A lesson belongs to Theory.
+    expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Theory');
     expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
     click(container.querySelector('button[lang="vi"]')!);
-    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Luyện tập', 'Luyện tai', 'Lý thuyết', 'Kiểm tra']);
   });
 
-  it('highlights Review in the header on the review page', () => {
+  it('highlights Tests in the header on the review page', () => {
     render('/theory/review');
-    expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Review');
+    expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Tests');
   });
 
   it('tells a screen reader when playback starts and stops, in one polite region for the page', () => {
@@ -262,7 +263,7 @@ describe('Theory app', () => {
       render(`/theory/${last.slug}`);
       expect(card('prev')!.getAttribute('href')).toBe(`/theory/${LESSONS.at(-2)!.slug}`);
       expect(card('next')!.getAttribute('href')).toBe('/theory/review');
-      expect(card('next')!.textContent).toBe('ReviewWhich quiz to do next →');
+      expect(card('next')!.textContent).toBe('TestsWhich quiz to do next →');
     });
 
     it('navigates to the next lesson without a reload', () => {

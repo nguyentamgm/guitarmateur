@@ -22,10 +22,10 @@ afterEach(() => {
 const render = () => act(() => root.render(createElement(App)));
 
 describe('ear trainer page', () => {
-  it('is named Ear training but stays out of the header for now', () => {
+  it('is named Ear training and marked current in the header', () => {
     localStorage.setItem('gm.lang', 'en');
     render();
-    expect(host.querySelector('header nav a[href="/ear"]')).toBeNull();
+    expect(host.querySelector('header nav a[aria-current="page"]')?.getAttribute('href')).toBe('/ear');
     expect(host.querySelector('h1')?.textContent).toBe('Ear training');
     expect(document.title).toBe('Ear training · Guitarmateur');
   });

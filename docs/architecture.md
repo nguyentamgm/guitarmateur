@@ -121,9 +121,10 @@ has its own `fill()` and `platform/languages.ts`); `shared/i18n/glossary.ts`, wh
 over its own strings); `shared/platform/storage.ts`, the localStorage
 accessor the apps use; and the shared look in `shared/ui/` (Theory's, the reference):
 
-- `SiteHeader.tsx` + `siteSections.ts` — the site header on every page: brand · Lessons · Review ·
-  Practice · Ear training · language (styled in `controls.css`, `.topbar`). `SITE_SECTIONS` lists
-  each section's `href` in header order; each page passes its text (`labels`), the section it
+- `SiteHeader.tsx` + `siteSections.ts` — the site header on every page: brand · Practice · Ear
+  training | Theory · Tests · language (styled in `controls.css`, `.topbar`; the `|` is a separator
+  drawn where a section's `group` changes). `SITE_SECTIONS` lists each section's `href` in header
+  order; each page passes its text (`labels`), the section it
   belongs to (`current`) and its languages. Links are plain `<a href>`s; Theory moves between its
   own pages client-side through `onNavigate`.
 

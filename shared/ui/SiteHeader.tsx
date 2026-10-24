@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import { Fragment, type MouseEvent } from 'react';
 import { RadioGroup } from './controls';
 import { GlobeIcon } from './GlobeIcon';
 import { SITE_SECTIONS, type SiteSection } from './siteSections';
@@ -11,7 +11,7 @@ export interface SiteLanguage<L extends string> {
 }
 
 /**
- * The site header, the same on every page: brand · Lessons · Review · Practice · Ear training ·
+ * The site header, the same on every page: brand · Practice · Ear training | Theory · Tests ·
  * language. The text comes from the page (no copy lives in shared/). Links are plain `<a href>`s;
  * a page that navigates its own sections client-side (Theory) handles the click in `onNavigate`.
  */
@@ -45,16 +45,18 @@ export function SiteHeader<L extends string>({
       </a>
       <div className="topbar-tools">
         <nav className="topnav" aria-label={navLabel}>
-          {SITE_SECTIONS.filter(({ hidden }) => !hidden).map(({ id, href }) => (
-            <a
-              key={id}
-              href={href}
-              className="navlink"
-              aria-current={id === current ? 'page' : undefined}
-              onClick={onNavigate && ((e) => onNavigate(e, href))}
-            >
-              {labels[id]}
-            </a>
+          {SITE_SECTIONS.filter(({ hidden }) => !hidden).map(({ id, href, group }, i, shown) => (
+            <Fragment key={id}>
+              {i > 0 && shown[i - 1]!.group !== group && <span className="navsep" aria-hidden="true" />}
+              <a
+                href={href}
+                className="navlink"
+                aria-current={id === current ? 'page' : undefined}
+                onClick={onNavigate && ((e) => onNavigate(e, href))}
+              >
+                {labels[id]}
+              </a>
+            </Fragment>
           ))}
         </nav>
         <RadioGroup className="group" label={languageLabel}>
