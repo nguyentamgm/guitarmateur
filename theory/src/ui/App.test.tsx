@@ -52,8 +52,11 @@ function render(path: string, player = fakePlayer().player) {
 }
 const text = () => container.textContent ?? '';
 const button = (label: string) =>
-  [...container.querySelectorAll('button')].find((b) => b.textContent === label || b.getAttribute('aria-label') === label)!;
-const click = (el: Element) => act(() => el.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0 })));
+  [...container.querySelectorAll('button')].find(
+    (b) => b.textContent === label || b.getAttribute('aria-label') === label,
+  )!;
+const click = (el: Element) =>
+  act(() => el.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 0 })));
 
 beforeEach(() => {
   localStorage.clear();
@@ -69,7 +72,10 @@ afterEach(() => {
 /** A Practice link's language and share state, read back as the practice app does. */
 function payload(a: Element) {
   const url = new URL(a.getAttribute('href')!, 'https://x.test');
-  return { lang: url.searchParams.get('lang'), state: JSON.parse(decodeURIComponent(atob(url.searchParams.get('s')!.slice(3)))) };
+  return {
+    lang: url.searchParams.get('lang'),
+    state: JSON.parse(decodeURIComponent(atob(url.searchParams.get('s')!.slice(3)))),
+  };
 }
 
 describe('Theory app', () => {
@@ -108,27 +114,38 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('shows the shared header: brand, Lessons, Review, Practice, language', () => {
+  it('shows the shared header: brand, Practice, Ear training, Theory, Tests, language', () => {
     render('/theory/fretboard');
     const header = container.querySelector('header.topbar')!;
     expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
     expect(header.querySelector('a.brand')!.textContent).toBe('Guitarmateur');
-    const nav = [...header.querySelectorAll('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
-    expect(nav).toEqual([
-      ['Lessons', '/theory'],
-      ['Review', '/theory/review'],
-      ['Practice', '/'],
+    const nav = [...header.querySelectorAll('nav a')].map((a) => [
+      a.textContent,
+      a.getAttribute('href'),
     ]);
-    // A lesson belongs to Lessons.
-    expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Lessons');
-    expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe('Language');
+    expect(nav).toEqual([
+      ['Practice', '/'],
+      ['Ear training', '/ear-training'],
+      ['Theory', '/theory'],
+      ['Tests', '/theory/review'],
+    ]);
+    // A lesson belongs to Theory.
+    expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Theory');
+    expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe(
+      'Language',
+    );
     click(container.querySelector('button[lang="vi"]')!);
-    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual(['Bài học', 'Ôn tập', 'Luyện tập']);
+    expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual([
+      'Luyện tập',
+      'Luyện tai',
+      'Lý thuyết',
+      'Kiểm tra',
+    ]);
   });
 
-  it('highlights Review in the header on the review page', () => {
+  it('highlights Tests in the header on the review page', () => {
     render('/theory/review');
-    expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Review');
+    expect(container.querySelector('header nav a[aria-current="page"]')!.textContent).toBe('Tests');
   });
 
   it('tells a screen reader when playback starts and stops, in one polite region for the page', () => {
@@ -137,7 +154,10 @@ describe('Theory app', () => {
     expect(status).toHaveLength(1);
     expect(status[0]!.className).toBe('sr-only');
     expect(status[0]!.textContent).toBe('Stopped');
-    const play = (id: string) => [...container.querySelectorAll(`section#${id} button`)].find((b) => b.textContent === 'Play' || b.textContent === 'Stop')!;
+    const play = (id: string) =>
+      [...container.querySelectorAll(`section#${id} button`)].find(
+        (b) => b.textContent === 'Play' || b.textContent === 'Stop',
+      )!;
     click(play('twelveBar'));
     expect(status[0]!.textContent).toBe('Playing');
     // Starting another backing stops the first: still playing, nothing to tell.
@@ -158,7 +178,9 @@ describe('Theory app', () => {
 
   it('lists the lessons in order, the fretboard first', () => {
     render('/theory');
-    const cards = [...container.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
+    const cards = [...container.querySelectorAll('a.lesson-card')].map((a) =>
+      a.getAttribute('href'),
+    );
     expect(cards).toEqual(LESSONS.map((l) => `/theory/${l.slug}`));
     expect(cards[0]).toBe('/theory/fretboard');
   });
@@ -208,14 +230,22 @@ describe('Theory app', () => {
     click([...boxes.querySelectorAll('button')].find((b) => b.textContent === '3')!);
     const link = boxes.querySelector('a.trainer')!;
     expect(link.textContent).toBe('Practise licks in Practice, over Am7–Dm7 →');
-    expect(payload(link).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, positions: [2] });
+    expect(payload(link).state).toMatchObject({
+      key: { scaleId: 'minorPentatonic' },
+      positions: [2],
+    });
     expect(payload(link).lang).toBe('en');
     expect(container.querySelector('section#keys a.trainer')).not.toBeNull();
     // Same notes, other root: C major pentatonic over C and F.
     const home = container.querySelector('section#home')!;
     click([...home.querySelectorAll('button')].find((b) => b.textContent === 'C major')!);
-    expect(home.querySelector('a.trainer')!.textContent).toBe('Practise licks in Practice, over C–F →');
-    expect(payload(home.querySelector('a.trainer')!).state.key).toEqual({ tonic: { letter: 'C', alter: 0 }, scaleId: 'majorPentatonic' });
+    expect(home.querySelector('a.trainer')!.textContent).toBe(
+      'Practise licks in Practice, over C–F →',
+    );
+    expect(payload(home.querySelector('a.trainer')!).state.key).toEqual({
+      tonic: { letter: 'C', alter: 0 },
+      scaleId: 'majorPentatonic',
+    });
 
     click(container.querySelector('button[lang="vi"]')!);
     expect(link.textContent).toBe('Tập lick trong app Luyện tập, trên Am7–Dm7 →');
@@ -225,15 +255,25 @@ describe('Theory app', () => {
   it("swings Practice for the soloing lesson's shuffle backing, not for a straight one", () => {
     render('/theory/solo');
     const scene = container.querySelector('section#scale')!;
-    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'blues' }, swingEnabled: true });
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({
+      key: { scaleId: 'blues' },
+      swingEnabled: true,
+    });
     click([...scene.querySelectorAll('button')].find((b) => b.textContent?.startsWith('Rock'))!);
-    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, swingEnabled: false });
+    expect(payload(scene.querySelector('a.trainer')!).state).toMatchObject({
+      key: { scaleId: 'minorPentatonic' },
+      swingEnabled: false,
+    });
   });
 
   it('links the 12-bar blues to Practice: the minor blues scale, the form, swing on', () => {
     render('/theory/blues');
     const blues = container.querySelector('section#twelveBar a.trainer')!;
-    expect(payload(blues).state).toMatchObject({ key: { scaleId: 'blues' }, swingEnabled: true, tempoBpm: 84 });
+    expect(payload(blues).state).toMatchObject({
+      key: { scaleId: 'blues' },
+      swingEnabled: true,
+      tempoBpm: 84,
+    });
     expect(payload(blues).state.progression).toHaveLength(7);
   });
 
@@ -262,7 +302,7 @@ describe('Theory app', () => {
       render(`/theory/${last.slug}`);
       expect(card('prev')!.getAttribute('href')).toBe(`/theory/${LESSONS.at(-2)!.slug}`);
       expect(card('next')!.getAttribute('href')).toBe('/theory/review');
-      expect(card('next')!.textContent).toBe('ReviewWhich quiz to do next →');
+      expect(card('next')!.textContent).toBe('TestsWhich quiz to do next →');
     });
 
     it('navigates to the next lesson without a reload', () => {
@@ -272,14 +312,17 @@ describe('Theory app', () => {
       expect(document.title).toBe(`${LESSONS[1]!.copy.en.title} · Guitarmateur Theory`);
     });
 
-    it.each(LESSONS.map((l) => [l.slug, l] as const))('%s links to Practice only if it has a Practice key', (slug, lesson) => {
-      render(`/theory/${slug}`);
-      const link = nav().querySelector('a.trainer');
-      expect(link !== null).toBe(lesson.practice !== undefined);
-      if (!link) return;
-      expect(link.textContent).toBe('Practise licks from this lesson in Practice →');
-      expect(payload(link).lang).toBe('en');
-    });
+    it.each(LESSONS.map((l) => [l.slug, l] as const))(
+      '%s links to Practice only if it has a Practice key',
+      (slug, lesson) => {
+        render(`/theory/${slug}`);
+        const link = nav().querySelector('a.trainer');
+        expect(link !== null).toBe(lesson.practice !== undefined);
+        if (!link) return;
+        expect(link.textContent).toBe('Practise licks from this lesson in Practice →');
+        expect(payload(link).lang).toBe('en');
+      },
+    );
 
     it("opens Practice on the lesson's key and chords", () => {
       localStorage.setItem(LANG_STORAGE_KEY, 'vi');
@@ -287,14 +330,21 @@ describe('Theory app', () => {
       const link = nav().querySelector('a.trainer')!;
       expect(link.textContent).toBe('Tập lick của bài này trong app Luyện tập →');
       expect(payload(link).lang).toBe('vi');
-      expect(payload(link).state).toMatchObject({ key: { tonic: { letter: 'A', alter: 0 }, scaleId: 'blues' }, swingEnabled: true, tempoBpm: 84 });
+      expect(payload(link).state).toMatchObject({
+        key: { tonic: { letter: 'A', alter: 0 }, scaleId: 'blues' },
+        swingEnabled: true,
+        tempoBpm: 84,
+      });
       expect(payload(link).state.progression).toHaveLength(7);
     });
 
     it('opens Practice over a vamp when the lesson has no chords of its own', () => {
       render('/theory/pentatonic');
       // No chords of its own: the A minor vamp (Am7, Dm7), from box 1.
-      expect(payload(nav().querySelector('a.trainer')!).state).toMatchObject({ key: { scaleId: 'minorPentatonic' }, positions: [0] });
+      expect(payload(nav().querySelector('a.trainer')!).state).toMatchObject({
+        key: { scaleId: 'minorPentatonic' },
+        positions: [0],
+      });
       expect(payload(nav().querySelector('a.trainer')!).state.progression).toHaveLength(2);
     });
   });
@@ -324,21 +374,28 @@ describe('Theory app', () => {
   it('shows octave links for the picked note', () => {
     render('/theory/fretboard');
     const section = container.querySelector('section#octaves')!;
-    expect(section.querySelector('.caption')!.textContent).toBe('A: 8 places on the first 15 frets');
+    expect(section.querySelector('.caption')!.textContent).toBe(
+      'A: 8 places on the first 15 frets',
+    );
     click([...section.querySelectorAll('button')].find((b) => b.textContent === 'E')!);
-    expect(section.querySelector('.caption')!.textContent).toBe('E: 9 places on the first 15 frets');
+    expect(section.querySelector('.caption')!.textContent).toBe(
+      'E: 9 places on the first 15 frets',
+    );
     expect(section.querySelectorAll('.olink.b').length).toBeGreaterThan(0);
   });
 
   it('marks the home-note quiz: wrong string, wrong fret, then right', () => {
     render('/theory/fretboard');
     const section = container.querySelector('section#home')!;
-    const q = /^Find ([A-G]) on string ([56])$/.exec(section.querySelector('.question')!.textContent!)!;
+    const q = /^Find ([A-G]) on string ([56])$/.exec(
+      section.querySelector('.question')!.textContent!,
+    )!;
     const [name, string] = [q[1]!, Number(q[2]) as 6 | 5];
     const other = string === 6 ? 5 : 6;
     const homeFret = naturalHomeFret(name, string);
     const caption = () => section.querySelector('.caption')!.textContent;
-    const dot = (s: number, f: number) => section.querySelector(`.dot[aria-label*="fret ${f}, string ${s}"]`)!;
+    const dot = (s: number, f: number) =>
+      section.querySelector(`.dot[aria-label*="fret ${f}, string ${s}"]`)!;
 
     click(dot(other, 1));
     expect(caption()).toBe(`Right idea, wrong string: look on string ${string}.`);
@@ -350,12 +407,16 @@ describe('Theory app', () => {
     click(button('Next note'));
     expect(caption()).toBe('');
     // A miss counts even when the question is skipped.
-    const next = /^Find [A-G] on string ([56])$/.exec(section.querySelector('.question')!.textContent!)!;
+    const next = /^Find [A-G] on string ([56])$/.exec(
+      section.querySelector('.question')!.textContent!,
+    )!;
     click(dot(Number(next[1]) === 6 ? 5 : 6, 1));
     click(button('Next note'));
     expect(section.textContent).toContain('First try: 0 of 2');
     // Both settled questions are stored for the review page.
-    expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['fretboard-root']).toMatchObject({ right: 0, total: 2 });
+    expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['fretboard-root']).toMatchObject(
+      { right: 0, total: 2 },
+    );
   });
 
   it('asks sharps and flats once the quiz is switched to all 12', () => {
@@ -382,7 +443,9 @@ describe('Theory app', () => {
       const caption = () => section.querySelector('.caption')!.textContent;
       expect(caption()).toBe('Each letter once: F G A B♭ C D E');
       click(chip(section, 'A♯'));
-      expect(caption()).toBe('A♯ uses the letter A twice and leaves B out. That is why F major has B♭.');
+      expect(caption()).toBe(
+        'A♯ uses the letter A twice and leaves B out. That is why F major has B♭.',
+      );
       expect(section.querySelector('.letters .twice')!.textContent).toBe('AA A♯');
       expect(section.querySelector('.letters .empty')!.textContent).toBe('B');
     });
@@ -417,7 +480,9 @@ describe('Theory app', () => {
 
   describe('rhythm', () => {
     beforeEach(() => {
-      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+      vi.useFakeTimers({
+        toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+      });
     });
     afterEach(() => {
       vi.useRealTimers();
@@ -470,7 +535,9 @@ describe('Theory app', () => {
       const { player, plucked } = fakePlayer();
       render('/theory/rhythm', player);
       const section = container.querySelector('section#lengths')!;
-      expect(section.querySelector('.caption')!.textContent).toBe('Quarter: beats per note 1 · notes per bar 4');
+      expect(section.querySelector('.caption')!.textContent).toBe(
+        'Quarter: beats per note 1 · notes per bar 4',
+      );
       const blocks = () => [...section.querySelectorAll('.block')];
       click(blocks()[1]!);
       click(blocks()[3]!);
@@ -484,7 +551,9 @@ describe('Theory app', () => {
     it('labels the count under the grid in the chosen language', () => {
       localStorage.setItem(LANG_STORAGE_KEY, 'vi');
       render('/theory/rhythm');
-      const words = [...container.querySelectorAll('section#counting .word')].map((w) => w.textContent);
+      const words = [...container.querySelectorAll('section#counting .word')].map(
+        (w) => w.textContent,
+      );
       expect(words).toEqual(['1', 'và', '2', 'và', '3', 'và', '4', 'và']);
     });
 
@@ -500,7 +569,9 @@ describe('Theory app', () => {
 
   describe('solo take (K7.6)', () => {
     beforeEach(() => {
-      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+      vi.useFakeTimers({
+        toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+      });
     });
     afterEach(() => {
       vi.useRealTimers();
@@ -511,14 +582,17 @@ describe('Theory app', () => {
       const { player, plucked } = fakePlayer();
       render('/theory/solo', player);
       const section = container.querySelector('section#record')!;
-      const inSection = (label: string) => [...section.querySelectorAll('button')].find((b) => b.textContent === label)!;
+      const inSection = (label: string) =>
+        [...section.querySelectorAll('button')].find((b) => b.textContent === label)!;
       const caption = () => section.querySelector('.caption')!.textContent;
       click(inSection('Pop I–V–vi–IV')); // G, D, Em, C at 92 BPM: a bar is about 2.6 s
       click(inSection('Record'));
       advance(300);
       expect(caption()).toBe('Recording · bar 1, G. Click notes on the box.');
       // Bar 1: the G chord's root, labelled 1.
-      const root = [...section.querySelectorAll('.dot')].find((d) => d.querySelector('text')?.textContent === '1')!;
+      const root = [...section.querySelectorAll('.dot')].find(
+        (d) => d.querySelector('text')?.textContent === '1',
+      )!;
       click(root);
       advance(2700);
       expect(caption()).toBe('Recording · bar 2, D. Click notes on the box.');
@@ -529,13 +603,19 @@ describe('Theory app', () => {
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
       // The finished pass is kept in this browser.
       expect(localStorage.getItem(TAKE_STORAGE_KEY)).toMatch(/^1\.pop\.G\.92\./);
-      expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', '✗']);
-      expect(section.querySelector('[aria-label="Your take, with the count each note starts on"]')).not.toBeNull();
+      expect(
+        [...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent),
+      ).toEqual(['✓ 1', '✗']);
+      expect(
+        section.querySelector('[aria-label="Your take, with the count each note starts on"]'),
+      ).not.toBeNull();
       expect(inSection('Clear')).toBeDefined();
 
       // Bar 2's crossed first note, moved to the nearest D chord tone.
       click(inSection('Landings fixed'));
-      expect([...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent)).toEqual(['✓ 1', expect.stringMatching(/^✓ /)]);
+      expect(
+        [...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent),
+      ).toEqual(['✓ 1', expect.stringMatching(/^✓ /)]);
       expect(caption()).toBe(
         '2 of 2 bars landed on a chord tone · 2 of 2 notes were chord tones. Landings fixed: 1, each crossed first note moved to the nearest chord tone. Hear both and compare.',
       );
@@ -552,18 +632,32 @@ describe('Theory app', () => {
 
   describe('saved and shared takes', () => {
     const box = backingWindow('pop', parseNote('G'));
-    const code = encodeTake({ id: 'pop', tonic: parseNote('G'), bpm: 92, take: recordNote([], box.notes[4]!, 0) });
+    const code = encodeTake({
+      id: 'pop',
+      tonic: parseNote('G'),
+      bpm: 92,
+      take: recordNote([], box.notes[4]!, 0),
+    });
 
     it('opens a shared link on its backing and take, without touching your own saved take', () => {
-      const mine = encodeTake({ id: 'blues', tonic: parseNote('A'), bpm: 84, take: recordNote([], backingWindow('blues', parseNote('A')).notes[2]!, 0) });
+      const mine = encodeTake({
+        id: 'blues',
+        tonic: parseNote('A'),
+        bpm: 84,
+        take: recordNote([], backingWindow('blues', parseNote('A')).notes[2]!, 0),
+      });
       localStorage.setItem(TAKE_STORAGE_KEY, mine);
       render(`/theory/solo?take=${encodeURIComponent(code)}#record`);
       expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe(mine);
       expect(window.location.search).toBe('');
       expect(window.location.hash).toBe('#record');
       const section = container.querySelector('section#record')!;
-      expect(section.querySelector('.caption')!.textContent).toBe('A shared take. Press Hear it back to hear it over its backing.');
-      expect([...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back')).toBe(true);
+      expect(section.querySelector('.caption')!.textContent).toBe(
+        'A shared take. Press Hear it back to hear it over its backing.',
+      );
+      expect(
+        [...section.querySelectorAll('button')].some((b) => b.textContent === 'Hear it back'),
+      ).toBe(true);
       expect(section.querySelector('[aria-checked="true"]')!.textContent).toBe('Pop I–V–vi–IV');
     });
 
@@ -571,7 +665,9 @@ describe('Theory app', () => {
       localStorage.setItem(TAKE_STORAGE_KEY, code);
       render('/theory/solo');
       const section = container.querySelector('section#record')!;
-      expect(section.querySelector('.caption')!.textContent).toBe('Your last take is back. Press Hear it back, or Record a new one.');
+      expect(section.querySelector('.caption')!.textContent).toBe(
+        'Your last take is back. Press Hear it back, or Record a new one.',
+      );
       click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Clear')!);
       expect(localStorage.getItem(TAKE_STORAGE_KEY)).toBe('');
     });
@@ -595,7 +691,9 @@ describe('Theory app', () => {
       expect(status('rhythm')).toBeNull();
       expect(container.querySelectorAll('.lesson-status')).toHaveLength(QUIZZES.length);
       // A space keeps the title and the status apart in the link's name.
-      expect(container.querySelector('a.lesson-card[href="/theory/blues"] .lesson-title')!.textContent).toBe(`${blues.copy.en.title} Quiz in progress`);
+      expect(
+        container.querySelector('a.lesson-card[href="/theory/blues"] .lesson-title')!.textContent,
+      ).toBe(`${blues.copy.en.title} Quiz in progress`);
 
       click(container.querySelector('button[lang="vi"]')!);
       expect(status('fretboard')).toBe('Chưa làm bài đố');
@@ -633,7 +731,9 @@ describe('Theory app', () => {
       const section = container.querySelector('section#choose')!;
       click([...section.querySelectorAll('button')].find((b) => b.textContent === 'Next song')!);
       expect(section.textContent).toContain('0 of 1');
-      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['pentatonic-shape']).toMatchObject({ right: 0, total: 1 });
+      expect(
+        JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['pentatonic-shape'],
+      ).toMatchObject({ right: 0, total: 1 });
     });
 
     it('records the ear quiz: a wrong note says which way, then the idea is found', () => {
@@ -651,15 +751,22 @@ describe('Theory app', () => {
       expect(caption()).toBe(`1 of ${q.length} notes found.`);
       const wrong = earWindow().notes.find((n) => n.midi !== q[1]!.midi)!;
       click(dot(wrong));
-      expect(caption()).toBe(`Not ${wrong.name}: the next note is ${wrong.midi < q[1]!.midi ? 'higher' : 'lower'}.`);
+      expect(caption()).toBe(
+        `Not ${wrong.name}: the next note is ${wrong.midi < q[1]!.midi ? 'higher' : 'lower'}.`,
+      );
       for (const n of q.slice(1)) click(dot(n));
       expect(caption()).toMatch(/^Found it: /);
-      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['solo-ear']).toMatchObject({ right: 0, total: 1 });
+      expect(JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY)!)['solo-ear']).toMatchObject({
+        right: 0,
+        total: 1,
+      });
     });
 
     it('is reachable from the header and the contents', () => {
       render('/theory');
-      const links = [...container.querySelectorAll('a')].filter((a) => a.getAttribute('href') === '/theory/review');
+      const links = [...container.querySelectorAll('a')].filter(
+        (a) => a.getAttribute('href') === '/theory/review',
+      );
       expect(links).toHaveLength(2);
       click(links[1]!);
       expect(window.location.pathname).toBe('/theory/review');
@@ -669,7 +776,9 @@ describe('Theory app', () => {
 
   it('remembers a drill tempo across visits', () => {
     render('/theory/three-per-string');
-    const slider = container.querySelector('section#triplets input[type="range"]') as HTMLInputElement;
+    const slider = container.querySelector(
+      'section#triplets input[type="range"]',
+    ) as HTMLInputElement;
     act(() => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(slider, '84');
       slider.dispatchEvent(new Event('input', { bubbles: true }));
@@ -678,7 +787,9 @@ describe('Theory app', () => {
     act(() => root.unmount());
     root = createRoot(container);
     render('/theory/three-per-string');
-    expect((container.querySelector('section#triplets input[type="range"]') as HTMLInputElement).value).toBe('84');
+    expect(
+      (container.querySelector('section#triplets input[type="range"]') as HTMLInputElement).value,
+    ).toBe('84');
   });
 
   it('shows the contents with a notice for an unknown lesson', () => {

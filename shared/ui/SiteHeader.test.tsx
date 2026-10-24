@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SiteHeader } from './SiteHeader';
 import type { SiteSection } from './siteSections';
 
-const LABELS = { lessons: 'Lessons', review: 'Review', practice: 'Practice', ear: 'Ear training' };
+const LABELS = { practice: 'Practice', ear: 'Ear training', lessons: 'Theory', review: 'Tests' };
 const LANGUAGES = [
   { id: 'en', tag: 'en', name: 'English' },
   { id: 'vi', tag: 'vi', name: 'Tiếng Việt' },
@@ -19,7 +19,13 @@ afterEach(() => {
   }
 });
 
-function render(props: { current?: SiteSection; language?: 'en' | 'vi'; onNavigate?: (e: MouseEvent<HTMLAnchorElement>, href: string) => void } = {}) {
+function render(
+  props: {
+    current?: SiteSection;
+    language?: 'en' | 'vi';
+    onNavigate?: (e: MouseEvent<HTMLAnchorElement>, href: string) => void;
+  } = {},
+) {
   const container = document.createElement('div');
   document.body.append(container);
   const root = createRoot(container);
@@ -50,18 +56,23 @@ describe('SiteHeader', () => {
     expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
     const tools = [...header.querySelector('.topbar-tools')!.children].map((el) => el.tagName);
     expect(tools).toEqual(['NAV', 'DIV']);
-    const links = [...header.querySelectorAll<HTMLAnchorElement>('nav a')].map((a) => [a.textContent, a.getAttribute('href')]);
-    expect(links).toEqual([
-      ['Lessons', '/theory'],
-      ['Review', '/theory/review'],
+    const items = [...header.querySelector('nav')!.children].map((el) =>
+      el.classList.contains('navsep') ? '|' : [el.textContent, el.getAttribute('href')],
+    );
+    expect(items).toEqual([
       ['Practice', '/'],
+      ['Ear training', '/ear-training'],
+      '|',
+      ['Theory', '/theory'],
+      ['Tests', '/theory/review'],
     ]);
   });
 
   it.each([
+    ['practice', '/'],
+    ['ear', '/ear-training'],
     ['lessons', '/theory'],
     ['review', '/theory/review'],
-    ['practice', '/'],
   ] as const)('marks %s as the current page', (current, href) => {
     const { container } = render({ current });
     const marked = container.querySelectorAll('[aria-current="page"]');

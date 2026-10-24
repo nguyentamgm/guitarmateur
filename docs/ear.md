@@ -1,8 +1,8 @@
 # Ear training — conventions
 
-The ear trainer is a third page in this repo, served at `/ear`: a guided path of beginner levels
+The ear trainer is a third page in this repo, served at `/ear-training`: a guided path of beginner levels
 ([`ear-levels.md`](ear-levels.md), tracked in #249), from "same or different?" to finding a song's
-root on the guitar. It trains *relative* hearing, so the skill carries over to any key and any
+root on the guitar. It trains _relative_ hearing, so the skill carries over to any key and any
 song. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) and the look with Practice (`src/`)
 and Theory (`theory/`), never imports either, and shares code with them only through `shared/`
 (`@shared/…`, see [`architecture.md`](architecture.md#shared-code-shared)).
@@ -42,10 +42,10 @@ ear/
                          ui/ear.css; registers the site-wide service worker
 ```
 
-`/ear` is one page with no client-side routes. `vercel.json` rewrites every `/ear/*` path to it
-in production; the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
-`/ear` path in dev and preview; `public/sw.js` falls back to the cached `/ear` shell offline
-(`/ear` is one of its `SHELLS`). `tsconfig.ear.json` typechecks `ear/src` (and `shared/`); Vitest
+`/ear-training` is one page with no client-side routes. `vercel.json` rewrites every `/ear-training/*` path to it
+in production (and permanently redirects the old `/ear` and `/ear/*` there, query kept); the `pageRoutes` plugin in `vite.config.ts` does the same for every extension-less
+`/ear-training` path in dev and preview; `public/sw.js` falls back to the cached `/ear-training` shell offline
+(`/ear-training` is one of its `SHELLS`). `tsconfig.ear.json` typechecks `ear/src` (and `shared/`); Vitest
 picks up `ear/**/*.test.{ts,tsx}` with the rest. An old link's query (`?key=&mode=&notes=`) is
 ignored.
 
@@ -80,12 +80,12 @@ own theory.
 - **No double accidentals.** `transpose()` returns them, so the ear trainer respells such a note as
   its enharmonic (the label stays). Over the keys below, the cases are:
 
-  | Key | Degree | `transpose()` | Shown |
-  | --- | --- | --- | --- |
-  | D♭ major | ♭2, ♭6 | E𝄫, B𝄫 | D, A |
-  | A♭ major | ♭2 | B𝄫 | A |
-  | E♭ minor | ♭5 | B𝄫 | A |
-  | G♯ minor | 7 | F𝄪 | G |
+  | Key      | Degree | `transpose()` | Shown |
+  | -------- | ------ | ------------- | ----- |
+  | D♭ major | ♭2, ♭6 | E𝄫, B𝄫        | D, A  |
+  | A♭ major | ♭2     | B𝄫            | A     |
+  | E♭ minor | ♭5     | B𝄫            | A     |
+  | G♯ minor | 7      | F𝄪            | G     |
 
 - **The tritone** is spelled ♯4 in major keys (it leads up to 5) and ♭5 in minor keys (the blue
   note, which falls to 4): `interval('#4')` or `interval('b5')`.
@@ -171,7 +171,7 @@ from "How does this level work?") → the questions → the end of the round.
 - **Stage 4** (levels 11–13, the same `degree` kind, minor keys): ♭7, then 4 (the minor
   pentatonic), then the blue note. The blue note's answer id is `#4` (one answer for ♯4 / ♭5); in a
   minor key it is always spelled and shown ♭5, and a wrong answer to it plays the note sliding
-  down into 4 (`slidePart`, the shared `slide` glide). The blues ♭5's spelling in a *major* key
+  down into 4 (`slidePart`, the shared `slide` glide). The blues ♭5's spelling in a _major_ key
   (#212) does not come up: the levels only use it in minor keys.
 - **Level 14** (the `degree` kind, `answerOn: 'string'`): Stage 4's notes, answered on one string
   from the root (`AnswerStrip`): the minor pentatonic in A minor, then with the blue note, then in
@@ -206,11 +206,11 @@ from "How does this level work?") → the questions → the end of the round.
 
 ## Links
 
-- **Into a level:** `/ear?level=n` opens level n's intro when it is open (unlocked and built), else
+- **Into a level:** `/ear-training?level=n` opens level n's intro when it is open (unlocked and built), else
   the map with "Level n opens once you have passed the levels before it."; after the welcome on a
   first visit. `App` takes `level` (and `lang`) off the address, so a reload goes back to the map.
 - **From Practice:** Step 1 (`src/ui/components/ScalePositionSection.tsx`) links to
-  `/ear?level=12&lang=…` on the minor pentatonic and `/ear?level=13&lang=…` on the minor blues
+  `/ear-training?level=12&lang=…` on the minor pentatonic and `/ear-training?level=13&lang=…` on the minor blues
   scale, and nowhere else. The two apps never import each other: the link is this plain URL.
 - **To Practice:** passing level 12 offers "Now play these notes on your guitar." with a link
   that opens Practice on the A minor pentatonic (`ui/practiceLink.ts`): Practice's share format
@@ -276,8 +276,7 @@ label first for voice control (WCAG 2.5.3). Standard tuning only.
     passed once, and every answer asked with how often it was right first try (the round's
     weighting). `storeRoundEffect` keeps a round's `step`, `score` and `end` effects
     (`core/progress.ts`). A level is **unlocked** when it is level 1 or the level before it is
-    done (`isUnlocked()`): worked out, never stored. A level done with no round played (`best`
-    0) was skipped by a stage's test (`skipped()`): that is how the test is stored, and its card
+    done (`isUnlocked()`): worked out, never stored. A level done with no round played (`best` 0) was skipped by a stage's test (`skipped()`): that is how the test is stored, and its card
     says so ("Done · skipped by the test").
   - Version 1 was the old trainer's settings and stats: it migrates to version 2 not welcomed,
     with no level played, and those fields are no longer read (the next write drops them).

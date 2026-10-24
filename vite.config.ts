@@ -17,7 +17,9 @@ function versionSwCache(): Plugin {
           `CACHE_NAME = 'guitarmateur-${Date.now().toString(36)}'`,
         );
         if (stamped === src) {
-          console.warn('[version-sw-cache] CACHE_NAME placeholder not found in dist/sw.js — skipping');
+          console.warn(
+            '[version-sw-cache] CACHE_NAME placeholder not found in dist/sw.js — skipping',
+          );
           return;
         }
         writeFileSync(swPath, stamped);
@@ -31,15 +33,16 @@ function versionSwCache(): Plugin {
 
 /**
  * The Theory app (theory/) is a second page with client-side routes under /theory, and the ear
- * trainer (ear/) a third at /ear. Dev and preview servers would answer /theory/<lesson> with the
- * root index.html, so hand every extension-less /theory path to theory/index.html and every /ear
- * path to ear/index.html, as vercel.json does in production (and public/sw.js offline).
+ * trainer (ear/) a third at /ear-training. Dev and preview servers would answer /theory/<lesson>
+ * with the root index.html, so hand every extension-less /theory path to theory/index.html and
+ * every /ear-training path to ear/index.html, as vercel.json does in production (and public/sw.js
+ * offline).
  */
 function pageRoutes(): Plugin {
   const rewrite = (req: { url?: string }, _res: unknown, next: () => void) => {
     const path = req.url?.split('?')[0] ?? '';
     if (/^\/theory(\/[^.]*)?$/.test(path)) req.url = '/theory/index.html';
-    else if (/^\/ear(\/[^.]*)?$/.test(path)) req.url = '/ear/index.html';
+    else if (/^\/ear-training(\/[^.]*)?$/.test(path)) req.url = '/ear/index.html';
     next();
   };
   return {

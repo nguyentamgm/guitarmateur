@@ -18,7 +18,7 @@ No accounts, no server-side state: the app is a fully static SPA on free-tier ho
 everything the user does persists in `localStorage`.
 
 Two more pages share the site, its header and its look: **Theory** at `/theory`, visual
-music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear`, naming the degree
+music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, naming the degree
 of a note heard in a key ([`ear.md`](ear.md); being built, see #227). Each is a separate app that
 imports none of the others; what they share is in `shared/` (below).
 
@@ -43,7 +43,7 @@ imports none of the others; what they share is in `shared/` (below).
 │  ├─ i18n/                     # translator, plural rules, locale detection/validation — leaf layer
 │  └─ ui/                       # React components — the only layer that imports react/react-dom
 ├─ theory/                      # the Theory app (/theory) — see docs/theory.md
-├─ ear/                         # the ear trainer (/ear) — see docs/ear.md
+├─ ear/                         # the ear trainer (/ear-training) — see docs/ear.md
 ├─ shared/                      # code the apps share, imported as @shared/… — see below
 │  ├─ core/                     # pure: neck.ts (string numbering, names per tuning); music/, rhythm/
 │  │                            # (Theory's); audio/ (synths, player, backings, scheduler, sequencer)
@@ -121,9 +121,10 @@ has its own `fill()` and `platform/languages.ts`); `shared/i18n/glossary.ts`, wh
 over its own strings); `shared/platform/storage.ts`, the localStorage
 accessor the apps use; and the shared look in `shared/ui/` (Theory's, the reference):
 
-- `SiteHeader.tsx` + `siteSections.ts` — the site header on every page: brand · Lessons · Review ·
-  Practice · Ear training · language (styled in `controls.css`, `.topbar`). `SITE_SECTIONS` lists
-  each section's `href` in header order; each page passes its text (`labels`), the section it
+- `SiteHeader.tsx` + `siteSections.ts` — the site header on every page: brand · Practice · Ear
+  training | Theory · Tests · language (styled in `controls.css`, `.topbar`; the `|` is a separator
+  drawn where a section's `group` changes). `SITE_SECTIONS` lists each section's `href` in header
+  order; each page passes its text (`labels`), the section it
   belongs to (`current`) and its languages. Links are plain `<a href>`s; Theory moves between its
   own pages client-side through `onNavigate`.
 
