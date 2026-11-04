@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TONICS, midi, toneRole } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
-import { buildLadder, buildLine, fingerLine, groupStarts } from './phrase';
+import { buildLadder, buildLine, contourMiss, fingerLine, groupStarts } from './phrase';
 import { countUnplayableMoves } from './path';
 import { generateLick } from './index';
 
@@ -32,10 +32,20 @@ describe('buildLine', () => {
     // index 3 restarts because the 2-move motif is spent; index 4 because a group starts there.
   });
 
-  it('sequence mode moves each restatement one step toward the target', () => {
-    const line = buildLine(9, new Set(), 8, 1, 12, [-1, -1], 'sequence', 1);
-    expect(line.slice(0, 7)).toEqual([8, 7, 6, 7, 6, 5, 6]);
-    expect(line.slice(-2)).toEqual([2, 1]);
+  it('contour mode restates the motif where the contour is: a descent steps down', () => {
+    // Repeated-note motif, so each restatement shows only where the contour put its head.
+    const line = buildLine(9, new Set(), 8, 1, 12, [0], 'contour', 1, 'descend');
+    const heads = [line[2]!, line[4]!, line[6]!];
+    expect(heads[0]).toBeGreaterThan(heads[1]!);
+    expect(heads[1]).toBeGreaterThan(heads[2]!);
+  });
+
+  it('peak and resolution: the line climbs above both ends, peaks past the middle, then falls to the target', () => {
+    const line = buildLine(12, new Set(), 3, 2, 14, [0], 'contour', 1, 'peak');
+    const top = Math.max(...line);
+    expect(top).toBeGreaterThan(Math.max(line[0]!, line.at(-1)!) + 2);
+    expect(line.lastIndexOf(top)).toBeGreaterThan(12 / 2);
+    expect(line.at(-1)).toBe(2);
   });
 
   it('stays on the ladder', () => {
@@ -58,6 +68,14 @@ describe('fingerLine', () => {
         expect(path.map((p) => midi(p.pitch))).toEqual(line.map((r) => ladder[r]!.midi));
       }
     }
+  });
+});
+
+describe('contourMiss', () => {
+  it('is zero for a line that follows its contour and grows as the line strays', () => {
+    const descent = [8, 7, 6, 5, 4, 3, 2];
+    expect(contourMiss(descent, 'descend')).toBe(0);
+    expect(contourMiss([8, 2, 8, 2, 8, 2, 2], 'descend')).toBeGreaterThan(1);
   });
 });
 

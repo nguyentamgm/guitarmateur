@@ -22,8 +22,8 @@ function fn(
 }
 
 describe('pickContour', () => {
-  it('returns one of the five contour types', () => {
-    const contours: Contour[] = ['ascend', 'descend', 'arch', 'valley', 'wave'];
+  it('returns one of the six contour types', () => {
+    const contours: Contour[] = ['ascend', 'descend', 'arch', 'valley', 'wave', 'peak'];
     for (let seed = 0; seed < 100; seed++) {
       const c = pickContour(3, mulberry32(seed));
       expect(contours).toContain(c);

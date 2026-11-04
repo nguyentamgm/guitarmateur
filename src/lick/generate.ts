@@ -58,7 +58,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const first = pickFirstNote(box, chord, last, contour, rng, prevLastMidi);
     // A motif-built phrase when one fits the box; the plain contour walk only as a safety net.
     const path =
-      buildPhrase(box, first, last, slots, chord, params.level, rng) ??
+      buildPhrase(box, first, last, slots, chord, params.level, rng, contour) ??
       fillPath(box, first, last, slots.length, contour, params.level, rng);
 
     const rawNotes: LickNote[] = path.map((fretNote, i) => ({
