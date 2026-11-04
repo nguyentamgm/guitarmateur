@@ -199,3 +199,29 @@ describe('generateLick — vocabulary in use', () => {
     expect(same / total).toBeLessThan(0.1);
   });
 });
+
+describe('harmonic fit', () => {
+  it('curls the chord’s own minor 3rd, so the curl is never played over a chord it clashes with', () => {
+    const F = TONICS.find((t) => t.letter === 'F' && t.alter === 0)!;
+    const curl = byId('minor-third-curl');
+    // Over F major the chord's ♭3 is A♭, not in A minor pentatonic: not offered.
+    for (const base of [41, 53, 65]) {
+      expect(realizePhrase(curl, { ...ctx(3, base), chord: { tonic: F, quality: 'M' }, targetChord: { tonic: F, quality: 'M' } })).toBeNull();
+    }
+    // Over A7 it bends C toward C♯, the chord's 3rd.
+    const notes = [45, 57, 69].map((b) => realizePhrase(curl, ctx(3, b))).find((x) => x)!;
+    const bent = notes.find((n) => n.technique === 'bendHalf')!;
+    expect(((midi(bent.pitch) - 9) % 12 + 12) % 12).toBe(4);
+  });
+
+  it('plays a turnaround on the last chord most of the time', () => {
+    let turnarounds = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const lick = generateLick(box, { tonic: TONICS.find((t) => t.letter === 'E' && t.alter === 0)!, quality: 'dom7' }, null, {
+        level: 3, targetRole: 'R', resolveToNext: false, seed, turnaround: true,
+      });
+      if (lick.source && PHRASES.find((p) => p.id === lick.source)?.kind === 'turnaround') turnarounds++;
+    }
+    expect(turnarounds).toBeGreaterThan(20);
+  });
+});

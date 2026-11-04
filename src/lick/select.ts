@@ -68,7 +68,8 @@ export function candidates(ctx: PhraseContext, beats: 4 | 8): { item: Phrase; we
     // Phrases written for this level are wanted most; easier ones still come up, for variety.
     const gap = params.level - nativeLevel(p);
     let weight = KIND_WEIGHT[p.kind] * (gap === 0 ? 1.5 : gap === 1 ? 1 : 0.3);
-    if (p.kind === 'turnaround' && params.turnaround) weight = 4;
+    // The last chord is where a turnaround belongs: offer it ahead of everything else there.
+    if (p.kind === 'turnaround' && params.turnaround) weight = 12;
     if (p.kind === 'space' && params.level >= 4) weight *= 0.4;
     // Do not play the phrase the last chord just had.
     if (params.previousSource?.split('+').includes(p.id)) weight *= 0.15;

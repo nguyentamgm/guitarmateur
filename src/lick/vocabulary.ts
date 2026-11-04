@@ -184,10 +184,11 @@ export const PHRASES: readonly Phrase[] = [
     notes: [n(0.5, 0.5, 10), n(1, 1, undefined, { tech: 'bendFull', vibrato: true }), n(2, 0.5, 10), n(2.5, 0.5, 7), n(3, 1, T)],
   },
   {
-    // The "curl": a small bend on the minor 3rd toward the major 3rd, over a major or 7th chord.
+    // The "curl": the chord's minor 3rd bent a little toward its major 3rd, over a major or 7th
+    // chord. Chord-relative: over a IV or ♭VI chord the key's ♭3 would clash.
     id: 'minor-third-curl',
     kind: 'bend',
-    ref: 'key',
+    ref: 'chord',
     beats: 4,
     minLevel: 3,
     qualities: DOMINANT_OR_MAJOR,
