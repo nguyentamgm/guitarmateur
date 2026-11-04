@@ -15,23 +15,28 @@ describe('rhythm patterns', () => {
     }
   });
 
-  it('last active slot starts at or after beat 3', () => {
-    for (const level of [1, 2, 3] as const) {
+  it('every pattern lands on a held note: at least a beat long, starting on beat 2 or later', () => {
+    for (const level of [1, 2, 3, 4, 5] as const) {
       const rng = mulberry32(0);
-      for (let i = 0; i < 20; i++) {
-        const p = pickPattern(level, rng);
-        const act = activeSlots(p);
+      for (let i = 0; i < 40; i++) {
+        const act = activeSlots(pickPattern(level, rng));
         const last = act[act.length - 1]!;
-        // Level 1: last note starts on beat 2+ (half notes like h(2) sustain to end)
-        // Level 2: always ends with q(3), Level 3+: can start off-beat after beat 3
-        if (level === 1) {
-          expect(last.startBeat).toBeGreaterThanOrEqual(2);
-        } else if (level === 2) {
-          expect(last.startBeat).toBe(3);
-        } else {
-          expect(last.startBeat).toBeGreaterThanOrEqual(3);
-        }
+        expect(last.durationBeats).toBeGreaterThanOrEqual(1);
+        expect(last.startBeat).toBeGreaterThanOrEqual(2);
       }
+    }
+  });
+
+  it('phrases breathe: at every level most patterns leave a rest or end on a long note', () => {
+    for (const level of [1, 2, 3, 4, 5] as const) {
+      const rng = mulberry32(3);
+      let breathing = 0;
+      for (let i = 0; i < 40; i++) {
+        const p = pickPattern(level, rng);
+        const last = activeSlots(p).at(-1)!;
+        if (p.some((slot) => slot.rest) || last.durationBeats >= 1.5) breathing++;
+      }
+      expect(breathing).toBeGreaterThan(20);
     }
   });
 

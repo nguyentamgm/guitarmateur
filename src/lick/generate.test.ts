@@ -4,6 +4,7 @@ import { TUNINGS, positions, mergedBox } from '../fretboard';
 import type { Box } from '../fretboard';
 import { generateLick, type LickParams, type Lick } from './index';
 import { countSameFretStringJumps, countUnplayableMoves } from './path';
+import { isBendFrom } from './bends';
 
 // Build a known box: A minor pentatonic, standard tuning, position 1 (frets 0-3)
 const tonicA = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
@@ -17,7 +18,8 @@ const nextChord = { tonic: tonicG, quality: 'M' as const };
 
 function allNotesInBox(lick: Lick, b: Box): boolean {
   const noteSet = new Set(b.notes.map((n) => `${n.string}-${n.fret}`));
-  return lick.notes.every((n) => noteSet.has(`${n.string}-${n.fret}`));
+  // A bend is fretted at the note before it and sounds a fret or two higher — past the box is fine.
+  return lick.notes.every((n, i) => noteSet.has(`${n.string}-${n.fret}`) || isBendFrom(n, lick.notes[i - 1]));
 }
 
 function notesSortedByBeat(lick: Lick): boolean {

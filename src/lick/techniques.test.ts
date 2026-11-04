@@ -129,28 +129,28 @@ describe('decorateTechniques', () => {
     expect(result[1]!.technique).toBe('slide');
   });
 
-  it('generates bendHalf at level 5 for dFret=1 ascending pairs', () => {
-    const notes: LickNote[] = [
-      note({ string: 5, fret: 6, startBeat: 0 }),
-      note({ string: 5, fret: 7, startBeat: 1, role: 'R' }),
-    ];
-    const result = decorateTechniques(notes, 5, mulberry32(42));
-    expect(result[1]!.technique).toBe('bendHalf');
-    // fret/pitch/string must be unchanged by the bend articulation
-    expect(result[1]!.fret).toBe(7);
-    expect(result[1]!.string).toBe(5);
+  it('never places bends itself — those come from applyBends, by scale degree', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      for (const to of [7, 8]) {
+        const notes: LickNote[] = [
+          note({ string: 5, fret: 6, startBeat: 0 }),
+          note({ string: 5, fret: to, startBeat: 1, role: 'R' }),
+        ];
+        const t = decorateTechniques(notes, 5, mulberry32(seed))[1]!.technique;
+        expect(t === 'bendHalf' || t === 'bendFull').toBe(false);
+      }
+    }
   });
 
-  it('generates bendFull at level 5 for dFret=2 ascending pairs', () => {
+  it('keeps a technique an earlier pass already placed', () => {
     const notes: LickNote[] = [
-      note({ string: 5, fret: 6, startBeat: 0 }),
-      note({ string: 5, fret: 8, startBeat: 1, role: 'R' }),
+      note({ string: 4, fret: 7, startBeat: 0 }),
+      { ...note({ string: 4, fret: 9, startBeat: 1, role: '5' }), technique: 'bendFull' },
+      note({ string: 4, fret: 8, startBeat: 2 }),
     ];
-    const result = decorateTechniques(notes, 5, mulberry32(42));
-    expect(result[1]!.technique).toBe('bendFull');
-    // fret/pitch/string must be unchanged by the bend articulation
-    expect(result[1]!.fret).toBe(8);
-    expect(result[1]!.string).toBe(5);
+    for (let seed = 0; seed < 20; seed++) {
+      expect(decorateTechniques(notes, 3, mulberry32(seed))[1]!.technique).toBe('bendFull');
+    }
   });
 
   it('level 4 never produces bends', () => {

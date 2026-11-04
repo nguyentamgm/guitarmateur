@@ -11,7 +11,7 @@ interface LevelCap {
   allowSkips: boolean;
 }
 
-const LEVEL_CAPS: Record<LickParams['level'], LevelCap> = {
+export const LEVEL_CAPS: Record<LickParams['level'], LevelCap> = {
   1: { maxSpan: 4, allowSkips: false },
   2: { maxSpan: 5, allowSkips: false },
   3: { maxSpan: 6, allowSkips: true },
