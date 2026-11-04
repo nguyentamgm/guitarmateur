@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '@shared/core/rng';
-import { TONICS, midi, type Chord } from '../music';
+import { TONICS, SCALE_IDS, defaultProgression, midi, type Chord } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import { PHRASES, type Phrase } from './vocabulary';
 import { realizePhrase, spell } from './realize';
@@ -223,5 +223,33 @@ describe('harmonic fit', () => {
       if (lick.source && PHRASES.find((p) => p.id === lick.source)?.kind === 'turnaround') turnarounds++;
     }
     expect(turnarounds).toBeGreaterThan(20);
+  });
+});
+
+describe('every scale has a vocabulary', () => {
+  it('draws most licks from phrases, from several of them, in every key the app offers', () => {
+    const C = TONICS.find((t) => t.letter === 'C' && t.alter === 0)!;
+    for (const scaleId of SCALE_IDS) {
+      const key = { tonic: C, scaleId };
+      const p = positions(TUNINGS.standard, key);
+      const b = mergedBox(p, [p[1]!.index]);
+      let fromVocab = 0;
+      let total = 0;
+      const phrases = new Set<string>();
+      for (const level of [2, 3, 4] as const) {
+        for (let seed = 0; seed < 12; seed++) {
+          for (const chord of defaultProgression(key)) {
+            const lick = generateLick(b, chord, null, { level, targetRole: 'R', resolveToNext: false, seed });
+            total++;
+            if (lick.source !== 'generated') {
+              fromVocab++;
+              phrases.add(lick.source!);
+            }
+          }
+        }
+      }
+      expect(fromVocab / total, scaleId).toBeGreaterThan(0.6);
+      expect(phrases.size, scaleId).toBeGreaterThan(8);
+    }
   });
 });

@@ -437,6 +437,91 @@ export const PHRASES: readonly Phrase[] = [
     notes: [n(0, 1, 7), n(1, 1, 7), n(2, 2, T)],
   },
 
+  // ── Major-key vocabulary (major pentatonic: 0 2 4 7 9) ──────────────────────────────────────
+  // Offered wherever those notes are in the scale: major and major-blues keys, Mixolydian, major.
+  {
+    id: 'major-pent-descent',
+    kind: 'run',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 16), n(0.5, 0.5, 14), n(1, 0.5, 12), n(1.5, 0.5, 9), n(2, 0.5, 7), n(2.5, 0.5, 4), n(3, 1, T)],
+  },
+  {
+    id: 'major-pent-climb',
+    kind: 'run',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 0), n(0.5, 0.5, 2), n(1, 0.5, 4), n(1.5, 0.5, 7), n(2, 0.5, 9), n(2.5, 0.5, 12), n(3, 1, T)],
+  },
+  {
+    // Down the major pentatonic in overlapping groups of four 16ths.
+    id: 'major-cascade',
+    kind: 'run',
+    ref: 'key',
+    beats: 4,
+    minLevel: 5,
+    notes: [
+      n(0, 0.25, 16), n(0.25, 0.25, 14), n(0.5, 0.25, 12), n(0.75, 0.25, 9),
+      n(1, 0.25, 14), n(1.25, 0.25, 12), n(1.5, 0.25, 9), n(1.75, 0.25, 7),
+      n(2, 0.5, 4), n(2.5, 0.5, 2), n(3, 1, T),
+    ],
+  },
+  {
+    // Country bend: the 2nd pushed up to the 3rd, then down to the 6th below.
+    id: 'country-bend',
+    kind: 'bend',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [n(0.5, 0.5, 2), n(1, 1, undefined, { tech: 'bendFull', vibrato: true }), n(2, 0.5, 0), n(2.5, 0.5, -3), n(3, 1, T)],
+  },
+  {
+    id: 'major-bend-release',
+    kind: 'bendRelease',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [
+      n(0, 0.5, 7), n(0.5, 1, undefined, { tech: 'bendFull' }), n(1.5, 0.5, undefined, { tech: 'release' }),
+      n(2, 0.5, 4), n(2.5, 0.5, 2), n(3, 1, T),
+    ],
+  },
+  {
+    // The blue ♭3 slid up into the major 3rd (a scale note in major blues, chromatic elsewhere).
+    id: 'blue-third-slide',
+    kind: 'resolution',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [n(0, 0.5, 3, { chromatic: true }), n(0.5, 0.5, 4, { tech: 'slide' }), n(1, 0.5, 7), n(1.5, 0.5, 9), n(2, 1, 7), n(3, 1, T)],
+  },
+  {
+    id: 'sixth-call',
+    kind: 'callResponse',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 9), n(0.5, 0.5, 7), n(1, 1, 9), n(2.5, 0.5, 7), n(3, 1, T)],
+  },
+  {
+    id: 'major-hook',
+    kind: 'motif',
+    ref: 'key',
+    beats: 4,
+    minLevel: 1,
+    notes: [n(0, 1, 4), n(1, 1, 2), n(2, 2, T)],
+  },
+  {
+    id: 'major-sigh',
+    kind: 'space',
+    ref: 'key',
+    beats: 4,
+    minLevel: 1,
+    notes: [n(1, 1, 9), n(2, 2, T)],
+  },
+
   // ── Space ───────────────────────────────────────────────────────────────────────────────────
   {
     // Two quarter notes after a beat of silence: leaving room is part of the vocabulary.
