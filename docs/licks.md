@@ -76,6 +76,12 @@ then back to where the bend started).
   - **call and response for 2-bar licks**: a one-bar phrase whose ending is changed to an open
     chord tone (the question), then the same phrase or another as the answer.
 
+## On the card
+
+A lick card names the kind of phrase it was built from next to "Lick" ("Lick · Bend", "Lick ·
+Turnaround"), via `phraseKind(lick.source)`, so players practise each idiom by its name. A new
+kind needs a `practice.phrase.<kind>` string in every locale.
+
 ## Playback (`src/audio/`)
 
 `noteVelocity` accents beats 1 and 3, plays the "and"s lighter, and plays hammer-ons, pull-offs

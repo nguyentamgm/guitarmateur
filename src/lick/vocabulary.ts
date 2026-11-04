@@ -93,6 +93,17 @@ const MINOR: readonly QualityId[] = ['m', 'm7'];
  * Semitones in the key-relative phrases, for A minor: 0 = A (root), 3 = C (♭3), 5 = D (4),
  * 6 = E♭ (♭5), 7 = E (5), 10 = G (♭7), 12 = A an octave up, −2 = G below the root.
  */
+/**
+ * The kind of phrase a lick was built from, for labelling it ("Bend", "Turnaround"…): the
+ * phrase's own kind, call and response for a pair of one-bar phrases (`a+b`), and `undefined` for
+ * a generated lick or one made before licks carried their source.
+ */
+export function phraseKind(source: string | undefined): PhraseKind | undefined {
+  if (!source || source === 'generated') return undefined;
+  if (source.includes('+')) return 'callResponse';
+  return PHRASES.find((p) => p.id === source)?.kind;
+}
+
 export const PHRASES: readonly Phrase[] = [
   // ── Runs ────────────────────────────────────────────────────────────────────────────────────
   {
@@ -520,6 +531,111 @@ export const PHRASES: readonly Phrase[] = [
     beats: 4,
     minLevel: 1,
     notes: [n(1, 1, 9), n(2, 2, T)],
+  },
+
+  // ── More idioms ─────────────────────────────────────────────────────────────────────────────
+  {
+    // Bend, let it down, bend again and hold it: the repeated bend of slow-blues players.
+    id: 'repeated-bend',
+    kind: 'bend',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [
+      n(0, 0.5, 5), n(0.5, 0.5, undefined, { tech: 'bendFull' }), n(1, 0.5, undefined, { tech: 'release' }),
+      n(1.5, 1, undefined, { tech: 'bendFull', vibrato: true }), n(2.5, 0.5, 3), n(3, 1, T),
+    ],
+  },
+  {
+    // ♭7 + root struck four times on the top strings: rock and roll's double-stop riff.
+    id: 'rock-and-roll-double-stops',
+    kind: 'doubleStop',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [
+      n(0, 0.5, 10, { partner: 5 }), n(0.5, 0.5, 10, { partner: 5 }), n(1, 0.5, 10, { partner: 5 }),
+      n(1.5, 0.5, 10, { partner: 5 }), n(2, 0.5, 7), n(2.5, 0.5, 5), n(3, 1, T),
+    ],
+  },
+  {
+    // A hammer-on/pull-off trill between ♭3 and 4, then down to the landing.
+    id: 'trill',
+    kind: 'motif',
+    ref: 'key',
+    beats: 4,
+    minLevel: 4,
+    notes: [
+      n(0, 0.25, 3), n(0.25, 0.25, 5, { tech: 'hammer' }), n(0.5, 0.25, 3, { tech: 'pull' }),
+      n(0.75, 0.25, 5, { tech: 'hammer' }), n(1, 1, 3, { tech: 'pull' }), n(2, 0.5, 0), n(2.5, 0.5, -2), n(3, 1, T),
+    ],
+  },
+  {
+    // The shuffle's long-short figure, as a melody.
+    id: 'shuffle-figure',
+    kind: 'motif',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [n(0, 1.5, 7), n(1.5, 0.5, 10), n(2, 1, 7), n(3, 1, T)],
+  },
+  {
+    id: 'octave-call',
+    kind: 'space',
+    ref: 'key',
+    beats: 4,
+    minLevel: 3,
+    notes: [n(0, 1, 0), n(1, 1, 12), n(3, 1, T)],
+  },
+  {
+    // The question up high and held; the answer an octave down, in the bass register.
+    id: 'low-answer',
+    kind: 'callResponse',
+    ref: 'key',
+    beats: 8,
+    minLevel: 3,
+    notes: [
+      n(0.5, 0.5, 12), n(1, 0.5, 15), n(1.5, 0.5, 12), n(2, 2, 10, { vibrato: true }),
+      n(4.5, 0.5, 0), n(5, 0.5, 3), n(5.5, 0.5, 0), n(6, 1, -2), n(7, 1, T),
+    ],
+  },
+
+  // ── Modal colour: phrases that need a scale's own notes ─────────────────────────────────────
+  {
+    // Dorian's major 6th against the minor 3rd.
+    id: 'dorian-sixth',
+    kind: 'resolution',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 7), n(0.5, 0.5, 9), n(1, 1, 7), n(2, 0.5, 3), n(2.5, 0.5, 2), n(3, 1, T)],
+  },
+  {
+    // Natural minor down from its ♭6.
+    id: 'aeolian-descent',
+    kind: 'run',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 8), n(0.5, 0.5, 7), n(1, 0.5, 5), n(1.5, 0.5, 3), n(2, 0.5, 2), n(2.5, 0.5, 0), n(3, 1, T)],
+  },
+  {
+    // Mixolydian up through its major 3rd and ♭7.
+    id: 'mixolydian-climb',
+    kind: 'run',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 4), n(0.5, 0.5, 5), n(1, 0.5, 7), n(1.5, 0.5, 9), n(2, 0.5, 10), n(2.5, 0.5, 12), n(3, 1, T)],
+  },
+  {
+    // The major scale's leading tone turning up into the root, then down home.
+    id: 'leading-tone-turn',
+    kind: 'resolution',
+    ref: 'key',
+    beats: 4,
+    minLevel: 2,
+    notes: [n(0, 0.5, 11), n(0.5, 0.5, 12), n(1, 1, 7), n(2, 0.5, 5), n(2.5, 0.5, 4), n(3, 1, T)],
   },
 
   // ── Space ───────────────────────────────────────────────────────────────────────────────────

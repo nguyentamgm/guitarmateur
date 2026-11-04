@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '@shared/core/rng';
 import { TONICS, SCALE_IDS, defaultProgression, midi, type Chord } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
-import { PHRASES, type Phrase } from './vocabulary';
+import { PHRASES, phraseKind, type Phrase } from './vocabulary';
 import { realizePhrase, spell } from './realize';
 import { callAndResponse, candidates, displaced, nativeLevel, withRest, type PhraseContext } from './select';
 import { generateLick, type LickParams } from './index';
@@ -251,5 +251,45 @@ describe('every scale has a vocabulary', () => {
       expect(fromVocab / total, scaleId).toBeGreaterThan(0.6);
       expect(phrases.size, scaleId).toBeGreaterThan(8);
     }
+  });
+});
+
+describe('no dead phrases', () => {
+  it('every phrase can be played somewhere: some scale, box and chord the app offers', () => {
+    const qualities = ['m', 'M', 'dom7', 'm7', 'M7'] as const;
+    const unplayable: string[] = [];
+    for (const phrase of PHRASES) {
+      let ok = false;
+      for (const scaleId of SCALE_IDS) {
+        if (ok) break;
+        const p = positions(TUNINGS.standard, { tonic: A, scaleId });
+        for (const position of p) {
+          if (ok) break;
+          const b = mergedBox(p, [position.index]);
+          for (const quality of phrase.qualities ?? qualities) {
+            const chord: Chord = { tonic: A, quality };
+            const level = Math.max(nativeLevel(phrase), 3) as LickParams['level'];
+            for (const baseMidi of [33, 45, 57, 69]) {
+              if (realizePhrase(phrase, { box: b, chord, targetChord: chord, targetRole: 'R', level, baseMidi })) {
+                ok = true;
+                break;
+              }
+            }
+            if (ok) break;
+          }
+        }
+      }
+      if (!ok) unplayable.push(phrase.id);
+    }
+    expect(unplayable).toEqual([]);
+  });
+});
+
+describe('phraseKind', () => {
+  it('names the kind a lick was built from, call and response for a pair, nothing for a generated lick', () => {
+    expect(phraseKind('four-to-five-bend')).toBe('bend');
+    expect(phraseKind('two-note-call+motif-sequence')).toBe('callResponse');
+    expect(phraseKind('generated')).toBeUndefined();
+    expect(phraseKind(undefined)).toBeUndefined();
   });
 });
