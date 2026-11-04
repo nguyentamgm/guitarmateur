@@ -163,6 +163,15 @@ export function TabStaff({
               <text x={cx} y={y(n.string)} transform={unmirror(cx)}>
                 {text}
               </text>
+              {/* A double stop: its second note stacked on its own string, struck together. */}
+              {n.partner && (
+                <>
+                  <rect x={cx - w / 2} y={y(n.partner.string) - 9} width={w} height={18} rx={4} />
+                  <text x={cx} y={y(n.partner.string)} transform={unmirror(cx)}>
+                    {String(n.partner.fret) + (n.vibrato ? '~' : '')}
+                  </text>
+                </>
+              )}
             </g>
           );
         })}

@@ -29,6 +29,8 @@ export type SeqEvent<Tag = unknown> =
       readonly glide?: Glide;
       /** Palm-muted. */
       readonly muted?: boolean;
+      /** How hard it is played, 0..1 (default 1): an accent, or a soft legato note. */
+      readonly velocity?: number;
       /** Handed back to `onSound`, e.g. which chord and note this is. */
       readonly tag?: Tag;
     };
@@ -166,7 +168,7 @@ export class Sequencer<Tag = unknown> {
     const delay = Math.max(0, e.timeSec - now);
     if (e.kind === 'click') this.player.click(e.accent, delay);
     else if (e.muted) this.player.mute(e.midi, delay);
-    else this.player.pluck(e.midi, delay, e.lengthSec, e.glide);
+    else this.player.pluck(e.midi, delay, e.lengthSec, e.glide, e.velocity);
     if (this.cb.onSound) {
       const t = this.deps.setTimeout(() => {
         this.timers.delete(t);

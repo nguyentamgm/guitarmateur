@@ -36,7 +36,8 @@ export interface Player {
    * note's length, K1.2). A `glide` bends, slides or hammers the same sound without a new pick
    * (K6.3, K6.4). Silently does nothing when disabled or unsupported.
    */
-  pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide): void;
+  /** `velocity` (0..1, default 1) scales this note against the others: accents, legato notes. */
+  pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide, velocity?: number): void;
   /** A palm-muted note (K6.5): darker and much shorter than `pluck`. Same rules. */
   mute(midi: number, delaySec?: number): void;
   /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
@@ -179,8 +180,8 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
       if (next.note !== undefined) levels.note = clamp(next.note);
       if (next.click !== undefined) levels.click = clamp(next.click);
     },
-    pluck(midi, delaySec = 0, lengthSec, glide) {
-      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels.note);
+    pluck(midi, delaySec = 0, lengthSec, glide, velocity = 1) {
+      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels.note * velocity);
     },
     mute(midi, delaySec = 0) {
       play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec, undefined, undefined, levels.note);

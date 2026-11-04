@@ -33,6 +33,7 @@ export function licksForState(state: AppState): EntryLick[] {
   // from the one before (common tone or nearest chord tone) and lands where the solo's arc is.
   const result: EntryLick[] = [];
   let prevLastMidi: number | undefined;
+  let previousSource: string | undefined;
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i]!;
     const next =
@@ -48,11 +49,14 @@ export function licksForState(state: AppState): EntryLick[] {
         seed: entry.lickSeed,
         bars: entry.bars,
         arc: progressionArc(i, entries.length),
+        turnaround: entries.length > 1 && i === entries.length - 1,
+        previousSource,
       },
       prevLastMidi,
     );
     const lastNote = lick.notes[lick.notes.length - 1]!;
     prevLastMidi = midi(lastNote.pitch);
+    previousSource = lick.source;
     result.push({ entryId: entry.id, lick });
   }
 

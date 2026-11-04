@@ -46,4 +46,6 @@ merges. Match that order locally before pushing.
   [`docs/theory.md`](docs/theory.md) and [`docs/theory-knowledge/`](docs/theory-knowledge/README.md) first.
 - **Working on the ear trainer (`ear/`, served at `/ear-training`)?** It is a third app with its own layers
   and music rules, being built in phases (#227): read [`docs/ear.md`](docs/ear.md) first.
+- **Working on the lick generator (`src/lick/`)?** Read [`docs/licks.md`](docs/licks.md) first: most licks
+  come from a phrase vocabulary (data), not from note-by-note rules.
 - **Adding a language?** Follow [`docs/i18n.md`](docs/i18n.md) — a non-developer guide for shipping a new locale.
