@@ -170,7 +170,9 @@ export function vocabularyLick(ctx: PhraseContext, rng: Rng): PhraseLick | null 
   // solo (voice leading, the arc) wins, with the selection weight as a tie-breaker.
   const fits: { lick: PhraseLick; score: number }[] = [];
   const remaining = [...pool];
-  for (let t = 0; t < TRIES && remaining.length && fits.length < FITS_TO_COMPARE; t++) {
+  // Mid-solo there is a line to continue, so look at more options for the smoothest join.
+  const compare = ctx.prevLastMidi === undefined ? FITS_TO_COMPARE : FITS_TO_COMPARE_MID_SOLO;
+  for (let t = 0; t < TRIES && remaining.length && fits.length < compare; t++) {
     const pick = weightedChoice(rng, remaining);
     remaining.splice(remaining.findIndex((r) => r.item === pick), 1);
 
@@ -196,8 +198,9 @@ export function vocabularyLick(ctx: PhraseContext, rng: Rng): PhraseLick | null 
   return fits.reduce((a, b) => (b.score > a.score ? b : a)).lick;
 }
 
-/** How many fitting phrases to compare for one lick. */
+/** How many fitting phrases to compare for one lick (more when a previous lick sets a line). */
 const FITS_TO_COMPARE = 3;
+const FITS_TO_COMPARE_MID_SOLO = 5;
 
 const pickWeight = (pool: readonly { item: Phrase; weight: number }[], p: Phrase): number =>
   pool.find((c) => c.item === p)?.weight ?? 1;
