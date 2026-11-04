@@ -3,7 +3,7 @@ import { TONICS, midi, toneRole } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import { buildLadder, buildLine, contourMiss, fingerLine, groupStarts } from './phrase';
 import { countUnplayableMoves } from './path';
-import { generateLick } from './index';
+import { generateLick, type LickParams } from './index';
 
 const A = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
 const pos = positions(TUNINGS.standard, { tonic: A, scaleId: 'minorPentatonic' });
@@ -86,15 +86,21 @@ describe('contourMiss', () => {
   });
 });
 
-describe('generateLick — phrasing', () => {
+/** Licks the motif builder generated (the rest come from the vocabulary, tested in select.test.ts). */
+function generated(level: LickParams['level'], seeds = 200, bars: 1 | 2 = 1) {
+  return Array.from({ length: seeds }, (_, seed) => generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars }))
+    .filter((l) => l.source === 'generated')
+    .map((l) => l.notes);
+}
+
+describe('generateLick — generated phrasing', () => {
   it('approaches the landing note by step from the scale note above or below', () => {
     const ladder = buildLadder(box, 5);
     const rungOf = (m: number) => ladder.findIndex((r) => r.midi === m);
     let stepwise = 0;
     let total = 0;
     for (const level of [2, 3, 4, 5] as const) {
-      for (let seed = 0; seed < 50; seed++) {
-        const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed }).notes;
+      for (const notes of generated(level)) {
         if (notes.length < 3) continue;
         total++;
         const before = notes.at(-2)!;
@@ -109,8 +115,7 @@ describe('generateLick — phrasing', () => {
     let strong = 0;
     let chordTones = 0;
     for (const level of [1, 2, 3, 4, 5] as const) {
-      for (let seed = 0; seed < 50; seed++) {
-        const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed }).notes;
+      for (const notes of generated(level)) {
         for (const n of notes.slice(0, -1)) {
           if (n.startBeat % 2 !== 0) continue;
           strong++;
@@ -152,8 +157,7 @@ describe('generateLick — 2-bar call and response', () => {
     let callOnRoot = 0;
     let echoed = 0;
     for (const level of [2, 3, 4] as const) {
-      for (let seed = 0; seed < 60; seed++) {
-        const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars: 2 }).notes;
+      for (const notes of generated(level, 200, 2)) {
         const b2 = notes.findIndex((n) => n.startBeat >= 4);
         if (b2 < 1) continue;
         calls++;

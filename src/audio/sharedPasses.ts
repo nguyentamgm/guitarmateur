@@ -5,7 +5,7 @@
  * sequencer's: a note sounds until the next note on its string (a string sounds one note at a
  * time), and a technique becomes a glide into the note from the one before it.
  */
-import { bend, glideEnd, legato, slide, type Glide, type Pass, type SeqEvent } from '@shared/core/audio';
+import { bend, glideEnd, legato, slide, withVibrato, type Glide, type Pass, type SeqEvent } from '@shared/core/audio';
 import type { Lick, Technique } from '../lick';
 import { compileProgression, type AudioEvent, type CompileOptions } from './compile';
 
@@ -40,7 +40,20 @@ export function glideInto(technique: Technique | undefined, fromSemis: number): 
     case 'pull':
       // Legato: the new pitch almost at once.
       return legato(to, 0.005);
+    case 'release':
+      // The bent string coming back down to its fretted pitch.
+      return slide(to, 0, 0.1);
   }
+}
+
+/** Vibrato waits this long after the note (and any glide into it) before it starts. */
+const VIBRATO_DELAY_SEC = 0.15;
+
+/** `glide` with vibrato on the rest of the note, when it is long enough to hear it. */
+function vibratoOn(glide: Glide | undefined, lengthSec: number): Glide | undefined {
+  const start = (glide ? glideEnd(glide) : 0) + VIBRATO_DELAY_SEC;
+  const length = lengthSec - start;
+  return length >= 0.15 ? withVibrato(glide, start, length) : glide;
 }
 
 /**
@@ -62,18 +75,21 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
       continue;
     }
     const fromSemis = e.fromMidi === undefined ? 0 : e.fromMidi - e.midi;
-    const glide = glideInto(e.technique, fromSemis);
+    const into = glideInto(e.technique, fromSemis);
     // Ring for the notated length plus a tail (at least through a glide), but never past the next
     // pick on the same string: a string sounds one note at a time.
-    const ring = Math.max(e.durationSec * 1.6, glide ? glideEnd(glide) : 0);
+    const ring = Math.max(e.durationSec * 1.6, into ? glideEnd(into) : 0);
     const next = nextPick.get(e.string);
     nextPick.set(e.string, e.timeSec);
+    const lengthSec = next === undefined ? ring : Math.min(ring, next - e.timeSec);
+    const glide = e.vibrato ? vibratoOn(into, Math.min(lengthSec, e.durationSec)) : into;
     out[i] = {
       timeSec: e.timeSec,
       kind: 'note',
       // A glided note is picked at the pitch it comes from.
-      midi: glide ? e.midi + fromSemis : e.midi,
-      lengthSec: next === undefined ? ring : Math.min(ring, next - e.timeSec),
+      midi: into ? e.midi + fromSemis : e.midi,
+      lengthSec,
+      velocity: e.velocity,
       glide,
       tag: { entryIndex: e.entryIndex, noteIndex: e.noteIndex },
     };

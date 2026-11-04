@@ -90,6 +90,7 @@ export function decorateTechniques(
       technique,
       role: cur.role,
       ...(cur.chromatic ? { chromatic: true } : {}),
+      ...(cur.vibrato ? { vibrato: true } : {}),
     });
 
     if (technique) {

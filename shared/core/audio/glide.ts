@@ -70,3 +70,15 @@ export function vibrato(start: number, length: number, depth = 0.35, rate = 5.5)
   }
   return points;
 }
+
+/**
+ * `glide` (or a plain held note) with vibrato laid on from `start` for `length` seconds, wobbling
+ * around wherever the pitch has got to by then — so a bend can be held and shaken at its top, the
+ * way a player finishes one. `start` should come after the glide's own movement has ended.
+ */
+export function withVibrato(glide: Glide | undefined, start: number, length: number, depth = 0.3, rate = 5.5): Glide {
+  const base = glide ?? [hold(0, 0)];
+  const at = semisAt(base, start);
+  const wobble = vibrato(start, length, depth, rate).filter((p) => p.t > start);
+  return [...base, hold(start, at), ...wobble.map((p) => ({ ...p, semis: at + p.semis }))];
+}

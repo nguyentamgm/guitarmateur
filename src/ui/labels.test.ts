@@ -56,6 +56,12 @@ describe('tabText', () => {
     expect(tabText(at(9, 'bendFull'), at(7))).toBe('b9');
     expect(tabText(at(8, 'bendHalf'), at(7))).toBe('b8');
   });
+
+  it('writes a release as r and vibrato as a trailing ~', () => {
+    expect(tabText(at(7, 'release'), at(9, 'bendFull'))).toBe('r7');
+    expect(tabText({ ...at(9, 'bendFull'), vibrato: true }, at(7))).toBe('b9~');
+    expect(tabText({ ...at(5), vibrato: true }, undefined)).toBe('5~');
+  });
 });
 
 describe('intervalLabel', () => {

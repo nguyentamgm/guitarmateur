@@ -1,5 +1,5 @@
 import { midi } from '../music';
-import type { Lick, Technique } from '../lick';
+import type { Lick, LickNote, Technique } from '../lick';
 
 /**
  * A single scheduled audio event on the transport timeline. Times are in seconds relative to the
@@ -29,6 +29,10 @@ export type AudioEvent =
       technique?: Technique;
       /** MIDI of the previous note in the same lick — the start pitch for bend/slide glides. */
       fromMidi?: number;
+      /** Held with vibrato. */
+      vibrato?: boolean;
+      /** How hard it is played, 0..1 — see `noteVelocity`. */
+      velocity: number;
     };
 
 export interface CompileOptions {
@@ -53,6 +57,19 @@ export interface CompiledProgression {
 }
 
 const BEATS_PER_BAR = 4;
+
+/**
+ * How hard a note is played. A machine plays every note the same; a player leans on the strong
+ * beats, plays the "and"s lighter, and does not pick a hammer-on, pull-off or release at all (the
+ * fretting hand sounds it, so it is softer). A chromatic passing note is played lightly too.
+ */
+export function noteVelocity(note: LickNote): number {
+  if (note.technique === 'hammer' || note.technique === 'pull' || note.technique === 'release') return 0.6;
+  const inBar = note.startBeat % BEATS_PER_BAR;
+  let v = inBar === 0 || inBar === 2 ? 1 : note.startBeat % 1 === 0 ? 0.88 : 0.76;
+  if (note.chromatic) v *= 0.85;
+  return v;
+}
 
 /**
  * Compile a progression's licks into a flat, time-sorted event list. Pure and deterministic:
@@ -110,6 +127,7 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
         ) {
           adjustedBeat += swing * (1 / 6);
         }
+        const velocity = noteVelocity(note);
         events.push({
           timeSec: adjustedBeat * secPerBeat,
           kind: 'pluck',
@@ -120,7 +138,23 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
           noteIndex,
           technique: note.technique,
           fromMidi: prev ? midi(prev.pitch) : undefined,
+          vibrato: note.vibrato,
+          velocity,
         });
+        // A double stop: its second note is struck with the first, on its own string.
+        if (note.partner) {
+          events.push({
+            timeSec: adjustedBeat * secPerBeat,
+            kind: 'pluck',
+            midi: midi(note.partner.pitch),
+            durationSec: note.durationBeats * secPerBeat,
+            string: note.partner.string,
+            entryIndex,
+            noteIndex,
+            vibrato: note.vibrato,
+            velocity: velocity * 0.9,
+          });
+        }
       });
       entryStartBeat += lick.lengthBeats;
     });

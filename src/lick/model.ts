@@ -1,7 +1,18 @@
 import type { ToneRole } from '../music';
 import type { Pitch } from '../music';
 
-export type Technique = 'hammer' | 'pull' | 'slide' | 'bendHalf' | 'bendFull';
+/**
+ * Articulation *into* a note from the one before. `release` lets a bend back down: the note before
+ * was bent up, and this one is the string returning to its fretted pitch without a new pick.
+ */
+export type Technique = 'hammer' | 'pull' | 'slide' | 'bendHalf' | 'bendFull' | 'release';
+
+/** The second note of a double stop: sounded with its note, on a neighbouring string. */
+export interface PartnerNote {
+  string: number;
+  fret: number;
+  pitch: Pitch;
+}
 
 export interface LickNote {
   string: number;
@@ -17,6 +28,10 @@ export interface LickNote {
   role?: ToneRole;
   /** A chromatic approach note: outside the scale, so its cell is not one of the box's dots. */
   chromatic?: boolean;
+  /** Held with vibrato ("~" in tab). */
+  vibrato?: boolean;
+  /** Double stop: a second note struck together with this one. */
+  partner?: PartnerNote;
 }
 
 export interface Lick {
@@ -25,6 +40,8 @@ export interface Lick {
   lengthBeats: number;
   /** Computed score, 1..5 scale. */
   difficulty: number;
+  /** The vocabulary phrase(s) it was built from (`a+b` for a call and response), or 'generated'. */
+  source?: string;
 }
 
 export interface LickParams {
@@ -40,4 +57,8 @@ export interface LickParams {
    * `progressionArc`). Steers the register of the landing note; omit for a stand-alone lick.
    */
   arc?: number;
+  /** The last chord of the progression: where a turnaround belongs. */
+  turnaround?: boolean;
+  /** The previous lick's `source`, so the solo does not play the same phrase twice in a row. */
+  previousSource?: string;
 }

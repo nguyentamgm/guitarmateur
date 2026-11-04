@@ -40,9 +40,15 @@ export function durationGlyph(beats: number): string {
 /**
  * A note's text in tab: the fret, with the technique *into* it from the note before, which has its
  * own number (as '7h9' reads in plain tab, split at the time each note sounds). Hammer 'h9',
- * pull 'p5', slide '/9' or '\5', bend 'b9' (the note before, bent up to sound as fret 9).
+ * pull 'p5', slide '/9' or '\5', bend 'b9' (the note before, bent up to sound as fret 9); a
+ * trailing '~' is vibrato ('b9~': bend, then shake it at the top); release 'r7' (a bent string let
+ * back down to fret 7).
  */
 export function tabText(n: LickNote, prev: LickNote | undefined): string {
+  return techniqueText(n, prev) + (n.vibrato ? '~' : '');
+}
+
+function techniqueText(n: LickNote, prev: LickNote | undefined): string {
   switch (n.technique) {
     case 'hammer':
       return `h${n.fret}`;
@@ -53,6 +59,8 @@ export function tabText(n: LickNote, prev: LickNote | undefined): string {
     case 'bendHalf':
     case 'bendFull':
       return `b${n.fret}`;
+    case 'release':
+      return `r${n.fret}`;
     default:
       return String(n.fret);
   }

@@ -8,6 +8,8 @@ import { scoreLick, type ScorableNote } from './score';
 import { decorateTechniques } from './techniques';
 import { applyBends } from './bends';
 import { addChromaticApproach } from './approach';
+import { addVibrato } from './vibrato';
+import { vocabularyLick } from './select';
 import { buildPhrase } from './phrase';
 import type { Lick, LickNote, LickParams } from './model';
 
@@ -22,15 +24,22 @@ function attemptSeed(seed: number, attempt: number): number {
   return (Math.imul(seed, 0x9e3779b1) ^ Math.imul(attempt + 1, 0x85ebca6b)) >>> 0;
 }
 
+/** Share of licks taken from the phrase vocabulary (vocabulary.ts) rather than generated. */
+const VOCABULARY_SHARE = 0.75;
+const GENERATED = 'generated';
+
 /** Accept the first attempt whose score lands within this tolerance of the requested level. */
 const SCORE_TOLERANCE = 0.75;
 
 /**
- * Generate a practice lick over `chord` (landing on `next` when `params.resolveToNext`), built
- * from `box`'s notes (a bend may sound a fret or two past the box, as bends do). The melody is a
- * motif-built phrase (phrase.ts) over a rhythm that breathes (rhythm.ts); bends go where the scale
- * degree calls for them (bends.ts), then legato techniques. Pure and deterministic: same inputs ⇒
- * identical lick.
+ * A practice lick over `chord` (landing on `next` when `params.resolveToNext`), built from `box`'s
+ * notes (a bend may sound a fret or two past the box, as bends do; a chromatic note may sit one
+ * fret outside it).
+ *
+ * Usually a phrase from the vocabulary (vocabulary.ts), chosen for the moment and fitted to the box
+ * (select.ts, realize.ts). Otherwise generated: a motif-built line (phrase.ts) over a rhythm that
+ * breathes (rhythm.ts), with bends where the scale degree calls for them (bends.ts), a chromatic
+ * approach, legato techniques and vibrato. Pure and deterministic: same inputs ⇒ identical lick.
  */
 export function generateLick(box: Box, chord: Chord, next: Chord | null, params: LickParams, prevLastMidi?: number): Lick {
   const targetChord = params.resolveToNext && next ? next : chord;
@@ -43,6 +52,19 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const lowMidi = Math.min(...boxMidis);
   const registerMidi =
     params.arc === undefined ? undefined : lowMidi + (0.35 + 0.55 * params.arc) * (Math.max(...boxMidis) - lowMidi);
+
+  // Most licks come from the vocabulary of real phrases; the rest are generated, which keeps
+  // variety and covers what the vocabulary cannot fit (an unusual scale, a narrow box).
+  const routeRng = mulberry32(attemptSeed(params.seed, 1000));
+  if (tonicPc !== null && routeRng() < VOCABULARY_SHARE) {
+    const phrased = vocabularyLick(
+      { box, chord, targetChord, params, tonicPc, prevLastMidi, registerMidi },
+      routeRng,
+    );
+    if (phrased) {
+      return { notes: phrased.notes, lengthBeats: phrased.lengthBeats, difficulty: phrased.difficulty, source: phrased.source };
+    }
+  }
 
   let best: { notes: LickNote[]; lengthBeats: number; score: number; badMoves: number } | null = null;
 
@@ -73,7 +95,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const techRng = mulberry32(attemptSeed(params.seed, attempt) ^ 0x5bd1e995);
     const bent = applyBends(rawNotes, chord, tonicPc, topString, params.level, techRng);
     const approached = addChromaticApproach(bent, box, chord, params.level, techRng);
-    const notes = decorateTechniques(approached, params.level, techRng);
+    const notes = addVibrato(decorateTechniques(approached, params.level, techRng), params.level, techRng);
 
     const scorable: ScorableNote[] = path.map((fretNote, i) => ({
       string: notes[i]!.string,
@@ -91,7 +113,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const badMoves = countUnplayableMoves(notes, params.level);
 
     if (badMoves === 0 && Math.abs(score - params.level) <= SCORE_TOLERANCE) {
-      return { notes, lengthBeats, difficulty: score };
+      return { notes, lengthBeats, difficulty: score, source: GENERATED };
     }
     const better =
       !best ||
@@ -103,5 +125,5 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     }
   }
 
-  return { notes: best!.notes, lengthBeats: best!.lengthBeats, difficulty: best!.score };
+  return { notes: best!.notes, lengthBeats: best!.lengthBeats, difficulty: best!.score, source: GENERATED };
 }

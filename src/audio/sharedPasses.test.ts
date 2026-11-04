@@ -104,3 +104,47 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     expect(seq.isPlaying).toBe(false);
   });
 });
+
+describe('expressive playback', () => {
+  const play = (lick: Lick) => toSeqEvents(compileProgression([lick], { tempoBpm: 60, metronome: false }).events).filter((e) => e.kind === 'note');
+
+  it('leans on beats 1 and 3, plays the "and"s lighter and a hammer-on softer still', () => {
+    const lick: Lick = {
+      lengthBeats: 4,
+      difficulty: 1,
+      notes: [n(0, A4, { durationBeats: 0.5 }), n(0.5, B4, { durationBeats: 0.5, string: 2 }), n(1, A4, { string: 3 }), n(2, B4, { string: 3, technique: 'hammer' })],
+    };
+    const v = play(lick).map((e) => (e.kind === 'note' ? e.velocity : undefined));
+    expect(v[0]).toBe(1);
+    expect(v[1]!).toBeLessThan(v[2]!);
+    expect(v[3]!).toBeLessThan(v[1]!);
+  });
+
+  it('strikes a double stop as two notes at once, each on its own string', () => {
+    const lick: Lick = { lengthBeats: 1, difficulty: 3, notes: [n(0, A4, { partner: { string: 2, fret: 5, pitch: B4 } })] };
+    const ev = play(lick);
+    expect(ev).toHaveLength(2);
+    expect(ev[0]!.timeSec).toBe(ev[1]!.timeSec);
+  });
+
+  it('shakes a held note around its pitch, and a held bend around its top', () => {
+    const held = play({ lengthBeats: 2, difficulty: 3, notes: [n(0, A4, { durationBeats: 2, vibrato: true })] })[0]!;
+    const g = held.kind === 'note' ? held.glide! : [];
+    const samples = [0.5, 0.55, 0.6, 0.65, 0.7].map((t) => semisAt(g, t));
+    expect(Math.max(...samples)).toBeGreaterThan(0.1);
+    expect(Math.min(...samples)).toBeLessThan(-0.1);
+
+    const bent = play({
+      lengthBeats: 3,
+      difficulty: 3,
+      notes: [n(0, A4), n(1, B4, { durationBeats: 2, technique: 'bendFull', vibrato: true })],
+    })[1]!;
+    const bg = bent.kind === 'note' ? bent.glide! : [];
+    // Picked at A, bent up two semitones, then the wobble sits around +2.
+    const top = [0.8, 0.85, 0.9, 0.95, 1].map((t) => semisAt(bg, t));
+    expect(Math.max(...top)).toBeGreaterThan(2.1);
+    expect(Math.min(...top)).toBeLessThan(1.9);
+    expect(Math.min(...top)).toBeGreaterThan(1.4);
+  });
+});
+
