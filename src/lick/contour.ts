@@ -34,6 +34,19 @@ function registerWeight(box: Box, n: FretNote): number {
   return 0.3 + (top > 0 ? n.string / top : 1);
 }
 
+/**
+ * The solo's arc over a progression of `count` licks: where lick `index` should sit, from 0 (low,
+ * calm) to 1 (climax). It builds to a peak about two thirds of the way through, then settles back
+ * part of the way for the last chord, so the progression reads as one story with a high point
+ * rather than as separate exercises. `undefined` for a single lick, which has no arc to follow.
+ */
+export function progressionArc(index: number, count: number): number | undefined {
+  if (count < 2) return undefined;
+  const t = index / (count - 1);
+  const PEAK = 0.7;
+  return t <= PEAK ? t / PEAK : 1 - ((t - PEAK) / (1 - PEAK)) * 0.6;
+}
+
 /** Fallback chase order when the requested role has no box notes (e.g. sus chords). */
 const ROLE_FALLBACK: ToneRole[] = ['3', '5', 'R'];
 
@@ -43,20 +56,45 @@ function candidatesForRole(box: Box, chord: Chord, role: ToneRole): FretNote[] {
 
 /**
  * A chord-tone note in the box for `role`, cascading role → 3 → 5 → R → any chord tone → any box
- * note, so generation always produces *something* even for exotic chord/scale combinations.
+ * note, so generation always produces *something* even for exotic chord/scale combinations. With
+ * `registerMidi`, the octave nearest that pitch is preferred (the solo's arc, see `progressionArc`).
  */
-export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng): FretNote {
+export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng, registerMidi?: number): FretNote {
   const order = [role, ...ROLE_FALLBACK.filter((r) => r !== role)];
   for (const r of order) {
     const cands = candidatesForRole(box, chord, r);
-    if (cands.length) return weightedChoice(rng, cands.map((n) => ({ item: n, weight: registerWeight(box, n) })));
+    if (cands.length) {
+      return weightedChoice(
+        rng,
+        cands.map((n) => ({
+          item: n,
+          weight:
+            registerWeight(box, n) *
+            (registerMidi === undefined ? 1 : 1 / (1 + Math.abs(midi(n.pitch) - registerMidi) / 3)),
+        })),
+      );
+    }
   }
   const anyChordTone = box.notes.filter((n) => toneRole(n.pitch, chord) !== null);
   if (anyChordTone.length) return choice(rng, anyChordTone);
   return choice(rng, box.notes);
 }
 
-/** First note: any chord tone of the current chord, weighted to give the contour room to move. */
+/**
+ * How strongly a first note `distance` semitones from the previous lick's last note is preferred.
+ * When the chord changes, a solo that hangs together keeps a common tone (distance 0) or moves to
+ * the nearest chord tone of the new chord (a step); jumping elsewhere restarts the story.
+ */
+export function voiceLeadingWeight(distance: number): number {
+  if (distance === 0) return 8;
+  if (distance <= 2) return 4;
+  return 1 / (1 + 0.5 * distance);
+}
+
+/**
+ * First note: any chord tone of the current chord, weighted to give the contour room to move and —
+ * given the previous lick's last note — to voice-lead across the chord change.
+ */
 export function pickFirstNote(
   box: Box,
   chord: Chord,
@@ -88,11 +126,10 @@ export function pickFirstNote(
       default:
         weight = 1 / (1 + Math.abs(d));
     }
+    // Mid-solo, the chord change decides where the lick starts; the contour then shapes the path
+    // from there. Only a stand-alone lick picks its start to suit the contour.
+    if (prevLastMidi !== undefined) weight = voiceLeadingWeight(Math.abs(midi(n.pitch) - prevLastMidi));
     weight *= registerWeight(box, n);
-    if (prevLastMidi !== undefined) {
-      const distance = Math.abs(midi(n.pitch) - prevLastMidi);
-      weight *= 1 / (1 + distance * 0.2);
-    }
     return { item: n, weight };
   });
   return weightedChoice(rng, weighted);

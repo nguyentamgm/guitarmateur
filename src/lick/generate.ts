@@ -37,6 +37,11 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const tonic = box.notes.find((n) => n.isTonic);
   const tonicPc = tonic ? midi(tonic.pitch) % 12 : null;
   const topString = Math.max(...box.notes.map((n) => n.string));
+  // The solo's arc picks the landing note's register: low early, highest near the climax.
+  const boxMidis = box.notes.map((n) => midi(n.pitch));
+  const lowMidi = Math.min(...boxMidis);
+  const registerMidi =
+    params.arc === undefined ? undefined : lowMidi + (0.2 + 0.65 * params.arc) * (Math.max(...boxMidis) - lowMidi);
 
   let best: { notes: LickNote[]; lengthBeats: number; score: number; badMoves: number } | null = null;
 
@@ -48,7 +53,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const lengthBeats = patternLengthBeats(pattern);
     const contour = pickContour(params.level, rng);
 
-    const last = pickChordTone(box, targetChord, params.targetRole, rng);
+    const last = pickChordTone(box, targetChord, params.targetRole, rng, registerMidi);
     const first = pickFirstNote(box, chord, last, contour, rng, prevLastMidi);
     // A motif-built phrase when one fits the box; the plain contour walk only as a safety net.
     const path =

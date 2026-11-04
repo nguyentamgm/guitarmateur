@@ -1,4 +1,4 @@
-import { generateLick, type Lick } from '../lick';
+import { generateLick, progressionArc, type Lick } from '../lick';
 import { midi } from '../music';
 import { TUNINGS, mergedBox, positions } from '../fretboard';
 import type { AppState } from './appState';
@@ -29,6 +29,8 @@ export function licksForState(state: AppState): EntryLick[] {
   const box = mergedBox(pos, state.positions);
   const entries = state.progression;
 
+  // One solo across the progression, not separate exercises: each lick starts by voice-leading
+  // from the one before (common tone or nearest chord tone) and lands where the solo's arc is.
   const result: EntryLick[] = [];
   let prevLastMidi: number | undefined;
   for (let i = 0; i < entries.length; i++) {
@@ -45,6 +47,7 @@ export function licksForState(state: AppState): EntryLick[] {
         resolveToNext: state.resolveToNext,
         seed: entry.lickSeed,
         bars: entry.bars,
+        arc: progressionArc(i, entries.length),
       },
       prevLastMidi,
     );

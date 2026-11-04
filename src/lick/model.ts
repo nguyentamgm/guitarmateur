@@ -33,4 +33,9 @@ export interface LickParams {
   seed: number;
   /** Bars the lick spans (× 4 beats); defaults to 1. */
   bars?: 1 | 2;
+  /**
+   * Where this lick sits in the solo's arc, 0 = low and calm, 1 = the climax (see
+   * `progressionArc`). Steers the register of the landing note; omit for a stand-alone lick.
+   */
+  arc?: number;
 }
