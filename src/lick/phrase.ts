@@ -1,4 +1,4 @@
-import { midi, toneRole, type Chord } from '../music';
+import { midi, toneRole, type Chord, type ToneRole } from '../music';
 import type { Box, FretNote } from '../fretboard';
 import { weightedChoice, type Rng } from '@shared/core/rng';
 import type { RhythmSlot } from './rhythm';
@@ -149,21 +149,48 @@ export function buildLine(
 }
 
 /**
+ * How much each chord-tone role is worth where the beat is strong. Not all chord tones are equal:
+ * the 3rd carries the chord's colour (minor or major), root and 5th are stable, the 7th is a
+ * softer colour tone. A non-chord tone there costs.
+ */
+const STRONG_BEAT_ROLE: Record<ToneRole, number> = { R: 1, '3': 1.2, '5': 1, '7': 0.6 };
+const STRONG_BEAT_NON_CHORD = -1;
+
+/**
+ * At the end of a phrase segment (the note before a rest or bar line) the ear wants to come to
+ * rest: the root most of all, then the 5th, the 3rd a little less; anything else sounds unfinished.
+ */
+const PHRASE_END_ROLE: Record<ToneRole, number> = { R: 1.2, '5': 0.8, '3': 0.5, '7': 0 };
+const PHRASE_END_NON_CHORD = -0.8;
+
+/**
  * Musical sense of a line, higher is better. Not a difficulty measure — it rewards what makes a
- * phrase sound intentional: chord tones where the beat is strong or the note is held, leaps that
- * turn back by step, the decoration (blue) note only in passing, and a compact range.
+ * phrase sound intentional: chord tones where the beat is strong or the note is held (the 3rd most,
+ * the 7th least), resolution where a segment ends, non-chord tones (the 4th, the 2nd…) on weak
+ * beats as passing or neighbour tension, leaps that turn back by step, the decoration (blue) note
+ * only in passing, and a compact range.
  */
 export function scoreLine(line: readonly number[], ladder: readonly Rung[], slots: readonly RhythmSlot[], chord: Chord): number {
   const n = line.length;
+  const segmentEnds = new Set([...groupStarts(slots)].map((g) => g - 1));
   let score = 0;
   let sameRun = 1;
   for (let i = 0; i < n; i++) {
     const rung = ladder[line[i]!]!;
     const slot = slots[i]!;
     const isLast = i === n - 1;
+    const role = toneRole(rung.notes[0]!.pitch, chord);
     const strong = slot.startBeat % 2 === 0 || slot.durationBeats >= 1;
     if (!isLast && strong) {
-      score += toneRole(rung.notes[0]!.pitch, chord) !== null ? 1 : -1;
+      score += role !== null ? STRONG_BEAT_ROLE[role] : STRONG_BEAT_NON_CHORD;
+    } else if (!isLast && role === null && i > 0) {
+      // Tension on a weak beat is good when it moves by step — a passing or neighbour tone.
+      const stepIn = Math.abs(line[i]! - line[i - 1]!) === 1;
+      const stepOut = Math.abs(line[i + 1]! - line[i]!) === 1;
+      score += stepIn && stepOut ? 0.3 : -0.3;
+    }
+    if (segmentEnds.has(i)) {
+      score += role !== null ? PHRASE_END_ROLE[role] : PHRASE_END_NON_CHORD;
     }
     if (rung.isDecoration) {
       const prev = line[i - 1];

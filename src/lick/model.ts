@@ -15,6 +15,8 @@ export interface LickNote {
   technique?: Technique;
   /** Chord-tone role vs. the card's chord, if any. */
   role?: ToneRole;
+  /** A chromatic approach note: outside the scale, so its cell is not one of the box's dots. */
+  chromatic?: boolean;
 }
 
 export interface Lick {

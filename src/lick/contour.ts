@@ -68,9 +68,11 @@ export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng, 
         rng,
         cands.map((n) => ({
           item: n,
+          // The solo's arc, when there is one, decides the register outright; otherwise lean upward.
           weight:
-            registerWeight(box, n) *
-            (registerMidi === undefined ? 1 : 1 / (1 + Math.abs(midi(n.pitch) - registerMidi) / 3)),
+            registerMidi === undefined
+              ? registerWeight(box, n)
+              : 1 / (1 + ((midi(n.pitch) - registerMidi) / 4) ** 2),
         })),
       );
     }

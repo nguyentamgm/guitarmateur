@@ -7,6 +7,7 @@ import { countUnplayableMoves, fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
 import { decorateTechniques } from './techniques';
 import { applyBends } from './bends';
+import { addChromaticApproach } from './approach';
 import { buildPhrase } from './phrase';
 import type { Lick, LickNote, LickParams } from './model';
 
@@ -41,7 +42,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const boxMidis = box.notes.map((n) => midi(n.pitch));
   const lowMidi = Math.min(...boxMidis);
   const registerMidi =
-    params.arc === undefined ? undefined : lowMidi + (0.2 + 0.65 * params.arc) * (Math.max(...boxMidis) - lowMidi);
+    params.arc === undefined ? undefined : lowMidi + (0.35 + 0.55 * params.arc) * (Math.max(...boxMidis) - lowMidi);
 
   let best: { notes: LickNote[]; lengthBeats: number; score: number; badMoves: number } | null = null;
 
@@ -71,14 +72,15 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
 
     const techRng = mulberry32(attemptSeed(params.seed, attempt) ^ 0x5bd1e995);
     const bent = applyBends(rawNotes, chord, tonicPc, topString, params.level, techRng);
-    const notes = decorateTechniques(bent, params.level, techRng);
+    const approached = addChromaticApproach(bent, box, chord, params.level, techRng);
+    const notes = decorateTechniques(approached, params.level, techRng);
 
     const scorable: ScorableNote[] = path.map((fretNote, i) => ({
       string: notes[i]!.string,
       fret: notes[i]!.fret,
       startBeat: slots[i]!.startBeat,
       technique: notes[i]!.technique,
-      isDecoration: fretNote.isDecoration,
+      isDecoration: fretNote.isDecoration || notes[i]!.chromatic === true,
     }));
     const score = scoreLick(scorable, lengthBeats);
     // `fillPath` steers away from same-fret string jumps and (for levels that forbid it) string

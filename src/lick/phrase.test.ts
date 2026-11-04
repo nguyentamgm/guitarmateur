@@ -72,8 +72,9 @@ describe('generateLick — phrasing', () => {
         const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed }).notes;
         if (notes.length < 3) continue;
         total++;
-        const d = rungOf(midi(notes.at(-1)!.pitch)) - rungOf(midi(notes.at(-2)!.pitch));
-        if (Math.abs(d) === 1) stepwise++;
+        const before = notes.at(-2)!;
+        const d = rungOf(midi(notes.at(-1)!.pitch)) - rungOf(midi(before.pitch));
+        if (Math.abs(d) === 1 || before.chromatic) stepwise++;
       }
     }
     expect(stepwise / total).toBeGreaterThan(0.85);
