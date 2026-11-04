@@ -114,17 +114,22 @@ export function pickPattern(level: LickParams['level'], rng: Rng): RhythmPattern
   return choice(rng, LIBRARY[level]);
 }
 
+/** How often the second bar answers the first with the same rhythm (call and response). */
+const RESPONSE_SAME_RHYTHM = 0.6;
+
 /**
- * Build a `bars`-bar rhythm by tiling one freshly-picked 1-bar pattern per bar, each offset by
- * `LENGTH_BEATS`. Reusing the 1-bar library keeps this a data-assembly step (no new pattern tables)
- * while letting a chord span 2 bars — the second bar can differ from the first, so 2-bar licks
- * aren't just a repeat. Deterministic: successive bars advance the shared `rng`.
+ * Build a `bars`-bar rhythm by tiling 1-bar patterns, each offset by `LENGTH_BEATS`. A later bar
+ * usually **answers** the first with the same rhythm — call and response, the backbone of blues
+ * phrasing, where the answer is recognisably the same gesture — and otherwise gets a fresh pattern
+ * so 2-bar licks are not always symmetrical. Deterministic: successive bars advance the shared `rng`.
  */
 export function buildRhythm(level: LickParams['level'], bars: number, rng: Rng): RhythmPattern {
   const out: RhythmPattern = [];
+  const call = pickPattern(level, rng);
   for (let bar = 0; bar < bars; bar++) {
     const offset = bar * LENGTH_BEATS;
-    for (const slot of pickPattern(level, rng)) {
+    const pattern = bar === 0 || rng() < RESPONSE_SAME_RHYTHM ? call : pickPattern(level, rng);
+    for (const slot of pattern) {
       out.push({ ...slot, startBeat: slot.startBeat + offset });
     }
   }

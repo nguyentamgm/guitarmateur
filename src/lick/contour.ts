@@ -111,7 +111,7 @@ export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng, 
           weight:
             registerMidi === undefined
               ? registerWeight(box, n)
-              : 1 / (1 + ((midi(n.pitch) - registerMidi) / 4) ** 2),
+              : 1 / (1 + ((midi(n.pitch) - registerMidi) / 3) ** 2),
         })),
       );
     }

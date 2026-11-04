@@ -117,7 +117,8 @@ export function groupStarts(slots: readonly RhythmSlot[], barBeats = 4): Set<num
 /**
  * A line of `n` ladder indices from `first` to `last`: the motif fills the body, restated at each
  * group start (in `contour` mode, from the rung `contour` expects there), and the second-to-last
- * note steps into `last` from `approachDir` (+1 = from above).
+ * note steps into `last` from `approachDir` (+1 = from above). With `responseStart` (the first
+ * note of bar 2), bar 2 answers bar 1 by restating its opening.
  */
 export function buildLine(
   n: number,
@@ -129,6 +130,7 @@ export function buildLine(
   mode: MotifMode,
   approachDir: 1 | -1,
   contour: Contour = 'descend',
+  responseStart?: number,
 ): number[] {
   if (n <= 1) return [last];
   const clamp = (r: number) => Math.max(0, Math.min(ladderSize - 1, r));
@@ -157,6 +159,13 @@ export function buildLine(
     }
     line[i] = cur;
   }
+  // Call and response: the second bar opens by restating the first bar's line note for note, then
+  // breaks away to its own approach and landing — the same question, answered differently.
+  if (responseStart !== undefined && mode !== 'chain' && responseStart > 1) {
+    for (let j = 0; responseStart + j < n - 2 && j < responseStart; j++) {
+      line[responseStart + j] = line[j]!;
+    }
+  }
   return line;
 }
 
@@ -176,13 +185,27 @@ const PHRASE_END_ROLE: Record<ToneRole, number> = { R: 1.2, '5': 0.8, '3': 0.5, 
 const PHRASE_END_NON_CHORD = -0.8;
 
 /**
+ * The end of the *call* in a call and response is the opposite: a question should hang, so open
+ * tones (5th, 7th, 3rd) beat the root, which would answer it too early. A 4th suspends nicely too.
+ */
+const CALL_END_ROLE: Record<ToneRole, number> = { R: -0.3, '3': 0.6, '5': 0.8, '7': 0.8 };
+const CALL_END_NON_CHORD = 0.2;
+
+/**
  * Musical sense of a line, higher is better. Not a difficulty measure — it rewards what makes a
  * phrase sound intentional: chord tones where the beat is strong or the note is held (the 3rd most,
  * the 7th least), resolution where a segment ends, non-chord tones (the 4th, the 2nd…) on weak
  * beats as passing or neighbour tension, leaps that turn back by step, the decoration (blue) note
  * only in passing, and a compact range.
  */
-export function scoreLine(line: readonly number[], ladder: readonly Rung[], slots: readonly RhythmSlot[], chord: Chord): number {
+export function scoreLine(
+  line: readonly number[],
+  ladder: readonly Rung[],
+  slots: readonly RhythmSlot[],
+  chord: Chord,
+  /** Index of the last note of the call, in a 2-bar call and response. */
+  callEnd?: number,
+): number {
   const n = line.length;
   const segmentEnds = new Set([...groupStarts(slots)].map((g) => g - 1));
   let score = 0;
@@ -201,7 +224,9 @@ export function scoreLine(line: readonly number[], ladder: readonly Rung[], slot
       const stepOut = Math.abs(line[i + 1]! - line[i]!) === 1;
       score += stepIn && stepOut ? 0.3 : -0.3;
     }
-    if (segmentEnds.has(i)) {
+    if (i === callEnd) {
+      score += role !== null ? CALL_END_ROLE[role] : CALL_END_NON_CHORD;
+    } else if (segmentEnds.has(i)) {
       score += role !== null ? PHRASE_END_ROLE[role] : PHRASE_END_NON_CHORD;
     }
     if (rung.isDecoration) {
@@ -214,7 +239,8 @@ export function scoreLine(line: readonly number[], ladder: readonly Rung[], slot
     if (i > 0) {
       const d = line[i]! - line[i - 1]!;
       const leap = Math.abs(d);
-      if (leap >= 4) score -= 2;
+      // A leap costs more the wider it is: a 4th or 5th is a gesture, two octaves is a hole.
+      if (leap >= 4) score -= 2 + (leap - 4);
       else if (leap === 3) score -= 0.7;
       if (leap >= 2 && i + 1 < n) {
         const d2 = line[i + 1]! - line[i]!;
@@ -323,6 +349,10 @@ export function buildPhrase(
   if (fi < 0 || ti < 0) return null;
 
   const groups = groupStarts(slots);
+  // In a 2-bar lick, bar 1 is the call and bar 2 the response.
+  const barTwo = slots.findIndex((sl) => sl.startBeat >= 4);
+  const responseStart = barTwo > 0 ? barTwo : undefined;
+  const callEnd = responseStart !== undefined ? responseStart - 1 : undefined;
   const motifs = MOTIFS.filter((m) => m.minLevel <= level).map((m) => ({ item: m.moves, weight: m.weight }));
   let best: { path: FretNote[]; score: number } | null = null;
   for (let c = 0; c < CANDIDATES; c++) {
@@ -330,10 +360,10 @@ export function buildPhrase(
     const mode = weightedChoice(rng, MODE_WEIGHTS);
     // Blues lines mostly resolve downward, so the approach comes from above more often than not.
     const approachDir: 1 | -1 = rng() < 0.6 ? 1 : -1;
-    const line = buildLine(slots.length, groups, fi, ti, ladder.length, motif, mode, approachDir, contour);
+    const line = buildLine(slots.length, groups, fi, ti, ladder.length, motif, mode, approachDir, contour, responseStart);
     const path = fingerLine(line, ladder, level);
     if (!path) continue;
-    const score = scoreLine(line, ladder, slots, chord) - CONTOUR_FIT_WEIGHT * contourMiss(line, contour);
+    const score = scoreLine(line, ladder, slots, chord, callEnd) - CONTOUR_FIT_WEIGHT * contourMiss(line, contour);
     if (!best || score > best.score) best = { path, score };
   }
   return best?.path ?? null;

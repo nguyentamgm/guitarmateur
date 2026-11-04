@@ -48,6 +48,13 @@ describe('buildLine', () => {
     expect(line.at(-1)).toBe(2);
   });
 
+  it('call and response: bar 2 restates the opening of bar 1, then lands on its own', () => {
+    // 10 notes, bar 2 starting at index 5: notes 5-7 echo notes 0-2, then approach + target.
+    const line = buildLine(10, new Set([5]), 7, 2, 12, [-1, 1], 'repeat', 1, 'descend', 5);
+    expect(line.slice(5, 8)).toEqual(line.slice(0, 3));
+    expect(line.slice(-2)).toEqual([3, 2]);
+  });
+
   it('stays on the ladder', () => {
     const line = buildLine(10, new Set(), 0, 1, 4, [-1, -1, -1], 'chain', -1);
     for (const r of line) {
@@ -114,10 +121,48 @@ describe('generateLick — phrasing', () => {
     expect(chordTones / strong).toBeGreaterThan(0.8);
   });
 
+  it('rarely leaps wider than a 6th between neighbouring notes', () => {
+    let moves = 0;
+    let wide = 0;
+    for (const level of [1, 2, 3, 4, 5] as const) {
+      for (const bars of [1, 2] as const) {
+        for (let seed = 0; seed < 40; seed++) {
+          const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars }).notes;
+          for (let i = 1; i < notes.length; i++) {
+            moves++;
+            if (Math.abs(midi(notes[i]!.pitch) - midi(notes[i - 1]!.pitch)) > 9) wide++;
+          }
+        }
+      }
+    }
+    expect(wide / moves).toBeLessThan(0.05);
+  });
+
   it('neighbouring seeds give different licks', () => {
     const licks = Array.from({ length: 10 }, (_, seed) =>
       JSON.stringify(generateLick(box, a7, null, { level: 3, targetRole: 'R', resolveToNext: false, seed }).notes),
     );
     expect(new Set(licks).size).toBeGreaterThanOrEqual(8);
+  });
+});
+
+describe('generateLick — 2-bar call and response', () => {
+  it('the call ends open (rarely on the root) while the response lands on the target', () => {
+    let calls = 0;
+    let callOnRoot = 0;
+    let echoed = 0;
+    for (const level of [2, 3, 4] as const) {
+      for (let seed = 0; seed < 60; seed++) {
+        const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars: 2 }).notes;
+        const b2 = notes.findIndex((n) => n.startBeat >= 4);
+        if (b2 < 1) continue;
+        calls++;
+        if (toneRole(notes[b2 - 1]!.pitch, a7) === 'R') callOnRoot++;
+        if (midi(notes[b2]!.pitch) === midi(notes[0]!.pitch)) echoed++;
+        expect(notes.at(-1)!.role).toBe('R');
+      }
+    }
+    expect(callOnRoot / calls).toBeLessThan(0.35);
+    expect(echoed / calls).toBeGreaterThan(0.4);
   });
 });
