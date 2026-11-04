@@ -24,6 +24,16 @@ export function pickContour(level: LickParams['level'], rng: Rng): Contour {
   );
 }
 
+/**
+ * Lead lines live on the middle and top strings; licks parked on the low E and A strings sound
+ * like a bass line. So endpoint choices lean upward: weight 0.3 on the lowest string of the box,
+ * rising to 1.3 on the highest.
+ */
+function registerWeight(box: Box, n: FretNote): number {
+  const top = Math.max(...box.notes.map((c) => c.string));
+  return 0.3 + (top > 0 ? n.string / top : 1);
+}
+
 /** Fallback chase order when the requested role has no box notes (e.g. sus chords). */
 const ROLE_FALLBACK: ToneRole[] = ['3', '5', 'R'];
 
@@ -39,7 +49,7 @@ export function pickChordTone(box: Box, chord: Chord, role: ToneRole, rng: Rng):
   const order = [role, ...ROLE_FALLBACK.filter((r) => r !== role)];
   for (const r of order) {
     const cands = candidatesForRole(box, chord, r);
-    if (cands.length) return choice(rng, cands);
+    if (cands.length) return weightedChoice(rng, cands.map((n) => ({ item: n, weight: registerWeight(box, n) })));
   }
   const anyChordTone = box.notes.filter((n) => toneRole(n.pitch, chord) !== null);
   if (anyChordTone.length) return choice(rng, anyChordTone);
@@ -78,6 +88,7 @@ export function pickFirstNote(
       default:
         weight = 1 / (1 + Math.abs(d));
     }
+    weight *= registerWeight(box, n);
     if (prevLastMidi !== undefined) {
       const distance = Math.abs(midi(n.pitch) - prevLastMidi);
       weight *= 1 / (1 + distance * 0.2);

@@ -35,69 +35,70 @@ const shuffleBeat = (beat: number): RhythmSlot[] => [de(beat), s(beat + 0.75)];
  */
 const shuffleUnit = (beat: number): RhythmSlot[] => [dq(beat), e(beat + 1.5)];
 
-/**
- * One beat of triplet-feel 8ths: 3 attacks per beat (long-short-short). A true
- * 1/3-beat triplet isn't exactly representable on this grid (and would break exact
- * beat-sum arithmetic in floating point), so this approximates the same density/feel
- * using durationBeats already in the grid (0.5 + 0.25 + 0.25).
+/** Quarter rest — a breath long enough to hear at every level. */
+const restQ = (startBeat: number): RhythmSlot => ({ startBeat, durationBeats: 1, rest: true });
+
+/*
+ * Phrasing rules every pattern below follows, because they are what makes a lick sound like a
+ * sentence rather than a scale exercise:
+ *
+ * - **It breathes.** Most patterns leave a rest somewhere — often a pickup (a rest on the downbeat,
+ *   so the phrase starts *after* the 1) or a gap mid-bar that splits it into call and answer.
+ * - **It lands and holds.** The last note is at least a beat long (or a syncopated dotted quarter
+ *   on the "and" of 2), so the target note rings instead of being thrown away on the last 8th.
+ * - **It is not wall-to-wall.** Density still rises with the level, but no level fills every slot.
  */
-const tripletBeat = (beat: number): RhythmSlot[] => [e(beat), s(beat + 0.5), s(beat + 0.75)];
 
-/** Level 1 — sparse, on-beat quarters/halves (2–4 notes). */
+/** Level 1 — quarters/halves with quarter rests (2–4 notes). */
 const LEVEL1: RhythmPattern[] = [
-  [q(0), q(1), q(2), q(3)],
-  [h(0), q(2), q(3)],
-  [q(0), h(1), q(3)],
   [q(0), q(1), h(2)],
+  [restQ(0), q(1), h(2)],
+  [q(0), restQ(1), q(2), q(3)],
+  [restQ(0), q(1), q(2), q(3)],
   [h(0), h(2)],
+  [q(0), q(1), q(2), q(3)],
 ];
 
-/** Level 2 — quarters + paired 8ths (4–6 notes). */
+/** Level 2 — quarters + paired 8ths, pickups and a held landing (4–6 notes). */
 const LEVEL2: RhythmPattern[] = [
-  [q(0), q(1), e(2), e(2.5), q(3)],
-  [e(0), e(0.5), q(1), q(2), q(3)],
-  [q(0), e(1), e(1.5), q(2), q(3)],
-  [e(0), e(0.5), e(1), e(1.5), q(2), q(3)],
-  [h(0), e(2), e(2.5), q(3)],
-  [e(0), e(0.5), q(1), e(2), e(2.5), q(3)],
-  [q(0), e(1), e(1.5), e(2), e(2.5), q(3)],
+  [restE(0), e(0.5), e(1), e(1.5), h(2)],
+  [e(0), e(0.5), q(1), restQ(2), q(3)],
+  [q(0), e(1), e(1.5), h(2)],
+  [restQ(0), e(1), e(1.5), e(2), e(2.5), q(3)],
+  [e(0), e(0.5), e(1), e(1.5), h(2)],
+  [q(0), restE(1), e(1.5), q(2), q(3)],
+  [restE(0), e(0.5), q(1), e(2), e(2.5), q(3)],
 ];
 
-/** Level 3 — straight 8ths, 8th rests, pickup starts (6–8 notes). */
+/** Level 3 — 8th lines with rests and syncopated landings, plus the shuffle figure (no 16ths). */
 const LEVEL3: RhythmPattern[] = [
-  [e(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
-  [e(0), e(0.5), e(1), restE(1.5), e(2), restE(2.5), e(3), e(3.5)],
-  [restE(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
-  [e(0), restE(0.5), e(1), e(1.5), restE(2), e(2.5), e(3), e(3.5)],
-  [...shuffleUnit(0), ...shuffleUnit(2)], // blues shuffle — long-short (dotted-quarter + 8th) boogie feel, 4 notes
-  [e(0), e(0.5), restE(1), e(1.5), e(2), e(2.5), e(3), e(3.5)], // 7 notes with mid-bar rest
-  [e(0), e(0.5), e(1), e(1.5), e(2), restE(2.5), e(3), e(3.5)], // 7 notes with rest on 8th offbeat
+  [e(0), e(0.5), e(1), e(1.5), e(2), dq(2.5)], // runs into a held note on the "and" of 2
+  [restE(0), e(0.5), e(1), e(1.5), q(2), q(3)],
+  [...shuffleUnit(0), e(2), e(2.5), q(3)], // boogie long-short, then a pair into the landing
+  [e(0), e(0.5), e(1), restE(1.5), e(2), e(2.5), q(3)],
+  [restQ(0), e(1), e(1.5), e(2), e(2.5), q(3)],
+  [e(0), e(0.5), q(1), restE(2), e(2.5), q(3)],
+  [restE(0), e(0.5), e(1), e(1.5), h(2)],
 ];
 
-/** Level 4 — syncopation, 8th rests, off-beat starts (7–8 notes, high density). */
+/** Level 4 — denser, syncopated 8ths with off-beat entries (5–7 notes). */
 const LEVEL4: RhythmPattern[] = [
-  [e(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],          // straight 8ths
-  [e(0), e(0.5), e(1), restE(1.5), e(2), e(2.5), e(3), e(3.5)],       // 7 notes
-  [restE(0), e(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],       // pickup start
-  [e(0), e(0.5), e(1), e(1.5), restE(2), e(2.5), e(3), e(3.5)],       // mid rest
-  [e(0), restE(0.5), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],       // off-beat start
-  [e(0), e(0.5), restE(1), e(1.5), e(2), restE(2.5), e(3), e(3.5)],   // 6 notes — lowest, but syncopated
-  [...tripletBeat(0), q(1), ...tripletBeat(2), q(3)],                 // triplet-feel 8ths, 8 notes
+  [restE(0), e(0.5), e(1), e(1.5), e(2), e(2.5), q(3)],
+  [e(0), e(0.5), restE(1), e(1.5), e(2), e(2.5), q(3)],
+  [e(0), e(0.5), e(1), e(1.5), restE(2), e(2.5), q(3)],
+  [restE(0), e(0.5), restE(1), e(1.5), e(2), e(2.5), q(3)], // pushed, off-beat phrase
+  [restE(0), e(0.5), e(1), e(1.5), e(2), dq(2.5)],
+  [e(0), restE(0.5), e(1), e(1.5), e(2), e(2.5), q(3)],
 ];
 
-/** Level 5 — 16th pairs/runs, mixed. */
+/** Level 5 — 16th bursts against 8ths, still landing on a held note. */
 const LEVEL5: RhythmPattern[] = [
-  [e(0), e(0.5), e(1), e(1.5), s(2), s(2.25), s(2.5), s(2.75), e(3), e(3.5)],
-  [s(0), s(0.25), s(0.5), s(0.75), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
-  [e(0), s(0.5), s(0.75), e(1), e(1.5), e(2), e(2.5), e(3), e(3.5)],
-  [restE(0), e(0.5), e(1), restS(1.5), s(1.75), e(2), e(2.5), s(3), s(3.25), s(3.5), s(3.75)],
-  [s(0), s(0.25), restS(0.5), s(0.75), e(1), restE(1.5), s(2), s(2.25), e(2.5), e(3), e(3.5)],
-  [
-    ...shuffleBeat(0),
-    s(1), s(1.25), s(1.5), s(1.75),
-    ...shuffleBeat(2),
-    s(3), s(3.25), s(3.5), s(3.75),
-  ], // swing 16ths — shuffled beats alternating with straight 16th runs, 12 notes
+  [s(0), s(0.25), s(0.5), s(0.75), e(1), e(1.5), e(2), e(2.5), q(3)],
+  [restE(0), s(0.5), s(0.75), e(1), e(1.5), s(2), s(2.25), s(2.5), s(2.75), q(3)],
+  [e(0), s(0.5), s(0.75), e(1), restE(1.5), s(2), s(2.25), e(2.5), q(3)],
+  [...shuffleBeat(0), s(1), s(1.25), s(1.5), s(1.75), e(2), e(2.5), q(3)],
+  [restS(0), s(0.25), s(0.5), s(0.75), e(1), e(1.5), e(2), dq(2.5)],
+  [s(0), s(0.25), e(0.5), s(1), s(1.25), e(1.5), e(2), e(2.5), q(3)],
 ];
 
 const LIBRARY: Record<LickParams['level'], RhythmPattern[]> = {

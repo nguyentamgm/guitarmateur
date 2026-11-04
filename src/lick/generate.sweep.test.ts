@@ -3,6 +3,7 @@ import { TONICS, SCALE_IDS, defaultProgression, toneRole, type Chord, type Key, 
 import { TUNINGS, positions, mergedBox, type Box } from '../fretboard';
 import { generateLick, type LickParams } from './index';
 import { countUnplayableMoves } from './path';
+import { isBendFrom } from './bends';
 
 /**
  * Bounded, engine-driven property sweep over the space the UI can actually reach: every scale,
@@ -89,7 +90,7 @@ describe('generateLick — property sweep across the UI parameter space', () => 
                     let prevEnd = -Infinity;
                     for (let i = 0; i < notes.length; i++) {
                       const n = notes[i]!;
-                      check(cells.has(`${n.string}:${n.fret}`), `${ctx}: note ${i} outside the box (${n.string}:${n.fret})`);
+                      check(cells.has(`${n.string}:${n.fret}`) || isBendFrom(n, notes[i - 1]), `${ctx}: note ${i} outside the box (${n.string}:${n.fret})`);
                       check(n.durationBeats > 0, `${ctx}: note ${i} duration ${n.durationBeats}`);
                       check(n.startBeat >= prevEnd - 1e-9, `${ctx}: note ${i} starts at ${n.startBeat}, overlapping the previous note's end ${prevEnd}`);
                       prevEnd = n.startBeat + n.durationBeats;

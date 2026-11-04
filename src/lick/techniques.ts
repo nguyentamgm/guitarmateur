@@ -10,20 +10,19 @@ const LEVEL_PROB: Record<LickParams['level'], number> = {
 };
 
 /**
- * Decorate eligible adjacent note pairs with techniques.
+ * Decorate eligible adjacent note pairs with legato techniques.
  *
- * - Same-string ascending step (dFret === 1) ⇒ `hammer` (or `bendHalf` at level 5, 50/50,
- *   only when the origin note is fretted)
+ * - Same-string ascending step (dFret === 1) ⇒ `hammer`
  * - Same-string descending step (dFret === -1) ⇒ `pull`
- * - Same-string dFret === 2 ⇒ `slide` (or `bendFull` at level 5, 50/50) when the origin note
- *   is fretted; no technique when the origin is an open string
- * - Same-string |dFret| > 2 ⇒ `slide`, only when the origin note is fretted
+ * - Same-string |dFret| ≥ 2 ⇒ `slide`, only when the origin note is fretted (there is nothing to
+ *   slide from on an open string); hammer-ons and pull-offs stay valid from/to an open string
  *
- * Bends and slides require a fretted origin note: an open string cannot be bent, and there is
- * nothing to slide from. Hammer-ons and pull-offs remain valid from/to an open string.
+ * Bends are not placed here: they depend on which scale degree is bent into, not on where two
+ * notes happen to sit, so `applyBends` (bends.ts) places them first and this pass leaves any note
+ * that already carries a technique alone.
  *
  * Constraints:
- * - ≤ 1 technique per `startBeat`
+ * - ≤ 1 technique per `startBeat`, ≤ 1 slide per bar, never two slides in a row
  * - No technique on the landing (last) note below level 4
  * - Probability per eligible pair: level 3 ~40%, 4 ~55%, 5 ~70%
  * - Levels 1-2 never produce techniques
@@ -48,6 +47,8 @@ export function decorateTechniques(
     role: notes[0]!.role,
   }];
   const usedBeats = new Set<number>();
+  /** Bars that already have a slide: one per bar reads as a gesture, more as sliding about. */
+  const slideBars = new Set<number>();
 
   for (let i = 1; i < notes.length; i++) {
     const prev = notes[i - 1]!;
@@ -56,7 +57,10 @@ export function decorateTechniques(
 
     let technique: Technique | undefined;
 
-    if (prev.string === cur.string && rng() < prob) {
+    if (cur.technique) {
+      // Placed by an earlier pass (a bend) — keep it, and let it claim its beat.
+      technique = cur.technique;
+    } else if (prev.string === cur.string && rng() < prob) {
       const dFret = cur.fret - prev.fret;
 
       // Landing-note restriction: before level 4, no technique on the last note
@@ -65,16 +69,14 @@ export function decorateTechniques(
       } else if (usedBeats.has(cur.startBeat)) {
         // skip — already one technique on this beat
       } else if (dFret === 1) {
-        technique = level === 5 && prev.fret > 0 && rng() < 0.5 ? 'bendHalf' : 'hammer';
+        technique = 'hammer';
       } else if (dFret === -1) {
         technique = 'pull';
-      } else if (dFret === 2) {
-        if (prev.fret > 0) {
-          technique = level === 5 && rng() < 0.5 ? 'bendFull' : 'slide';
-        }
-      } else if (Math.abs(dFret) > 1) {
-        if (prev.fret > 0) {
+      } else if (Math.abs(dFret) > 1 && prev.fret > 0) {
+        const bar = Math.floor(cur.startBeat / 4);
+        if (!slideBars.has(bar) && result[i - 1]!.technique !== 'slide') {
           technique = 'slide';
+          slideBars.add(bar);
         }
       }
     }
@@ -85,7 +87,7 @@ export function decorateTechniques(
       pitch: cur.pitch,
       startBeat: cur.startBeat,
       durationBeats: cur.durationBeats,
-      technique: technique ?? cur.technique,
+      technique,
       role: cur.role,
     });
 
