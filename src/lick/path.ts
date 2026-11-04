@@ -1,7 +1,7 @@
 import { midi } from '../music';
 import type { Box, FretNote } from '../fretboard';
 import { weightedChoice, type Rng } from '@shared/core/rng';
-import type { Contour } from './contour';
+import { contourCurve, type Contour } from './contour';
 import type { LickParams } from './model';
 
 interface LevelCap {
@@ -18,10 +18,6 @@ export const LEVEL_CAPS: Record<LickParams['level'], LevelCap> = {
   4: { maxSpan: 8, allowSkips: true },
   5: { maxSpan: Infinity, allowSkips: true },
 };
-
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
 
 /** Anything with a fretboard cell — `FretNote`, `LickNote`, or a bare position. */
 export interface FretCell {
@@ -86,21 +82,7 @@ const RECENCY_PENALTY = 0.2;
 
 /** Where the melody "should" be at this fraction of the way from first to last, per contour. */
 function expectedMidi(contour: Contour, firstMidi: number, lastMidi: number, progress: number): number {
-  switch (contour) {
-    case 'ascend':
-    case 'descend':
-      return lerp(firstMidi, lastMidi, progress);
-    case 'arch': {
-      const peak = Math.max(firstMidi, lastMidi) + 4;
-      return progress < 0.5 ? lerp(firstMidi, peak, progress / 0.5) : lerp(peak, lastMidi, (progress - 0.5) / 0.5);
-    }
-    case 'valley': {
-      const trough = Math.min(firstMidi, lastMidi) - 4;
-      return progress < 0.5 ? lerp(firstMidi, trough, progress / 0.5) : lerp(trough, lastMidi, (progress - 0.5) / 0.5);
-    }
-    case 'wave':
-      return lerp(firstMidi, lastMidi, progress) + Math.sin(progress * Math.PI * 2) * 6;
-  }
+  return contourCurve(contour, firstMidi, lastMidi, progress, 4, 6);
 }
 
 /**

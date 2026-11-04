@@ -19,7 +19,10 @@ const nextChord = { tonic: tonicG, quality: 'M' as const };
 function allNotesInBox(lick: Lick, b: Box): boolean {
   const noteSet = new Set(b.notes.map((n) => `${n.string}-${n.fret}`));
   // A bend is fretted at the note before it and sounds a fret or two higher — past the box is fine.
-  return lick.notes.every((n, i) => noteSet.has(`${n.string}-${n.fret}`) || isBendFrom(n, lick.notes[i - 1]));
+  // So is a chromatic approach note, which is outside the scale by design.
+  return lick.notes.every(
+    (n, i) => noteSet.has(`${n.string}-${n.fret}`) || isBendFrom(n, lick.notes[i - 1]) || n.chromatic === true,
+  );
 }
 
 function notesSortedByBeat(lick: Lick): boolean {

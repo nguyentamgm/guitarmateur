@@ -90,7 +90,7 @@ describe('generateLick — property sweep across the UI parameter space', () => 
                     let prevEnd = -Infinity;
                     for (let i = 0; i < notes.length; i++) {
                       const n = notes[i]!;
-                      check(cells.has(`${n.string}:${n.fret}`) || isBendFrom(n, notes[i - 1]), `${ctx}: note ${i} outside the box (${n.string}:${n.fret})`);
+                      check(cells.has(`${n.string}:${n.fret}`) || isBendFrom(n, notes[i - 1]) || n.chromatic === true, `${ctx}: note ${i} outside the box (${n.string}:${n.fret})`);
                       check(n.durationBeats > 0, `${ctx}: note ${i} duration ${n.durationBeats}`);
                       check(n.startBeat >= prevEnd - 1e-9, `${ctx}: note ${i} starts at ${n.startBeat}, overlapping the previous note's end ${prevEnd}`);
                       prevEnd = n.startBeat + n.durationBeats;

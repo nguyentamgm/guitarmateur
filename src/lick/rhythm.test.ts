@@ -88,4 +88,16 @@ describe('buildRhythm', () => {
     expect(a.map((s) => s.startBeat)).toEqual(b.map((s) => s.startBeat));
     expect(a.map((s) => s.durationBeats)).toEqual(b.map((s) => s.durationBeats));
   });
+
+  it('call and response: bar 2 usually answers bar 1 with the same rhythm, but not always', () => {
+    let same = 0;
+    for (let seed = 0; seed < 100; seed++) {
+      const p = buildRhythm(3, 2, mulberry32(seed));
+      const bar = (b: number) =>
+        JSON.stringify(p.filter((x) => Math.floor(x.startBeat / 4) === b).map((x) => [x.startBeat % 4, x.durationBeats, !!x.rest]));
+      if (bar(0) === bar(1)) same++;
+    }
+    expect(same).toBeGreaterThan(50);
+    expect(same).toBeLessThan(100);
+  });
 });

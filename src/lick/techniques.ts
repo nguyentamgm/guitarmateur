@@ -89,6 +89,7 @@ export function decorateTechniques(
       durationBeats: cur.durationBeats,
       technique,
       role: cur.role,
+      ...(cur.chromatic ? { chromatic: true } : {}),
     });
 
     if (technique) {

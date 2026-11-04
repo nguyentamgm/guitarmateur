@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TONICS, midi, toneRole } from '../music';
 import { TUNINGS, positions, mergedBox } from '../fretboard';
-import { buildLadder, buildLine, fingerLine, groupStarts } from './phrase';
+import { buildLadder, buildLine, contourMiss, fingerLine, groupStarts } from './phrase';
 import { countUnplayableMoves } from './path';
 import { generateLick } from './index';
 
@@ -32,10 +32,27 @@ describe('buildLine', () => {
     // index 3 restarts because the 2-move motif is spent; index 4 because a group starts there.
   });
 
-  it('sequence mode moves each restatement one step toward the target', () => {
-    const line = buildLine(9, new Set(), 8, 1, 12, [-1, -1], 'sequence', 1);
-    expect(line.slice(0, 7)).toEqual([8, 7, 6, 7, 6, 5, 6]);
-    expect(line.slice(-2)).toEqual([2, 1]);
+  it('contour mode restates the motif where the contour is: a descent steps down', () => {
+    // Repeated-note motif, so each restatement shows only where the contour put its head.
+    const line = buildLine(9, new Set(), 8, 1, 12, [0], 'contour', 1, 'descend');
+    const heads = [line[2]!, line[4]!, line[6]!];
+    expect(heads[0]).toBeGreaterThan(heads[1]!);
+    expect(heads[1]).toBeGreaterThan(heads[2]!);
+  });
+
+  it('peak and resolution: the line climbs above both ends, peaks past the middle, then falls to the target', () => {
+    const line = buildLine(12, new Set(), 3, 2, 14, [0], 'contour', 1, 'peak');
+    const top = Math.max(...line);
+    expect(top).toBeGreaterThan(Math.max(line[0]!, line.at(-1)!) + 2);
+    expect(line.lastIndexOf(top)).toBeGreaterThan(12 / 2);
+    expect(line.at(-1)).toBe(2);
+  });
+
+  it('call and response: bar 2 restates the opening of bar 1, then lands on its own', () => {
+    // 10 notes, bar 2 starting at index 5: notes 5-7 echo notes 0-2, then approach + target.
+    const line = buildLine(10, new Set([5]), 7, 2, 12, [-1, 1], 'repeat', 1, 'descend', 5);
+    expect(line.slice(5, 8)).toEqual(line.slice(0, 3));
+    expect(line.slice(-2)).toEqual([3, 2]);
   });
 
   it('stays on the ladder', () => {
@@ -61,6 +78,14 @@ describe('fingerLine', () => {
   });
 });
 
+describe('contourMiss', () => {
+  it('is zero for a line that follows its contour and grows as the line strays', () => {
+    const descent = [8, 7, 6, 5, 4, 3, 2];
+    expect(contourMiss(descent, 'descend')).toBe(0);
+    expect(contourMiss([8, 2, 8, 2, 8, 2, 2], 'descend')).toBeGreaterThan(1);
+  });
+});
+
 describe('generateLick — phrasing', () => {
   it('approaches the landing note by step from the scale note above or below', () => {
     const ladder = buildLadder(box, 5);
@@ -72,8 +97,9 @@ describe('generateLick — phrasing', () => {
         const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed }).notes;
         if (notes.length < 3) continue;
         total++;
-        const d = rungOf(midi(notes.at(-1)!.pitch)) - rungOf(midi(notes.at(-2)!.pitch));
-        if (Math.abs(d) === 1) stepwise++;
+        const before = notes.at(-2)!;
+        const d = rungOf(midi(notes.at(-1)!.pitch)) - rungOf(midi(before.pitch));
+        if (Math.abs(d) === 1 || before.chromatic) stepwise++;
       }
     }
     expect(stepwise / total).toBeGreaterThan(0.85);
@@ -95,10 +121,48 @@ describe('generateLick — phrasing', () => {
     expect(chordTones / strong).toBeGreaterThan(0.8);
   });
 
+  it('rarely leaps wider than a 6th between neighbouring notes', () => {
+    let moves = 0;
+    let wide = 0;
+    for (const level of [1, 2, 3, 4, 5] as const) {
+      for (const bars of [1, 2] as const) {
+        for (let seed = 0; seed < 40; seed++) {
+          const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars }).notes;
+          for (let i = 1; i < notes.length; i++) {
+            moves++;
+            if (Math.abs(midi(notes[i]!.pitch) - midi(notes[i - 1]!.pitch)) > 9) wide++;
+          }
+        }
+      }
+    }
+    expect(wide / moves).toBeLessThan(0.05);
+  });
+
   it('neighbouring seeds give different licks', () => {
     const licks = Array.from({ length: 10 }, (_, seed) =>
       JSON.stringify(generateLick(box, a7, null, { level: 3, targetRole: 'R', resolveToNext: false, seed }).notes),
     );
     expect(new Set(licks).size).toBeGreaterThanOrEqual(8);
+  });
+});
+
+describe('generateLick — 2-bar call and response', () => {
+  it('the call ends open (rarely on the root) while the response lands on the target', () => {
+    let calls = 0;
+    let callOnRoot = 0;
+    let echoed = 0;
+    for (const level of [2, 3, 4] as const) {
+      for (let seed = 0; seed < 60; seed++) {
+        const notes = generateLick(box, a7, null, { level, targetRole: 'R', resolveToNext: false, seed, bars: 2 }).notes;
+        const b2 = notes.findIndex((n) => n.startBeat >= 4);
+        if (b2 < 1) continue;
+        calls++;
+        if (toneRole(notes[b2 - 1]!.pitch, a7) === 'R') callOnRoot++;
+        if (midi(notes[b2]!.pitch) === midi(notes[0]!.pitch)) echoed++;
+        expect(notes.at(-1)!.role).toBe('R');
+      }
+    }
+    expect(callOnRoot / calls).toBeLessThan(0.35);
+    expect(echoed / calls).toBeGreaterThan(0.4);
   });
 });

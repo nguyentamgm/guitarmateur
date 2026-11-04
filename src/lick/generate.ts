@@ -7,6 +7,7 @@ import { countUnplayableMoves, fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
 import { decorateTechniques } from './techniques';
 import { applyBends } from './bends';
+import { addChromaticApproach } from './approach';
 import { buildPhrase } from './phrase';
 import type { Lick, LickNote, LickParams } from './model';
 
@@ -37,6 +38,11 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const tonic = box.notes.find((n) => n.isTonic);
   const tonicPc = tonic ? midi(tonic.pitch) % 12 : null;
   const topString = Math.max(...box.notes.map((n) => n.string));
+  // The solo's arc picks the landing note's register: low early, highest near the climax.
+  const boxMidis = box.notes.map((n) => midi(n.pitch));
+  const lowMidi = Math.min(...boxMidis);
+  const registerMidi =
+    params.arc === undefined ? undefined : lowMidi + (0.35 + 0.55 * params.arc) * (Math.max(...boxMidis) - lowMidi);
 
   let best: { notes: LickNote[]; lengthBeats: number; score: number; badMoves: number } | null = null;
 
@@ -48,11 +54,11 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
     const lengthBeats = patternLengthBeats(pattern);
     const contour = pickContour(params.level, rng);
 
-    const last = pickChordTone(box, targetChord, params.targetRole, rng);
+    const last = pickChordTone(box, targetChord, params.targetRole, rng, registerMidi);
     const first = pickFirstNote(box, chord, last, contour, rng, prevLastMidi);
     // A motif-built phrase when one fits the box; the plain contour walk only as a safety net.
     const path =
-      buildPhrase(box, first, last, slots, chord, params.level, rng) ??
+      buildPhrase(box, first, last, slots, chord, params.level, rng, contour) ??
       fillPath(box, first, last, slots.length, contour, params.level, rng);
 
     const rawNotes: LickNote[] = path.map((fretNote, i) => ({
@@ -66,14 +72,15 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
 
     const techRng = mulberry32(attemptSeed(params.seed, attempt) ^ 0x5bd1e995);
     const bent = applyBends(rawNotes, chord, tonicPc, topString, params.level, techRng);
-    const notes = decorateTechniques(bent, params.level, techRng);
+    const approached = addChromaticApproach(bent, box, chord, params.level, techRng);
+    const notes = decorateTechniques(approached, params.level, techRng);
 
     const scorable: ScorableNote[] = path.map((fretNote, i) => ({
       string: notes[i]!.string,
       fret: notes[i]!.fret,
       startBeat: slots[i]!.startBeat,
       technique: notes[i]!.technique,
-      isDecoration: fretNote.isDecoration,
+      isDecoration: fretNote.isDecoration || notes[i]!.chromatic === true,
     }));
     const score = scoreLick(scorable, lengthBeats);
     // `fillPath` steers away from same-fret string jumps and (for levels that forbid it) string
