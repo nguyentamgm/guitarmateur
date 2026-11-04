@@ -17,6 +17,21 @@ import { useTransport } from '../useTransport';
 import { KeyboardShortcuts } from '../KeyboardShortcuts';
 import { intervalLabel, targetBadgeText } from '../labels';
 import { useT } from '../useT';
+import { phraseKind, type PhraseKind } from '../../lick';
+import type { TranslationKey } from '../../i18n';
+
+/** The label for each kind of vocabulary phrase, shown next to "Lick" on a card. */
+const PHRASE_LABEL: Record<PhraseKind, TranslationKey> = {
+  run: 'practice.phrase.run',
+  bend: 'practice.phrase.bend',
+  bendRelease: 'practice.phrase.bendRelease',
+  doubleStop: 'practice.phrase.doubleStop',
+  callResponse: 'practice.phrase.callResponse',
+  turnaround: 'practice.phrase.turnaround',
+  resolution: 'practice.phrase.resolution',
+  motif: 'practice.phrase.motif',
+  space: 'practice.phrase.space',
+};
 
 /** Step 3 — practice licks with controls per chord. */
 export function PracticeSection({
@@ -282,6 +297,11 @@ export function PracticeSection({
                       }}
                     >
                       {t('practice.lickHeader')}
+                      {/* What the lick is, as a guitarist would name it: practising the idiom by name. */}
+                      {(() => {
+                        const kind = phraseKind(lick.source);
+                        return kind ? ` · ${t(PHRASE_LABEL[kind])}` : null;
+                      })()}
                     </div>
 
                     {/* Tab staff */}
