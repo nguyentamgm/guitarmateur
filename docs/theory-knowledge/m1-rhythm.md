@@ -55,3 +55,13 @@ Mục tiêu: người học giữ được phách, đếm được, và chơi đ
 **Dạy trong Theory.** Bài `/theory/blues` bước 2: một ô nhịp móc đơn trên lưới liên ba (3 ô mỗi phách, đếm "1 trip-let"), thanh trượt "thẳng ↔ swing" dời móc đơn thứ hai từ giữa phách tới ⅔ phách, kèm metronome. Lõi: `swingOnset()`, `swingLength()`, `swingDelay()`, `countTriplets()` trong `core/rhythm`. Nền blues 12 ô của bài chơi shuffle đầy đủ (hệ số 1).
 
 **Cần trước:** K1.3. **Nguồn:** ch. 17 (liên ba), ch. 13 (shuffle blues).
+
+## K1.6 Nhịp 3/4
+
+**Cốt lõi.** Mỗi bar có 3 phách, phách 1 mạnh (MẠNH nhẹ nhẹ); đếm 1 2 3. Nghe phách mạnh lặp lại sau 3 hay 4 phách để biết time signature của bài.
+
+**Dữ liệu.** Mỗi bar gồm 3 phách. Đếm: "1 2 3".
+
+**Dạy trong Theory.** Buổi học `/theory/s/three-four`.
+
+**Cần trước:** K1.1.
