@@ -60,6 +60,9 @@ No session is locked. The path page only suggests the next one.
 - **Never type a chord shape, a fret list, a chord name list or MIDI numbers.** Derive them:
   `diatonicChords()`, `openVoicing()`, `barreVoicing()`, `chordMidis()`, `homeFret()`,
   `transpose()`, `scaleNotes()` (see "Music invariants" in `docs/theory.md`).
+  Chord shapes for sessions come from `sessions/voicing.ts`: an open shape only for the chords
+  of `OPEN_SHAPE_CHORDS`, otherwise the lowest barre ≥ 1 from `barreOptions()` (never "open
+  voicing if one exists", which draws shapes nobody plays).
 - Every string a learner sees comes from the session's copy or from `i18n/strings.ts`
   (ESLint rejects literal text in `ui/**/*.tsx`).
 - Sound goes through the one `player` from `useTheory()`. Anything in time uses `useClock`.
@@ -135,7 +138,7 @@ Buttons and labels shared by every session ("Play", "Play again", "Next", "Show 
 | kind | What the learner sees | Built in |
 | --- | --- | --- |
 | `lesson` | One existing lesson scene (`LessonScene`), e.g. `chords` / `open`. | issue 3 |
-| `chords` | A card per chord: its open shape on a small neck (from `openVoicing()`), its symbol and Roman numeral, click to strum. A chord with no open voicing shows its E- or A-shape barre (`barreVoicing()`). | issue 5 |
+| `chords` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for the chords of `OPEN_SHAPE_CHORDS`, otherwise the lowest barre ≥ 1 from `barreOptions()`), click to strum. | issue 5 |
 | `listen` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. | issue 5 |
 | `reveal` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. | issue 5 |
 | `strumAlong` | Bars drawn as a grid, a metronome click and the app strumming each bar's chord; a tempo slider; optional key chips (`keys`) to move the same numbers to another key; `numeralsOnly` hides chord names. | issue 6 |
