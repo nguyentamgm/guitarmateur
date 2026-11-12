@@ -980,4 +980,96 @@ describe('Theory app', () => {
       vi.useRealTimers();
     }
   });
+
+  it('lists two sessions in stage A on the path page and navigates to session 2', () => {
+    render('/theory');
+    const stageA = container.querySelector('section.contents');
+    expect(stageA).not.toBeNull();
+    const links = [...stageA!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
+    expect(links).toEqual(['/theory/s/major-or-minor', '/theory/s/beat-and-bar']);
+
+    const s2Link = container.querySelector('a[href="/theory/s/beat-and-bar"]')!;
+    click(s2Link);
+    expect(window.location.pathname).toBe('/theory/s/beat-and-bar');
+    expect(text()).toContain('Beat and bar');
+    expect(document.title).toBe('Beat and bar · Guitarmateur Theory');
+  });
+
+  it('renders session 2 top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/beat-and-bar');
+    expect(text()).toContain('Beat and bar');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/beat-and-bar');
+    expect(text()).toContain('Phách và bar');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('advances bar highlight, beat indicator, and responds to tempo slider in strumAlong', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player } = fakePlayer();
+      render('/theory/s/beat-and-bar', player);
+
+      const playSection = container.querySelector('section#play')!;
+      const playBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Play')!;
+      const tempoInput = playSection.querySelector('input[type="range"]') as HTMLInputElement;
+      expect(tempoInput).not.toBeNull();
+      expect(tempoInput.value).toBe('60');
+
+      // Change tempo to 120
+      act(() => {
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(tempoInput, '120');
+        tempoInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      expect(playSection.textContent).toContain('120 BPM');
+
+      // Play and watch bars advance
+      click(playBtn);
+
+      // At 120 BPM: 1 beat = 0.5s, 1 eighth = 0.25s, 1 bar (4 beats) = 2.0s
+      // Initially at step 0 (bar 0)
+      act(() => vi.advanceTimersByTime(100));
+      expect(playSection.querySelector('.bars .bar.on text.deg')?.textContent).toBe('i');
+
+      // Advance by 2.1s -> should be in bar 1
+      act(() => vi.advanceTimersByTime(2100));
+      const activeBar = playSection.querySelector('.bars .bar.on');
+      expect(activeBar).not.toBeNull();
+
+      click([...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Stop')!);
+      act(() => vi.advanceTimersByTime(100));
+      expect(playSection.querySelector('.bars .bar.on')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('verifies session 1 (/theory/s/major-or-minor) is untouched', () => {
+    render('/theory/s/major-or-minor');
+    expect(text()).toContain('Happy or sad: major and minor');
+    const headings = PARTS.map((p) => container.querySelector(`section#${p} h2`)!.textContent);
+    expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
+  });
 });
