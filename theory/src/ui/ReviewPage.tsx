@@ -4,7 +4,7 @@ import { findLesson } from '../lessons';
 import { useProgress, useTheory } from './context';
 import { Link } from './Link';
 import { QUIZZES, accuracy, daysSince, nextReview, type QuizRecord } from './progress';
-import { BASE, hrefFor } from './router';
+import { hrefFor } from './router';
 
 export function ReviewPage() {
   const { ui, lang } = useTheory();
@@ -20,7 +20,7 @@ export function ReviewPage() {
   return (
     <main className="wrap">
       <section className="hero">
-        <Link href={BASE} className="back">
+        <Link href={hrefFor({ page: 'library' })} className="back">
           {ui.backToContents}
         </Link>
         <h1>{ui.reviewTitle}</h1>

@@ -1,5 +1,5 @@
 /**
- * App-wide interface strings (header, contents page, lesson chrome). Lesson text lives with each
+ * App-wide interface strings (header, library page, lesson chrome). Lesson text lives with each
  * lesson in theory/src/lessons. English is the source; `vi` must have exactly the same keys.
  */
 import type { Lang } from './lang';
@@ -24,7 +24,7 @@ const en = {
   pathComingSoon: 'Coming soon.',
   pathLeadTitle: 'Lead guitar',
   pathLeadBody:
-    'Looking for pentatonic, blues and soloing? Those lessons are in the library while we build their sessions.',
+    'Looking for pentatonic, blues, techniques and soloing? Those lessons are in the library while we build their sessions.',
   pathLibraryLink: 'Explore the library →',
   libraryTitle: 'Reference: all lessons',
   libraryLead:
@@ -40,10 +40,6 @@ const en = {
     next: 'Next session →',
     backToPath: '← Back to the path',
   },
-  tocEyebrow: 'Music theory for electric guitar',
-  tocTitle: 'Learn the neck by its shapes',
-  tocLead:
-    'Short visual lessons where every idea is a picture you can play. Click any note to hear it. Shapes come first; names come later, when you need them.',
   tocLessons: 'Lessons',
   tocConcepts: 'Covers {names}',
   /** A lesson card's quiz progress (ui/progress.ts `lessonStatus`). */
@@ -120,7 +116,7 @@ const vi: UiStrings = {
   pathComingSoon: 'Sắp ra mắt.',
   pathLeadTitle: 'Lead guitar',
   pathLeadBody:
-    'Bạn muốn học pentatonic, blues và solo? Các bài học đó nằm trong thư viện trong lúc chúng tôi xây dựng buổi học.',
+    'Bạn muốn học pentatonic, blues, kỹ thuật và solo? Các bài học đó nằm trong thư viện trong lúc chúng tôi xây dựng buổi học.',
   pathLibraryLink: 'Khám phá thư viện →',
   libraryTitle: 'Thư viện: tất cả các bài',
   libraryLead:
@@ -136,10 +132,6 @@ const vi: UiStrings = {
     next: 'Buổi học tiếp theo →',
     backToPath: '← Quay lại lộ trình',
   },
-  tocEyebrow: 'Nhạc lý cho guitar điện',
-  tocTitle: 'Học cần đàn qua hình',
-  tocLead:
-    'Những bài ngắn, mỗi ý là một hình bạn chơi được. Bấm vào nốt nào cũng nghe được. Shape đi trước, tên gọi đến sau, khi bạn thật sự cần.',
   tocLessons: 'Các bài',
   tocConcepts: 'Khái niệm: {names}',
   tocStatus: { new: 'Chưa làm bài đố', started: 'Đang làm bài đố', done: 'Đã xong bài đố' },

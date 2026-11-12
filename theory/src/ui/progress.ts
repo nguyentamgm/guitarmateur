@@ -110,7 +110,7 @@ export function nextReview(progress: Progress, now: number): ReviewItem[] {
 /** A lesson quiz is done once this many recent answers are in, at least WEAK_BELOW of them right. */
 export const DONE_AFTER = 10;
 
-/** A lesson's quiz progress on the contents page; `null` for a lesson with no quiz. */
+/** A lesson's quiz progress on the library page; `null` for a lesson with no quiz. */
 export type LessonStatus = 'new' | 'started' | 'done';
 
 export function lessonStatus(progress: Progress, slug: string): LessonStatus | null {

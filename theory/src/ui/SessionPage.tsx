@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { fill } from '../i18n';
 import { PARTS, sessionNeighbours, type Session } from '../sessions';
 import { useTheory } from './context';
@@ -54,10 +55,10 @@ export function SessionPage({ session }: { session: Session }) {
             {blocks.map((block) => {
               const blockCopy = copy.blocks[block.key];
               return (
-                <div key={block.key}>
+                <Fragment key={block.key}>
                   {blockCopy?.intro && <p className="prose">{blockCopy.intro}</p>}
                   <SessionBlock session={session} block={block} />
-                </div>
+                </Fragment>
               );
             })}
           </section>
