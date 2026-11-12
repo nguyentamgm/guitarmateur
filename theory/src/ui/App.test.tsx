@@ -946,4 +946,38 @@ describe('Theory app', () => {
     expect(plucked.length).toBeGreaterThan(firstPluckCount);
     randomSpy.mockRestore();
   });
+
+  it('plays clicks and strums in session 2 strum-along and stops', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player, clicks, plucked } = fakePlayer();
+      render('/theory/s/beat-and-bar', player);
+
+      const playSection = container.querySelector('section#play')!;
+      const playBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Play')!;
+      expect(playBtn).toBeDefined();
+
+      click(playBtn);
+      act(() => vi.advanceTimersByTime(2500));
+
+      // The player received an accented click and plucks
+      expect(clicks).toContain(true);
+      expect(plucked.length).toBeGreaterThan(0);
+
+      // Stop stops it
+      const stopBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Stop')!;
+      expect(stopBtn).toBeDefined();
+      click(stopBtn);
+
+      const clicksCount = clicks.length;
+      const plucksCount = plucked.length;
+      act(() => vi.advanceTimersByTime(3000));
+      expect(clicks.length).toBe(clicksCount);
+      expect(plucked.length).toBe(plucksCount);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
