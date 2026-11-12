@@ -9,10 +9,22 @@ import { KeyPicker, Slider } from '@shared/ui/controls';
 export { Button, Chip, ChipGroup, OnOff, Slider } from '@shared/ui/controls';
 
 /** A tempo slider, in whole BPM within the range the lessons offer; `best` (a remembered drill best) shows as a badge. */
-export function Tempo({ label, text, bpm, onChange, best = 0 }: { label: string; text: string; bpm: number; onChange(bpm: number): void; best?: number }) {
+export function Tempo({
+  label = 'Tempo',
+  text,
+  bpm,
+  onChange,
+  best = 0,
+}: {
+  label?: string;
+  text?: string;
+  bpm: number;
+  onChange(bpm: number): void;
+  best?: number;
+}) {
   const { ui } = useTheory();
   return (
-    <Slider label={label} value={bpm} min={MIN_BPM} max={MAX_BPM} text={text} onChange={(v) => onChange(clampBpm(v))}>
+    <Slider label={label} value={bpm} min={MIN_BPM} max={MAX_BPM} text={text ?? `${bpm} BPM`} onChange={(v) => onChange(clampBpm(v))}>
       {best > 0 && <span className="best">{fill(ui.tempoBest, { bpm: best })}</span>}
     </Slider>
   );

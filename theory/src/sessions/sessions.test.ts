@@ -14,6 +14,7 @@ import {
 } from '.';
 import { chordIn } from './chordSpec';
 import { DRILLS } from './drills';
+import { defaultPattern, strumSteps } from './strum';
 import { chordShape } from './voicing';
 
 /** Concept IDs defined as headings (`## K3.4 …`) in docs/theory-knowledge. */
@@ -139,6 +140,19 @@ describe('session registry', () => {
             expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
           }
         }
+      }
+    });
+
+    it('every strumAlong block has a valid pattern, bpm between 40 and 200, and at least one bar', () => {
+      const blocks = sessionBlocks(session);
+      const strumBlocks = blocks.filter((b) => b.kind === 'strumAlong');
+      for (const b of strumBlocks) {
+        expect(b.bars.length).toBeGreaterThanOrEqual(1);
+        expect(b.bpm).toBeGreaterThanOrEqual(40);
+        expect(b.bpm).toBeLessThanOrEqual(200);
+        const beatsPerBar = b.beatsPerBar ?? 4;
+        const pattern = b.pattern ?? defaultPattern(beatsPerBar);
+        expect(() => strumSteps(b.bars.length, beatsPerBar, pattern)).not.toThrow();
       }
     });
 
