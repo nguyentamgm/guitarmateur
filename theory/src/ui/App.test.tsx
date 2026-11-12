@@ -9,6 +9,7 @@ import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
 import { DONE_AFTER, PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
+import { SESSIONS_STORAGE_KEY } from './sessionProgress';
 
 function fakePlayer() {
   const plucked: number[] = [];
@@ -868,5 +869,50 @@ describe('Theory app', () => {
     render('/theory');
     const reloaded = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
     expect(reloaded.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+
+    // 5. Untick: undone
+    click(container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!);
+    expect(window.location.pathname).toBe('/theory/s/major-or-minor');
+    const boxesToUntick = container.querySelectorAll('section#done input[type="checkbox"]');
+    click(boxesToUntick[1]!);
+    expect(container.querySelector('section#done')!.textContent).not.toContain('Session complete.');
+
+    click(container.querySelector('a.back[href="/theory"]')!);
+    const undoneCard = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(undoneCard.querySelector('.lesson-status.done')).toBeNull();
+
+    // 6. Another tab updates storage: first tab follows
+    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: { 'major-or-minor': [0, 1] } }));
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: SESSIONS_STORAGE_KEY }));
+    });
+    const syncedCard = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(syncedCard.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+  });
+
+  it('follows the session progress flow in Vietnamese', () => {
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/major-or-minor');
+
+    const check = container.querySelector('section#check')!;
+    const q1 = majorOrMinor.copy.vi.check[0]!;
+    click([...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[0])!);
+    expect(check.textContent).toContain('Chưa đúng.');
+    expect(check.textContent).toContain(q1.why);
+
+    click([...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[1])!);
+    expect(check.textContent).toContain('Đúng.');
+    expect(check.textContent).toContain(q1.why);
+
+    const done = container.querySelector('section#done')!;
+    const boxes = done.querySelectorAll('input[type="checkbox"]');
+    click(boxes[0]!);
+    expect(done.textContent).not.toContain('Đã hoàn thành buổi học.');
+    click(boxes[1]!);
+    expect(done.textContent).toContain('Đã hoàn thành buổi học.');
+
+    click(container.querySelector('a.back[href="/theory"]')!);
+    const card = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(card.querySelector('.lesson-status.done')?.textContent).toBe('Đã xong');
   });
 });
