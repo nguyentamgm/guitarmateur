@@ -3,7 +3,7 @@ import type { Block, Session } from '../../sessions';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
 
-export function SessionBlock({ session: _session, block }: { session: Session; block: Block }) {
+export function SessionBlock({ block }: { session: Session; block: Block }) {
   const { ui, lang } = useTheory();
 
   switch (block.kind) {
