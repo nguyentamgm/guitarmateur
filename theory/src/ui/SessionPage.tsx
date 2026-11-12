@@ -82,7 +82,7 @@ export function SessionPage({ session }: { session: Session }) {
             href={hrefFor(next ? { page: 'session', slug: next.slug } : { page: 'path' })}
             className="lesson-nav-card next"
           >
-            <span className="eyebrow">{next ? ui.session.next : ui.session.backToPath}</span>
+            <span className="eyebrow">{next ? ui.session.nextSession : ui.session.backToPath}</span>
             <span className="lesson-title">{next ? next.copy[lang].title : ui.pathTitle}</span>
           </Link>
         </div>

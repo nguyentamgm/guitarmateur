@@ -12,6 +12,9 @@ import {
   sessionNeighbours,
   sessionsOf,
 } from '.';
+import { chordIn } from './chordSpec';
+import { DRILLS } from './drills';
+import { chordShape } from './voicing';
 
 /** Concept IDs defined as headings (`## K3.4 …`) in docs/theory-knowledge. */
 const knowledge = import.meta.glob('../../../docs/theory-knowledge/m*.md', {
@@ -104,6 +107,38 @@ describe('session registry', () => {
         expect(lesson, `lesson '${b.lesson}' not found`).toBeDefined();
         const step = lesson?.steps.find((s) => s.id === b.step);
         expect(step, `step '${b.step}' in lesson '${b.lesson}' not found`).toBeDefined();
+      }
+    });
+
+    it('every listen and reveal block names a drill that exists in DRILLS, and listen answers match drill answers', () => {
+      const blocks = sessionBlocks(session);
+      const drillBlocks = blocks.filter((b) => b.kind === 'listen' || b.kind === 'reveal');
+      for (const b of drillBlocks) {
+        const drill = DRILLS[b.drill];
+        expect(drill, `drill '${b.drill}' defined in DRILLS`).toBeDefined();
+        if (b.kind === 'listen') {
+          for (const lang of LANGS) {
+            const blockCopy = session.copy[lang].blocks[b.key];
+            if (blockCopy && 'answers' in blockCopy) {
+              expect(Object.keys(blockCopy.answers).sort()).toEqual([...drill!.answers].sort());
+            }
+          }
+        }
+      }
+    });
+
+    it('every chord of every chords and strumAlong block gets a shape without throwing', () => {
+      const blocks = sessionBlocks(session);
+      for (const b of blocks) {
+        if (b.kind === 'chords') {
+          for (const spec of b.chords) {
+            expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
+          }
+        } else if (b.kind === 'strumAlong') {
+          for (const spec of b.bars) {
+            expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
+          }
+        }
       }
     });
 

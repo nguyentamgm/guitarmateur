@@ -203,6 +203,14 @@ ui → sessions → lessons → core/fretboard → core/music
 - Each step: one animated picture, one sentence of takeaway, one thing to try. List what is
   deliberately left out ("not yet").
 
+## Sessions
+
+Short guided sessions (path `/theory/s/<slug>`) teach playing songs by ear, rhythm, and chords
+step by step. Blocks are drawn by `ui/sessions/SessionBlock.tsx`. Ear and challenge drills are pure
+TypeScript (`sessions/drills/`), and their sound is pure data (`sessions/sound.ts`) played through
+the Web Audio player by `ui/sessions/playSound.ts`. Chord shapes for sessions come from
+`sessions/voicing.ts` (open shape for beginner chords, lowest barre otherwise).
+
 ## Commands
 
 Same as the rest of the repo: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`
