@@ -1,12 +1,14 @@
+import { beatAndBar } from './beat-and-bar';
 import { majorOrMinor } from './major-or-minor';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
 export * from './chordSpec';
 export * from './strum';
+export { beatAndBar } from './beat-and-bar';
 export { majorOrMinor } from './major-or-minor';
 
-export const SESSIONS: readonly Session[] = [majorOrMinor];
+export const SESSIONS: readonly Session[] = [majorOrMinor, beatAndBar];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
 
