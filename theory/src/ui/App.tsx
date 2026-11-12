@@ -2,10 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPlayer, type Player } from '../core/audio';
 import { LANG_STORAGE_KEY, UI, linkLang, loadLang, saveLang, type Lang } from '../i18n';
 import { findLesson } from '../lessons';
-import { ContentsPage } from './ContentsPage';
+import { findSession } from '../sessions';
 import { Ctx, ProgressCtx, type TheoryContext } from './context';
 import { Header } from './Header';
 import { LessonPage } from './LessonPage';
+import { LibraryPage } from './LibraryPage';
+import { PathPage } from './PathPage';
 import { PlayStatus } from './PlayStatus';
 import {
   PROGRESS_STORAGE_KEY,
@@ -16,8 +18,10 @@ import {
 } from './progress';
 import { ReviewPage } from './ReviewPage';
 import { parseRoute } from './router';
+import { SessionPage } from './SessionPage';
 
 const isLesson = (slug: string) => findLesson(slug) !== undefined;
+const isSession = (slug: string) => findSession(slug) !== undefined;
 
 /** Once the page has rendered (next frame), scroll to the step with this id, or to the top. */
 function scrollToHash(id: string): void {
@@ -74,18 +78,23 @@ export function App({ player: given }: { player?: Player } = {}) {
     scrollToHash(new URL(href, window.location.href).hash.slice(1));
   }, []);
 
-  const route = parseRoute(path, isLesson);
+  const route = parseRoute(path, isLesson, isSession);
   const lesson = route.page === 'lesson' ? findLesson(route.slug) : undefined;
+  const session = route.page === 'session' ? findSession(route.slug) : undefined;
   const ui = UI[lang];
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.title = lesson
       ? `${lesson.copy[lang].title} · ${ui.appName}`
-      : route.page === 'review'
-        ? `${ui.reviewTitle} · ${ui.appName}`
-        : ui.appName;
-  }, [lang, lesson, ui, route.page]);
+      : session
+        ? `${session.copy[lang].title} · ${ui.appName}`
+        : route.page === 'library'
+          ? `${ui.libraryTitle} · ${ui.appName}`
+          : route.page === 'review'
+            ? `${ui.reviewTitle} · ${ui.appName}`
+            : ui.appName;
+  }, [lang, lesson, session, ui, route.page]);
 
   const ctx = useMemo<TheoryContext>(
     () => ({
@@ -109,10 +118,14 @@ export function App({ player: given }: { player?: Player } = {}) {
         <PlayStatus />
         {lesson ? (
           <LessonPage lesson={lesson} />
+        ) : session ? (
+          <SessionPage session={session} />
+        ) : route.page === 'library' ? (
+          <LibraryPage />
         ) : route.page === 'review' ? (
           <ReviewPage />
         ) : (
-          <ContentsPage missingPath={route.page === 'notFound' ? route.path : undefined} />
+          <PathPage missingPath={route.page === 'notFound' ? route.path : undefined} />
         )}
       </ProgressCtx.Provider>
     </Ctx.Provider>
