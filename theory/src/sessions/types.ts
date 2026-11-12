@@ -50,16 +50,25 @@ export type Block =
   | { readonly kind: 'listen'; readonly key: string; readonly drill: DrillId }
   | { readonly kind: 'reveal'; readonly key: string; readonly drill: DrillId };
 
-export type BlockCopy =
-  | { readonly intro: string } // lesson, chords, strumAlong
-  | {
-      readonly intro: string;
-      readonly ask: string;
-      readonly answers: Readonly<Record<string, string>>;
-      readonly right: string;
-      readonly wrong: string;
-    } // listen
-  | { readonly intro: string; readonly ask: string; readonly answer: string }; // reveal
+export interface ListenCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly answers: Readonly<Record<string, string>>;
+  readonly right: string;
+  readonly wrong: string;
+}
+
+export interface RevealCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly answer: string;
+}
+
+export interface BaseBlockCopy {
+  readonly intro: string;
+}
+
+export type BlockCopy = BaseBlockCopy | ListenCopy | RevealCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {

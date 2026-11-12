@@ -37,7 +37,7 @@ export function SessionDone({ session }: { session: Session }) {
           <p role="status">{ui.session.doneMessage}</p>
           {next ? (
             <Link href={hrefFor({ page: 'session', slug: next.slug })} className="btn">
-              {ui.session.next}
+              {ui.session.nextSession}
             </Link>
           ) : (
             <Link href={hrefFor({ page: 'path' })} className="btn">
