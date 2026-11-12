@@ -7,7 +7,7 @@ describe('sessions chordShape and voicings', () => {
   it('every chord of OPEN_SHAPE_CHORDS has an open voicing', () => {
     for (const c of OPEN_SHAPE_CHORDS) {
       const v = openVoicing(c);
-      expect(v, `Expected open voicing for ${c.root.step}${c.id}`).not.toBeNull();
+      expect(v, `Expected open voicing for ${c.root.letter}${c.id}`).not.toBeNull();
     }
   });
 
@@ -76,7 +76,7 @@ describe('sessions chordShape and voicings', () => {
       const rootPc = pc(c.root);
 
       // Root is lowest note
-      expect(midis[0] % 12).toBe(rootPc);
+      expect(midis[0]! % 12).toBe(rootPc);
       expect(midis[0]).toBe(Math.min(...midis));
 
       // Each note of shapeMidis() is a note of the chord
