@@ -27,7 +27,8 @@ theory/
 ```
 
 Theory is a second Vite page: `theory/index.html` builds to `dist/theory/index.html`. Routes are
-`/theory` (contents), `/theory/review` and `/theory/<slug>`; `vercel.json` (production, rewrite destination `/theory`:
+`/theory` (the path), `/theory/library` (reference: all lessons), `/theory/s/<slug>` (a session),
+`/theory/<slug>` (a lesson), and `/theory/review` (tests); `vercel.json` (production, rewrite destination `/theory`:
 with `cleanUrls`, a destination ending in `.html` is not served) and the `theory-routes`
 plugin in `vite.config.ts` (dev, preview) serve the Theory page for every `/theory/*` path. The
 site-wide service worker (`public/sw.js`) falls back to the cached `/theory` shell offline.
@@ -162,9 +163,12 @@ ui → sessions → lessons → core/fretboard → core/music
 ## Lessons
 
 - **Adding a lesson:** create `lessons/<slug>/` (steps with concept IDs, `copy.en.ts`,
-  `copy.vi.ts`, pure `scenes.ts` + test), add it to `LESSONS` in `lessons/index.ts`, and add a
-  case to `ui/lessons/LessonScene.tsx`. Shared tests then check: unique slug, concept IDs exist in
-  `docs/theory-knowledge`, same keys/lengths/placeholders in vi and en, no empty strings.
+  `copy.vi.ts`, pure `scenes.ts` + test), add it to `LESSONS` in `lessons/index.ts` (the list is
+  now `LibraryPage`), and add a case to `ui/lessons/LessonScene.tsx`. Shared tests then check:
+  unique slug, concept IDs exist in `docs/theory-knowledge`, same keys/lengths/placeholders in vi
+  and en, no empty strings.
+- **Adding a session:** create `sessions/<slug>/` (parts with blocks, `copy.en.ts`, `copy.vi.ts`,
+  test), add it to `SESSIONS` in `sessions/index.ts`, and list it in `public/sitemap.xml`.
 - Time is drawn on `ui/BeatGrid.tsx` (one bar as cells; a note is a block as long as it lasts,
   a rest an empty outline, count words underneath).
 - Scenes draw on `ui/Fretboard.tsx` (dots you click to hear, optional box frame, `onDot` to react
@@ -182,7 +186,7 @@ ui → sessions → lessons → core/fretboard → core/music
   A numbered box or position outline is `ui/PositionFrame.tsx`.
 - `ui/keys.ts` holds the small helpers every scene uses (`posKey`, `signed`, `degreeText`); do not
   redefine them in a scene file.
-- Lessons are listed in curriculum order in `LESSONS`; the contents page numbers them from it, and
+- Lessons are listed in curriculum order in `LESSONS`; the library page numbers them from it, and
   each lesson ends with links to the lessons before and after it (`lessonNeighbours()`; the last one
   links to `/theory/review`).
 

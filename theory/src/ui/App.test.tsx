@@ -79,18 +79,18 @@ function payload(a: Element) {
 }
 
 describe('Theory app', () => {
-  it('opens the contents in English by default', () => {
-    render('/theory');
-    expect(text()).toContain('Learn the neck by its shapes');
+  it('opens the library in English by default', () => {
+    render('/theory/library');
+    expect(text()).toContain('Reference: all lessons');
     expect(text()).toContain(pentatonicMap.copy.en.title);
     expect(document.documentElement.lang).toBe('en');
-    expect(document.title).toBe('Guitarmateur Theory');
+    expect(document.title).toBe('Reference: all lessons · Guitarmateur Theory');
   });
 
   it('switches to Vietnamese and remembers it', () => {
     render('/theory');
     click(container.querySelector('button[lang="vi"]')!);
-    expect(text()).toContain('Học cần đàn qua hình');
+    expect(text()).toContain('Chơi bài hát bằng tai, rồi chơi lead');
     expect(document.documentElement.lang).toBe('vi');
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('vi');
   });
@@ -177,7 +177,7 @@ describe('Theory app', () => {
   });
 
   it('lists the lessons in order, the fretboard first', () => {
-    render('/theory');
+    render('/theory/library');
     const cards = [...container.querySelectorAll('a.lesson-card')].map((a) =>
       a.getAttribute('href'),
     );
@@ -185,8 +185,8 @@ describe('Theory app', () => {
     expect(cards[0]).toBe('/theory/fretboard');
   });
 
-  it('navigates from the contents to the lesson without a reload', () => {
-    render('/theory');
+  it('navigates from the library to the lesson without a reload', () => {
+    render('/theory/library');
     click(container.querySelector('a.lesson-card[href="/theory/pentatonic-map"]')!);
     expect(window.location.pathname).toBe('/theory/pentatonic-map');
     expect(container.querySelectorAll('section.step')).toHaveLength(pentatonicMap.steps.length + 1);
@@ -673,7 +673,7 @@ describe('Theory app', () => {
     });
   });
 
-  describe('contents progress', () => {
+  describe('library progress', () => {
     const status = (slug: string) => {
       const card = container.querySelector(`a.lesson-card[href="/theory/${slug}"]`)!;
       return card.querySelector('.lesson-status')?.textContent ?? null;
@@ -684,7 +684,7 @@ describe('Theory app', () => {
       let p = recordAnswer({}, 'blues-bend', false, now);
       for (let i = 0; i < DONE_AFTER; i++) p = recordAnswer(p, 'barre-find', true, now);
       localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(p));
-      render('/theory');
+      render('/theory/library');
       expect(status('fretboard')).toBe('Quiz not started');
       expect(status('blues')).toBe('Quiz in progress');
       expect(status('barre')).toBe('Quiz done');
@@ -762,7 +762,7 @@ describe('Theory app', () => {
       });
     });
 
-    it('is reachable from the header and the contents', () => {
+    it('is reachable from the header and the path', () => {
       render('/theory');
       const links = [...container.querySelectorAll('a')].filter(
         (a) => a.getAttribute('href') === '/theory/review',
@@ -792,9 +792,38 @@ describe('Theory app', () => {
     ).toBe('84');
   });
 
-  it('shows the contents with a notice for an unknown lesson', () => {
+  it('shows the path page with a notice for an unknown lesson', () => {
     render('/theory/nope');
     expect(text()).toContain('There is no lesson at “/theory/nope”');
-    expect(text()).toContain(pentatonicMap.copy.en.title);
+    expect(text()).toContain('Play songs by ear, then play lead');
+  });
+
+  it('shows the path title and links to session 1, navigating client-side', () => {
+    render('/theory');
+    expect(text()).toContain('Play songs by ear, then play lead');
+    const startLink = container.querySelector('a[href="/theory/s/major-or-minor"]')!;
+    expect(startLink).not.toBeNull();
+    click(startLink);
+    expect(window.location.pathname).toBe('/theory/s/major-or-minor');
+    expect(text()).toContain('Happy or sad: major and minor');
+    expect(document.title).toBe('Happy or sad: major and minor · Guitarmateur Theory');
+  });
+
+  it('shows the four part headings on a session page', () => {
+    render('/theory/s/major-or-minor');
+    const headings = [...container.querySelectorAll('section.step h2')].map((h) => h.textContent);
+    expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
+  });
+
+  it('shows the path page with the notice for an unknown session', () => {
+    render('/theory/s/nope');
+    expect(text()).toContain('There is no lesson at “/theory/s/nope”');
+    expect(text()).toContain('Play songs by ear, then play lead');
+  });
+
+  it('lists the 13 lessons on /theory/library', () => {
+    render('/theory/library');
+    const cards = container.querySelectorAll('a.lesson-card');
+    expect(cards).toHaveLength(13);
   });
 });

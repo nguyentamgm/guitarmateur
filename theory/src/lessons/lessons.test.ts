@@ -52,7 +52,7 @@ describe('lesson registry', () => {
   it('lists every lesson in public/sitemap.xml, in contents order', () => {
     const lessonUrls = [...sitemap.matchAll(/<loc>https:\/\/guitarmateur\.com\/theory\/([^<]+)<\/loc>/g)]
       .map((m) => m[1])
-      .filter((slug) => slug !== 'review');
+      .filter((slug) => slug !== 'review' && slug !== 'library' && !slug?.startsWith('s/'));
     expect(lessonUrls).toEqual(LESSONS.map((l) => l.slug));
   });
 

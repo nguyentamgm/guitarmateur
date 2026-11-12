@@ -5,23 +5,17 @@ import { Link } from './Link';
 import { lessonStatus } from './progress';
 import { hrefFor } from './router';
 
-export function ContentsPage({ missingPath }: { missingPath?: string }) {
+export function LibraryPage() {
   const { ui, lang } = useTheory();
   const progress = useProgress();
   return (
     <main className="wrap">
       <section className="hero">
-        <span className="eyebrow">{ui.tocEyebrow}</span>
-        <h1>{ui.tocTitle}</h1>
-        <p className="lead">{ui.tocLead}</p>
-        <Link href={hrefFor({ page: 'review' })} className="toc-review">
-          {ui.tocReview}
+        <Link href={hrefFor({ page: 'path' })} className="back">
+          {ui.backToPath}
         </Link>
-        {missingPath !== undefined && (
-          <p className="notice" role="status">
-            {fill(ui.notFound, { path: missingPath })}
-          </p>
-        )}
+        <h1>{ui.libraryTitle}</h1>
+        <p className="lead">{ui.libraryLead}</p>
       </section>
       <section className="contents">
         <h2>{ui.tocLessons}</h2>
@@ -39,7 +33,13 @@ export function ContentsPage({ missingPath }: { missingPath?: string }) {
                     {status && <span className={`lesson-status ${status}`}>{ui.tocStatus[status]}</span>}
                   </span>
                   <span className="lesson-summary">{copy.summary}</span>
-                  <span className="lesson-ids">{fill(ui.tocConcepts, { names: lessonConcepts(lesson).map((id) => conceptName(id, lang)).join(' · ') })}</span>
+                  <span className="lesson-ids">
+                    {fill(ui.tocConcepts, {
+                      names: lessonConcepts(lesson)
+                        .map((id) => conceptName(id, lang))
+                        .join(' · '),
+                    })}
+                  </span>
                 </Link>
               </li>
             );

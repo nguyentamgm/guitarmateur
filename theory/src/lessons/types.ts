@@ -24,7 +24,7 @@ export interface NotYetItem {
 
 export interface LessonCopy<StepId extends string, SceneCopy> {
   readonly title: string;
-  /** One line for the contents page. */
+  /** One line for the library page. */
   readonly summary: string;
   readonly lead: string;
   readonly steps: Readonly<Record<StepId, StepCopy>>;
