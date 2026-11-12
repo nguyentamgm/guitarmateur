@@ -15,7 +15,7 @@ const KNOWN_IDS = new Set(
 
 describe('lesson registry', () => {
   it('reads the knowledge base', () => {
-    expect(KNOWN_IDS.size).toBe(57);
+    expect(KNOWN_IDS.size).toBe(64);
   });
 
   it('names every concept of the knowledge base, in every language', () => {
