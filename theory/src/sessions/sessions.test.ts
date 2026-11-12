@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
 import { findLesson } from '../lessons';
+import sitemap from '../../../public/sitemap.xml?raw';
 import {
   BLOCK_COPY_FIELDS,
   SESSIONS,
@@ -54,6 +55,12 @@ describe('session registry', () => {
     expect(sessionsOf('accompany')).toEqual(SESSIONS.filter((s) => s.path === 'accompany'));
     expect(sessionsOf('accompany', 'A')).toEqual(SESSIONS.filter((s) => s.path === 'accompany' && s.stage === 'A'));
     expect(sessionsOf('accompany', 'B')).toEqual(SESSIONS.filter((s) => s.path === 'accompany' && s.stage === 'B'));
+  });
+
+  it('lists every session in public/sitemap.xml, in order', () => {
+    const sessionUrls = [...sitemap.matchAll(/<loc>https:\/\/guitarmateur\.com\/theory\/s\/([^<]+)<\/loc>/g)]
+      .map((m) => m[1]);
+    expect(sessionUrls).toEqual(SESSIONS.map((s) => s.slug));
   });
 
   describe.each(SESSIONS.map((s) => [s.slug, s] as const))('%s', (_slug, session) => {
