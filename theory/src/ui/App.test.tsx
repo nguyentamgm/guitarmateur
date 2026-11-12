@@ -4,6 +4,7 @@ import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
+import { PARTS } from '../sessions';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
@@ -811,7 +812,7 @@ describe('Theory app', () => {
 
   it('shows the four part headings on a session page', () => {
     render('/theory/s/major-or-minor');
-    const headings = [...container.querySelectorAll('section.step h2')].map((h) => h.textContent);
+    const headings = PARTS.map((p) => container.querySelector(`section#${p} h2`)!.textContent);
     expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
   });
 
