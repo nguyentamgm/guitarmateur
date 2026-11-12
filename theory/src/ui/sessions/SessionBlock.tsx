@@ -6,9 +6,10 @@ import { LessonScene } from '../lessons/LessonScene';
 import { ChordCards } from './ChordCards';
 import { ListenDrill } from './ListenDrill';
 import { Reveal } from './Reveal';
+import { StrumAlong } from './StrumAlong';
 
 export function SessionBlock({ session, block }: { session: Session; block: Block }) {
-  const { ui, lang } = useTheory();
+  const { lang } = useTheory();
 
   switch (block.kind) {
     case 'lesson': {
@@ -30,7 +31,7 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
       const { in: key, chords } = block;
       return <ChordCards in={key} chords={chords} />;
     }
-    default:
-      return <p className="notice">{ui.session.blockSoon}</p>;
+    case 'strumAlong':
+      return <StrumAlong block={block} />;
   }
 }
