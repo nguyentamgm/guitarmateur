@@ -20,6 +20,7 @@ theory/
    ├─ i18n/              languages (en default), UI strings, `fill()`, copy-shape test helpers
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
+   ├─ sessions/          sessions: paths, stages, parts, copy.en.ts, copy.vi.ts, registry in index.ts
    ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx; theory.css
    │                     (the generic look and controls come from shared/ui, see below)
    └─ main.tsx           entry of theory/index.html
@@ -34,11 +35,11 @@ site-wide service worker (`public/sw.js`) falls back to the cached `/theory` she
 ## Import rules (enforced by ESLint)
 
 ```
-ui → lessons → core/fretboard → core/music
- │      │      core/audio (→ core/music allowed)
- │      │      core/rhythm (imports nothing in Theory)
- └──────┴────→ i18n ──→ platform (imports nothing in Theory)
- └─────────────────────→ platform
+ui → sessions → lessons → core/fretboard → core/music
+ │       │         │      core/audio (→ core/music allowed)
+ │       │         │      core/rhythm (imports nothing in Theory)
+ └───────┴─────────┴────→ i18n ──→ platform (imports nothing in Theory)
+ └───────────────────────────────→ platform
 ```
 
 - `theory/` never imports from `src/`, and `src/` never imports from `theory/`. Both may import

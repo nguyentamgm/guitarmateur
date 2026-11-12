@@ -7,6 +7,7 @@ import glossary from '../../../docs/glossary.md?raw';
 import { avoidRules, findAvoided, type GlossaryMiss } from '@shared/i18n/glossary';
 import { UI, type Lang } from '../i18n';
 import { CONCEPT_NAMES, LESSONS } from '.';
+import { SESSIONS } from '../sessions';
 
 const rules = avoidRules(glossary);
 
@@ -23,6 +24,7 @@ function misses(lang: Lang): GlossaryMiss[] {
     ...strings(UI[lang], 'ui'),
     ...strings(CONCEPT_NAMES[lang], 'concepts'),
     ...LESSONS.flatMap((l) => strings(l.copy[lang], l.slug)),
+    ...SESSIONS.flatMap((s) => strings(s.copy[lang], `session:${s.slug}`)),
   ];
   return all.flatMap(([where, text]) => findAvoided(text, rules, lang, where));
 }
