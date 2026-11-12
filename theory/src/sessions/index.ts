@@ -3,6 +3,7 @@ import type { PathId, Session, StageId } from './types';
 
 export * from './types';
 export * from './chordSpec';
+export * from './strum';
 export { majorOrMinor } from './major-or-minor';
 
 export const SESSIONS: readonly Session[] = [majorOrMinor];
