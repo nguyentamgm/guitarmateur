@@ -3,7 +3,7 @@ import { createPlayer, type Player } from '../core/audio';
 import { LANG_STORAGE_KEY, UI, linkLang, loadLang, saveLang, type Lang } from '../i18n';
 import { findLesson } from '../lessons';
 import { findSession } from '../sessions';
-import { Ctx, ProgressCtx, type TheoryContext } from './context';
+import { Ctx, ProgressCtx, SessionTicksCtx, type TheoryContext } from './context';
 import { Header } from './Header';
 import { LessonPage } from './LessonPage';
 import { LibraryPage } from './LibraryPage';
@@ -19,6 +19,12 @@ import {
 import { ReviewPage } from './ReviewPage';
 import { parseRoute } from './router';
 import { SessionPage } from './SessionPage';
+import {
+  SESSIONS_STORAGE_KEY,
+  loadTicks,
+  storeToggle,
+  type SessionTicks,
+} from './sessionProgress';
 
 const isLesson = (slug: string) => findLesson(slug) !== undefined;
 const isSession = (slug: string) => findSession(slug) !== undefined;
@@ -38,14 +44,20 @@ export function App({ player: given }: { player?: Player } = {}) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [player] = useState(() => given ?? createPlayer());
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
+  const [ticks, setTicks] = useState<SessionTicks>(() => loadTicks());
   // Each answer goes straight through storage, so another tab's answers are never overwritten.
   const recordQuiz = useCallback(
     (id: QuizId, right: boolean) => setProgress(storeAnswer(id, right, Date.now())),
     [],
   );
+  const toggleSessionTick = useCallback(
+    (slug: string, index: number) => setTicks(storeToggle(slug, index)),
+    [],
+  );
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === PROGRESS_STORAGE_KEY || e.key === null) setProgress(loadProgress());
+      if (e.key === SESSIONS_STORAGE_KEY || e.key === null) setTicks(loadTicks());
       // The language is shared with the practice app: a change in another tab shows here too.
       if (e.key === LANG_STORAGE_KEY || e.key === null) setLangState(loadLang());
     };
@@ -107,26 +119,29 @@ export function App({ player: given }: { player?: Player } = {}) {
       player,
       navigate,
       recordQuiz,
+      toggleSessionTick,
     }),
-    [lang, ui, player, navigate, recordQuiz],
+    [lang, ui, player, navigate, recordQuiz, toggleSessionTick],
   );
 
   return (
     <Ctx.Provider value={ctx}>
       <ProgressCtx.Provider value={progress}>
-        <Header section={route.page === 'review' ? 'review' : 'lessons'} />
-        <PlayStatus />
-        {lesson ? (
-          <LessonPage lesson={lesson} />
-        ) : session ? (
-          <SessionPage session={session} />
-        ) : route.page === 'library' ? (
-          <LibraryPage />
-        ) : route.page === 'review' ? (
-          <ReviewPage />
-        ) : (
-          <PathPage missingPath={route.page === 'notFound' ? route.path : undefined} />
-        )}
+        <SessionTicksCtx.Provider value={ticks}>
+          <Header section={route.page === 'review' ? 'review' : 'lessons'} />
+          <PlayStatus />
+          {lesson ? (
+            <LessonPage lesson={lesson} />
+          ) : session ? (
+            <SessionPage session={session} />
+          ) : route.page === 'library' ? (
+            <LibraryPage />
+          ) : route.page === 'review' ? (
+            <ReviewPage />
+          ) : (
+            <PathPage missingPath={route.page === 'notFound' ? route.path : undefined} />
+          )}
+        </SessionTicksCtx.Provider>
       </ProgressCtx.Provider>
     </Ctx.Provider>
   );

@@ -4,10 +4,12 @@ import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
+import { PARTS, majorOrMinor } from '../sessions';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
 import { DONE_AFTER, PROGRESS_STORAGE_KEY, QUIZZES, recordAnswer } from './progress';
+import { SESSIONS_STORAGE_KEY } from './sessionProgress';
 
 function fakePlayer() {
   const plucked: number[] = [];
@@ -811,7 +813,7 @@ describe('Theory app', () => {
 
   it('shows the four part headings on a session page', () => {
     render('/theory/s/major-or-minor');
-    const headings = [...container.querySelectorAll('section.step h2')].map((h) => h.textContent);
+    const headings = PARTS.map((p) => container.querySelector(`section#${p} h2`)!.textContent);
     expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
   });
 
@@ -825,5 +827,92 @@ describe('Theory app', () => {
     render('/theory/library');
     const cards = container.querySelectorAll('a.lesson-card');
     expect(cards).toHaveLength(13);
+  });
+
+  it('walks through session check, completion ticks, and path page done status', () => {
+    render('/theory/s/major-or-minor');
+
+    // 1. Answer check question wrong, then right (why text shows in both)
+    const check = container.querySelector('section#check')!;
+    const q1 = majorOrMinor.copy.en.check[0]!;
+    const wrongOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[0])!;
+    click(wrongOpt);
+    expect(check.textContent).toContain('Not quite.');
+    expect(check.textContent).toContain(q1.why);
+
+    const rightOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[1])!;
+    click(rightOpt);
+    expect(check.textContent).toContain('Right.');
+    expect(check.textContent).toContain(q1.why);
+
+    // 2. Tick every "I can do this" box and see the done message
+    const done = container.querySelector('section#done')!;
+    const boxes = done.querySelectorAll('input[type="checkbox"]');
+    expect(boxes).toHaveLength(majorOrMinor.copy.en.canDo.length);
+
+    click(boxes[0]!);
+    expect(done.textContent).not.toContain('Session complete.');
+
+    click(boxes[1]!);
+    expect(done.textContent).toContain('Session complete.');
+
+    // 3. Back on /theory: the session card says done
+    const backLink = container.querySelector('a.back[href="/theory"]')!;
+    click(backLink);
+    expect(window.location.pathname).toBe('/theory');
+    const card = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(card.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+
+    // 4. Reload app with same storage: still done
+    act(() => root.unmount());
+    root = createRoot(container);
+    render('/theory');
+    const reloaded = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(reloaded.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+
+    // 5. Untick: undone
+    click(container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!);
+    expect(window.location.pathname).toBe('/theory/s/major-or-minor');
+    const boxesToUntick = container.querySelectorAll('section#done input[type="checkbox"]');
+    click(boxesToUntick[1]!);
+    expect(container.querySelector('section#done')!.textContent).not.toContain('Session complete.');
+
+    click(container.querySelector('a.back[href="/theory"]')!);
+    const undoneCard = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(undoneCard.querySelector('.lesson-status.done')).toBeNull();
+
+    // 6. Another tab updates storage: first tab follows
+    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: { 'major-or-minor': [0, 1] } }));
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: SESSIONS_STORAGE_KEY }));
+    });
+    const syncedCard = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(syncedCard.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+  });
+
+  it('follows the session progress flow in Vietnamese', () => {
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/major-or-minor');
+
+    const check = container.querySelector('section#check')!;
+    const q1 = majorOrMinor.copy.vi.check[0]!;
+    click([...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[0])!);
+    expect(check.textContent).toContain('Chưa đúng.');
+    expect(check.textContent).toContain(q1.why);
+
+    click([...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[1])!);
+    expect(check.textContent).toContain('Đúng.');
+    expect(check.textContent).toContain(q1.why);
+
+    const done = container.querySelector('section#done')!;
+    const boxes = done.querySelectorAll('input[type="checkbox"]');
+    click(boxes[0]!);
+    expect(done.textContent).not.toContain('Đã hoàn thành buổi học.');
+    click(boxes[1]!);
+    expect(done.textContent).toContain('Đã hoàn thành buổi học.');
+
+    click(container.querySelector('a.back[href="/theory"]')!);
+    const card = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(card.querySelector('.lesson-status.done')?.textContent).toBe('Đã xong');
   });
 });

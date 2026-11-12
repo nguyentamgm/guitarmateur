@@ -159,6 +159,9 @@ ui → sessions → lessons → core/fretboard → core/music
   then under 80% right in the last 20 answers, then not practised for 7 days.
 - Each contents card with a quiz shows its status from the same progress (`lessonStatus()`): not
   started (no answer), in progress, done (at least `DONE_AFTER` = 10 recent answers, 80% right).
+- Session progress lives in `theory.sessions` (`ui/sessionProgress.ts`): `{ v: 1, ticks: { [slug]: number[] } }`,
+  the indexes of the "I can do this" boxes ticked. A session is **done** when every box of its `canDo` is ticked (`isDone()`);
+  done is derived and never stored. Each session card on the path page shows done status once completed, and the main button directs to `nextSession()`.
 
 ## Lessons
 

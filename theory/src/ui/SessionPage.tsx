@@ -5,6 +5,8 @@ import { useTheory } from './context';
 import { Link } from './Link';
 import { hrefFor } from './router';
 import { SessionBlock } from './sessions/SessionBlock';
+import { SessionCheck } from './sessions/SessionCheck';
+import { SessionDone } from './sessions/SessionDone';
 
 export function SessionPage({ session }: { session: Session }) {
   const { ui, lang } = useTheory();
@@ -64,6 +66,9 @@ export function SessionPage({ session }: { session: Session }) {
           </section>
         );
       })}
+
+      <SessionCheck session={session} />
+      <SessionDone session={session} />
 
       <nav className="lesson-nav" aria-label={ui.lessonNavLabel}>
         <div className="lesson-nav-links">
