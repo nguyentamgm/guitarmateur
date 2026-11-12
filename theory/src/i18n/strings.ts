@@ -10,6 +10,36 @@ const en = {
   brand: 'Guitarmateur',
   langLabel: 'Language',
   langName: { en: 'English', vi: 'Tiếng Việt' },
+  pathEyebrow: 'Music theory for electric guitar',
+  pathTitle: 'Play songs by ear, then play lead',
+  pathLead:
+    'Short sessions where you listen, understand, play and try a challenge. Start with chords and songs, then move to lead guitar.',
+  pathStart: 'Start here →',
+  pathStage: {
+    A: 'Ears and hands',
+    B: 'Three chords, many songs',
+    C: 'Minor chords and new colours',
+    D: 'Free on the neck',
+  },
+  pathComingSoon: 'Coming soon.',
+  pathLeadTitle: 'Lead guitar',
+  pathLeadBody:
+    'Looking for pentatonic, blues and soloing? Those lessons are in the library while we build their sessions.',
+  pathLibraryLink: 'Explore the library →',
+  libraryTitle: 'Reference: all lessons',
+  libraryLead:
+    'The 13 visual lessons for electric guitar: fretboard, rhythm, scales, chords, keys and soloing. Look up any topic whenever you need it.',
+  backToPath: '← The path',
+  session: {
+    goalLabel: 'Goal',
+    needsLabel: 'You will need',
+    recapLabel: 'Before you start',
+    partLabel: 'Part {n}',
+    blockSoon: 'This exercise is coming soon.',
+    prev: '← Previous session',
+    next: 'Next session →',
+    backToPath: '← Back to the path',
+  },
   tocEyebrow: 'Music theory for electric guitar',
   tocTitle: 'Learn the neck by its shapes',
   tocLead:
@@ -76,6 +106,36 @@ const vi: UiStrings = {
   brand: 'Guitarmateur',
   langLabel: 'Ngôn ngữ',
   langName: { en: 'English', vi: 'Tiếng Việt' },
+  pathEyebrow: 'Nhạc lý cho guitar điện',
+  pathTitle: 'Chơi bài hát bằng tai, rồi chơi lead',
+  pathLead:
+    'Những buổi học ngắn: nghe, hiểu, chơi và thử thách. Bắt đầu với hợp âm và bài hát, rồi tiến tới lead guitar.',
+  pathStart: 'Bắt đầu ở đây →',
+  pathStage: {
+    A: 'Tai và tay',
+    B: 'Ba hợp âm, nhiều bài hát',
+    C: 'Hợp âm thứ và màu sắc mới',
+    D: 'Tự do trên cần đàn',
+  },
+  pathComingSoon: 'Sắp ra mắt.',
+  pathLeadTitle: 'Lead guitar',
+  pathLeadBody:
+    'Bạn muốn học pentatonic, blues và solo? Các bài học đó nằm trong thư viện trong lúc chúng tôi xây dựng buổi học.',
+  pathLibraryLink: 'Khám phá thư viện →',
+  libraryTitle: 'Thư viện: tất cả các bài',
+  libraryLead:
+    '13 bài học trực quan cho guitar điện: cần đàn, nhịp điệu, scale, hợp âm, giọng và solo. Tra cứu bất kỳ chủ đề nào khi bạn cần.',
+  backToPath: '← Lộ trình',
+  session: {
+    goalLabel: 'Mục tiêu',
+    needsLabel: 'Bạn sẽ cần',
+    recapLabel: 'Trước khi bắt đầu',
+    partLabel: 'Phần {n}',
+    blockSoon: 'Bài tập này sắp ra mắt.',
+    prev: '← Buổi học trước',
+    next: 'Buổi học tiếp theo →',
+    backToPath: '← Quay lại lộ trình',
+  },
   tocEyebrow: 'Nhạc lý cho guitar điện',
   tocTitle: 'Học cần đàn qua hình',
   tocLead:

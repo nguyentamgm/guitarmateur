@@ -4,7 +4,7 @@ import { conceptName, lessonNeighbours, type Lesson } from '../lessons';
 import { useTheory } from './context';
 import { LessonScene } from './lessons/LessonScene';
 import { Link } from './Link';
-import { BASE, hrefFor } from './router';
+import { hrefFor } from './router';
 import { TrainerLink } from './TrainerLink';
 import { vamp } from './trainerLink';
 
@@ -16,7 +16,7 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
   return (
     <main className="wrap">
       <section className="hero">
-        <Link href={BASE} className="back">
+        <Link href={hrefFor({ page: 'library' })} className="back">
           {ui.backToContents}
         </Link>
         <h1>{copy.title}</h1>
