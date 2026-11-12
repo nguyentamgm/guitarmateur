@@ -915,4 +915,35 @@ describe('Theory app', () => {
     const card = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
     expect(card.querySelector('.lesson-status.done')?.textContent).toBe('Đã xong');
   });
+
+  it('plays sound in the listen drill, answers a question, and advances to the next question', () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    const { player, plucked } = fakePlayer();
+
+    render('/theory/s/major-or-minor', player);
+
+    const listenSection = container.querySelector('section#listen')!;
+    const startBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Start')!;
+    expect(startBtn).toBeDefined();
+
+    click(startBtn);
+    expect(plucked.length).toBeGreaterThan(0);
+    const firstPluckCount = plucked.length;
+
+    // Answer "Happy" (major)
+    const happyBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Happy')!;
+    expect(happyBtn).toBeDefined();
+    click(happyBtn);
+
+    expect(listenSection.textContent).toContain('Right.');
+    expect(listenSection.textContent).toContain('D');
+
+    // Click Next
+    const nextBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Next')!;
+    expect(nextBtn).toBeDefined();
+    click(nextBtn);
+
+    expect(plucked.length).toBeGreaterThan(firstPluckCount);
+    randomSpy.mockRestore();
+  });
 });
