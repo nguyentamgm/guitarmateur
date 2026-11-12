@@ -4,7 +4,7 @@ import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
-import { PARTS } from '../sessions';
+import { PARTS, majorOrMinor } from '../sessions';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
@@ -826,5 +826,47 @@ describe('Theory app', () => {
     render('/theory/library');
     const cards = container.querySelectorAll('a.lesson-card');
     expect(cards).toHaveLength(13);
+  });
+
+  it('walks through session check, completion ticks, and path page done status', () => {
+    render('/theory/s/major-or-minor');
+
+    // 1. Answer check question wrong, then right (why text shows in both)
+    const check = container.querySelector('section#check')!;
+    const q1 = majorOrMinor.copy.en.check[0]!;
+    const wrongOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[0])!;
+    click(wrongOpt);
+    expect(check.textContent).toContain('Not quite.');
+    expect(check.textContent).toContain(q1.why);
+
+    const rightOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[1])!;
+    click(rightOpt);
+    expect(check.textContent).toContain('Right.');
+    expect(check.textContent).toContain(q1.why);
+
+    // 2. Tick every "I can do this" box and see the done message
+    const done = container.querySelector('section#done')!;
+    const boxes = done.querySelectorAll('input[type="checkbox"]');
+    expect(boxes).toHaveLength(majorOrMinor.copy.en.canDo.length);
+
+    click(boxes[0]!);
+    expect(done.textContent).not.toContain('Session complete.');
+
+    click(boxes[1]!);
+    expect(done.textContent).toContain('Session complete.');
+
+    // 3. Back on /theory: the session card says done
+    const backLink = container.querySelector('a.back[href="/theory"]')!;
+    click(backLink);
+    expect(window.location.pathname).toBe('/theory');
+    const card = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(card.querySelector('.lesson-status.done')?.textContent).toBe('Done');
+
+    // 4. Reload app with same storage: still done
+    act(() => root.unmount());
+    root = createRoot(container);
+    render('/theory');
+    const reloaded = container.querySelector('a.lesson-card[href="/theory/s/major-or-minor"]')!;
+    expect(reloaded.querySelector('.lesson-status.done')?.textContent).toBe('Done');
   });
 });
