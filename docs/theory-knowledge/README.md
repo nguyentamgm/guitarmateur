@@ -11,6 +11,8 @@ Kho được sắp theo lộ trình học của Theory, không theo thứ tự c
 3. Mỗi bài học ghi rõ nó dạy những mã nào. Nếu bài cần một khái niệm chưa có, thêm khái niệm vào đúng module trong cùng PR.
 4. Nếu dạy khác với ghi chú ở đây (thứ tự, cách minh họa), sửa file kiến thức trong cùng PR để kho luôn khớp với app.
 
+Kho kiến thức giữ mỗi khái niệm **một lần duy nhất**; các buổi học ([`docs/theory-sessions.md`](../theory-sessions.md)) chủ ý lặp lại nhạc lý khi cần, để người học không phải rời buổi học đi tra cứu.
+
 ## Các module
 
 | Module | File | Nội dung |
@@ -23,6 +25,7 @@ Kho được sắp theo lộ trình học của Theory, không theo thứ tự c
 | M5 Giọng và tiến trình | [m5-keys-progressions.md](m5-keys-progressions.md) | Hợp âm thuận, số La Mã, blues 12 ô, V–I, II–V–I |
 | M6 Blues và kỹ thuật guitar điện | [m6-blues-technique.md](m6-blues-technique.md) | Blues scale, blue note, bend, hammer-on/pull-off, slide, palm mute, double stop, quãng 8 |
 | M7 Solo | [m7-soloing.md](m7-soloing.md) | Chọn âm giai, nốt đích theo hợp âm, xây câu, luyện tai |
+| M8 Đệm hát bằng tai | [m8-accompaniment.md](m8-accompaniment.md) | Nhịp hòa âm, chức năng I IV V, ghép hợp âm cho giai điệu, đổi giọng và capo, hợp âm ngoài giọng, quy trình dò hợp âm |
 
 ## Thứ tự học
 
@@ -40,6 +43,7 @@ flowchart LR
   M6 --> M5
   M5 --> M7["M7 Solo"]
   M3 --> M7
+  M5 --> M8["M8 Đệm hát bằng tai"]
 ```
 
 ## Bản đồ chương sách → khái niệm

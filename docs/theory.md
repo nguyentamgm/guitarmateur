@@ -4,6 +4,7 @@ Theory is a separate app in this repo: visual, animated music-theory lessons for
 served at `/theory`. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) with the practice
 app in `src/`, never imports it, and shares code with it only through `shared/` (`@shared/…`,
 see [`architecture.md`](architecture.md#shared-code-shared)). What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
+Sessions are described in [`theory-sessions.md`](theory-sessions.md).
 
 ## Layout
 

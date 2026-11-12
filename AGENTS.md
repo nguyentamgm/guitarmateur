@@ -43,7 +43,8 @@ merges. Match that order locally before pushing.
 - **Code the apps share** goes in `shared/` (imported as `@shared/…`; it imports none of them) —
   see the "Shared code" section of [`docs/architecture.md`](docs/architecture.md).
 - **Working on the Theory app (`theory/`)?** It is a separate app with its own rules: read
-  [`docs/theory.md`](docs/theory.md) and [`docs/theory-knowledge/`](docs/theory-knowledge/README.md) first.
+  [`docs/theory.md`](docs/theory.md) and [`docs/theory-knowledge/`](docs/theory-knowledge/README.md) first;
+  when working on a session (`theory/src/sessions/`), read [`docs/theory-sessions.md`](docs/theory-sessions.md) first.
 - **Working on the ear trainer (`ear/`, served at `/ear-training`)?** It is a third app with its own layers
   and music rules, being built in phases (#227): read [`docs/ear.md`](docs/ear.md) first.
 - **Working on the lick generator (`src/lick/`)?** Read [`docs/licks.md`](docs/licks.md) first: most licks

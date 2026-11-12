@@ -20,6 +20,7 @@ const en = {
   'K1.3': 'Counting rhythms',
   'K1.4': 'Strumming patterns and alternate picking',
   'K1.5': 'Triplets, swing and shuffle',
+  'K1.6': 'Three-four time',
   'K2.1': 'The major scale',
   'K2.2': 'Spelling scales and key signatures',
   'K2.3': 'Intervals: names and semitones',
@@ -64,6 +65,12 @@ const en = {
   'K7.4': 'Phrasing: motif and variation',
   'K7.5': 'Ear training',
   'K7.6': 'Improvising by ear: try, listen back, adjust',
+  'K8.1': 'When the chords change',
+  'K8.2': 'What I, IV and V do',
+  'K8.3': 'Finding chords for a melody',
+  'K8.4': 'Changing key and using a capo',
+  'K8.5': 'Common chords from outside the key',
+  'K8.6': "Working out a song's chords",
 } as const;
 
 type Named = keyof typeof en;
@@ -82,6 +89,7 @@ const vi: Readonly<Record<Named, string>> = {
   'K1.3': 'Đếm nhịp',
   'K1.4': 'Mẫu quạt dây và alternate picking',
   'K1.5': 'Triplet, swing và shuffle',
+  'K1.6': 'Nhịp 3/4',
   'K2.1': 'Major scale',
   'K2.2': 'Đánh vần scale và key signature',
   'K2.3': 'Quãng: tên và số nửa cung',
@@ -126,6 +134,12 @@ const vi: Readonly<Record<Named, string>> = {
   'K7.4': 'Xây câu: motif và biến tấu',
   'K7.5': 'Luyện tai',
   'K7.6': 'Ứng tác bằng tai: thử, nghe lại, sửa',
+  'K8.1': 'Hợp âm đổi lúc nào',
+  'K8.2': 'Vai trò của I, IV và V',
+  'K8.3': 'Ghép hợp âm cho giai điệu',
+  'K8.4': 'Đổi giọng và capo',
+  'K8.5': 'Hợp âm ngoài giọng thường gặp',
+  'K8.6': 'Quy trình dò hợp âm một bài',
 };
 
 export const CONCEPT_NAMES: Readonly<Record<Lang, Readonly<Record<Named, string>>>> = { en, vi };
