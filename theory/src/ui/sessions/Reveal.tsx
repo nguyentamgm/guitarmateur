@@ -6,9 +6,12 @@ import { useTheory } from '../context';
 import { Button } from '../controls';
 import { ChordCard } from './ChordCards';
 import { playSound } from './playSound';
+import { useSessionStrumSpeed } from './sessionSettingsContext';
+import { STRUM_SPREADS } from './strumSpeed';
 
 export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
   const { player, ui } = useTheory();
+  const speed = useSessionStrumSpeed();
 
   const [question, setQuestion] = useState<DrillQuestion | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -19,18 +22,20 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
     };
   }, [player]);
 
+  const spread = STRUM_SPREADS[speed];
+
   const start = () => {
     const q = drill.next(Math.random);
     setQuestion(q);
     setRevealed(false);
-    playSound(player, q.sound);
+    playSound(player, q.sound, { leadInSec: 0.5, strumSpreadSec: spread });
   };
 
   const next = () => {
     const nextQ = drill.next(Math.random, question ?? undefined);
     setQuestion(nextQ);
     setRevealed(false);
-    playSound(player, nextQ.sound);
+    playSound(player, nextQ.sound, { leadInSec: 0.4, strumSpreadSec: spread });
   };
 
   if (!question) {
@@ -47,7 +52,13 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
     <div className="board">
       <div className="quiz">
         <span className="question">{copy.ask}</span>
-        <Button onClick={() => playSound(player, question.sound)}>{ui.session.playAgain}</Button>
+        <Button
+          onClick={() =>
+            playSound(player, question.sound, { leadInSec: 0.15, strumSpreadSec: spread })
+          }
+        >
+          {ui.session.playAgain}
+        </Button>
         {!revealed ? (
           <Button onClick={() => setRevealed(true)}>{ui.session.showAnswer}</Button>
         ) : (

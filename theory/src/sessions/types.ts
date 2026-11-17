@@ -34,8 +34,18 @@ export type DrillId =
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
-  | { readonly kind: 'lesson'; readonly key: string; readonly lesson: string; readonly step: string }
-  | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[] }
+  | {
+      readonly kind: 'lesson';
+      readonly key: string;
+      readonly lesson: string;
+      readonly step: string;
+    }
+  | {
+      readonly kind: 'chords';
+      readonly key: string;
+      readonly in: SessionKey;
+      readonly chords: readonly ChordSpec[];
+    }
   | {
       readonly kind: 'strumAlong';
       readonly key: string;
@@ -85,9 +95,15 @@ export interface SessionCopy {
   readonly goal: string; // "After this session you can …"
   readonly needs: string; // "A guitar in tune. About 15 minutes."
   readonly recap: readonly string[];
-  readonly parts: Readonly<Record<PartId, { readonly title: string; readonly body: readonly string[] }>>;
+  readonly parts: Readonly<
+    Record<PartId, { readonly title: string; readonly body: readonly string[] }>
+  >;
   readonly blocks: Readonly<Record<string, BlockCopy>>;
-  readonly check: readonly { readonly question: string; readonly options: readonly string[]; readonly why: string }[];
+  readonly check: readonly {
+    readonly question: string;
+    readonly options: readonly string[];
+    readonly why: string;
+  }[];
   readonly canDo: readonly string[]; // "I can …" boxes; all ticked = done
 }
 
@@ -100,7 +116,11 @@ export interface Session {
   /** Index of the right option of each check question. */
   readonly checkAnswers: readonly number[];
   readonly copy: Readonly<Record<Lang, SessionCopy>>;
+  /** Optional interactive controls displayed in the session's sticky settings bar. */
+  readonly settings?: readonly SessionSettingId[];
 }
+
+export type SessionSettingId = 'strumSpeed';
 
 /** Every block of a session, in page order. */
 export const sessionBlocks = (s: Session): Block[] => PARTS.flatMap((p) => s.parts[p]);

@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fill } from '../../i18n';
+import { soundSeconds } from '../../sessions/sound';
 import type { Drill, DrillQuestion } from '../../sessions/drills';
 import type { ListenCopy } from '../../sessions/types';
 import { useTheory } from '../context';
 import { Button } from '../controls';
+import { useReportPlaying } from '../playing';
 import { playSound } from './playSound';
+import { useSessionStrumSpeed } from './sessionSettingsContext';
+import { STRUM_SPREADS } from './strumSpeed';
 
 const ROUND = 8;
 
 export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy }) {
   const { player, ui } = useTheory();
+  const strumSpeed = useSessionStrumSpeed();
 
   const [question, setQuestion] = useState<DrillQuestion | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
@@ -18,11 +23,57 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
   const [isDone, setIsDone] = useState(false);
   const [feedback, setFeedback] = useState('');
 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const playTimer = useRef<number | null>(null);
+  const isInitialSpeed = useRef(true);
+
+  useReportPlaying(isPlaying);
+
+  const clearPlayTimer = () => {
+    if (playTimer.current !== null) {
+      window.clearTimeout(playTimer.current);
+      playTimer.current = null;
+    }
+  };
+
   useEffect(() => {
     return () => {
+      clearPlayTimer();
       player.cancel();
     };
   }, [player]);
+
+  const play = (sound: DrillQuestion['sound'], leadInSec = 0, speed = strumSpeed) => {
+    clearPlayTimer();
+    setIsPlaying(true);
+    playSound(player, sound, {
+      leadInSec,
+      strumSpreadSec: STRUM_SPREADS[speed],
+    });
+
+    const durSec = leadInSec + soundSeconds(sound) + 0.3;
+    playTimer.current = window.setTimeout(
+      () => {
+        setIsPlaying(false);
+        playTimer.current = null;
+      },
+      Math.max(800, durSec * 1000),
+    );
+  };
+
+  const stateRef = useRef({ question, picked, play });
+  stateRef.current = { question, picked, play };
+
+  useEffect(() => {
+    if (isInitialSpeed.current) {
+      isInitialSpeed.current = false;
+      return;
+    }
+    const { question: q, picked: p, play: doPlay } = stateRef.current;
+    if (q && p === null) {
+      doPlay(q.sound, 0.2, strumSpeed);
+    }
+  }, [strumSpeed]);
 
   const startRound = () => {
     const firstQ = drill.next(Math.random);
@@ -32,7 +83,7 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
     setPicked(null);
     setIsDone(false);
     setFeedback('');
-    playSound(player, firstQ.sound);
+    play(firstQ.sound, 0.6);
   };
 
   const handleAnswer = (id: string) => {
@@ -47,7 +98,7 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
       setFeedback(fill(copy.right, { answer: answerLabel, detail }));
     } else {
       if (question.compare) {
-        playSound(player, question.compare);
+        play(question.compare, 0.3);
       }
       setFeedback(fill(copy.wrong, { answer: answerLabel, detail }));
     }
@@ -60,8 +111,10 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
       setQuestionNumber((n) => n + 1);
       setPicked(null);
       setFeedback('');
-      playSound(player, nextQ.sound);
+      play(nextQ.sound, 0.45);
     } else {
+      clearPlayTimer();
+      setIsPlaying(false);
       setIsDone(true);
       player.cancel();
     }
@@ -94,13 +147,20 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
     <div className="board">
       <div className="quiz">
         <span className="question">{copy.ask}</span>
-        <Button onClick={() => playSound(player, question.sound)}>{ui.session.playAgain}</Button>
+        <Button onClick={() => play(question.sound, 0.15)}>{ui.session.playAgain}</Button>
+        {isPlaying && (
+          <span className="caption good" aria-live="polite">
+            {ui.session.listening}
+          </span>
+        )}
         {picked !== null && (
           <Button onClick={advance} ghost>
             {ui.session.next}
           </Button>
         )}
-        <span className="muted small">{fill(ui.session.questionOf, { n: questionNumber, total: ROUND })}</span>
+        <span className="muted small">
+          {fill(ui.session.questionOf, { n: questionNumber, total: ROUND })}
+        </span>
       </div>
       <div className="degrees answers" role="group" aria-label={copy.ask}>
         {drill.answers.map((id) => {
@@ -121,7 +181,10 @@ export function ListenDrill({ drill, copy }: { drill: Drill; copy: ListenCopy })
           );
         })}
       </div>
-      <p className={picked ? (picked === question.answer ? 'caption good' : 'caption') : 'caption'} aria-live="polite">
+      <p
+        className={picked ? (picked === question.answer ? 'caption good' : 'caption') : 'caption'}
+        aria-live="polite"
+      >
         {feedback}
       </p>
     </div>

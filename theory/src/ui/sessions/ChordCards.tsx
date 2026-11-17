@@ -10,9 +10,12 @@ import { Fretboard, type FretDot } from '../Fretboard';
 import { useNeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { playSound } from './playSound';
+import { useSessionStrumSpeed } from './sessionSettingsContext';
+import { STRUM_SPREADS } from './strumSpeed';
 
 export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
   const { player, ui } = useTheory();
+  const speed = useSessionStrumSpeed();
   const shape = chordShape(chord);
   const fretCount = shape.barreFret !== null ? shape.barreFret + 3 : 4;
   const g = useNeckGeometry(fretCount, { fretWidth: 72 });
@@ -27,10 +30,14 @@ export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
   }));
 
   const strum = () => {
-    playSound(player, {
-      bpm: 80,
-      events: [strummed(shapeMidis(shape), 0, 2)],
-    });
+    playSound(
+      player,
+      {
+        bpm: 80,
+        events: [strummed(shapeMidis(shape), 0, 2)],
+      },
+      { strumSpreadSec: STRUM_SPREADS[speed] },
+    );
   };
 
   return (
@@ -39,7 +46,13 @@ export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
         <button
           type="button"
           className="power-symbol"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
           onClick={strum}
         >
           <span>{shape.symbol}</span>
@@ -65,7 +78,13 @@ export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
   );
 }
 
-export function ChordCards({ in: sessionKey, chords }: { in: SessionKey; chords: readonly ChordSpec[] }) {
+export function ChordCards({
+  in: sessionKey,
+  chords,
+}: {
+  in: SessionKey;
+  chords: readonly ChordSpec[];
+}) {
   return (
     <>
       {chords.map((spec, i) => {
