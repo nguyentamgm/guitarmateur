@@ -2,6 +2,7 @@ import type { StringNumber } from '../core/fretboard';
 import type { ChordId, DegreeLabel, Mode } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
+import type { SongId } from './songs';
 
 export type PathId = 'accompany';
 export type StageId = 'A' | 'B' | 'C' | 'D';
@@ -87,6 +88,16 @@ export type Block =
       readonly pool: readonly ChordSpec[];
       readonly bars: number;
       readonly bpm: number;
+    }
+  | {
+      readonly kind: 'song';
+      readonly key: string;
+      readonly song: SongId;
+      readonly in: SessionKey;
+      readonly pool: readonly ChordSpec[];
+      readonly start: 'all' | 'none';
+      readonly keys?: readonly string[];
+      readonly bpm?: number;
     };
 
 export interface ListenCopy {
@@ -125,6 +136,13 @@ export interface FillBarsCopy {
   readonly someWrong: string;
 }
 
+export interface SongCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly result: string;
+  readonly allRight: string;
+}
+
 export interface BaseBlockCopy {
   readonly intro: string;
 }
@@ -135,7 +153,8 @@ export type BlockCopy =
   | RevealCopy
   | MelodyEchoCopy
   | ChangeTapCopy
-  | FillBarsCopy;
+  | FillBarsCopy
+  | SongCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {
@@ -147,6 +166,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],
   fillBars: ['intro', 'ask', 'allRight', 'someWrong'],
+  song: ['intro', 'ask', 'result', 'allRight'],
 };
 
 export interface SessionCopy {
