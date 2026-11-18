@@ -60,6 +60,7 @@ imports none of the others; what they share is in `shared/` (below).
 ├─ tsconfig.json
 ├─ vite.config.ts
 ├─ vercel.json
+├─ .husky/pre-push               # local gate: lint, typecheck, test before git push
 └─ .github/workflows/ci.yml
 ```
 
@@ -264,10 +265,15 @@ note (browsers require a user gesture) — never at module load.
 ## Deployment
 
 ```
+git push → .husky/pre-push (lint, typecheck, test)       ← local gate
 PR → GitHub Actions (lint, typecheck, test, build)     ← merge gate
    → Vercel preview deployment (automatic)
 merge to main → Vercel production build & deploy → guitarmateur.com
 ```
+
+The local gate is a [husky](https://typicode.github.io/husky/) `pre-push` hook, installed by
+`npm install` (the `prepare` script): a failing lint, typecheck or test stops the push before CI
+runs. `git push --no-verify` skips it once, for emergencies only.
 
 Static SPA on **Vercel Hobby**. Vercel's Git integration deploys — CI never touches deploy tokens.
 Merge to `main` → production at guitarmateur.com. No env vars, no secrets.
