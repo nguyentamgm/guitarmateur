@@ -51,8 +51,7 @@ const mockCtx: TheoryContext = {
   player: mockPlayer,
   navigate: () => {},
   recordQuiz: () => {},
-  quizStats: () => ({ tries: 0, right: 0, streak: 0 }),
-  weakestScene: () => undefined,
+  toggleSessionTick: () => {},
 };
 
 const testCopy: TransposeCopy = {
