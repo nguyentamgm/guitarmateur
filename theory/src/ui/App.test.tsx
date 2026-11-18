@@ -1590,4 +1590,33 @@ describe('Theory app', () => {
     click(checkBtn);
     expect(challengeSection.textContent).toContain('All right:');
   });
+
+  it('renders session 10 (/theory/s/the-six-chord) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/the-six-chord');
+    expect(text()).toContain('The sad chord in a happy key: vi');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/the-six-chord');
+    expect(text()).toContain('Hợp âm trầm trong giọng trưởng: vi');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
 });

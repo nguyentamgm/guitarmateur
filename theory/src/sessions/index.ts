@@ -7,6 +7,7 @@ import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { oneFourFive } from './one-four-five';
+import { theSixChord } from './the-six-chord';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
@@ -26,6 +27,7 @@ export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
 export { oneFourFive } from './one-four-five';
+export { theSixChord } from './the-six-chord';
 
 export const SESSIONS: readonly Session[] = [
   majorOrMinor,
@@ -37,6 +39,7 @@ export const SESSIONS: readonly Session[] = [
   oneFourFive,
   firstSong,
   changeKey,
+  theSixChord,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];

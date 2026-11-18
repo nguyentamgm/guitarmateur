@@ -67,6 +67,7 @@ describe('the strumSpeed rule', () => {
     expect(sessionStrums(only({ kind: 'listen', key: 'f', drill: 'finished' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'cc', drill: 'chordCount' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'fof', drill: 'fourOrFive' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'listen', key: 'mb', drill: 'minorBar' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'fillBars', key: 'fb', in: { tonic: 'G', mode: 'major' }, pool: [1, 4, 5], bars: 4, bpm: 80 }))).toBe(true);
     expect(sessionStrums(only({ kind: 'song', key: 's', in: { tonic: 'G', mode: 'major' }, song: 'frere-jacques', pool: [1], start: 'all' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'transpose', key: 't', bars: [1, 4, 5, 1], tonics: ['G', 'D'] }))).toBe(true);
