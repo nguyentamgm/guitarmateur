@@ -105,7 +105,11 @@ export interface Session {
   /** Index of the right option of each check question. */
   readonly checkAnswers: readonly number[];
   readonly copy: Readonly<Record<Lang, SessionCopy>>;
+  /** Controls shown in the session's sticky settings bar; the bar is hidden when empty. */
+  readonly settings?: readonly SessionSettingId[];
 }
+
+export type SessionSettingId = 'strumSpeed';  // slow / medium / fast strum spread
 
 export interface SessionCopy {
   readonly title: string;
@@ -132,6 +136,16 @@ export interface SessionCopy {
 
 Buttons and labels shared by every session ("Play", "Play again", "Next", "Show answer",
 "Question {n} of {total}", …) are in `i18n/strings.ts` under `session`.
+
+**Settings bar.** `settings` lists the controls of the session's settings bar
+(`ui/sessions/SessionSettings.tsx`), sticky at the top of the session page and hidden when the list
+is empty or missing. The only id today is `'strumSpeed'`: blocks read it with
+`useSessionStrumSpeed()` and pass `STRUM_SPREADS[speed]` to `strumDelays()` / `playSound()`.
+**Rule: a session that strums chords anywhere declares `settings: ['strumSpeed']`; a session that
+never strums does not.** "Strums" means a `strumAlong` or `chords` block, or a `listen` / `reveal`
+block whose drill's sound has a strummed event; `sessions.test.ts` checks it. A later block kind
+that strums (`changeTap`, `fillBars`, `song`, `transpose`) is added to the test's list by its own
+issue.
 
 ## Blocks
 
@@ -337,6 +351,10 @@ chords: - | I | I | IV | I | I | I | V | V
   `canDo` is ticked; done is worked out, never stored. Read and written through
   `platform/storage.ts`; never throws; unknown slugs are kept, broken entries dropped.
 - Check answers and drill scores are for the visit only (not stored).
+- `theory.strumSpeed` (#317): `'slow' | 'medium' | 'fast'`, default `'medium'`; the strum speed
+  chosen in the settings bar, shared by every session. Read and written by
+  `ui/sessions/strumSpeed.ts` (`loadStrumSpeed` / `saveStrumSpeed`, on `platform/storage.ts`); never
+  throws (a missing, unknown or blocked value reads as `'medium'`).
 
 ## Order of work
 
