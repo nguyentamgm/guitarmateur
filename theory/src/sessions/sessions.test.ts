@@ -3,6 +3,7 @@ import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
 import { findLesson } from '../lessons';
 import sitemap from '../../../public/sitemap.xml?raw';
+import { mulberry32 } from '@shared/core/rng';
 import {
   BLOCK_COPY_FIELDS,
   SESSIONS,
@@ -11,9 +12,12 @@ import {
   sessionBlocks,
   sessionNeighbours,
   sessionsOf,
+  type Block,
+  type DrillId,
+  type Session,
 } from '.';
 import { chordIn } from './chordSpec';
-import { DRILLS } from './drills';
+import { DRILLS, type DrillQuestion } from './drills';
 import { defaultPattern, strumSteps } from './strum';
 import { chordShape } from './voicing';
 
@@ -26,6 +30,43 @@ const knowledge = import.meta.glob('../../../docs/theory-knowledge/m*.md', {
 const KNOWN_IDS = new Set(
   Object.values(knowledge).flatMap((md) => [...md.matchAll(/^##\s+(K\d+\.\d+)\b/gm)].map((m) => m[1]!)),
 );
+
+/** Block kinds that always strum chords; later kinds that strum (changeTap, fillBars, song, transpose) join here. */
+const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords']);
+
+/** A drill strums when any of its questions (sound or comparison) holds a strummed event. */
+function drillStrums(id: DrillId): boolean {
+  const drill = DRILLS[id];
+  if (!drill) return false;
+  const rng = mulberry32(317);
+  let prev: DrillQuestion | undefined;
+  for (let i = 0; i < 20; i++) {
+    prev = drill.next(rng, prev);
+    if ([prev.sound, prev.compare].some((s) => s?.events.some((e) => e.strum))) return true;
+  }
+  return false;
+}
+
+const blockStrums = (b: Block): boolean =>
+  STRUMMING_KINDS.has(b.kind) || ((b.kind === 'listen' || b.kind === 'reveal') && drillStrums(b.drill));
+
+const sessionStrums = (s: Session): boolean => sessionBlocks(s).some(blockStrums);
+
+describe('the strumSpeed rule', () => {
+  const base = SESSIONS[0]!;
+  const lesson: Block = { kind: 'lesson', key: 'l', lesson: 'fretboard', step: 'strings' };
+  const only = (block: Block): Session => ({
+    ...base,
+    parts: { listen: [block], understand: [], play: [], challenge: [] },
+  });
+
+  it('counts strumAlong and chords blocks and strumming drills, not lessons', () => {
+    expect(sessionStrums(only({ kind: 'chords', key: 'c', in: { tonic: 'G', mode: 'major' }, chords: [1] }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'reveal', key: 'r', drill: 'rootNote' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'listen', key: 'f', drill: 'finished' }))).toBe(true);
+    expect(sessionStrums(only(lesson))).toBe(false);
+  });
+});
 
 describe('session registry', () => {
   it('reads the knowledge base', () => {
@@ -126,6 +167,10 @@ describe('session registry', () => {
           }
         }
       }
+    });
+
+    it("declares the 'strumSpeed' setting exactly when it strums", () => {
+      expect(session.settings?.includes('strumSpeed') ?? false).toBe(sessionStrums(session));
     });
 
     it('every chord of every chords and strumAlong block gets a shape without throwing', () => {
