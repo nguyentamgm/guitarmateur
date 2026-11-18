@@ -64,7 +64,7 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
   const make = opts.createContext ?? (() => new AudioContext() as unknown as MiniAudioContext);
   let ctx: MiniAudioContext | null = null;
   let enabled = true;
-  const levels = { note: 1, click: 1 };
+  const levels = { note: 0.5, click: 1 };
   const cache = new Map<string, AudioBuffer>();
   /** Notes and clicks scheduled or sounding, for `cancel()`. */
   const active = new Set<{ readonly src: AudioBufferSourceNode; readonly gain: GainNode }>();
