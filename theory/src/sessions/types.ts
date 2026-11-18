@@ -78,6 +78,15 @@ export type Block =
       readonly holds: readonly (1 | 2)[];
       readonly bars: number;
       readonly bpm: number;
+    }
+  | {
+      readonly kind: 'fillBars';
+      readonly key: string;
+      readonly in: SessionKey;
+      readonly keys?: readonly string[];
+      readonly pool: readonly ChordSpec[];
+      readonly bars: number;
+      readonly bpm: number;
     };
 
 export interface ListenCopy {
@@ -109,6 +118,13 @@ export interface ChangeTapCopy {
   readonly result: string;
 }
 
+export interface FillBarsCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly allRight: string;
+  readonly someWrong: string;
+}
+
 export interface BaseBlockCopy {
   readonly intro: string;
 }
@@ -118,7 +134,8 @@ export type BlockCopy =
   | ListenCopy
   | RevealCopy
   | MelodyEchoCopy
-  | ChangeTapCopy;
+  | ChangeTapCopy
+  | FillBarsCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {
@@ -129,6 +146,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   reveal: ['intro', 'ask', 'answer'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],
+  fillBars: ['intro', 'ask', 'allRight', 'someWrong'],
 };
 
 export interface SessionCopy {

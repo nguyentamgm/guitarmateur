@@ -1,6 +1,7 @@
 import type { DrillId } from '../types';
 import { chordCount } from './chordCount';
 import { finished } from './finished';
+import { fourOrFive } from './fourOrFive';
 import { moves } from './moves';
 import { onBeat } from './onBeat';
 import { quality } from './quality';
@@ -10,6 +11,7 @@ import type { Drill } from './types';
 export * from './types';
 export { chordCount } from './chordCount';
 export { finished } from './finished';
+export { fourOrFive } from './fourOrFive';
 export { moves } from './moves';
 export { onBeat } from './onBeat';
 export { quality } from './quality';
@@ -22,5 +24,6 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   rootNote,
   moves,
   chordCount,
+  fourOrFive,
 };
 

@@ -32,7 +32,7 @@ const KNOWN_IDS = new Set(
 );
 
 /** Block kinds that always strum chords; later kinds that strum (changeTap, fillBars, song, transpose) join here. */
-const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap']);
+const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap', 'fillBars']);
 
 /** A drill strums when any of its questions (sound or comparison) holds a strummed event. */
 function drillStrums(id: DrillId): boolean {
@@ -65,6 +65,8 @@ describe('the strumSpeed rule', () => {
     expect(sessionStrums(only({ kind: 'reveal', key: 'r', drill: 'rootNote' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'f', drill: 'finished' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'cc', drill: 'chordCount' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'listen', key: 'fof', drill: 'fourOrFive' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'fillBars', key: 'fb', in: { tonic: 'G', mode: 'major' }, pool: [1, 4, 5], bars: 4, bpm: 80 }))).toBe(true);
     expect(sessionStrums(only(lesson))).toBe(false);
   });
 });
@@ -209,6 +211,18 @@ describe('session registry', () => {
         expect(b.pool.length).toBeGreaterThan(0);
         expect(b.bars).toBeGreaterThanOrEqual(4);
         expect(b.holds.length).toBeGreaterThan(0);
+        for (const spec of b.pool) {
+          expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
+        }
+      }
+    });
+
+    it('every fillBars block has bars >= 3 and a pool of at least 2', () => {
+      const blocks = sessionBlocks(session);
+      const fillBarsBlocks = blocks.filter((b) => b.kind === 'fillBars');
+      for (const b of fillBarsBlocks) {
+        expect(b.bars).toBeGreaterThanOrEqual(3);
+        expect(b.pool.length).toBeGreaterThanOrEqual(2);
         for (const spec of b.pool) {
           expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
         }

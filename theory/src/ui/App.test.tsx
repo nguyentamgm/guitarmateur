@@ -1096,6 +1096,38 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays fillBars in session 7 and honours slow strum speed widening string gap', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player, plucks } = fakePlayer();
+      render('/theory/s/one-four-five', player);
+
+      const settingsBar = container.querySelector('.session-settings-bar')!;
+      expect(settingsBar).not.toBeNull();
+      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+        (b) => b.textContent === 'Slow',
+      )!;
+      expect(slowChip).toBeDefined();
+      click(slowChip);
+
+      const challengeSection = container.querySelector('section#challenge')!;
+      const startBtn = [...challengeSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Start',
+      )!;
+      expect(startBtn).toBeDefined();
+      click(startBtn);
+
+      // At step 0, FillBars plays chord strum with slow speed (spread = 0.08)
+      expect(plucks.length).toBeGreaterThanOrEqual(6);
+      const firstStrum = plucks.slice(0, 6);
+      expect(firstStrum[1]!.delay! - firstStrum[0]!.delay!).toBeCloseTo(0.08, 3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
     const stageA = container.querySelector('section.contents');
@@ -1234,7 +1266,7 @@ describe('Theory app', () => {
     const stageB = sections[1];
     expect(stageB).toBeDefined();
     const stageBLinks = [...stageB!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
-    expect(stageBLinks).toEqual(['/theory/s/chord-family', '/theory/s/chord-changes']);
+    expect(stageBLinks).toEqual(['/theory/s/chord-family', '/theory/s/chord-changes', '/theory/s/one-four-five']);
 
     // Navigate to session 5
     click(stageB!.querySelector('a.lesson-card')!);
@@ -1307,6 +1339,35 @@ describe('Theory app', () => {
     localStorage.setItem(LANG_STORAGE_KEY, 'vi');
     render('/theory/s/chord-changes');
     expect(text()).toContain('Khi nào hợp âm thay đổi?');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('renders session 7 (/theory/s/one-four-five) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/one-four-five');
+    expect(text()).toContain('I, IV or V?');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/one-four-five');
+    expect(text()).toContain('I, IV hay V?');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
     expect(text()).toContain('Trước khi bắt đầu');

@@ -4,12 +4,14 @@ import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
+import { oneFourFive } from './one-four-five';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
 export * from './changes';
 export * from './chordSpec';
 export * from './echo';
+export * from './fill';
 export * from './strum';
 export { beatAndBar } from './beat-and-bar';
 export { chordChanges } from './chord-changes';
@@ -17,6 +19,7 @@ export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
+export { oneFourFive } from './one-four-five';
 
 export const SESSIONS: readonly Session[] = [
   majorOrMinor,
@@ -25,6 +28,7 @@ export const SESSIONS: readonly Session[] = [
   melodyByEar,
   chordFamily,
   chordChanges,
+  oneFourFive,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
