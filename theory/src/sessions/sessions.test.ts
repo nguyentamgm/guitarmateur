@@ -233,5 +233,21 @@ describe('session registry', () => {
         expect(session.copy[lang].canDo.length).toBeLessThanOrEqual(4);
       }
     });
+
+    it("every melodyEcho block's fixed phrases use only degrees 1–8", () => {
+      const blocks = sessionBlocks(session);
+      const echoBlocks = blocks.filter((b) => b.kind === 'melodyEcho');
+      for (const b of echoBlocks) {
+        if (b.phrases) {
+          for (const phrase of b.phrases) {
+            expect(phrase.length).toBeGreaterThan(0);
+            for (const deg of phrase) {
+              expect(deg).toBeGreaterThanOrEqual(1);
+              expect(deg).toBeLessThanOrEqual(8);
+            }
+          }
+        }
+      }
+    });
   });
 });

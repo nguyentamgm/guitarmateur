@@ -1069,7 +1069,12 @@ describe('Theory app', () => {
     const stageA = container.querySelector('section.contents');
     expect(stageA).not.toBeNull();
     const links = [...stageA!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/theory/s/major-or-minor', '/theory/s/beat-and-bar', '/theory/s/find-the-root']);
+    expect(links).toEqual([
+      '/theory/s/major-or-minor',
+      '/theory/s/beat-and-bar',
+      '/theory/s/find-the-root',
+      '/theory/s/melody-by-ear',
+    ]);
 
     const s2Link = container.querySelector('a[href="/theory/s/beat-and-bar"]')!;
     click(s2Link);
@@ -1159,5 +1164,34 @@ describe('Theory app', () => {
     expect(text()).toContain('Happy or sad: major and minor');
     const headings = PARTS.map((p) => container.querySelector(`section#${p} h2`)!.textContent);
     expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
+  });
+
+  it('renders session 4 (/theory/s/melody-by-ear) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/melody-by-ear');
+    expect(text()).toContain('Find a melody by ear');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/melody-by-ear');
+    expect(text()).toContain('Tìm giai điệu bằng tai');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
   });
 });
