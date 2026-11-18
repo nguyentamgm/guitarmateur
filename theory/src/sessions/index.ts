@@ -1,6 +1,7 @@
 import { beatAndBar } from './beat-and-bar';
 import { findTheRoot } from './find-the-root';
 import { majorOrMinor } from './major-or-minor';
+import { melodyByEar } from './melody-by-ear';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
@@ -10,8 +11,9 @@ export * from './strum';
 export { beatAndBar } from './beat-and-bar';
 export { findTheRoot } from './find-the-root';
 export { majorOrMinor } from './major-or-minor';
+export { melodyByEar } from './melody-by-ear';
 
-export const SESSIONS: readonly Session[] = [majorOrMinor, beatAndBar, findTheRoot];
+export const SESSIONS: readonly Session[] = [majorOrMinor, beatAndBar, findTheRoot, melodyByEar];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
 
