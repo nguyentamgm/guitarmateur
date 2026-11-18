@@ -1114,3 +1114,75 @@ body {
     min-width: calc(50% - var(--s-2));
   }
 }
+
+/* Transpose table (Session 9) */
+.transpose-table {
+  border-collapse: separate;
+  border-spacing: 6px;
+  font-family: var(--f-mono);
+  font-size: 0.95rem;
+  margin-inline: auto;
+  margin-bottom: var(--s-3);
+}
+.transpose-table th[scope="row"] {
+  font-weight: 500;
+  text-align: left;
+  padding: 4px 8px;
+}
+.transpose-table .row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.transpose-table th[scope="col"] {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+.transpose-table td {
+  text-align: center;
+  padding: 8px 14px;
+  min-width: 3.6em;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  transition: background 0.1s, color 0.1s;
+}
+.transpose-table td.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.capo-table {
+  border-collapse: separate;
+  border-spacing: 6px;
+  font-family: var(--f-mono);
+  font-size: 0.9rem;
+  margin-inline: auto;
+  margin-bottom: var(--s-3);
+}
+.capo-table th[scope="col"] {
+  color: var(--muted);
+  padding: 6px 12px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+.capo-table th[scope="row"] {
+  text-align: center;
+  font-weight: 500;
+  padding: 6px 12px;
+  color: var(--muted);
+}
+.capo-table td {
+  text-align: center;
+  padding: 6px 14px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+}
