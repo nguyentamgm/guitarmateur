@@ -64,6 +64,7 @@ describe('the strumSpeed rule', () => {
     expect(sessionStrums(only({ kind: 'chords', key: 'c', in: { tonic: 'G', mode: 'major' }, chords: [1] }))).toBe(true);
     expect(sessionStrums(only({ kind: 'reveal', key: 'r', drill: 'rootNote' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'f', drill: 'finished' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'listen', key: 'cc', drill: 'chordCount' }))).toBe(true);
     expect(sessionStrums(only(lesson))).toBe(false);
   });
 });
