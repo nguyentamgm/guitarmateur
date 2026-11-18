@@ -1,10 +1,11 @@
 import { findLesson } from '../../lessons';
 import { DRILLS } from '../../sessions/drills';
-import type { Block, ListenCopy, RevealCopy, Session } from '../../sessions/types';
+import type { Block, ListenCopy, MelodyEchoCopy, RevealCopy, Session } from '../../sessions/types';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
 import { ChordCards } from './ChordCards';
 import { ListenDrill } from './ListenDrill';
+import { MelodyEcho } from './MelodyEcho';
 import { Reveal } from './Reveal';
 import { StrumAlong } from './StrumAlong';
 
@@ -33,5 +34,9 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     }
     case 'strumAlong':
       return <StrumAlong block={block} />;
+    case 'melodyEcho': {
+      const copy = session.copy[lang].blocks[block.key] as MelodyEchoCopy;
+      return <MelodyEcho block={block} copy={copy} />;
+    }
   }
 }
