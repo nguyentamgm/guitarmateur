@@ -98,6 +98,14 @@ export type Block =
       readonly start: 'all' | 'none';
       readonly keys?: readonly string[];
       readonly bpm?: number;
+    }
+  | {
+      readonly kind: 'transpose';
+      readonly key: string;
+      readonly bars: readonly ChordSpec[];
+      readonly tonics: readonly string[];
+      /** Show the capo table for the open shapes of this major key (e.g. 'G'). */
+      readonly capoShapes?: string;
     };
 
 export interface ListenCopy {
@@ -143,6 +151,11 @@ export interface SongCopy {
   readonly allRight: string;
 }
 
+export interface TransposeCopy {
+  readonly intro: string;
+  readonly caption: string;
+}
+
 export interface BaseBlockCopy {
   readonly intro: string;
 }
@@ -154,7 +167,8 @@ export type BlockCopy =
   | MelodyEchoCopy
   | ChangeTapCopy
   | FillBarsCopy
-  | SongCopy;
+  | SongCopy
+  | TransposeCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {
@@ -167,6 +181,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   changeTap: ['intro', 'ask', 'result'],
   fillBars: ['intro', 'ask', 'allRight', 'someWrong'],
   song: ['intro', 'ask', 'result', 'allRight'],
+  transpose: ['intro', 'caption'],
 };
 
 export interface SessionCopy {

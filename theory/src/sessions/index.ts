@@ -15,6 +15,7 @@ export * from './echo';
 export * from './fill';
 export * from './songs';
 export * from './strum';
+export * from './transposeTable';
 export { beatAndBar } from './beat-and-bar';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
