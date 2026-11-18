@@ -68,6 +68,16 @@ export type Block =
       /** Fixed phrases as major-scale degrees (1–8), played in order; or null for random phrases of `notes` notes. */
       readonly phrases: readonly (readonly number[])[] | null;
       readonly notes?: 3 | 4;
+    }
+  | {
+      readonly kind: 'changeTap';
+      readonly key: string;
+      readonly in: SessionKey;
+      readonly pool: readonly ChordSpec[];
+      /** How many bars a chord may last. */
+      readonly holds: readonly (1 | 2)[];
+      readonly bars: number;
+      readonly bpm: number;
     };
 
 export interface ListenCopy {
@@ -93,11 +103,22 @@ export interface MelodyEchoCopy {
   readonly done: string;
 }
 
+export interface ChangeTapCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly result: string;
+}
+
 export interface BaseBlockCopy {
   readonly intro: string;
 }
 
-export type BlockCopy = BaseBlockCopy | ListenCopy | RevealCopy | MelodyEchoCopy;
+export type BlockCopy =
+  | BaseBlockCopy
+  | ListenCopy
+  | RevealCopy
+  | MelodyEchoCopy
+  | ChangeTapCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {
@@ -107,6 +128,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   listen: ['intro', 'ask', 'answers', 'right', 'wrong'],
   reveal: ['intro', 'ask', 'answer'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
+  changeTap: ['intro', 'ask', 'result'],
 };
 
 export interface SessionCopy {

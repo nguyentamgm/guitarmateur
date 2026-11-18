@@ -6,6 +6,7 @@ import { melodyByEar } from './melody-by-ear';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
+export * from './changes';
 export * from './chordSpec';
 export * from './echo';
 export * from './strum';
