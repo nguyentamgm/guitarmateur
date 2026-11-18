@@ -8,11 +8,15 @@ import { BarGrid } from '../BarGrid';
 import { useTheory } from '../context';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { useClock } from '../useClock';
+import { useSessionStrumSpeed } from './sessionSettingsContext';
+import { STRUM_SPREADS } from './strumSpeed';
 
 export type StrumAlongBlock = Extract<Block, { kind: 'strumAlong' }>;
 
 export function StrumAlong({ block }: { block: StrumAlongBlock }) {
   const { player, ui } = useTheory();
+  const speed = useSessionStrumSpeed();
+  const spread = STRUM_SPREADS[speed];
   const [tonic, setTonic] = useState(block.in.tonic);
   const [bpm, setBpm] = useState(block.bpm);
 
@@ -59,13 +63,13 @@ export function StrumAlong({ block }: { block: StrumAlongBlock }) {
         const chord = barChords[step.bar];
         if (chord && chord.midis.length > 0) {
           const strokeMidis = step.stroke === 'down' ? chord.midis : chord.midis.slice(-4);
-          for (const s of strumDelays(strokeMidis, step.stroke)) {
+          for (const s of strumDelays(strokeMidis, step.stroke, spread)) {
             player.pluck(s.item, delay + s.delay, beatSeconds(bpm));
           }
         }
       }
     },
-    [barChords, bpm, player, steps],
+    [barChords, bpm, player, spread, steps],
   );
 
   const clock = useClock(steps.length, beatSeconds(bpm) / 2, onStep);

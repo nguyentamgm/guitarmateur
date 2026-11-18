@@ -1014,9 +1014,16 @@ describe('Theory app', () => {
     expect(slowStrumPlucks[1]!.delay! - slowStrumPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
   });
 
-  it('does not render session settings bar when session has no settings', () => {
+  it('renders session settings bar in session 2 and allows controlling strum speed', () => {
     render('/theory/s/beat-and-bar');
-    expect(container.querySelector('.session-settings-bar')).toBeNull();
+    const settingsBar = container.querySelector('.session-settings-bar')!;
+    expect(settingsBar).not.toBeNull();
+    const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Slow',
+    )!;
+    expect(slowChip).toBeDefined();
+    click(slowChip);
+    expect(localStorage.getItem('theory.strumSpeed')).toBe('slow');
   });
 
   it('plays clicks and strums in session 2 strum-along and stops', () => {

@@ -7,6 +7,7 @@ export const beatAndBar: Session = {
   path: 'accompany',
   stage: 'A',
   concepts: ['K1.1', 'K1.3', 'K1.4', 'K4.5'],
+  settings: ['strumSpeed'],
   parts: {
     listen: [{ kind: 'listen', key: 'onBeat', drill: 'onBeat' }],
     understand: [
