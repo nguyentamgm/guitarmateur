@@ -6,7 +6,9 @@ import { findTheRoot } from './find-the-root';
 import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
+import { minorKeys } from './minor-keys';
 import { oneFourFive } from './one-four-five';
+import { theSixChord } from './the-six-chord';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
@@ -25,7 +27,9 @@ export { findTheRoot } from './find-the-root';
 export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
+export { minorKeys } from './minor-keys';
 export { oneFourFive } from './one-four-five';
+export { theSixChord } from './the-six-chord';
 
 export const SESSIONS: readonly Session[] = [
   majorOrMinor,
@@ -37,6 +41,8 @@ export const SESSIONS: readonly Session[] = [
   oneFourFive,
   firstSong,
   changeKey,
+  theSixChord,
+  minorKeys,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
