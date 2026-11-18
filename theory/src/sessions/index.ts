@@ -2,6 +2,7 @@ import { beatAndBar } from './beat-and-bar';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
+import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { oneFourFive } from './one-four-five';
@@ -12,11 +13,13 @@ export * from './changes';
 export * from './chordSpec';
 export * from './echo';
 export * from './fill';
+export * from './songs';
 export * from './strum';
 export { beatAndBar } from './beat-and-bar';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
+export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
 export { oneFourFive } from './one-four-five';
@@ -29,6 +32,7 @@ export const SESSIONS: readonly Session[] = [
   chordFamily,
   chordChanges,
   oneFourFive,
+  firstSong,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
