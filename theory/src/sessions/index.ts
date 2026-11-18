@@ -5,6 +5,7 @@ import type { PathId, Session, StageId } from './types';
 
 export * from './types';
 export * from './chordSpec';
+export * from './echo';
 export * from './strum';
 export { beatAndBar } from './beat-and-bar';
 export { findTheRoot } from './find-the-root';

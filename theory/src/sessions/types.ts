@@ -1,3 +1,4 @@
+import type { StringNumber } from '../core/fretboard';
 import type { ChordId, DegreeLabel, Mode } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
@@ -58,7 +59,16 @@ export type Block =
       readonly numeralsOnly?: boolean;
     }
   | { readonly kind: 'listen'; readonly key: string; readonly drill: DrillId }
-  | { readonly kind: 'reveal'; readonly key: string; readonly drill: DrillId };
+  | { readonly kind: 'reveal'; readonly key: string; readonly drill: DrillId }
+  | {
+      readonly kind: 'melodyEcho';
+      readonly key: string;
+      readonly tonic: string;
+      readonly string: StringNumber;
+      /** Fixed phrases as major-scale degrees (1–8), played in order; or null for random phrases of `notes` notes. */
+      readonly phrases: readonly (readonly number[])[] | null;
+      readonly notes?: 3 | 4;
+    };
 
 export interface ListenCopy {
   readonly intro: string;
@@ -74,11 +84,20 @@ export interface RevealCopy {
   readonly answer: string;
 }
 
+export interface MelodyEchoCopy {
+  readonly intro: string;
+  readonly ask: string;
+  readonly right: string;
+  readonly higher: string;
+  readonly lower: string;
+  readonly done: string;
+}
+
 export interface BaseBlockCopy {
   readonly intro: string;
 }
 
-export type BlockCopy = BaseBlockCopy | ListenCopy | RevealCopy;
+export type BlockCopy = BaseBlockCopy | ListenCopy | RevealCopy | MelodyEchoCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
 export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]>> = {
@@ -87,6 +106,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   strumAlong: ['intro'],
   listen: ['intro', 'ask', 'answers', 'right', 'wrong'],
   reveal: ['intro', 'ask', 'answer'],
+  melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
 };
 
 export interface SessionCopy {
