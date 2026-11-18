@@ -999,3 +999,12 @@ body {
     display: none;
   }
 }
+
+/* ChangeTap block button */
+.change-tap-btn {
+  font-size: 1.1rem;
+  padding: 14px 28px;
+  min-height: 52px;
+  cursor: pointer;
+  user-select: none;
+}

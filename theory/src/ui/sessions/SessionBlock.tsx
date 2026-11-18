@@ -1,8 +1,16 @@
 import { findLesson } from '../../lessons';
 import { DRILLS } from '../../sessions/drills';
-import type { Block, ListenCopy, MelodyEchoCopy, RevealCopy, Session } from '../../sessions/types';
+import type {
+  Block,
+  ChangeTapCopy,
+  ListenCopy,
+  MelodyEchoCopy,
+  RevealCopy,
+  Session,
+} from '../../sessions/types';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
+import { ChangeTap } from './ChangeTap';
 import { ChordCards } from './ChordCards';
 import { ListenDrill } from './ListenDrill';
 import { MelodyEcho } from './MelodyEcho';
@@ -37,6 +45,10 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     case 'melodyEcho': {
       const copy = session.copy[lang].blocks[block.key] as MelodyEchoCopy;
       return <MelodyEcho block={block} copy={copy} />;
+    }
+    case 'changeTap': {
+      const copy = session.copy[lang].blocks[block.key] as ChangeTapCopy;
+      return <ChangeTap block={block} copy={copy} />;
     }
   }
 }
