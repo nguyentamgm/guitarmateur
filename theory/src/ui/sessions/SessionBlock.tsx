@@ -3,6 +3,7 @@ import { DRILLS } from '../../sessions/drills';
 import type {
   Block,
   ChangeTapCopy,
+  FillBarsCopy,
   ListenCopy,
   MelodyEchoCopy,
   RevealCopy,
@@ -12,6 +13,7 @@ import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
 import { ChangeTap } from './ChangeTap';
 import { ChordCards } from './ChordCards';
+import { FillBars } from './FillBars';
 import { ListenDrill } from './ListenDrill';
 import { MelodyEcho } from './MelodyEcho';
 import { Reveal } from './Reveal';
@@ -49,6 +51,10 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     case 'changeTap': {
       const copy = session.copy[lang].blocks[block.key] as ChangeTapCopy;
       return <ChangeTap block={block} copy={copy} />;
+    }
+    case 'fillBars': {
+      const copy = session.copy[lang].blocks[block.key] as FillBarsCopy;
+      return <FillBars block={block} copy={copy} />;
     }
   }
 }
