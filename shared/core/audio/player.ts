@@ -51,7 +51,7 @@ export interface Player {
    * there is none yet (so call it from a user gesture, like `pluck`); null when there is no audio.
    */
   now(): number | null;
-  /** Levels, 0..1, for the notes (pluck, mute) and the click: a mix. Both default to 1. */
+  /** Levels, 0..1, for the notes (pluck, mute) and the click: a mix. Defaults: note 0.5, click 1. */
   setLevels(levels: { readonly note?: number; readonly click?: number }): void;
 }
 
