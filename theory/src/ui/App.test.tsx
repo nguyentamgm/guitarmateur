@@ -1128,6 +1128,38 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays song bench in session 8 and honours slow strum speed widening string gap', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player, plucks } = fakePlayer();
+      render('/theory/s/first-song', player);
+
+      const settingsBar = container.querySelector('.session-settings-bar')!;
+      expect(settingsBar).not.toBeNull();
+      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+        (b) => b.textContent === 'Slow',
+      )!;
+      expect(slowChip).toBeDefined();
+      click(slowChip);
+
+      const listenSection = container.querySelector('section#listen')!;
+      const playBtn = [...listenSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Play',
+      )!;
+      expect(playBtn).toBeDefined();
+      click(playBtn);
+
+      // At step 0, SongBench plays a melody pluck and a chord strum with slow speed (spread = 0.08)
+      expect(plucks.length).toBeGreaterThanOrEqual(7);
+      const chordPlucks = plucks.slice(1, 7);
+      expect(chordPlucks[1]!.delay! - chordPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
     const stageA = container.querySelector('section.contents');
@@ -1266,7 +1298,12 @@ describe('Theory app', () => {
     const stageB = sections[1];
     expect(stageB).toBeDefined();
     const stageBLinks = [...stageB!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
-    expect(stageBLinks).toEqual(['/theory/s/chord-family', '/theory/s/chord-changes', '/theory/s/one-four-five']);
+    expect(stageBLinks).toEqual([
+      '/theory/s/chord-family',
+      '/theory/s/chord-changes',
+      '/theory/s/one-four-five',
+      '/theory/s/first-song',
+    ]);
 
     // Navigate to session 5
     click(stageB!.querySelector('a.lesson-card')!);
@@ -1368,6 +1405,55 @@ describe('Theory app', () => {
     localStorage.setItem(LANG_STORAGE_KEY, 'vi');
     render('/theory/s/one-four-five');
     expect(text()).toContain('I, IV hay V?');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('opens session 8 and in the first bench presses Check marking every slot right', () => {
+    render('/theory/s/first-song');
+    const listenSection = container.querySelector('section#listen')!;
+    expect(listenSection).not.toBeNull();
+
+    const checkBtn = [...listenSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Check',
+    )!;
+    expect(checkBtn).toBeDefined();
+    click(checkBtn);
+
+    const slots = listenSection.querySelectorAll('.song-slot');
+    expect(slots.length).toBe(16);
+    for (const slot of slots) {
+      expect(slot.classList.contains('right')).toBe(true);
+      expect(slot.getAttribute('aria-label')).toContain('Right');
+    }
+    expect(listenSection.textContent).toContain('Every slot fits the I chord!');
+  });
+
+  it('renders session 8 (/theory/s/first-song) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/first-song');
+    expect(text()).toContain('Your first song by ear');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/first-song');
+    expect(text()).toContain('Bài hát đầu tiên bằng tai');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
     expect(text()).toContain('Trước khi bắt đầu');

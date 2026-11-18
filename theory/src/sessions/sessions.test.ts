@@ -18,6 +18,7 @@ import {
 } from '.';
 import { chordIn } from './chordSpec';
 import { DRILLS, type DrillQuestion } from './drills';
+import { SONGS } from './songs';
 import { defaultPattern, strumSteps } from './strum';
 import { chordShape } from './voicing';
 
@@ -32,7 +33,7 @@ const KNOWN_IDS = new Set(
 );
 
 /** Block kinds that always strum chords; later kinds that strum (changeTap, fillBars, song, transpose) join here. */
-const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap', 'fillBars']);
+const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap', 'fillBars', 'song']);
 
 /** A drill strums when any of its questions (sound or comparison) holds a strummed event. */
 function drillStrums(id: DrillId): boolean {
@@ -67,6 +68,7 @@ describe('the strumSpeed rule', () => {
     expect(sessionStrums(only({ kind: 'listen', key: 'cc', drill: 'chordCount' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'listen', key: 'fof', drill: 'fourOrFive' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'fillBars', key: 'fb', in: { tonic: 'G', mode: 'major' }, pool: [1, 4, 5], bars: 4, bpm: 80 }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'song', key: 's', in: { tonic: 'G', mode: 'major' }, song: 'frere-jacques', pool: [1], start: 'all' }))).toBe(true);
     expect(sessionStrums(only(lesson))).toBe(false);
   });
 });
@@ -225,6 +227,22 @@ describe('session registry', () => {
         expect(b.pool.length).toBeGreaterThanOrEqual(2);
         for (const spec of b.pool) {
           expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
+        }
+      }
+    });
+
+    it('every song block has a major key, non-empty pool, valid song in SONGS, and every reference numeral in pool', () => {
+      const blocks = sessionBlocks(session);
+      const songBlocks = blocks.filter((b) => b.kind === 'song');
+      for (const b of songBlocks) {
+        expect(b.in.mode).toBe('major');
+        expect(b.pool.length).toBeGreaterThan(0);
+        const song = SONGS[b.song];
+        expect(song, `song '${b.song}' defined in SONGS`).toBeDefined();
+        const poolNumerals = b.pool.map((spec) => chordIn(b.in, spec).roman);
+        for (const ref of song.chords) {
+          if (ref === '-') continue;
+          expect(poolNumerals, `song block '${b.key}' pool missing reference '${ref}'`).toContain(ref);
         }
       }
     });
