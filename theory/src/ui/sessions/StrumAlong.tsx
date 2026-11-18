@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { beatSeconds, strumDelays } from '../../core/rhythm';
+import { beatSeconds } from '../../core/rhythm';
 import { chordIn } from '../../sessions/chordSpec';
 import { defaultPattern, strumSteps } from '../../sessions/strum';
 import type { Block } from '../../sessions/types';
@@ -8,6 +8,7 @@ import { BarGrid } from '../BarGrid';
 import { useTheory } from '../context';
 import { Button, ChipGroup, Tempo } from '../controls';
 import { useClock } from '../useClock';
+import { playStrumStep } from './playStrumStep';
 import { useSessionStrumSpeed } from './sessionSettingsContext';
 import { STRUM_SPREADS } from './strumSpeed';
 
@@ -55,19 +56,7 @@ export function StrumAlong({ block }: { block: StrumAlongBlock }) {
       const step = steps[i];
       if (!step) return;
 
-      if (step.click) {
-        player.click(step.click === 'accent', delay);
-      }
-
-      if (step.stroke) {
-        const chord = barChords[step.bar];
-        if (chord && chord.midis.length > 0) {
-          const strokeMidis = step.stroke === 'down' ? chord.midis : chord.midis.slice(-4);
-          for (const s of strumDelays(strokeMidis, step.stroke, spread)) {
-            player.pluck(s.item, delay + s.delay, beatSeconds(bpm));
-          }
-        }
-      }
+      playStrumStep(player, step, barChords[step.bar]?.midis, delay, bpm, spread);
     },
     [barChords, bpm, player, spread, steps],
   );
