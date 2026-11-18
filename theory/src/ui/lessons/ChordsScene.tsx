@@ -1,7 +1,15 @@
 /** The five scenes of "Chords are stacked intervals". Every position comes from lessons/chords. */
 import { useMemo, useState } from 'react';
 import { STRINGS, midiAt, type FretPos } from '../../core/fretboard';
-import { chordNotes, chordSymbol, format, sameNote, type ChordId, type IntervalName, type NoteName } from '../../core/music';
+import {
+  chordNotes,
+  chordSymbol,
+  format,
+  sameNote,
+  type ChordId,
+  type IntervalName,
+  type NoteName,
+} from '../../core/music';
 import { strumDelays } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import {
@@ -31,6 +39,8 @@ import { Fretboard, type FretDot } from '../Fretboard';
 import { useNeckGeometry, type NeckGeometry } from '../geometry';
 import { degreeText, posKey } from '../keys';
 import { useSequence } from '../useSequence';
+import { useSessionStrumSpeed } from '../sessions/sessionSettingsContext';
+import { STRUM_SPREADS } from '../sessions/strumSpeed';
 
 export function ChordsScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
   switch (step) {
@@ -50,7 +60,10 @@ export function ChordsScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
 type Labels = 'degrees' | 'notes';
 
 const nameOf = (copy: SceneCopy, n: IntervalName) =>
-  fill(copy.interval.name, { quality: copy.interval.qualities[n.quality], number: copy.interval.numbers[n.number - 1]! });
+  fill(copy.interval.name, {
+    quality: copy.interval.qualities[n.quality],
+    number: copy.interval.numbers[n.number - 1]!,
+  });
 
 const chordDot = (n: ChordNote, labels: Labels, extra: Partial<FretDot> = {}): FretDot => ({
   key: posKey(n),
@@ -64,8 +77,11 @@ const chordDot = (n: ChordNote, labels: Labels, extra: Partial<FretDot> = {}): F
 
 function useStrum() {
   const { player } = useTheory();
+  const speed = useSessionStrumSpeed();
+  const spread = STRUM_SPREADS[speed];
   return (notes: readonly { midi: number }[], delay = 0, length = 1.5) => {
-    for (const s of strumDelays(notes, 'down', 0.02)) player.pluck(s.item.midi, delay + s.delay, length);
+    for (const s of strumDelays(notes, 'down', spread))
+      player.pluck(s.item.midi, delay + s.delay, length);
   };
 }
 
@@ -73,14 +89,28 @@ const rootItems = ROOTS.map((r) => ({ value: format(r), text: format(r) }));
 const rootOf = (name: string): NoteName => ROOTS.find((r) => format(r) === name)!;
 
 /** Lines from root to middle and middle to top, each with its interval name. */
-function StackLines({ g, view, copy, reached = 3 }: { g: NeckGeometry; view: StackView; copy: SceneCopy; reached?: number }) {
+function StackLines({
+  g,
+  view,
+  copy,
+  reached = 3,
+}: {
+  g: NeckGeometry;
+  view: StackView;
+  copy: SceneCopy;
+  reached?: number;
+}) {
   const line = (gp: Gap, i: number) => {
     const x1 = g.x(gp.from.fret);
     const y1 = g.y(gp.from.string);
     const x2 = g.x(gp.to.fret);
     const y2 = g.y(gp.to.string);
     return (
-      <g key={i} className={reached > i + 1 ? 'olink' : 'olink outer'} style={{ opacity: reached > i + 1 ? 1 : 0.25 }}>
+      <g
+        key={i}
+        className={reached > i + 1 ? 'olink' : 'olink outer'}
+        style={{ opacity: reached > i + 1 ? 1 : 0.25 }}
+      >
         <line x1={x1} x2={x2} y1={y1} y2={y2} />
         <text x={(x1 + x2) / 2 + 30} y={(y1 + y2) / 2}>
           {nameOf(copy, gp.name)}
@@ -91,7 +121,15 @@ function StackLines({ g, view, copy, reached = 3 }: { g: NeckGeometry; view: Sta
   return <>{view.stack.map(line)}</>;
 }
 
-function Labeller({ copy, value, onChange }: { copy: SceneCopy; value: Labels; onChange(v: Labels): void }) {
+function Labeller({
+  copy,
+  value,
+  onChange,
+}: {
+  copy: SceneCopy;
+  value: Labels;
+  onChange(v: Labels): void;
+}) {
   return (
     <ChipGroup<Labels>
       label={copy.labels}
@@ -126,10 +164,15 @@ function StackScene({ copy }: { copy: SceneCopy }) {
   return (
     <div className="board">
       <div className="controls">
-        <ChipGroup<string> label={copy.root} items={rootItems} value={root} onChange={(r) => {
+        <ChipGroup<string>
+          label={copy.root}
+          items={rootItems}
+          value={root}
+          onChange={(r) => {
             seq.stop();
             setRoot(r);
-          }} />
+          }}
+        />
       </div>
       <div className="controls">
         <ChipGroup<ChordId>
@@ -186,7 +229,15 @@ function QualitiesScene({ copy }: { copy: SceneCopy }) {
         <ChipGroup<string> label={copy.root} items={rootItems} value={root} onChange={setRoot} />
       </div>
       <div className="controls">
-        <ChipGroup<ChordId> label={copy.qualities.quality} items={QUALITIES.map((k) => ({ value: k, text: copy.kinds[k as keyof SceneCopy['kinds']] }))} value={id} onChange={choose} />
+        <ChipGroup<ChordId>
+          label={copy.qualities.quality}
+          items={QUALITIES.map((k) => ({
+            value: k,
+            text: copy.kinds[k as keyof SceneCopy['kinds']],
+          }))}
+          value={id}
+          onChange={choose}
+        />
         <Labeller copy={copy} value={labels} onChange={setLabels} />
         <Button onClick={() => strum(view.notes)}>{copy.together}</Button>
       </div>
@@ -233,7 +284,15 @@ function SusScene({ copy }: { copy: SceneCopy }) {
         <ChipGroup<string> label={copy.root} items={rootItems} value={root} onChange={setRoot} />
       </div>
       <div className="controls">
-        <ChipGroup<ChordId> label={copy.sus.kind} items={SUS_KINDS.map((k) => ({ value: k, text: copy.kinds[k as keyof SceneCopy['kinds']] }))} value={id} onChange={choose} />
+        <ChipGroup<ChordId>
+          label={copy.sus.kind}
+          items={SUS_KINDS.map((k) => ({
+            value: k,
+            text: copy.kinds[k as keyof SceneCopy['kinds']],
+          }))}
+          value={id}
+          onChange={choose}
+        />
         {id !== 'major' && <Button onClick={resolve}>{copy.sus.resolve}</Button>}
       </div>
       <Fretboard geometry={g} dots={view.notes.map((n) => chordDot(n, 'degrees'))} label={caption}>
@@ -260,13 +319,25 @@ function OpenScene({ copy }: { copy: SceneCopy }) {
     setIndex(i);
     strum(openView(OPEN_CHORDS[i]!).notes);
   };
-  const partnerIndex = view.partner ? OPEN_CHORDS.findIndex((c) => c.id === view.partner!.id && sameNote(c.root, view.partner!.root)) : -1;
-  const caption = fill(copy.open.caption, { symbol: view.symbol, degrees: view.notes.map((n) => degreeText(n.degree)).join(' ') });
+  const partnerIndex = view.partner
+    ? OPEN_CHORDS.findIndex(
+        (c) => c.id === view.partner!.id && sameNote(c.root, view.partner!.root),
+      )
+    : -1;
+  const caption = fill(copy.open.caption, {
+    symbol: view.symbol,
+    degrees: view.notes.map((n) => degreeText(n.degree)).join(' '),
+  });
 
   return (
     <div className="board">
       <div className="controls">
-        <ChipGroup<number> label={copy.open.chord} items={OPEN_CHORDS.map((c, i) => ({ value: i, text: chordSymbol(c) }))} value={index} onChange={choose} />
+        <ChipGroup<number>
+          label={copy.open.chord}
+          items={OPEN_CHORDS.map((c, i) => ({ value: i, text: chordSymbol(c) }))}
+          value={index}
+          onChange={choose}
+        />
       </div>
       <div className="controls">
         <Labeller copy={copy} value={labels} onChange={setLabels} />
@@ -303,7 +374,9 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
   const strum = useStrum();
   const g = useNeckGeometry(STACK_FRETS, { fretWidth: 42 });
   const [pool, setPool] = useState<Pool>('basic');
-  const [q, setQ] = useState<BuildQuestion>(() => buildQuestion(Math.random, undefined, POOL_KINDS.basic));
+  const [q, setQ] = useState<BuildQuestion>(() =>
+    buildQuestion(Math.random, undefined, POOL_KINDS.basic),
+  );
   const [found, setFound] = useState<(FretPos & { degree: string })[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [missed, setMissed] = useState(false);
@@ -329,7 +402,13 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
   const dots: FretDot[] = [
     ...places,
     { key: posKey(root), ...root, midi: midiAt(root), label: '1', tone: 'home' },
-    ...found.map((f) => ({ key: posKey(f), string: f.string, fret: f.fret, midi: midiAt(f), label: degreeText(f.degree) })),
+    ...found.map((f) => ({
+      key: posKey(f),
+      string: f.string,
+      fret: f.fret,
+      midi: midiAt(f),
+      label: degreeText(f.degree),
+    })),
   ];
 
   const click = (d: FretDot) => {
@@ -340,7 +419,10 @@ function BuildScene({ copy }: { copy: SceneCopy }) {
       setMissed(true);
       return setMessage(fill(c.miss, { semitones: r.semitones, symbol, formula }));
     }
-    const next = [...found.filter((f) => f.degree !== r.degree), { string: d.string, fret: d.fret, degree: r.degree }];
+    const next = [
+      ...found.filter((f) => f.degree !== r.degree),
+      { string: d.string, fret: d.fret, degree: r.degree },
+    ];
     setFound(next);
     if (need.every((x) => next.some((f) => f.degree === x))) {
       strum([root, ...next].map((p) => ({ midi: midiAt(p) })).sort((a, b) => a.midi - b.midi));

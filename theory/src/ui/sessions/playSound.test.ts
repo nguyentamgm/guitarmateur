@@ -78,4 +78,34 @@ describe('playSound', () => {
     // beat 4: accent = false, delay = 4 * 60 / 80 = 3.0s
     expect(fake.clicks[1]).toEqual({ accent: false, delay: 3.0 });
   });
+
+  it('offsets all plucks and clicks by leadInSec', () => {
+    const fake = fakePlayer();
+    const sound: Sound = {
+      bpm: 60,
+      events: [
+        { at: 0, click: 'plain' },
+        { at: 1, midis: [60] },
+      ],
+    };
+
+    playSound(fake.player, sound, { leadInSec: 0.5 });
+
+    expect(fake.clicks[0]!.delay).toBeCloseTo(0.5, 4);
+    expect(fake.plucks[0]!.delay).toBeCloseTo(1.5, 4);
+  });
+
+  it('spreads strummed notes with custom strumSpreadSec', () => {
+    const fake = fakePlayer();
+    const sound: Sound = {
+      bpm: 60,
+      events: [strummed([40, 47], 0, 1)],
+    };
+
+    playSound(fake.player, sound, { strumSpreadSec: 0.08 });
+
+    expect(fake.plucks.length).toBe(2);
+    expect(fake.plucks[0]!.delay).toBeCloseTo(0, 4);
+    expect(fake.plucks[1]!.delay).toBeCloseTo(0.08, 4);
+  });
 });

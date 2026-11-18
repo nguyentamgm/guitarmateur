@@ -13,11 +13,15 @@ import { SESSIONS_STORAGE_KEY } from './sessionProgress';
 
 function fakePlayer() {
   const plucked: number[] = [];
+  const plucks: { midi: number; delay?: number; length?: number }[] = [];
   const clicks: boolean[] = [];
   let enabled = true;
   const player: Player = {
-    pluck: (midi) => {
-      if (enabled) plucked.push(midi);
+    pluck: (midi, delay, length) => {
+      if (enabled) {
+        plucked.push(midi);
+        plucks.push({ midi, delay, length });
+      }
     },
     mute: (midi) => {
       if (enabled) plucked.push(midi);
@@ -35,7 +39,7 @@ function fakePlayer() {
       return enabled;
     },
   };
-  return { player, plucked, clicks };
+  return { player, plucked, plucks, clicks };
 }
 
 /** Fret of a natural note on string 6 or 5, computed independently of the lesson code. */
@@ -835,12 +839,16 @@ describe('Theory app', () => {
     // 1. Answer check question wrong, then right (why text shows in both)
     const check = container.querySelector('section#check')!;
     const q1 = majorOrMinor.copy.en.check[0]!;
-    const wrongOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[0])!;
+    const wrongOpt = [...check.querySelectorAll('button')].find(
+      (b) => b.textContent === q1.options[0],
+    )!;
     click(wrongOpt);
     expect(check.textContent).toContain('Not quite.');
     expect(check.textContent).toContain(q1.why);
 
-    const rightOpt = [...check.querySelectorAll('button')].find((b) => b.textContent === q1.options[1])!;
+    const rightOpt = [...check.querySelectorAll('button')].find(
+      (b) => b.textContent === q1.options[1],
+    )!;
     click(rightOpt);
     expect(check.textContent).toContain('Right.');
     expect(check.textContent).toContain(q1.why);
@@ -882,7 +890,10 @@ describe('Theory app', () => {
     expect(undoneCard.querySelector('.lesson-status.done')).toBeNull();
 
     // 6. Another tab updates storage: first tab follows
-    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: { 'major-or-minor': [0, 1] } }));
+    localStorage.setItem(
+      SESSIONS_STORAGE_KEY,
+      JSON.stringify({ v: 1, ticks: { 'major-or-minor': [0, 1] } }),
+    );
     act(() => {
       window.dispatchEvent(new StorageEvent('storage', { key: SESSIONS_STORAGE_KEY }));
     });
@@ -923,7 +934,9 @@ describe('Theory app', () => {
     render('/theory/s/major-or-minor', player);
 
     const listenSection = container.querySelector('section#listen')!;
-    const startBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Start')!;
+    const startBtn = [...listenSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Start',
+    )!;
     expect(startBtn).toBeDefined();
 
     click(startBtn);
@@ -931,7 +944,9 @@ describe('Theory app', () => {
     const firstPluckCount = plucked.length;
 
     // Answer "Happy" (major)
-    const happyBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Happy')!;
+    const happyBtn = [...listenSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Happy',
+    )!;
     expect(happyBtn).toBeDefined();
     click(happyBtn);
 
@@ -939,12 +954,69 @@ describe('Theory app', () => {
     expect(listenSection.textContent).toContain('D');
 
     // Click Next
-    const nextBtn = [...listenSection.querySelectorAll('button')].find((b) => b.textContent === 'Next')!;
+    const nextBtn = [...listenSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Next',
+    )!;
     expect(nextBtn).toBeDefined();
     click(nextBtn);
 
     expect(plucked.length).toBeGreaterThan(firstPluckCount);
     randomSpy.mockRestore();
+  });
+
+  it('lets user choose strum speed in session 1 settings bar, affects playbacks, and remembers the choice', () => {
+    const { player, plucked, plucks } = fakePlayer();
+    render('/theory/s/major-or-minor', player);
+
+    const settingsBar = container.querySelector('.session-settings-bar')!;
+    expect(settingsBar).toBeDefined();
+
+    const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Slow',
+    )!;
+    expect(slowChip).toBeDefined();
+    click(slowChip);
+    expect(localStorage.getItem('theory.strumSpeed')).toBe('slow');
+
+    // 1. Listen drill uses slow speed
+    const listenSection = container.querySelector('section#listen')!;
+    const startBtn = [...listenSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Start',
+    )!;
+    click(startBtn);
+
+    expect(listenSection.textContent).toContain('Listening…');
+    expect(plucked.length).toBeGreaterThan(0);
+
+    // Switching speed on the bar during active question triggers replay
+    const prevCount = plucked.length;
+    const fastChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Fast',
+    )!;
+    click(fastChip);
+    expect(plucked.length).toBeGreaterThan(prevCount);
+    expect(localStorage.getItem('theory.strumSpeed')).toBe('fast');
+
+    // 2. Play section (ChordCards) uses the speed from settings bar
+    const playSection = container.querySelector('section#play')!;
+    const strumBtn = [...playSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Strum',
+    )!;
+    expect(strumBtn).toBeDefined();
+
+    // Click slow and strum chord card
+    click(slowChip);
+    const countBeforeStrum = plucks.length;
+    click(strumBtn);
+    const slowStrumPlucks = plucks.slice(countBeforeStrum);
+    expect(slowStrumPlucks.length).toBe(6); // Em has 6 strings
+    // Second note delay minus first note delay should be ~0.08s
+    expect(slowStrumPlucks[1]!.delay! - slowStrumPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
+  });
+
+  it('does not render session settings bar when session has no settings', () => {
+    render('/theory/s/beat-and-bar');
+    expect(container.querySelector('.session-settings-bar')).toBeNull();
   });
 
   it('plays clicks and strums in session 2 strum-along and stops', () => {
@@ -956,7 +1028,9 @@ describe('Theory app', () => {
       render('/theory/s/beat-and-bar', player);
 
       const playSection = container.querySelector('section#play')!;
-      const playBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Play')!;
+      const playBtn = [...playSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Play',
+      )!;
       expect(playBtn).toBeDefined();
 
       click(playBtn);
@@ -967,7 +1041,9 @@ describe('Theory app', () => {
       expect(plucked.length).toBeGreaterThan(0);
 
       // Stop stops it
-      const stopBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Stop')!;
+      const stopBtn = [...playSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Stop',
+      )!;
       expect(stopBtn).toBeDefined();
       click(stopBtn);
 
@@ -1033,14 +1109,19 @@ describe('Theory app', () => {
       render('/theory/s/beat-and-bar', player);
 
       const playSection = container.querySelector('section#play')!;
-      const playBtn = [...playSection.querySelectorAll('button')].find((b) => b.textContent === 'Play')!;
+      const playBtn = [...playSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Play',
+      )!;
       const tempoInput = playSection.querySelector('input[type="range"]') as HTMLInputElement;
       expect(tempoInput).not.toBeNull();
       expect(tempoInput.value).toBe('60');
 
       // Change tempo to 120
       act(() => {
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(tempoInput, '120');
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
+          tempoInput,
+          '120',
+        );
         tempoInput.dispatchEvent(new Event('change', { bubbles: true }));
       });
       expect(playSection.textContent).toContain('120 BPM');

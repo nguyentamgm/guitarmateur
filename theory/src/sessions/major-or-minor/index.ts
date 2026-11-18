@@ -7,6 +7,7 @@ export const majorOrMinor: Session = {
   path: 'accompany',
   stage: 'A',
   concepts: ['K0.1', 'K0.3', 'K4.1', 'K4.5'],
+  settings: ['strumSpeed'],
   parts: {
     listen: [{ kind: 'listen', key: 'quality', drill: 'quality' }],
     understand: [
