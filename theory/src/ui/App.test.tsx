@@ -1160,6 +1160,38 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays transpose table in session 9 and honours slow strum speed widening string gap', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player, plucks } = fakePlayer();
+      render('/theory/s/change-key', player);
+
+      const settingsBar = container.querySelector('.session-settings-bar')!;
+      expect(settingsBar).not.toBeNull();
+      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+        (b) => b.textContent === 'Slow',
+      )!;
+      expect(slowChip).toBeDefined();
+      click(slowChip);
+
+      const listenSection = container.querySelector('section#listen')!;
+      const playBtn = [...listenSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Play',
+      )!;
+      expect(playBtn).toBeDefined();
+      click(playBtn);
+
+      // At step 0, TransposeTable plays G chord with slow speed (spread = 0.08)
+      expect(plucks.length).toBeGreaterThanOrEqual(6);
+      const chordPlucks = plucks.slice(0, 6);
+      expect(chordPlucks[1]!.delay! - chordPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
     const stageA = container.querySelector('section.contents');
@@ -1303,6 +1335,7 @@ describe('Theory app', () => {
       '/theory/s/chord-changes',
       '/theory/s/one-four-five',
       '/theory/s/first-song',
+      '/theory/s/change-key',
     ]);
 
     // Navigate to session 5
@@ -1454,6 +1487,35 @@ describe('Theory app', () => {
     localStorage.setItem(LANG_STORAGE_KEY, 'vi');
     render('/theory/s/first-song');
     expect(text()).toContain('Bài hát đầu tiên bằng tai');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('renders session 9 (/theory/s/change-key) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/change-key');
+    expect(text()).toContain('Change the key');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/change-key');
+    expect(text()).toContain('Đổi giọng');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
     expect(text()).toContain('Trước khi bắt đầu');
