@@ -9,6 +9,7 @@ import type {
   RevealCopy,
   Session,
   SongCopy,
+  TransposeCopy,
 } from '../../sessions/types';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
@@ -20,6 +21,7 @@ import { MelodyEcho } from './MelodyEcho';
 import { Reveal } from './Reveal';
 import { SongBench } from './SongBench';
 import { StrumAlong } from './StrumAlong';
+import { TransposeTable } from './TransposeTable';
 
 export function SessionBlock({ session, block }: { session: Session; block: Block }) {
   const { lang } = useTheory();
@@ -61,6 +63,10 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     case 'song': {
       const copy = session.copy[lang].blocks[block.key] as SongCopy;
       return <SongBench block={block} copy={copy} />;
+    }
+    case 'transpose': {
+      const copy = session.copy[lang].blocks[block.key] as TransposeCopy;
+      return <TransposeTable block={block} copy={copy} />;
     }
   }
 }

@@ -33,7 +33,7 @@ const KNOWN_IDS = new Set(
 );
 
 /** Block kinds that always strum chords; later kinds that strum (changeTap, fillBars, song, transpose) join here. */
-const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap', 'fillBars', 'song']);
+const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap', 'fillBars', 'song', 'transpose']);
 
 /** A drill strums when any of its questions (sound or comparison) holds a strummed event. */
 function drillStrums(id: DrillId): boolean {
@@ -69,6 +69,7 @@ describe('the strumSpeed rule', () => {
     expect(sessionStrums(only({ kind: 'listen', key: 'fof', drill: 'fourOrFive' }))).toBe(true);
     expect(sessionStrums(only({ kind: 'fillBars', key: 'fb', in: { tonic: 'G', mode: 'major' }, pool: [1, 4, 5], bars: 4, bpm: 80 }))).toBe(true);
     expect(sessionStrums(only({ kind: 'song', key: 's', in: { tonic: 'G', mode: 'major' }, song: 'frere-jacques', pool: [1], start: 'all' }))).toBe(true);
+    expect(sessionStrums(only({ kind: 'transpose', key: 't', bars: [1, 4, 5, 1], tonics: ['G', 'D'] }))).toBe(true);
     expect(sessionStrums(only(lesson))).toBe(false);
   });
 });
@@ -243,6 +244,20 @@ describe('session registry', () => {
         for (const ref of song.chords) {
           if (ref === '-') continue;
           expect(poolNumerals, `song block '${b.key}' pool missing reference '${ref}'`).toContain(ref);
+        }
+      }
+    });
+
+    it('every transpose block has tonics >= 2 and bars >= 2', () => {
+      const blocks = sessionBlocks(session);
+      const transposeBlocks = blocks.filter((b) => b.kind === 'transpose');
+      for (const b of transposeBlocks) {
+        expect(b.tonics.length).toBeGreaterThanOrEqual(2);
+        expect(b.bars.length).toBeGreaterThanOrEqual(2);
+        for (const tonic of b.tonics) {
+          for (const spec of b.bars) {
+            expect(() => chordIn({ tonic, mode: 'major' }, spec)).not.toThrow();
+          }
         }
       }
     });

@@ -4,7 +4,7 @@ import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
-import { PARTS, majorOrMinor } from '../sessions';
+import { PARTS, SONGS, majorOrMinor } from '../sessions';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
@@ -1160,6 +1160,38 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays transpose table in session 9 and honours slow strum speed widening string gap', () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
+    });
+    try {
+      const { player, plucks } = fakePlayer();
+      render('/theory/s/change-key', player);
+
+      const settingsBar = container.querySelector('.session-settings-bar')!;
+      expect(settingsBar).not.toBeNull();
+      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+        (b) => b.textContent === 'Slow',
+      )!;
+      expect(slowChip).toBeDefined();
+      click(slowChip);
+
+      const listenSection = container.querySelector('section#listen')!;
+      const playBtn = [...listenSection.querySelectorAll('button')].find(
+        (b) => b.textContent === 'Play',
+      )!;
+      expect(playBtn).toBeDefined();
+      click(playBtn);
+
+      // At step 0, TransposeTable plays G chord with slow speed (spread = 0.08)
+      expect(plucks.length).toBeGreaterThanOrEqual(6);
+      const chordPlucks = plucks.slice(0, 6);
+      expect(chordPlucks[1]!.delay! - chordPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
     const stageA = container.querySelector('section.contents');
@@ -1303,6 +1335,7 @@ describe('Theory app', () => {
       '/theory/s/chord-changes',
       '/theory/s/one-four-five',
       '/theory/s/first-song',
+      '/theory/s/change-key',
     ]);
 
     // Navigate to session 5
@@ -1462,5 +1495,99 @@ describe('Theory app', () => {
     }
     expect(container.querySelector('section#check')).not.toBeNull();
     expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('renders session 9 (/theory/s/change-key) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/change-key');
+    expect(text()).toContain('Change the key');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/change-key');
+    expect(text()).toContain('Đổi giọng');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('session 9 interactive: capo table reads G to C, strum-along switches G/D/A, song bench switches D/A and keeps strum speed', () => {
+    render('/theory/s/change-key');
+
+    // 1. Capo table reads G, A♭, A, B♭, B, C for frets 0–5
+    const capoTable = container.querySelector('table.capo-table')!;
+    expect(capoTable).not.toBeNull();
+    const capoRows = [...capoTable.querySelectorAll('tbody tr')];
+    expect(capoRows.map((r) => r.querySelector('td')?.textContent)).toEqual([
+      'G',
+      'A♭',
+      'A',
+      'B♭',
+      'B',
+      'C',
+    ]);
+
+    // 2. Strum-along in Play section switches between G, D, A
+    const playSection = container.querySelector('section#play')!;
+    const keyChips = [...playSection.querySelectorAll('.group [role="radio"]')];
+    expect(keyChips.map((c) => c.textContent)).toEqual(['G', 'D', 'A']);
+    click(keyChips[1]!); // click D
+    expect(keyChips[1]!.getAttribute('aria-checked')).toBe('true');
+
+    // 3. Strum speed setting persists
+    const settingsBar = container.querySelector('.session-settings-bar')!;
+    const fastChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Fast',
+    )!;
+    click(fastChip);
+
+    // Switch key in song bench to A
+    const challengeSection = container.querySelector('section#challenge')!;
+    const songKeyChips = [...challengeSection.querySelectorAll('.group [role="radio"]')];
+    expect(songKeyChips.map((c) => c.textContent)).toEqual(['D', 'A']);
+    click(songKeyChips[1]!); // switch to A
+    expect(songKeyChips[1]!.getAttribute('aria-checked')).toBe('true');
+
+    // Check strum speed is still Fast
+    expect(fastChip.getAttribute('aria-checked')).toBe('true');
+
+    // Twinkle has 24 chord slots. Fill them with correct chords from reference.
+    const twinkleNumerals = SONGS['twinkle'].chords;
+    const poolChips = [...challengeSection.querySelectorAll('button.song-chord-chip')];
+    const slots = [...challengeSection.querySelectorAll('button.song-slot')];
+    expect(slots.length).toBe(24);
+
+    for (let i = 0; i < 24; i++) {
+      click(slots[i]!);
+      const chip = poolChips.find((c) => c.querySelector('strong')?.textContent === twinkleNumerals[i]!)!;
+      click(chip);
+    }
+
+    // Check in A
+    const checkBtn = [...challengeSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Check',
+    )!;
+    click(checkBtn);
+    expect(challengeSection.textContent).toContain('All right:');
+
+    // Switch back to D and check that re-judging works
+    click(songKeyChips[0]!); // switch to D
+    click(checkBtn);
+    expect(challengeSection.textContent).toContain('All right:');
   });
 });

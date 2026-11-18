@@ -1,4 +1,5 @@
 import { beatAndBar } from './beat-and-bar';
+import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
@@ -15,7 +16,9 @@ export * from './echo';
 export * from './fill';
 export * from './songs';
 export * from './strum';
+export * from './transposeTable';
 export { beatAndBar } from './beat-and-bar';
+export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
@@ -33,6 +36,7 @@ export const SESSIONS: readonly Session[] = [
   chordChanges,
   oneFourFive,
   firstSong,
+  changeKey,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
