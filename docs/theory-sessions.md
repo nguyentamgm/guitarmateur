@@ -95,8 +95,10 @@ export type Block =
   | { readonly kind: 'listen'; readonly key: string; readonly drill: DrillId }
   | { readonly kind: 'reveal'; readonly key: string; readonly drill: DrillId }
   | { readonly kind: 'melodyEcho'; readonly key: string; readonly tonic: string; readonly string: StringNumber;
-      readonly phrases: readonly (readonly number[])[] | null; readonly notes?: 3 | 4 };
-  // later issues add: 'changeTap', 'fillBars', 'song', 'transpose'
+      readonly phrases: readonly (readonly number[])[] | null; readonly notes?: 3 | 4 }
+  | { readonly kind: 'changeTap'; readonly key: string; readonly in: SessionKey; readonly pool: readonly ChordSpec[];
+      readonly holds: readonly (1 | 2)[]; readonly bars: number; readonly bpm: number };
+  // later issues add: 'fillBars', 'song', 'transpose'
 
 export interface Session {
   readonly slug: string;               // English, URL-safe: /theory/s/<slug>
@@ -136,6 +138,7 @@ export interface SessionCopy {
 | `listen` | `intro`, `ask`, `answers` (label per answer id), `right`, `wrong` (may use `{answer}` and `{detail}`) |
 | `reveal` | `intro`, `ask`, `answer` (may use `{answer}` and `{detail}`) |
 | `melodyEcho` | `intro`, `ask`, `right`, `higher`, `lower`, `done` |
+| `changeTap` | `intro`, `ask`, `result` (may use `{caught}`, `{total}`, `{extra}`) |
 
 Buttons and labels shared by every session ("Play", "Play again", "Next", "Show answer",
 "Question {n} of {total}", …) are in `i18n/strings.ts` under `session`.

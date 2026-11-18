@@ -32,7 +32,7 @@ const KNOWN_IDS = new Set(
 );
 
 /** Block kinds that always strum chords; later kinds that strum (changeTap, fillBars, song, transpose) join here. */
-const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords']);
+const STRUMMING_KINDS: ReadonlySet<Block['kind']> = new Set(['strumAlong', 'chords', 'changeTap']);
 
 /** A drill strums when any of its questions (sound or comparison) holds a strummed event. */
 function drillStrums(id: DrillId): boolean {
@@ -199,6 +199,19 @@ describe('session registry', () => {
         const beatsPerBar = b.beatsPerBar ?? 4;
         const pattern = b.pattern ?? defaultPattern(beatsPerBar);
         expect(() => strumSteps(b.bars.length, beatsPerBar, pattern)).not.toThrow();
+      }
+    });
+
+    it('every changeTap block has a non-empty pool, bars >= 4 and non-empty holds', () => {
+      const blocks = sessionBlocks(session);
+      const changeTapBlocks = blocks.filter((b) => b.kind === 'changeTap');
+      for (const b of changeTapBlocks) {
+        expect(b.pool.length).toBeGreaterThan(0);
+        expect(b.bars).toBeGreaterThanOrEqual(4);
+        expect(b.holds.length).toBeGreaterThan(0);
+        for (const spec of b.pool) {
+          expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
+        }
       }
     });
 
