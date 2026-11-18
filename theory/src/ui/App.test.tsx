@@ -1064,12 +1064,12 @@ describe('Theory app', () => {
     }
   });
 
-  it('lists two sessions in stage A on the path page and navigates to session 2', () => {
+  it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
     const stageA = container.querySelector('section.contents');
     expect(stageA).not.toBeNull();
     const links = [...stageA!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/theory/s/major-or-minor', '/theory/s/beat-and-bar']);
+    expect(links).toEqual(['/theory/s/major-or-minor', '/theory/s/beat-and-bar', '/theory/s/find-the-root']);
 
     const s2Link = container.querySelector('a[href="/theory/s/beat-and-bar"]')!;
     click(s2Link);
