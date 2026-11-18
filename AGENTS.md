@@ -26,7 +26,8 @@ npm run format      # prettier
 ```
 
 CI (`.github/workflows/ci.yml`) runs **lint → typecheck → test → build** on every PR and gates
-merges. Match that order locally before pushing.
+merges. A husky `pre-push` hook (`.husky/pre-push`, installed by `npm install`) runs lint →
+typecheck → test before every push and stops it on a failure; don't bypass it with `--no-verify`.
 
 ## Working agreements for agents
 

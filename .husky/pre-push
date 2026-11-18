@@ -1,0 +1,3 @@
+# Gate before pushing: the same checks as CI (.github/workflows/ci.yml), minus the build.
+# A failing check stops the push. Skip once in an emergency with: git push --no-verify
+npm run lint && npm run typecheck && npm test
