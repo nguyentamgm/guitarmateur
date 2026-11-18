@@ -1069,7 +1069,12 @@ describe('Theory app', () => {
     const stageA = container.querySelector('section.contents');
     expect(stageA).not.toBeNull();
     const links = [...stageA!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/theory/s/major-or-minor', '/theory/s/beat-and-bar', '/theory/s/find-the-root']);
+    expect(links).toEqual([
+      '/theory/s/major-or-minor',
+      '/theory/s/beat-and-bar',
+      '/theory/s/find-the-root',
+      '/theory/s/melody-by-ear',
+    ]);
 
     const s2Link = container.querySelector('a[href="/theory/s/beat-and-bar"]')!;
     click(s2Link);
