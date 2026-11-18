@@ -1194,4 +1194,65 @@ describe('Theory app', () => {
     expect(container.querySelector('section#check')).not.toBeNull();
     expect(container.querySelector('section#done')).not.toBeNull();
   });
+
+  it('renders session 5 (/theory/s/chord-family) top to bottom, shows stage B on path page, verifies chord cards and challenge grid', () => {
+    // Path page shows stage B with session 5
+    render('/theory');
+    const sections = container.querySelectorAll('section.contents');
+    const stageB = sections[1];
+    expect(stageB).toBeDefined();
+    const stageBLinks = [...stageB!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
+    expect(stageBLinks).toEqual(['/theory/s/chord-family']);
+
+    // Navigate to session 5
+    click(stageB!.querySelector('a.lesson-card')!);
+    expect(window.location.pathname).toBe('/theory/s/chord-family');
+    expect(text()).toContain('Three chords that belong together');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Play part: chord cards show G, C, D with I, IV, V
+    const playSection = container.querySelector('section#play')!;
+    const cardSymbols = [...playSection.querySelectorAll('.power-symbol')].map((b) => [
+      b.querySelector('span:first-child')?.textContent,
+      b.querySelector('.muted')?.textContent,
+    ]);
+    expect(cardSymbols).toEqual([
+      ['G', 'I'],
+      ['C', 'IV'],
+      ['D', 'V'],
+    ]);
+
+    // Play part strumAlong shows chord names (G, C, D, G)
+    const playGridSyms = [...playSection.querySelectorAll('.bars text.sym')].map((t) => t.textContent?.trim());
+    expect(playGridSyms).toEqual(['G', 'C', 'D', 'G']);
+
+    // Challenge part strumAlong hides chord names (numeralsOnly: true)
+    const challengeSection = container.querySelector('section#challenge')!;
+    const challengeGridDegrees = [...challengeSection.querySelectorAll('.bars text.deg')].map((t) => t.textContent?.trim());
+    expect(challengeGridDegrees).toEqual(['I', 'IV', 'V', 'I']);
+    const challengeGridSyms = [...challengeSection.querySelectorAll('.bars text.sym')].map((t) => t.textContent?.trim());
+    expect(challengeGridSyms).toEqual(['', '', '', '']);
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/chord-family');
+    expect(text()).toContain('Ba hợp âm thuộc về nhau');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
 });
