@@ -10,6 +10,7 @@ export * from './types';
 export * from './changes';
 export * from './chordSpec';
 export * from './echo';
+export * from './fill';
 export * from './strum';
 export { beatAndBar } from './beat-and-bar';
 export { chordChanges } from './chord-changes';
