@@ -1619,4 +1619,71 @@ describe('Theory app', () => {
     expect(container.querySelector('section#check')).not.toBeNull();
     expect(container.querySelector('section#done')).not.toBeNull();
   });
+
+  it('renders session 11 (/theory/s/minor-keys) top to bottom in English and Vietnamese', () => {
+    // English
+    render('/theory/s/minor-keys');
+    expect(text()).toContain('Songs in a minor key');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/minor-keys');
+    expect(text()).toContain('Các bài hát ở giọng thứ');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('session 11 interactive: fill block works in A minor and E minor', () => {
+    render('/theory/s/minor-keys');
+
+    const challengeSection = container.querySelector('section#challenge')!;
+    expect(challengeSection).not.toBeNull();
+
+    // Key chips in fillBars
+    const keyChips = [...challengeSection.querySelectorAll('.controls [role="radio"]')];
+    expect(keyChips.map((c) => c.textContent)).toEqual(['A', 'E']);
+    expect(keyChips[0]!.getAttribute('aria-checked')).toBe('true');
+
+    // Bar 1 initially shows given chord in A minor (i, Am)
+    expect(challengeSection.querySelector('.deg')?.textContent).toBe('i');
+    expect(challengeSection.querySelector('.sym')?.textContent).toBe('Am');
+
+    // Start round in A minor
+    const startBtn = [...challengeSection.querySelectorAll('button')].find(
+      (b) => b.textContent === 'Start',
+    )!;
+    click(startBtn);
+
+    // Groups for bars 2, 3, 4 show roman numerals ['i', 'iv', 'V', 'VI', 'VII']
+    const groupsA = [...challengeSection.querySelectorAll('[role="radiogroup"]')].filter(
+      (g) => g.getAttribute('aria-label')?.startsWith('Bar '),
+    );
+    expect(groupsA.length).toBe(3);
+    const numeralsA = [...groupsA[0]!.querySelectorAll('button')].map((b) => b.textContent);
+    expect(numeralsA).toEqual(['i', 'iv', 'V', 'VI', 'VII']);
+
+    // Switch to E minor
+    click(keyChips[1]!);
+    expect(keyChips[1]!.getAttribute('aria-checked')).toBe('true');
+
+    // In E minor, bar 1 given chord is Em
+    expect(challengeSection.querySelector('.deg')?.textContent).toBe('i');
+    expect(challengeSection.querySelector('.sym')?.textContent).toBe('Em');
+  });
 });
