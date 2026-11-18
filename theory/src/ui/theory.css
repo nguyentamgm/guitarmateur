@@ -1008,3 +1008,109 @@ body {
   cursor: pointer;
   user-select: none;
 }
+
+/* SongBench block */
+.song-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-block: var(--s-2);
+  width: 100%;
+}
+.song-line {
+  display: flex;
+  gap: var(--s-2);
+  width: 100%;
+}
+.song-bar {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm, 6px);
+  padding: 4px;
+  background: var(--surface);
+  min-width: 0;
+}
+.song-slot {
+  flex: 1;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-mono);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  user-select: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.song-slot:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.song-slot[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.song-slot.current {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--amber);
+}
+.song-slot.right {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.song-slot.wrong {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.song-slot .slot-chord {
+  display: inline-flex;
+  gap: 4px;
+  align-items: baseline;
+}
+.song-slot .slot-numeral {
+  font-weight: bold;
+}
+.song-slot .slot-symbol {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.song-slot .slot-mark {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 2px;
+}
+.song-chord-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-block: var(--s-2);
+}
+.song-chord-chip {
+  cursor: pointer;
+  min-height: 38px;
+  padding: 6px 14px;
+}
+.song-actions {
+  margin-top: var(--s-2);
+}
+.song-feedback {
+  font-family: var(--f-mono);
+  font-size: 0.95rem;
+  margin-top: var(--s-2);
+}
+@media (max-width: 640px) {
+  .song-line {
+    flex-wrap: wrap;
+  }
+  .song-bar {
+    min-width: calc(50% - var(--s-2));
+  }
+}

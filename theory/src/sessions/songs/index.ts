@@ -1,6 +1,7 @@
 import { parseSong, type Song, type SongDef } from './parse';
 
 export * from './parse';
+export * from './bench';
 
 export type SongId =
   | 'frere-jacques'
