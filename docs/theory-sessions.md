@@ -263,8 +263,8 @@ Blocks are listed part by part. `lesson a/b` is the lesson block `{ lesson: 'a',
 | 9 | `transpose` I IV V I in G and D (listen: same song, two keys) | `transpose` with the capo row | `chords` A, E; `strumAlong` I IV V I with keys G D A | `song` Twinkle Twinkle in D, then A |
 | 10 | `listen minorBar` | `lesson keys/family` | `chords` Em in G; `strumAlong` I V vi IV and I vi IV V | `fillBars` pool I IV V vi, keys G D |
 | 11 | `listen keyMode` | `lesson keys/relative` | `chords` Am Dm E; `strumAlong` in A minor: i iv V i, then i VI VII i | `fillBars` in A minor and E minor |
-| 12 | `listen seventh` | `lesson chord-table/sevenths`, `lesson keys/twoFive` | `chords` D7 G7 E7 A7; `strumAlong` I IV V7 I in G, D, A | `song` Twinkle Twinkle with V7 offered |
-| 13 | `listen meter` | `lesson rhythm/beat` | `strumAlong` 3 beats in a bar: I I IV I | `song` Happy Birthday, then Amazing Grace |
+| 12 | `listen seventh` | `lesson chord-table/sevenths`, `lesson keys/twoFive` | `chords` D/D7, A/A7, E/E7; `strumAlong` I IV V7 I in G, D, A | `song` Twinkle Twinkle with V7 offered |
+| 13 | `listen meter` | `lesson rhythm/beat` | `strumAlong` 3 beats in a bar: I I IV I, then I V V I (D-DUDU) | `song` Happy Birthday, then Amazing Grace |
 | 14 | `listen sameChord` | `lesson barre/slide`, `lesson barre/eShape`, `lesson barre/aShape` | `chords` F, Bm; `strumAlong` I IV V I in F and B♭ | `strumAlong` I V vi IV, `numeralsOnly`, keys F B♭ E♭ |
 | 15 | `listen oddChord` | `chords` ♭VII, iv, III7 in G next to the key's own chords | `strumAlong` I ♭VII IV I; I IV iv I; I III7 vi IV | `fillBars` pool I IV V vi ♭VII iv III7 |
 | 16 | — (text only: the five steps) | `transpose` (the keys the learner now knows) | `strumAlong` review: I V vi IV in G, D, A, C | `song` London Bridge, Ode to Joy, Jingle Bells, with no hints |

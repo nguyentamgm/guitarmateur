@@ -45,6 +45,7 @@ export function judgeSong(
     if (!pick) return false;
     if (pick === ref) return true;
     if (song.accept?.[i]?.includes(pick)) return true;
+    if (pick === 'V7' && (ref === 'V' || song.accept?.[i]?.includes('V'))) return true;
     return false;
   });
 }
