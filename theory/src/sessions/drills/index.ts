@@ -9,6 +9,7 @@ import { onBeat } from './onBeat';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
 import { seventh } from './seventh';
+import { meter } from './meter';
 import type { Drill } from './types';
 
 export * from './types';
@@ -16,6 +17,7 @@ export { chordCount } from './chordCount';
 export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
 export { keyMode } from './keyMode';
+export { meter } from './meter';
 export { minorBar } from './minorBar';
 export { moves } from './moves';
 export { onBeat } from './onBeat';
@@ -34,5 +36,6 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   minorBar,
   keyMode,
   seventh,
+  meter,
 };
 
