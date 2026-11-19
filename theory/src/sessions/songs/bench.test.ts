@@ -64,10 +64,31 @@ describe('bench helpers', () => {
       const marksWithV = judgeSong(hb, picksWithV);
       expect(marksWithV[7]).toBe(true);
 
+      const picksWithV7 = [...picksWithRef];
+      picksWithV7[7] = 'V7';
+      const marksWithV7 = judgeSong(hb, picksWithV7);
+      expect(marksWithV7[7]).toBe(true);
+
       const picksWithWrong = [...picksWithRef];
       picksWithWrong[7] = 'IV';
       const marksWithWrong = judgeSong(hb, picksWithWrong);
       expect(marksWithWrong[7]).toBe(false);
+    });
+
+    it('accepts V7 wherever reference is V or an accepted alternative is V', () => {
+      // Slot 2 reference of Happy Birthday is 'V'
+      expect(hb.chords[2]).toBe('V');
+      const picksWithV7AtSlot2 = Array(hb.chords.length).fill(null);
+      picksWithV7AtSlot2[2] = 'V7';
+      const marks = judgeSong(hb, picksWithV7AtSlot2);
+      expect(marks[2]).toBe(true);
+
+      // Where reference is 'IV' (slot 6), V7 is rejected
+      expect(hb.chords[6]).toBe('IV');
+      const picksWithV7AtSlot6 = Array(hb.chords.length).fill(null);
+      picksWithV7AtSlot6[6] = 'V7';
+      const marksIV = judgeSong(hb, picksWithV7AtSlot6);
+      expect(marksIV[6]).toBe(false);
     });
 
     it('marks unfilled non-"-" slots false', () => {
