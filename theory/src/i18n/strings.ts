@@ -31,7 +31,7 @@ const en = {
   pathOneTitle: 'Path 1 · Play songs by ear',
   pathLeadTitle: 'Path 2 · Lead guitar',
   pathLeadBody:
-    'Looking for pentatonic, blues, techniques and soloing? Those lessons are in the library while we build their sessions.',
+    'Start with a short phrase in box 1. Explore more pentatonic, blues and soloing lessons in the library.',
   pathLibraryLink: 'Explore the library →',
   libraryTitle: 'Reference: all lessons',
   libraryLead:
@@ -177,7 +177,7 @@ const vi: UiStrings = {
   pathOneTitle: 'Lộ trình 1 · Đệm hát bằng tai',
   pathLeadTitle: 'Lộ trình 2 · Lead guitar điện',
   pathLeadBody:
-    'Bạn muốn học pentatonic, blues, kỹ thuật và solo? Các bài học đó nằm trong thư viện trong lúc chúng tôi xây dựng buổi học.',
+    'Bắt đầu bằng một câu ngắn trong box 1. Trong thư viện còn có các bài về pentatonic, blues và solo.',
   pathLibraryLink: 'Khám phá thư viện →',
   libraryTitle: 'Thư viện: tất cả các bài',
   libraryLead:

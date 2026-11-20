@@ -51,7 +51,8 @@ function drillStrums(id: DrillId): boolean {
 }
 
 const blockStrums = (b: Block): boolean =>
-  STRUMMING_KINDS.has(b.kind) || ((b.kind === 'listen' || b.kind === 'reveal') && drillStrums(b.drill));
+  STRUMMING_KINDS.has(b.kind) ||
+  (b.kind === 'backingTrack' && (b.style === 'strum' || b.style === 'comp')) || ((b.kind === 'listen' || b.kind === 'reveal') && drillStrums(b.drill));
 
 const sessionStrums = (s: Session): boolean => sessionBlocks(s).some(blockStrums);
 
@@ -327,6 +328,18 @@ describe('session registry', () => {
         for (const ref of song.chords) {
           if (ref === '-') continue;
           expect(poolNumerals, `song block '${b.key}' pool missing reference '${ref}'`).toContain(ref);
+        }
+      }
+    });
+
+    it('has playable backing forms in each offered key', () => {
+      for (const block of sessionBlocks(session)) {
+        if (block.kind !== 'backingTrack') continue;
+        expect(block.bars.length).toBeGreaterThan(0);
+        expect(block.bpm).toBeGreaterThanOrEqual(40);
+        expect(block.bpm).toBeLessThanOrEqual(200);
+        for (const tonic of [block.in.tonic, ...(block.keys ?? [])]) {
+          for (const spec of block.bars) expect(chordIn({ ...block.in, tonic }, spec).symbol).toBeTruthy();
         }
       }
     });

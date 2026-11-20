@@ -1753,7 +1753,7 @@ describe('Theory app', () => {
     expect(container.querySelector('section#done')).not.toBeNull();
   });
 
-  it('renders session 16 (/theory/s/new-song) top to bottom, links to pentatonic-map when done, and path page links to pentatonic-map when all done', () => {
+  it('renders session 16 (/theory/s/new-song) top to bottom, continues to session 17, and offers the library after all published sessions', () => {
     // English
     render('/theory/s/new-song');
     expect(text()).toContain('Work out a new song');
@@ -1777,9 +1777,9 @@ describe('Theory app', () => {
     expect(checkBoxes).toHaveLength(3);
     checkBoxes.forEach((box) => click(box));
     expect(text()).toContain('Session complete.');
-    const leadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
+    const leadLink = container.querySelector('section#done a.btn[href="/theory/s/minor-pentatonic-box"]')!;
     expect(leadLink).not.toBeNull();
-    expect(leadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
+    expect(leadLink.textContent).toBe('Next session →');
     const practiceLink = container.querySelector('section#done a.trainer')!;
     expect(practiceLink).not.toBeNull();
     expect(practiceLink.textContent).toBe('Practise licks over G–D–Em–C (I–V–vi–IV) in Practice →');
@@ -1813,9 +1813,9 @@ describe('Theory app', () => {
     const viBoxes = container.querySelectorAll('section#done input[type="checkbox"]');
     viBoxes.forEach((box) => click(box));
     expect(text()).toContain('Đã hoàn thành buổi học.');
-    const viLeadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
+    const viLeadLink = container.querySelector('section#done a.btn[href="/theory/s/minor-pentatonic-box"]')!;
     expect(viLeadLink).not.toBeNull();
-    expect(viLeadLink.textContent).toContain('Bạn đã hoàn thành lộ trình. Tiếp theo: lead guitar, bắt đầu với bản đồ pentatonic →');
+    expect(viLeadLink.textContent).toBe('Buổi học tiếp theo →');
     const viPracticeLink = container.querySelector('section#done a.trainer')!;
     expect(viPracticeLink).not.toBeNull();
     expect(viPracticeLink.textContent).toBe('Tập lick trên G–D–Em–C (I–V–vi–IV) trong app Luyện tập →');
@@ -1834,9 +1834,36 @@ describe('Theory app', () => {
     root = createRoot(container);
     render('/theory');
     expect(text()).toContain('You have completed every session.');
-    const pathLeadLink = container.querySelector('.hero a.btn[href="/theory/pentatonic-map"]')!;
+    const pathLeadLink = container.querySelector('.hero a.btn[href="/theory/library"]')!;
     expect(pathLeadLink).not.toBeNull();
-    expect(pathLeadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
+    expect(pathLeadLink.textContent).toBe('Explore the library →');
+  });
+
+  it('echoes a box phrase and plays the transposable session 17 backing', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/minor-pentatonic-box', player);
+    expect(text()).toContain('Five notes in box 1');
+    expect(plucked).toEqual([]);
+    const listen = container.querySelector('#listen')!;
+    click(listen.querySelector('button')!);
+    const call = plucked.slice();
+    expect(call).toHaveLength(3);
+    const box = earWindow(parseNote('A'));
+    for (const midi of call.slice(1)) {
+      const note = box.notes.find((n) => n.midi === midi)!;
+      click(listen.querySelector(`.dot[aria-label*="fret ${note.fret}, string ${note.string}"]`)!);
+    }
+    expect(listen.textContent).toContain('Next');
+    const track = [...container.querySelectorAll('#play .board')].find((b) => b.querySelector('.bars'))!;
+    const control = (label: string) => [...track.querySelectorAll('button')].find((b) => b.textContent === label)!;
+    click(control('E'));
+    expect(track.textContent).toContain('Em');
+    click(control('Play'));
+    expect(control('Stop')).toBeDefined();
+    click(control('Stop'));
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(text()).toContain('Năm nốt trong box 1');
+    expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=12&lang=vi');
   });
 
   it('links sessions with earLevel to Ear training in the page language, and omits the link when unset', () => {

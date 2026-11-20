@@ -13,6 +13,8 @@ import type {
 } from '../../sessions/types';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
+import { BackingTrack } from './BackingTrack';
+import { BoxEcho } from './BoxEcho';
 import { ChangeTap } from './ChangeTap';
 import { ChordCards } from './ChordCards';
 import { FillBars } from './FillBars';
@@ -48,6 +50,10 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     }
     case 'strumAlong':
       return <StrumAlong block={block} />;
+    case 'backingTrack':
+      return <BackingTrack block={block} label={session.copy[lang].blocks[block.key]!.intro} />;
+    case 'boxEcho':
+      return <BoxEcho block={block} copy={session.copy[lang].blocks[block.key] as MelodyEchoCopy} />;
     case 'melodyEcho': {
       const copy = session.copy[lang].blocks[block.key] as MelodyEchoCopy;
       return <MelodyEcho block={block} copy={copy} />;

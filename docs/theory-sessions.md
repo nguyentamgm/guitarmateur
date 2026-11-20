@@ -1,7 +1,7 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 has a published stage outline and
-a curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 begins with the playable box 1 session (#334). The remaining
+sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
 
@@ -16,8 +16,7 @@ Theory has two kinds of pages:
 
 The far goal of Theory is still **lead guitar on electric**. Path 1, "Play songs by ear"
 (`accompany`), comes first because choosing notes for a lead needs an ear for chords. Path 2, “Lead guitar” (`lead`),
-continues the same session order. Until session 17 ships, completing session 16 leads to the
-pentatonic map. Learners can also open any of the 13 lessons in the library.
+continues the same session order. Completing session 16 leads directly to session 17. Learners can also open any of the 13 lessons in the library.
 
 ## The parts of a session
 
@@ -173,16 +172,16 @@ is empty or missing. The only id today is `'strumSpeed'`: blocks read it with
 **Rule: a session that strums chords anywhere declares `settings: ['strumSpeed']`; a session that
 never strums does not.** "Strums" means any block in `STRUMMING_KINDS` (`strumAlong`, `chords`,
 `changeTap`, `fillBars`, `song`, `transpose`), or a `listen` / `reveal` block whose drill's sound
-has a strummed event; `sessions.test.ts` checks it.
+has a strummed event, or a `backingTrack` with strum or comp style. `sessions.test.ts` checks it.
 
 **Links to other apps.**
 - **Ear training:** when `session.earLevel` (integer 1–15, checked by `sessions.test.ts`) is set,
   `SessionPage.tsx` renders a plain `<a>` after the challenge part to
   `/ear-training?level=<n>&lang=<lang>`. Linked sessions: `major-or-minor` (5), `find-the-root`
-  (7), `melody-by-ear` (3), `chord-family` (6).
+  (7), `melody-by-ear` (3), `chord-family` (6), `minor-pentatonic-box` (12).
 - **Practice:** when `session.practice` (key, bars and optional scale, boxes and swing, checked by `sessions.test.ts`) is set and
   the session is marked done in `SessionDone.tsx`, a `TrainerLink` opens Practice on that key and
-  progression (set on `new-song`: G major, I–V–vi–IV). Without a scale override the key mode selects major or natural minor.
+  progression. Session 16 opens G major over I–V–vi–IV. Session 17 opens A minor pentatonic box 1 over Am–Dm. Without a scale override the key mode selects major or natural minor.
 
 ## Blocks
 
@@ -332,7 +331,7 @@ Stages E–H follow A–D on the path page. Global session numbers and next-sess
 registry order. The table describes the planned 15–20 minute sessions and the ear drill each
 introduces. The drill IDs are reserved now. Generators and playable sessions arrive in #334–#344.
 
-| # · stage | Session slug | Ear task (planned drill) | Guitar challenge |
+| # · stage | Session slug | Ear task (drill) | Guitar challenge |
 | --- | --- | --- | --- |
 | 17 · E | `minor-pentatonic-box` | Hum a three-note call. After playing it, compare two scale phrases with the same endpoints (`pentatonicOrMajor`). | Echo the call in box 1 twice, alternate pick across two strings and silence them on the rest. |
 | 18 · E | `pentatonic-keys-and-modes` | Compare major and minor pentatonic on the same tonic (`pentaMode`). | Keep a phrase while changing the root from C to A, then keep A as root and switch scales. Place box 1 in another key. |
@@ -351,8 +350,7 @@ introduces. The drill IDs are reserved now. Generators and playable sessions arr
 | 31 · H | `three-notes-per-string` | Hear two or three notes per beat (`dupleOrTripletRun`). | Add B or F to an A minor pentatonic lick, then play it in a three-notes-per-string position. |
 | 32 · H | `your-first-solo` | Find the root and mode of an unlabelled backing before revealing the key. | Compare and revise landings on screen. On guitar, keep the full form, return to a motif and land intentionally at two chosen changes. |
 
-**Planned blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The learner
-can reveal the first note and tap back the phrase with higher/lower feedback. `backingTrack`
+**Lead blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The block may give the first note; the learner can tap back the phrase with higher/lower feedback. `backingTrack`
 loops a supplied chord form, highlights the current bar and offers tempo, key and optional box
 controls. Strum and comp styles use the session strum spread. Rock and shuffle have their own
 patterns. Session 29 adds guide tones outside the selected scale in the same fret range.

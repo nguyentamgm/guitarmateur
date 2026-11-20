@@ -6,6 +6,7 @@ import { findTheRoot } from './find-the-root';
 import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
+import { minorPentatonicBox } from './minor-pentatonic-box';
 import { minorKeys } from './minor-keys';
 import { oneFourFive } from './one-four-five';
 import { seventhChords } from './seventh-chords';
@@ -58,6 +59,7 @@ export const SESSIONS: readonly Session[] = [
   barreChords,
   outsideChords,
   newSong,
+  minorPentatonicBox,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

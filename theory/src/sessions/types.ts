@@ -1,3 +1,4 @@
+import type { BackingStyle } from '../core/audio';
 import type { StringNumber } from '../core/fretboard';
 import type { ChordId, DegreeLabel, Mode, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
@@ -52,6 +53,24 @@ export type DrillId =
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
+  | {
+      readonly kind: 'boxEcho';
+      readonly key: string;
+      readonly tonic: string;
+      readonly scale?: 'minorPentatonic' | 'majorPentatonic' | 'minorBlues';
+      readonly notes: 3 | 4;
+      readonly giveFirst?: boolean;
+    }
+  | {
+      readonly kind: 'backingTrack';
+      readonly key: string;
+      readonly in: SessionKey;
+      readonly bars: readonly ChordSpec[];
+      readonly style: BackingStyle;
+      readonly bpm: number;
+      readonly scale?: ScaleId;
+      readonly keys?: readonly string[];
+    }
   | {
       readonly kind: 'lesson';
       readonly key: string;
@@ -193,6 +212,8 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   strumAlong: ['intro'],
   listen: ['intro', 'ask', 'answers', 'right', 'wrong'],
   reveal: ['intro', 'ask', 'answer'],
+  backingTrack: ['intro'],
+  boxEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],
   fillBars: ['intro', 'ask', 'allRight', 'someWrong'],
