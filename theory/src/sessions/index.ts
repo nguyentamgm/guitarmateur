@@ -12,6 +12,7 @@ import { seventhChords } from './seventh-chords';
 import { theSixChord } from './the-six-chord';
 import { threeFour } from './three-four';
 import { barreChords } from './barre-chords';
+import { newSong } from './new-song';
 import { outsideChords } from './outside-chords';
 import type { PathId, Session, StageId } from './types';
 
@@ -33,6 +34,7 @@ export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
 export { minorKeys } from './minor-keys';
+export { newSong } from './new-song';
 export { oneFourFive } from './one-four-five';
 export { outsideChords } from './outside-chords';
 export { seventhChords } from './seventh-chords';
@@ -55,6 +57,7 @@ export const SESSIONS: readonly Session[] = [
   threeFour,
   barreChords,
   outsideChords,
+  newSong,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];

@@ -26,8 +26,11 @@ export function PathPage({ missingPath }: { missingPath?: string }) {
         ) : (
           <div>
             <p className="prose">{ui.pathAllDone}</p>
-            <Link href={hrefFor({ page: 'library' })} className="btn">
-              {ui.pathLibraryLink}
+            <Link
+              href={hrefFor({ page: 'lesson', slug: 'pentatonic-map' })}
+              className="btn"
+            >
+              {ui.session.pathDoneLead}
             </Link>
           </div>
         )}

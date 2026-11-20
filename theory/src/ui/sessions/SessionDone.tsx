@@ -40,8 +40,11 @@ export function SessionDone({ session }: { session: Session }) {
               {ui.session.nextSession}
             </Link>
           ) : (
-            <Link href={hrefFor({ page: 'path' })} className="btn">
-              {ui.session.backToPath}
+            <Link
+              href={hrefFor({ page: 'lesson', slug: 'pentatonic-map' })}
+              className="btn"
+            >
+              {ui.session.pathDoneLead}
             </Link>
           )}
         </div>
