@@ -11,6 +11,7 @@ import { oneFourFive } from './one-four-five';
 import { seventhChords } from './seventh-chords';
 import { theSixChord } from './the-six-chord';
 import { threeFour } from './three-four';
+import { barreChords } from './barre-chords';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
@@ -21,6 +22,7 @@ export * from './fill';
 export * from './songs';
 export * from './strum';
 export * from './transposeTable';
+export { barreChords } from './barre-chords';
 export { beatAndBar } from './beat-and-bar';
 export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
@@ -49,6 +51,7 @@ export const SESSIONS: readonly Session[] = [
   minorKeys,
   seventhChords,
   threeFour,
+  barreChords,
 ];
 
 export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];

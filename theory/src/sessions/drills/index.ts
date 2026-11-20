@@ -8,6 +8,7 @@ import { moves } from './moves';
 import { onBeat } from './onBeat';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
+import { sameChord } from './sameChord';
 import { seventh } from './seventh';
 import { meter } from './meter';
 import type { Drill } from './types';
@@ -23,6 +24,7 @@ export { moves } from './moves';
 export { onBeat } from './onBeat';
 export { quality } from './quality';
 export { rootNote } from './rootNote';
+export { sameChord } from './sameChord';
 export { seventh } from './seventh';
 
 export const DRILLS: Partial<Record<DrillId, Drill>> = {
@@ -37,5 +39,6 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   keyMode,
   seventh,
   meter,
+  sameChord,
 };
 
