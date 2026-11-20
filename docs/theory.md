@@ -1,9 +1,10 @@
 # Theory — conventions
 
-Theory is a separate app in this repo: visual, animated music-theory lessons for electric guitar,
-served at `/theory`. It shares tooling (Vite, TypeScript, Vitest, ESLint, CI) with the practice
-app in `src/`, never imports it, and shares code with it only through `shared/` (`@shared/…`,
-see [`architecture.md`](architecture.md#shared-code-shared)). What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
+Theory is a separate app in this repo: guided ear-and-chord sessions plus visual, animated
+music-theory reference lessons for electric guitar, served at `/theory`. It shares tooling (Vite,
+TypeScript, Vitest, ESLint, CI) with the practice app in `src/`, never imports it, and shares code
+with it only through `shared/` (`@shared/…`, see [`architecture.md`](architecture.md#shared-code-shared)).
+What to teach: [`theory-knowledge/`](theory-knowledge/README.md).
 Sessions are described in [`theory-sessions.md`](theory-sessions.md).
 
 ## Layout
@@ -21,7 +22,8 @@ theory/
    ├─ lessons/           one folder per lesson: steps + concept IDs, copy.en.ts, copy.vi.ts,
    │                     scenes.ts (pure scene data derived from core), registry in index.ts
    ├─ sessions/          sessions: paths, stages, parts, copy.en.ts, copy.vi.ts, registry in index.ts
-   ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx; theory.css
+   ├─ ui/                React: App, router, Fretboard, pages, lessons/<Lesson>Scene.tsx,
+   │                     sessions/ (session blocks, check, done, settings bar); theory.css
    │                     (the generic look and controls come from shared/ui, see below)
    └─ main.tsx           entry of theory/index.html
 ```
@@ -157,11 +159,12 @@ ui → sessions → lessons → core/fretboard → core/music
   take of a known backing, key, tempo and box. A page opened with a `#step` scrolls to it.
 - `/theory/review` (`ui/ReviewPage.tsx`) lists every quiz, the one to do next first: never tried,
   then under 80% right in the last 20 answers, then not practised for 7 days.
-- Each contents card with a quiz shows its status from the same progress (`lessonStatus()`): not
+- Each library card with a quiz shows its status from the same progress (`lessonStatus()`): not
   started (no answer), in progress, done (at least `DONE_AFTER` = 10 recent answers, 80% right).
 - Session progress lives in `theory.sessions` (`ui/sessionProgress.ts`): `{ v: 1, ticks: { [slug]: number[] } }`,
   the indexes of the "I can do this" boxes ticked. A session is **done** when every box of its `canDo` is ticked (`isDone()`);
   done is derived and never stored. Each session card on the path page shows done status once completed, and the main button directs to `nextSession()`.
+  Per-session strum speed lives in `theory.strumSpeed` (`ui/sessions/strumSpeed.ts`).
 
 ## Lessons
 
@@ -205,11 +208,16 @@ ui → sessions → lessons → core/fretboard → core/music
 
 ## Sessions
 
-Short guided sessions (path `/theory/s/<slug>`) teach playing songs by ear, rhythm, and chords
-step by step. Blocks are drawn by `ui/sessions/SessionBlock.tsx`. Ear and challenge drills are pure
-TypeScript (`sessions/drills/`), and their sound is pure data (`sessions/sound.ts`) played through
-the Web Audio player by `ui/sessions/playSound.ts`. Chord shapes for sessions come from
-`sessions/voicing.ts` (open shape for beginner chords, lowest barre otherwise).
+Short guided sessions (path `/theory/s/<slug>`, listed at `/theory`) teach playing songs by ear,
+rhythm, and chords step by step; see [`theory-sessions.md`](theory-sessions.md) for the full model,
+block list, and contributor guides. Blocks are drawn by `ui/sessions/SessionBlock.tsx`. Ear and
+challenge drills are pure TypeScript (`sessions/drills/`), and their sound is pure data
+(`sessions/sound.ts`) played through the Web Audio player by `ui/sessions/playSound.ts`. Chord
+shapes for sessions come from `sessions/voicing.ts` (open shape for beginner chords, lowest barre
+otherwise). Sessions that strum declare `settings: ['strumSpeed']` to show the sticky settings bar
+(`ui/sessions/SessionSettings.tsx`). Sessions with `earLevel` link to `/ear-training?level=n&lang=…`
+after the challenge part, and a session with `practice` (`new-song`: G major over I–V–vi–IV) links
+to Practice when completed.
 
 ## Commands
 

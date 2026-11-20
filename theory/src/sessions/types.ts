@@ -211,11 +211,21 @@ export interface Session {
   /** Index of the right option of each check question. */
   readonly checkAnswers: readonly number[];
   readonly copy: Readonly<Record<Lang, SessionCopy>>;
+  /** Optional Ear training level (1–15) for extra ear practice after the challenge part. */
+  readonly earLevel?: number;
+  /** Optional key and chords to open Practice on, shown once the session is done. */
+  readonly practice?: SessionPractice;
   /** Optional interactive controls displayed in the session's sticky settings bar. */
   readonly settings?: readonly SessionSettingId[];
 }
 
 export type SessionSettingId = 'strumSpeed';
+
+/** A key and a progression (one chord per bar) to practise licks over in Practice. */
+export interface SessionPractice {
+  readonly in: SessionKey;
+  readonly bars: readonly ChordSpec[];
+}
 
 /** Every block of a session, in page order. */
 export const sessionBlocks = (s: Session): Block[] => PARTS.flatMap((p) => s.parts[p]);

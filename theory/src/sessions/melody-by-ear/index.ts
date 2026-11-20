@@ -7,6 +7,7 @@ export const melodyByEar: Session = {
   path: 'accompany',
   stage: 'A',
   concepts: ['K2.1', 'K7.5'],
+  earLevel: 3,
   parts: {
     listen: [{ kind: 'listen', key: 'moves', drill: 'moves' }],
     understand: [{ kind: 'lesson', key: 'formula', lesson: 'major-scale', step: 'formula' }],

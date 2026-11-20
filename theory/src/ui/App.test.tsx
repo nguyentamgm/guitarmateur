@@ -1772,6 +1772,20 @@ describe('Theory app', () => {
     const leadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
     expect(leadLink).not.toBeNull();
     expect(leadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
+    const practiceLink = container.querySelector('section#done a.trainer')!;
+    expect(practiceLink).not.toBeNull();
+    expect(practiceLink.textContent).toBe('Practise licks over G–D–Em–C (I–V–vi–IV) in Practice →');
+    expect(payload(practiceLink).lang).toBe('en');
+    expect(payload(practiceLink).state.key).toEqual({
+      tonic: { letter: 'G', alter: 0 },
+      scaleId: 'major',
+    });
+    expect(
+      payload(practiceLink).state.progression.map(
+        (c: { chord: { tonic: { letter: string; alter: number }; quality: string } }) =>
+          `${c.chord.tonic.letter}${c.chord.quality}`,
+      ),
+    ).toEqual(['GM', 'DM', 'Em', 'CM']);
 
     // Vietnamese
     act(() => root.unmount());
@@ -1794,6 +1808,10 @@ describe('Theory app', () => {
     const viLeadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
     expect(viLeadLink).not.toBeNull();
     expect(viLeadLink.textContent).toContain('Bạn đã hoàn thành lộ trình. Tiếp theo: lead guitar, bắt đầu với bản đồ pentatonic →');
+    const viPracticeLink = container.querySelector('section#done a.trainer')!;
+    expect(viPracticeLink).not.toBeNull();
+    expect(viPracticeLink.textContent).toBe('Tập lick trên G–D–Em–C (I–V–vi–IV) trong app Luyện tập →');
+    expect(payload(viPracticeLink).lang).toBe('vi');
 
     // Now test PathPage when all sessions are done
     // Set all sessions done in storage
@@ -1811,5 +1829,22 @@ describe('Theory app', () => {
     const pathLeadLink = container.querySelector('.hero a.btn[href="/theory/pentatonic-map"]')!;
     expect(pathLeadLink).not.toBeNull();
     expect(pathLeadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
+  });
+
+  it('links sessions with earLevel to Ear training in the page language, and omits the link when unset', () => {
+    render('/theory/s/major-or-minor');
+    const earLink = container.querySelector('main a[href^="/ear-training"]')!;
+    expect(earLink).not.toBeNull();
+    expect(earLink.getAttribute('href')).toBe('/ear-training?level=5&lang=en');
+    expect(earLink.textContent).toBe('More practice for your ear: Ear training, level 5 →');
+
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(earLink.getAttribute('href')).toBe('/ear-training?level=5&lang=vi');
+    expect(earLink.textContent).toBe('Luyện thêm cho tai: app Luyện tai, cấp 5 →');
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    render('/theory/s/beat-and-bar');
+    expect(container.querySelector('main a[href^="/ear-training"]')).toBeNull();
   });
 });

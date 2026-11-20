@@ -1,15 +1,15 @@
 # Glossary · Thuật ngữ
 
-One word per idea, on every page (Practice at `/`, Theory at `/theory`, Ear training at `/ear`)
-and in both languages. Theory is the reference: when the pages disagree, this file follows Theory,
-and the other page changes.
+One word per idea, on every page (Practice at `/`, Theory at `/theory`, Ear training at
+`/ear-training`) and in both languages. Theory is the reference: when the pages disagree, this file
+follows Theory, and the other page changes.
 Translators and anyone writing copy (UI strings, lesson text) start here; see
 [`i18n.md`](i18n.md) for how to ship a language and [`theory-knowledge/`](theory-knowledge/README.md)
 for what the lessons teach.
 
 Mỗi khái niệm một từ, dùng chung cho mọi trang (Practice ở `/`, Theory ở `/theory`, Luyện tai ở
-`/ear`) và cả hai ngôn ngữ. Theory là chuẩn: khi các trang gọi khác nhau, file này theo Theory và
-trang kia đổi theo.
+`/ear-training`) và cả hai ngôn ngữ. Theory là chuẩn: khi các trang gọi khác nhau, file này theo
+Theory và trang kia đổi theo.
 Người dịch và người viết lời (chuỗi giao diện, lời giảng) đọc file này trước.
 
 ## Rules · Quy tắc

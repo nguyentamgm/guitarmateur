@@ -70,6 +70,17 @@ export function SessionPage({ session }: { session: Session }) {
           );
         })}
 
+        {session.earLevel !== undefined && (
+          <p className="prose session-ear-link">
+            <a
+              className="trainer"
+              href={`/ear-training?level=${session.earLevel}&lang=${lang}`}
+            >
+              {fill(ui.session.earLink, { n: session.earLevel })}
+            </a>
+          </p>
+        )}
+
         <SessionCheck session={session} />
         <SessionDone session={session} />
 

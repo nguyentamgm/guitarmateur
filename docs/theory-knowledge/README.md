@@ -29,7 +29,7 @@ Kho kiến thức giữ mỗi khái niệm **một lần duy nhất**; các bu�
 
 ## Thứ tự học
 
-Mũi tên nghĩa là "cần học trước". Pentatonic và blues đến sớm, hợp âm và giọng đến sau.
+Mũi tên nghĩa là "cần học trước". Pentatonic và blues đến sớm, hợp âm và giọng đến sau. Trong app, lộ trình 1 (`/theory/s/…`) dạy hợp âm và đệm hát bằng tai trước, rồi mới tới các bài lead guitar trong thư viện (`/theory/library`).
 
 ```mermaid
 flowchart LR

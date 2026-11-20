@@ -8,6 +8,7 @@ export const newSong: Session = {
   stage: 'D',
   concepts: ['K8.6'],
   settings: ['strumSpeed'],
+  practice: { in: { tonic: 'G', mode: 'major' }, bars: [1, 5, 6, 4] },
   parts: {
     listen: [],
     understand: [

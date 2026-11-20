@@ -244,6 +244,22 @@ describe('session registry', () => {
       expect(session.settings?.includes('strumSpeed') ?? false).toBe(sessionStrums(session));
     });
 
+    it('earLevel, when set, is an integer from 1 to 15', () => {
+      if (session.earLevel !== undefined) {
+        expect(Number.isInteger(session.earLevel)).toBe(true);
+        expect(session.earLevel).toBeGreaterThanOrEqual(1);
+        expect(session.earLevel).toBeLessThanOrEqual(15);
+      }
+    });
+
+    it('practice, when set, has bars that all resolve to a chord in its key', () => {
+      if (session.practice) {
+        const { in: key, bars } = session.practice;
+        expect(bars.length).toBeGreaterThan(0);
+        for (const spec of bars) expect(() => chordIn(key, spec)).not.toThrow();
+      }
+    });
+
     it('every chord of every chords and strumAlong block gets a shape without throwing', () => {
       const blocks = sessionBlocks(session);
       for (const b of blocks) {

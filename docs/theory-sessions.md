@@ -1,7 +1,7 @@
-# Theory sessions — the plan
+# Theory sessions
 
-**Status:** plan, tracked in #292. Sessions are built one issue at a time; this file is the design
-they all follow. If an issue and this file disagree, the issue wins and the same PR fixes this file.
+**Status:** built (Path 1, "Play songs by ear", 16 sessions, tracked in #292). This file describes
+how sessions work and how to extend them.
 
 ## What a session is
 
@@ -70,7 +70,7 @@ No session is locked. The path page only suggests the next one.
 - Tests: the critical cases only (see `AGENTS.md`): the pure generator or judge function of a new
   block, stored data, and the main path of a new screen.
 
-## Data model (built in issue 2, extended by later issues)
+## Data model
 
 ```ts
 // theory/src/sessions/types.ts
@@ -97,8 +97,14 @@ export type Block =
   | { readonly kind: 'melodyEcho'; readonly key: string; readonly tonic: string; readonly string: StringNumber;
       readonly phrases: readonly (readonly number[])[] | null; readonly notes?: 3 | 4 }
   | { readonly kind: 'changeTap'; readonly key: string; readonly in: SessionKey; readonly pool: readonly ChordSpec[];
-      readonly holds: readonly (1 | 2)[]; readonly bars: number; readonly bpm: number };
-  // later issues add: 'fillBars', 'song', 'transpose'
+      readonly holds: readonly (1 | 2)[]; readonly bars: number; readonly bpm: number }
+  | { readonly kind: 'fillBars'; readonly key: string; readonly in: SessionKey; readonly keys?: readonly string[];
+      readonly pool: readonly ChordSpec[]; readonly bars: number; readonly bpm: number }
+  | { readonly kind: 'song'; readonly key: string; readonly song: SongId; readonly in: SessionKey;
+      readonly pool: readonly ChordSpec[]; readonly start: 'all' | 'none'; readonly keys?: readonly string[];
+      readonly bpm?: number }
+  | { readonly kind: 'transpose'; readonly key: string; readonly bars: readonly ChordSpec[];
+      readonly tonics: readonly string[]; readonly capoShapes?: string };
 
 export interface Session {
   readonly slug: string;               // English, URL-safe: /theory/s/<slug>
@@ -109,11 +115,20 @@ export interface Session {
   /** Index of the right option of each check question. */
   readonly checkAnswers: readonly number[];
   readonly copy: Readonly<Record<Lang, SessionCopy>>;
+  /** Optional Ear training level (1–15) linked after the challenge part. */
+  readonly earLevel?: number;
+  /** Optional key and chords to open Practice on, shown once the session is done. */
+  readonly practice?: SessionPractice;
   /** Controls shown in the session's sticky settings bar; the bar is hidden when empty. */
   readonly settings?: readonly SessionSettingId[];
 }
 
 export type SessionSettingId = 'strumSpeed';  // slow / medium / fast strum spread
+
+export interface SessionPractice {
+  readonly in: SessionKey;
+  readonly bars: readonly ChordSpec[];
+}
 
 export interface SessionCopy {
   readonly title: string;
@@ -128,7 +143,9 @@ export interface SessionCopy {
 }
 ```
 
-`BlockCopy` by block kind (every kind has `intro`, one or two sentences shown above the block):
+`BlockCopy` by block kind (every kind has `intro`, one or two sentences shown above the block, and
+`BLOCK_COPY_FIELDS` in `theory/src/sessions/types.ts` lists the required fields checked by
+`sessions.test.ts`):
 
 | kind | copy fields |
 | --- | --- |
@@ -139,6 +156,9 @@ export interface SessionCopy {
 | `reveal` | `intro`, `ask`, `answer` (may use `{answer}` and `{detail}`) |
 | `melodyEcho` | `intro`, `ask`, `right`, `higher`, `lower`, `done` |
 | `changeTap` | `intro`, `ask`, `result` (may use `{caught}`, `{total}`, `{extra}`) |
+| `fillBars` | `intro`, `ask`, `allRight`, `someWrong` |
+| `song` | `intro`, `ask`, `result` (may use `{right}`, `{total}`), `allRight` |
+| `transpose` | `intro`, `caption` |
 
 Buttons and labels shared by every session ("Play", "Play again", "Next", "Show answer",
 "Question {n} of {total}", …) are in `i18n/strings.ts` under `session`.
@@ -148,25 +168,33 @@ Buttons and labels shared by every session ("Play", "Play again", "Next", "Show 
 is empty or missing. The only id today is `'strumSpeed'`: blocks read it with
 `useSessionStrumSpeed()` and pass `STRUM_SPREADS[speed]` to `strumDelays()` / `playSound()`.
 **Rule: a session that strums chords anywhere declares `settings: ['strumSpeed']`; a session that
-never strums does not.** "Strums" means a `strumAlong` or `chords` block, or a `listen` / `reveal`
-block whose drill's sound has a strummed event; `sessions.test.ts` checks it. A later block kind
-that strums (`changeTap`, `fillBars`, `song`, `transpose`) is added to the test's list by its own
-issue.
+never strums does not.** "Strums" means any block in `STRUMMING_KINDS` (`strumAlong`, `chords`,
+`changeTap`, `fillBars`, `song`, `transpose`), or a `listen` / `reveal` block whose drill's sound
+has a strummed event; `sessions.test.ts` checks it.
+
+**Links to other apps.**
+- **Ear training:** when `session.earLevel` (integer 1–15, checked by `sessions.test.ts`) is set,
+  `SessionPage.tsx` renders a plain `<a>` after the challenge part to
+  `/ear-training?level=<n>&lang=<lang>`. Linked sessions: `major-or-minor` (5), `find-the-root`
+  (7), `melody-by-ear` (3), `chord-family` (6).
+- **Practice:** when `session.practice` (`{ in, bars }`, checked by `sessions.test.ts`) is set and
+  the session is marked done in `SessionDone.tsx`, a `TrainerLink` opens Practice on that key and
+  progression (set on `new-song`: G major, I–V–vi–IV).
 
 ## Blocks
 
-| kind | What the learner sees | Built in |
+| kind | Component (`ui/sessions/`) | What the learner sees |
 | --- | --- | --- |
-| `lesson` | One existing lesson scene (`LessonScene`), e.g. `chords` / `open`. | issue 3 |
-| `chords` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for the chords of `OPEN_SHAPE_CHORDS`, otherwise the lowest barre ≥ 1 from `barreOptions()`), click to strum. | issue 5 |
-| `listen` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. | issue 5 |
-| `reveal` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. | issue 5 |
-| `strumAlong` | Bars drawn as a grid, a metronome click and the app strumming each bar's chord; a tempo slider; optional key chips (`keys`) to move the same numbers to another key; `numeralsOnly` hides chord names. | issue 6 |
-| `melodyEcho` | The app plays 3–4 notes of a major scale on one string; the learner taps them back on a one-string neck. | issue 8 |
-| `changeTap` | The app plays 8 bars; the learner taps a button each time the chord changes; then the grid shows where the changes were. | issue 10 |
-| `fillBars` | The app plays 4 bars; the learner picks a Roman numeral for each bar; Check marks each bar. | issue 11 |
-| `song` | The song bench: a public-domain melody over a grid of chord slots; the learner picks a chord per slot, hears the tune over their chords, and checks against a reference. Any key. | issue 12 |
-| `transpose` | A table: the same progression by numbers in several keys, with a capo row; click a row to hear it. | issue 13 |
+| `lesson` | `LessonScene` (`ui/lessons/`) | One existing lesson scene, e.g. `chords` / `open`. |
+| `chords` | `ChordCards.tsx` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for `OPEN_SHAPE_CHORDS`, otherwise lowest barre ≥ 1 from `barreOptions()`), click to strum. |
+| `listen` | `ListenDrill.tsx` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. |
+| `reveal` | `Reveal.tsx` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. |
+| `strumAlong` | `StrumAlong.tsx` | Bars drawn as a grid, a metronome click and the app strumming each bar's chord; a tempo slider; optional key chips (`keys`) to move the same numbers to another key; `numeralsOnly` hides chord names. |
+| `melodyEcho` | `MelodyEcho.tsx` | The app plays 3–4 notes of a major scale on one string; the learner taps them back on a one-string neck. |
+| `changeTap` | `ChangeTap.tsx` | The app plays 8 bars; the learner taps a button each time the chord changes; then the grid shows where the changes were. |
+| `fillBars` | `FillBars.tsx` | The app plays 4 bars; the learner picks a Roman numeral for each bar; Check marks each bar. |
+| `song` | `SongBench.tsx` | The song bench: a public-domain melody over a grid of chord slots; the learner picks a chord per slot, hears the tune over their chords, and checks against a reference. Any key. |
+| `transpose` | `TransposeTable.tsx` | A table: the same progression by numbers in several keys, with an optional capo table; click a row to hear it. |
 
 ### Sound of a drill
 
@@ -197,6 +225,8 @@ export interface DrillQuestion {
   readonly sound: Sound;
   readonly compare?: Sound;            // played after a wrong answer
   readonly detail?: string;            // fills {detail} in copy: a chord symbol, a fret, a note name
+  readonly chord?: Chord;
+  readonly run?: number;               // optional run count for repetition avoidance
 }
 export interface Drill {
   readonly answers: readonly string[];
@@ -217,10 +247,10 @@ A drill never asks the same answer three times in a row.
 | `chordCount` | 5 | Four strummed bars in G: two different chords (I–IV–I–IV, I–V–I–V) or three (I–IV–V–I, I–V–IV–I). | `two`, `three` | the same bars again |
 | `fourOrFive` | 7 | I, then IV or V, then I, in G, D, A or C. | `IV`, `V` | the other one, then this one |
 | `minorBar` | 10 | Four bars from I, IV, V with exactly one vi in bar 2, 3 or 4. | `2`, `3`, `4` | the bars again, the vi bar held longer |
-| `keyMode` | 11 | I–IV–V–I in a major key or i–iv–V7–i in a minor key. | `major`, `minor` | the other mode on the same tonic |
+| `keyMode` | 11 | I–IV–V–I in a major key or i–iv–V7–i in a minor key (tonic A, E or D). | `major`, `minor` | the other mode on the same tonic, then this one |
 | `seventh` | 12 | One open chord, plain major or dominant 7 (roots E, A, D, G). | `plain`, `seventh` | the other one, then this one |
 | `meter` | 13 | Two or three bars of clicks with strums, beat 1 accented, 3 or 4 beats in a bar. | `three`, `four` | the other meter |
-| `sameChord` | 14 | An open chord, then a barre chord: the same chord, or another chord of the key. | `same`, `different` | both again |
+| `sameChord` | 14 | An open chord, then a barre chord: the same chord, or another chord of the same quality. | `same`, `different` | both again, then the second chord as an open chord |
 | `oddChord` | 15 | Four bars in a major key; bar 2, 3 or 4 is ♭VII, iv or III7, the rest are I, IV, V. | `2`, `3`, `4` | the bars again, then the same bars with the key's own chord in that bar |
 
 ## Path 1 · Play songs by ear (`accompany`)
@@ -256,18 +286,18 @@ Blocks are listed part by part. `lesson a/b` is the lesson block `{ lesson: 'a',
 | 2 | `listen onBeat` | `lesson rhythm/beat`, `lesson rhythm/counting` | `chords` Em, Am; `strumAlong` Em Em Am Am at 60 BPM, pattern all downs | `strumAlong` Em Am Em Am, one bar each, 80 BPM: 8 bars without a late change |
 | 3 | `listen finished` | `lesson fretboard/semitones`, `lesson fretboard/home` | `strumAlong` in G: I I I I (hum the root over it) | `reveal rootNote` |
 | 4 | `listen moves` | `lesson major-scale/formula` | `melodyEcho` 3 notes, degrees 1–5 | `melodyEcho` the tune "Frère Jacques", phrase by phrase |
-| 5 | `listen chordCount` | `lesson keys/family` | `chords` G C D with numerals; `strumAlong` I IV V I in G | `strumAlong` I IV V I, `numeralsOnly`, keys G |
+| 5 | `listen chordCount` | `lesson keys/family` | `chords` G C D with numerals; `strumAlong` I IV V I in G | `strumAlong` I IV V I in G (`numeralsOnly`) |
 | 6 | `changeTap` (easy: a change every 2 bars) | `lesson rhythm/strum` | `strumAlong` I I IV IV V V I I, pattern `D-D-D-DU` | `changeTap` (changes after 1 or 2 bars) |
 | 7 | `listen fourOrFive` | `lesson keys/numbers` | `strumAlong` I IV I V, then I V IV I | `fillBars` pool I IV V |
 | 8 | `song` Frère Jacques (listen: one chord fits the whole tune) | `chords` G C D with the degrees of each chord | `strumAlong` over Mary Had a Little Lamb's chords | `song` Mary Had a Little Lamb, then Twinkle Twinkle |
-| 9 | `transpose` I IV V I in G and D (listen: same song, two keys) | `transpose` with the capo row | `chords` A, E; `strumAlong` I IV V I with keys G D A | `song` Twinkle Twinkle in D, then A |
-| 10 | `listen minorBar` | `lesson keys/family` | `chords` Em in G; `strumAlong` I V vi IV and I vi IV V | `fillBars` pool I IV V vi, keys G D |
-| 11 | `listen keyMode` | `lesson keys/relative` | `chords` Am Dm E; `strumAlong` in A minor: i iv V i, then i VI VII i | `fillBars` in A minor and E minor |
-| 12 | `listen seventh` | `lesson chord-table/sevenths`, `lesson keys/twoFive` | `chords` D/D7, A/A7, E/E7; `strumAlong` I IV V7 I in G, D, A | `song` Twinkle Twinkle with V7 offered |
-| 13 | `listen meter` | `lesson rhythm/beat` | `strumAlong` 3 beats in a bar: I I IV I, then I V V I (D-DUDU) | `song` Happy Birthday, then Amazing Grace |
-| 14 | `listen sameChord` | `lesson barre/slide`, `lesson barre/eShape`, `lesson barre/aShape` | `chords` F, Bm; `strumAlong` I IV V I in F and B♭ | `strumAlong` I V vi IV, `numeralsOnly`, keys F B♭ E♭ |
-| 15 | `listen oddChord` | `chords` ♭VII, iv, III7 in G next to the key's own chords | `strumAlong` I ♭VII IV I; I IV iv I; I III7 vi IV | `fillBars` pool I IV V vi ♭VII iv III7 |
-| 16 | — (text only: the five steps) | `transpose` (the keys the learner now knows) | `strumAlong` review: I V vi IV in G, D, A, C | `song` London Bridge, Ode to Joy, Jingle Bells, with no hints |
+| 9 | `transpose` I IV V I in G and D (listen: same song, two keys) | `transpose` in G, D, A, C with G capo shapes | `chords` A, D, E; `strumAlong` I IV V I with keys G D A | `song` Twinkle Twinkle with keys D, A |
+| 10 | `listen minorBar` | `lesson keys/family` | `chords` G, D, Em, C in G; `strumAlong` I V vi IV and I vi IV V (keys G, D) | `fillBars` pool I IV V vi, keys G D |
+| 11 | `listen keyMode` | `lesson keys/relative` | `chords` Am Dm E; `strumAlong` in A minor: i iv V i, then i VI VII i | `fillBars` pool i iv V VI VII, keys A minor and E minor |
+| 12 | `listen seventh` | `lesson chord-table/sevenths`, `lesson keys/twoFive` | `chords` D/D7, A/A7, E/E7; `strumAlong` I IV V7 I in G, D, A | `song` Twinkle Twinkle with V7 offered, keys G, D, A |
+| 13 | `listen meter` | `lesson rhythm/beat` | `strumAlong` 3 beats in a bar: I I IV I, then I V V I (`D-DUDU`) | `song` Happy Birthday, then Amazing Grace |
+| 14 | `listen sameChord` | `lesson barre/slide`, `lesson barre/eShape`, `lesson barre/aShape` | `chords` F, B♭, C and Bm; `strumAlong` I IV V I in F and B♭ | `strumAlong` I V vi IV, `numeralsOnly`, keys F B♭ E♭ |
+| 15 | `listen oddChord` | `chords` V, ♭VII, IV, iv, vi, III7 in G | `strumAlong` I ♭VII IV I; I IV iv I; I III7 vi IV | `fillBars` pool I IV V vi ♭VII iv III7, keys G, D |
+| 16 | — (text only: the five steps) | `transpose` I V vi IV in G, D, A, C, F with G capo shapes | `strumAlong` review: I V vi IV in G, D, A, C (`numeralsOnly`) | `song` London Bridge, Ode to Joy, Jingle Bells (`start: 'none'`, keys G, D, A) |
 
 ### Words, in order
 
@@ -292,7 +322,7 @@ A word may be used from the session that teaches it, never before.
 
 ## Songs (public domain melodies)
 
-Songs are data in `theory/src/sessions/songs/` (issue 12): a melody as scale degrees, so it plays
+Songs are data in `theory/src/sessions/songs/index.ts`: a melody as scale degrees, so it plays
 in any key. Only the titles below, all traditional or long out of copyright. No lyrics are stored
 or shown.
 
@@ -352,25 +382,66 @@ chords: - | I | I | IV | I | I | I | V | V
 
 ## Storage
 
-- `theory.sessions` (issue 4): `{ v: 1, ticks: { [slug]: number[] } }`, the indexes of the
-  "I can do this" boxes ticked in each session. A session is **done** when every box of its
+- `theory.sessions` (`ui/sessionProgress.ts`): `{ v: 1, ticks: { [slug]: number[] } }`, the indexes
+  of the "I can do this" boxes ticked in each session. A session is **done** when every box of its
   `canDo` is ticked; done is worked out, never stored. Read and written through
   `platform/storage.ts`; never throws; unknown slugs are kept, broken entries dropped.
 - Check answers and drill scores are for the visit only (not stored).
-- `theory.strumSpeed` (#317): `'slow' | 'medium' | 'fast'`, default `'medium'`; the strum speed
-  chosen in the settings bar, shared by every session. Read and written by
-  `ui/sessions/strumSpeed.ts` (`loadStrumSpeed` / `saveStrumSpeed`, on `platform/storage.ts`); never
-  throws (a missing, unknown or blocked value reads as `'medium'`).
+- `theory.strumSpeed` (`ui/sessions/strumSpeed.ts`): `'slow' | 'medium' | 'fast'`, default
+  `'medium'`; the strum speed chosen in the settings bar, shared by every session. Read and written
+  by `loadStrumSpeed()` / `saveStrumSpeed()` through `platform/storage.ts`; never throws (a
+  missing, unknown or blocked value reads as `'medium'`).
 
-## Order of work
+## Extending sessions
 
-1. This document, the knowledge base (M8, K1.6), concept names.
-2. Session model, registry, tests; session 1's data and copy.
-3. Routes and pages: `/theory/s/<slug>`, the path page at `/theory`, the lessons at `/theory/library`.
-4. Progress: check questions, "I can do this", done, next session.
-5. Sound, drills, the `listen`, `reveal` and `chords` blocks; session 1 complete.
-6. The `strumAlong` block; session 2. **Then the owner tries sessions 1–2 before more is built.**
-7. Session 3. 8. `melodyEcho`, session 4. 9. Session 5. 10. `changeTap`, session 6.
-11. `fillBars`, session 7. 12. Songs, the `song` block, session 8. 13. `transpose`, session 9.
-14. Sessions 10–11. 15. Sessions 12–13. 16. Sessions 14–15. 17. Session 16.
-18. Links with Ear training, the review page, final docs.
+### Adding a session
+
+1. Create `theory/src/sessions/<slug>/` with `index.ts` (a `Session` object), `copy.en.ts` and
+   `copy.vi.ts` (matching keys, list lengths and placeholders; follow `docs/glossary.md`).
+2. Follow the settings rule: if any block or drill in the session strums chords, declare
+   `settings: ['strumSpeed']`; otherwise omit it. Optionally set `earLevel` (integer 1–15) to show
+   an Ear training link after the challenge part, or `practice` (`{ in, bars }`) to show a Practice
+   link once the session is done.
+3. Export the session and add it in curriculum order to `SESSIONS` in `theory/src/sessions/index.ts`.
+4. Add `<loc>https://guitarmateur.com/theory/s/<slug></loc>` in matching order to
+   `public/sitemap.xml`.
+5. Run `npx vitest run theory`. Existing suites automatically check:
+   - `sessions.test.ts`: unique URL-safe slug, sitemap order, known concept IDs, `vi`/`en` copy
+     shape and non-empty strings, unique block keys and `BLOCK_COPY_FIELDS`, valid lesson steps,
+     drills, chord shapes, patterns, songs, `strumSpeed` rule, `earLevel` range (1–15), `practice`
+     chords, 3 check questions with 3 options, and 2–4 `canDo` items.
+   - `lessons/glossary.test.ts`: banned terms from `docs/glossary.md`.
+   - Add a smoke test in `theory/src/ui/App.test.tsx` rendering `/theory/s/<slug>` in `en` and `vi`.
+
+### Adding a block kind
+
+1. Add the new variant to `Block`, its `*Copy` interface to `BlockCopy`, and its required copy keys
+   to `BLOCK_COPY_FIELDS` in `theory/src/sessions/types.ts`.
+2. If the block strums chords, add its `kind` to `STRUMMING_KINDS` in
+   `theory/src/sessions/sessions.test.ts`, and read `useSessionStrumSpeed()` in the UI component.
+3. Put pure logic (generation, grading, timing) and its colocated `*.test.ts` in
+   `theory/src/sessions/`.
+4. Build the React component in `theory/src/ui/sessions/` (using strings from `copy` or
+   `i18n/strings.ts`, never literal JSX text) and wire a `case` in
+   `theory/src/ui/sessions/SessionBlock.tsx`.
+
+### Adding a session setting
+
+1. Add the setting id to `SessionSettingId` in `theory/src/sessions/types.ts`.
+2. Add a small storage helper in `theory/src/ui/sessions/` using `platform/storage.ts` under
+   `theory.<name>` — never throws, returns a safe default when missing or invalid.
+3. Hold its state in `SessionSettingsProvider` (`theory/src/ui/sessions/SessionSettings.tsx`) and
+   expose reader/setter hooks in `theory/src/ui/sessions/sessionSettingsContext.ts`.
+4. Draw its control in `SessionSettingsBar` (`SessionSettings.tsx`) with labels in `ui.session`
+   (`en` + `vi`). When the bar holds more than one control, switch its `aria-label` from
+   `ui.session.strumSpeed` to a general `ui.session.settings` label ("Session settings").
+5. List the setting id in `settings` on the sessions that need it, and add a test that the choice
+   is stored and changes what is played.
+
+## Future ideas (out of scope for Path 1)
+
+- Storing session drill scores and listing them on `/theory/review`.
+- Links from Ear training back to sessions.
+- More controls in the settings bar (e.g. melody / chord / click balance via `player.setLevels`,
+  or a default tempo for every strum-along of a session).
+- Path 2, "Lead guitar": re-cutting the 13 lessons into sessions (see #292).
