@@ -5,6 +5,7 @@ import { fourOrFive } from './fourOrFive';
 import { keyMode } from './keyMode';
 import { minorBar } from './minorBar';
 import { moves } from './moves';
+import { oddChord } from './oddChord';
 import { onBeat } from './onBeat';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
@@ -21,6 +22,7 @@ export { keyMode } from './keyMode';
 export { meter } from './meter';
 export { minorBar } from './minorBar';
 export { moves } from './moves';
+export { oddChord } from './oddChord';
 export { onBeat } from './onBeat';
 export { quality } from './quality';
 export { rootNote } from './rootNote';
@@ -40,5 +42,6 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   seventh,
   meter,
   sameChord,
+  oddChord,
 };
 
