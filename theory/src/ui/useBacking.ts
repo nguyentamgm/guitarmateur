@@ -22,9 +22,10 @@ export function useBacking(
   bpm: number,
   onEighth?: (step: BackingStep) => void,
   loop = true,
+  strumSpread?: number,
 ): Backing {
   const { player } = useTheory();
-  const backing = useSharedBacking(player, bars, style, bpm, onEighth, loop);
+  const backing = useSharedBacking(player, bars, style, bpm, onEighth, loop, strumSpread);
   useReportPlaying(backing.playing);
   return backing;
 }

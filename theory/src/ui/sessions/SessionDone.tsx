@@ -66,10 +66,10 @@ export function SessionDone({ session }: { session: Session }) {
             </Link>
           ) : (
             <Link
-              href={hrefFor({ page: 'lesson', slug: 'pentatonic-map' })}
+              href={hrefFor({ page: 'library' })}
               className="btn"
             >
-              {ui.session.pathDoneLead}
+              {ui.pathLibraryLink}
             </Link>
           )}
           {session.practice && <PracticeLink slug={session.slug} practice={session.practice} />}
