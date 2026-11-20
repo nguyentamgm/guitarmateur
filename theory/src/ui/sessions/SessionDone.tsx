@@ -15,9 +15,11 @@ function PracticeLink({ slug, practice }: { slug: string; practice: SessionPract
     <TrainerLink
       trainerKey={{
         tonic: parseNote(practice.in.tonic),
-        scale: practice.in.mode === 'major' ? 'major' : 'naturalMinor',
+        scale: practice.scale ?? (practice.in.mode === 'major' ? 'major' : 'naturalMinor'),
       }}
       chords={chords.map((c) => c.chord)}
+      boxes={practice.boxes}
+      swing={practice.swing}
       progressionKey={slug}
       label={fill(ui.session.practiceLink, {
         chords: chords.map((c) => c.symbol).join('–'),

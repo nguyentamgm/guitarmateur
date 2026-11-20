@@ -8,6 +8,7 @@ import {
   BLOCK_COPY_FIELDS,
   PARTS,
   SESSIONS,
+  PATH_STAGES,
   STAGES,
   findSession,
   sessionBlocks,
@@ -87,7 +88,8 @@ describe('session registry', () => {
   });
 
   it('defines stages in order', () => {
-    expect(STAGES).toEqual(['A', 'B', 'C', 'D']);
+    expect(PATH_STAGES).toEqual({ accompany: ['A', 'B', 'C', 'D'], lead: ['E', 'F', 'G', 'H'] });
+    expect(STAGES).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
   });
 
   it('has unique, English, URL-safe slugs', () => {
@@ -122,7 +124,7 @@ describe('session registry', () => {
   });
 
   it('has 16 sessions: 4 in stage A, 5 in B, 4 in C, 3 in D, matching docs/theory-sessions.md in order', () => {
-    expect(SESSIONS).toHaveLength(16);
+    expect(sessionsOf('accompany')).toHaveLength(16);
     expect(sessionsOf('accompany', 'A').map((s) => s.slug)).toEqual([
       'major-or-minor',
       'beat-and-bar',
@@ -147,7 +149,7 @@ describe('session registry', () => {
       'outside-chords',
       'new-song',
     ]);
-    expect(SESSIONS.map((s) => s.slug)).toEqual([
+    expect(sessionsOf('accompany').map((s) => s.slug)).toEqual([
       'major-or-minor',
       'beat-and-bar',
       'find-the-root',

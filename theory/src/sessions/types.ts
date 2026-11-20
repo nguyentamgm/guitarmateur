@@ -1,11 +1,11 @@
 import type { StringNumber } from '../core/fretboard';
-import type { ChordId, DegreeLabel, Mode } from '../core/music';
+import type { ChordId, DegreeLabel, Mode, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
 import type { SongId } from './songs';
 
-export type PathId = 'accompany';
-export type StageId = 'A' | 'B' | 'C' | 'D';
+export type PathId = 'accompany' | 'lead';
+export type StageId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 export type PartId = 'listen' | 'understand' | 'play' | 'challenge';
 export const PARTS: readonly PartId[] = ['listen', 'understand', 'play', 'challenge'];
 
@@ -32,7 +32,23 @@ export type DrillId =
   | 'seventh'
   | 'meter'
   | 'sameChord'
-  | 'oddChord';
+  | 'oddChord'
+  | 'pentatonicOrMajor'
+  | 'pentaMode'
+  | 'octaveOrFifth'
+  | 'rootAcrossStrings'
+  | 'sequenceKind'
+  | 'straightOrShuffle'
+  | 'hasBlueNote'
+  | 'bendPitch'
+  | 'pickOrLegato'
+  | 'callAndResponse'
+  | 'muteOrOpen'
+  | 'singleDoubleOrOctave'
+  | 'landedOnChordTone'
+  | 'thirdOrRoot'
+  | 'motifOrNoodling'
+  | 'dupleOrTripletRun';
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
@@ -223,6 +239,9 @@ export type SessionSettingId = 'strumSpeed';
 
 /** A key and a progression (one chord per bar) to practise licks over in Practice. */
 export interface SessionPractice {
+  readonly scale?: ScaleId;
+  readonly boxes?: readonly number[];
+  readonly swing?: boolean;
   readonly in: SessionKey;
   readonly bars: readonly ChordSpec[];
 }

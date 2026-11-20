@@ -1194,7 +1194,15 @@ describe('Theory app', () => {
 
   it('lists the stage A sessions on the path page and navigates to session 2', () => {
     render('/theory');
-    const stageA = container.querySelector('section.contents');
+    const paths = container.querySelectorAll('main > section.contents');
+    expect([...paths].map((path) => path.querySelector('h2')?.textContent)).toEqual([
+      'Path 1 · Play songs by ear', 'Path 2 · Lead guitar',
+    ]);
+    expect(paths[1]!.querySelectorAll('h3')).toHaveLength(4);
+    for (const stage of paths[1]!.querySelectorAll('section')) {
+      if (!stage.querySelector('a.lesson-card')) expect(stage.textContent).toContain('Coming soon.');
+    }
+    const stageA = paths[0]!.querySelector('section');
     expect(stageA).not.toBeNull();
     const links = [...stageA!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
     expect(links).toEqual([
@@ -1326,7 +1334,7 @@ describe('Theory app', () => {
   it('renders session 5 (/theory/s/chord-family) top to bottom, shows stage B on path page, verifies chord cards and challenge grid', () => {
     // Path page shows stage B with session 5
     render('/theory');
-    const sections = container.querySelectorAll('section.contents');
+    const sections = container.querySelectorAll('section.contents > section');
     const stageB = sections[1];
     expect(stageB).toBeDefined();
     const stageBLinks = [...stageB!.querySelectorAll('a.lesson-card')].map((a) => a.getAttribute('href'));
