@@ -1,7 +1,7 @@
 # Theory sessions
 
-**Status:** built (Path 1, "Play songs by ear", 16 sessions, tracked in #292). This file describes
-how sessions work and how to extend them.
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has a published stage outline and
+a curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
 
@@ -15,9 +15,9 @@ Theory has two kinds of pages:
   intended.**
 
 The far goal of Theory is still **lead guitar on electric**. Path 1, "Play songs by ear"
-(`accompany`), comes first because choosing notes for a lead needs an ear for chords. Path 2,
-"Lead guitar", will re-cut the 13 lessons into sessions later; until then the lessons are the way
-to learn lead.
+(`accompany`), comes first because choosing notes for a lead needs an ear for chords. Path 2, “Lead guitar” (`lead`),
+continues the same session order. Until session 17 ships, completing session 16 leads to the
+pentatonic map. Learners can also open any of the 13 lessons in the library.
 
 ## The parts of a session
 
@@ -74,8 +74,8 @@ No session is locked. The path page only suggests the next one.
 
 ```ts
 // theory/src/sessions/types.ts
-export type PathId = 'accompany';
-export type StageId = 'A' | 'B' | 'C' | 'D';
+export type PathId = 'accompany' | 'lead';
+export type StageId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 export type PartId = 'listen' | 'understand' | 'play' | 'challenge';
 export const PARTS: readonly PartId[] = ['listen', 'understand', 'play', 'challenge'];
 
@@ -126,6 +126,9 @@ export interface Session {
 export type SessionSettingId = 'strumSpeed';  // slow / medium / fast strum spread
 
 export interface SessionPractice {
+  readonly scale?: ScaleId;
+  readonly boxes?: readonly number[]; // lesson numbering, 1–5
+  readonly swing?: boolean;
   readonly in: SessionKey;
   readonly bars: readonly ChordSpec[];
 }
@@ -177,9 +180,9 @@ has a strummed event; `sessions.test.ts` checks it.
   `SessionPage.tsx` renders a plain `<a>` after the challenge part to
   `/ear-training?level=<n>&lang=<lang>`. Linked sessions: `major-or-minor` (5), `find-the-root`
   (7), `melody-by-ear` (3), `chord-family` (6).
-- **Practice:** when `session.practice` (`{ in, bars }`, checked by `sessions.test.ts`) is set and
+- **Practice:** when `session.practice` (key, bars and optional scale, boxes and swing, checked by `sessions.test.ts`) is set and
   the session is marked done in `SessionDone.tsx`, a `TrainerLink` opens Practice on that key and
-  progression (set on `new-song`: G major, I–V–vi–IV).
+  progression (set on `new-song`: G major, I–V–vi–IV). Without a scale override the key mode selects major or natural minor.
 
 ## Blocks
 
@@ -207,13 +210,16 @@ export interface SoundEvent {
   readonly midis?: readonly number[];  // low to high; one note, or a chord
   readonly strum?: boolean;            // spread the notes as a down strum
   readonly length?: number;            // beats the note rings (default 1)
+  readonly glide?: Glide;              // shared pitch curve in seconds and semitones
+  readonly mute?: boolean;             // palm-muted attack
   readonly click?: 'accent' | 'plain'; // a metronome click instead of notes
 }
 export interface Sound { readonly bpm: number; readonly events: readonly SoundEvent[] }
 ```
 
 `ui/sessions/playSound.ts` hands every event to the player at once, each with its exact delay
-(`player.pluck(midi, delay, length)`, `player.click(accent, delay)`); `player.cancel()` stops it.
+through `player.pluck(midi, delay, length, glide)`, `player.mute(midi, delay)` or
+`player.click(accent, delay)`. Muted chords use the same strum offsets. `player.cancel()` stops playback.
 Never one `setTimeout` per note.
 
 ### Drills (for `listen` and `reveal`)
@@ -319,6 +325,63 @@ A word may be used from the session that teaches it, never before.
 | 13 | time signature, 3/4 |
 | 14 | barre chord |
 | 15 | ♭VII, iv, III7 |
+
+## Path 2 · Lead guitar (`lead`)
+
+Stages E–H follow A–D on the path page. Global session numbers and next-session links follow
+registry order. The table describes the planned 15–20 minute sessions and the ear drill each
+introduces. The drill IDs are reserved now. Generators and playable sessions arrive in #334–#344.
+
+| # · stage | Session slug | Ear task (planned drill) | Guitar challenge |
+| --- | --- | --- | --- |
+| 17 · E | `minor-pentatonic-box` | Hum a three-note call. After playing it, compare two scale phrases with the same endpoints (`pentatonicOrMajor`). | Echo the call in box 1 twice, alternate pick across two strings and silence them on the rest. |
+| 18 · E | `pentatonic-keys-and-modes` | Compare major and minor pentatonic on the same tonic (`pentaMode`). | Keep a phrase while changing the root from C to A, then keep A as root and switch scales. Place box 1 in another key. |
+| 19 · E | `octave-shapes` | Distinguish an octave from a fifth (`octaveOrFifth`). | Given the starting fret, find two higher octaves on strings 4 and 2 before revealing them (`rootAcrossStrings`). |
+| 20 · E | `five-boxes-and-sequences` | Identify straight runs, groups of three and skips (`sequenceKind`). | Cross from box 1 into box 2 through a shared note and return in time. |
+| 21 · F | `shuffle-and-twelve-bar` | Hear straight and shuffled eighths at the same tempo (`straightOrShuffle`). | Keep place in a full chorus and fill bars 5, 9 and 10, then try a quick change or turnaround. |
+| 22 · F | `the-blue-note` | Hear whether a lick passes through ♭5 (`hasBlueNote`). | Echo a model that passes through ♭5 and resolves to 4 or 5. |
+| 23 · F | `bends-and-vibrato` | Compare a bend against its reference pitch (`bendPitch`). | Match the fretted target, sustain the bend, then add vibrato. |
+| 24 · F | `legato-and-slides` | Identify picked, legato and sliding attacks (`pickOrLegato`). | Play a marked lick with ascending and descending same-string pairs and a slide. |
+| 25 · F | `first-blues-licks` | Hear whether the second phrase repeats or answers the first (`callAndResponse`). | Change the rhythm of three pitches. Answer the backing’s two-bar call, then change the ending on the next pass. |
+| 26 · G | `power-chords-and-palm-mute` | Compare a muted riff with an open one (`muteOrOpen`). | Play E5–G5–A5 in eighth-note pairs, rest on beat four and move the riff to A and G. |
+| 27 · G | `double-stops-and-boogie` | Hear a single note, double stop or octave (`singleDoubleOrOctave`). | Keep the boogie going through a full chorus and insert a double-stop answer in bars 11–12. |
+| 28 · H | `chord-tones-in-the-box` | Hear whether a sustained landing belongs to the chord (`landedOnChordTone`). | Land on a tone of the incoming chord on beat one over the pop backing. |
+| 29 · H | `guide-tones` | Hear the third of IV against the stationary tonic (`thirdOrRoot`). | Sing and play G→F♯ over A7→D7, then lead into F♯ with a short lick. |
+| 30 · H | `phrasing-and-motifs` | Find the motif in two equal-length examples (`motifOrNoodling`). | Repeat a motif, change its landing for the new chord and leave space. |
+| 31 · H | `three-notes-per-string` | Hear two or three notes per beat (`dupleOrTripletRun`). | Add B or F to an A minor pentatonic lick, then play it in a three-notes-per-string position. |
+| 32 · H | `your-first-solo` | Find the root and mode of an unlabelled backing before revealing the key. | Compare and revise landings on screen. On guitar, keep the full form, return to a motif and land intentionally at two chosen changes. |
+
+**Planned blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The learner
+can reveal the first note and tap back the phrase with higher/lower feedback. `backingTrack`
+loops a supplied chord form, highlights the current bar and offers tempo, key and optional box
+controls. Strum and comp styles use the session strum spread. Rock and shuffle have their own
+patterns. Session 29 adds guide tones outside the selected scale in the same fret range.
+Sessions 21, 25 and 32 share the complete 12-bar blues form for the Practice handoff.
+
+After session 18 the owner tries both sessions and records where singing, finding the fret or
+crossing strings first needs help, and whether both pentatonic comparisons are playable (#335).
+
+### Library step coverage
+
+Each number below refers to the session where the learner uses a scene and demonstrates
+the skill. Optional activities fit after the core challenge. Reference steps remain accessible
+at their existing lesson URLs.
+
+| Library lesson | Required steps, session and task | Optional extension | Reference only |
+| --- | --- | --- | --- |
+| `fretboard` | 1 `strings`: identify a string. 3 `semitones`, `home`: move a semitone and find the root on string 6. 17 `tab`: read a three-note call. 19 `octaves`: find the next two octaves. | — | — |
+| `rhythm` | 2 `beat`, `counting`: count and strum on the beat. 6 `strum`: keep the pattern through a change. 17 `fingers`: coordinate one finger per fret with the pick. 25 `lengths`: hold across a bar line and rest. | — | — |
+| `major-scale` | 4 `formula`: find a melody by scale steps. 27 `shapes`: locate an interval on adjacent strings. 28 `intervals`: identify the interval of a chord tone. 31 `spelling`: name the two notes added to the pentatonic. | — | `degrees` |
+| `chords` | 1 `open`: play E and Em. | — | `stack`, `qualities`, `sus`, `build` |
+| `barre` | 14 `slide`, `eShape`, `aShape`: move each shape to play chords in a new key. | — | `find`, `changes` |
+| `keys` | 5 `family`, 7 `numbers`: play I, IV and V by ear. 11 `relative`: find the relative minor. 12 `twoFive`: play the dominant resolving to I. | — | `home` |
+| `chord-table` | 12 `sevenths`: compare a triad and dominant 7. 21 `openSevenths`: play the dominant 7 chords of a blues. | — | `table`, `inversions`, `simplify` |
+| `pentatonic-map` | 17 `formula`, `boxes`: locate the five degrees in box 1. 18 `keys`, `home`: move the box and change the root. 19 `grid`: cross the G–B shift. | — | — |
+| `pentatonic` | 18 `major`, `choose`: choose a scale and place the box. 20 `boxes`, `connect`, `sequences`: locate adjacent boxes, cross between them and play a sequence. | — | — |
+| `blues` | 21 `shuffle`, `twelveBar`: play a shuffled chorus. 22 `blueNote`: resolve ♭5. 23 `bends`: match a target pitch. 24 `legato`: join notes with a single attack. | — | — |
+| `electric` | 26 `power`, `mute`: mute a power-chord riff. 27 `boogie`, `doubleStops`: insert a two-note answer in a boogie chorus. | 27 `octaves`: play a melody with the middle string muted. | — |
+| `solo` | 28 `scale`, `tones`: land on a tone of the sounding chord. 29 `guide`: connect two chords by a semitone. 30 `phrase`: vary a motif. 32 `record`: listen to a take and revise a landing. | 30 `ear`: echo another phrase with the first-note hint off. | — |
+| `three-per-string` | 31 `strings`, `tile`, `triplets`, `keys`: play triplets across adjacent positions and move the pattern to another key. | — | — |
 
 ## Songs (public domain melodies)
 
@@ -444,4 +507,3 @@ chords: - | I | I | IV | I | I | I | V | V
 - Links from Ear training back to sessions.
 - More controls in the settings bar (e.g. melody / chord / click balance via `player.setLevels`,
   or a default tempo for every strum-along of a session).
-- Path 2, "Lead guitar": re-cutting the 13 lessons into sessions (see #292).

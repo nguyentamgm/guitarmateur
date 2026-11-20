@@ -60,7 +60,12 @@ export const SESSIONS: readonly Session[] = [
   newSong,
 ];
 
-export const STAGES: readonly StageId[] = ['A', 'B', 'C', 'D'];
+export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {
+  accompany: ['A', 'B', 'C', 'D'],
+  lead: ['E', 'F', 'G', 'H'],
+};
+
+export const STAGES: readonly StageId[] = [...PATH_STAGES.accompany, ...PATH_STAGES.lead];
 
 export const findSession = (slug: string): Session | undefined => SESSIONS.find((s) => s.slug === slug);
 
