@@ -7,6 +7,7 @@ export const chordFamily: Session = {
   path: 'accompany',
   stage: 'B',
   concepts: ['K5.2', 'K5.3', 'K4.5'],
+  earLevel: 6,
   settings: ['strumSpeed'],
   parts: {
     listen: [{ kind: 'listen', key: 'count', drill: 'chordCount' }],

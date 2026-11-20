@@ -7,6 +7,7 @@ export const findTheRoot: Session = {
   path: 'accompany',
   stage: 'A',
   concepts: ['K5.1', 'K0.2', 'K0.7'],
+  earLevel: 7,
   settings: ['strumSpeed'],
   parts: {
     listen: [{ kind: 'listen', key: 'finished', drill: 'finished' }],

@@ -17,9 +17,10 @@ trainer built around a three-step practice loop:
 No accounts, no server-side state: the app is a fully static SPA on free-tier hosting, and
 everything the user does persists in `localStorage`.
 
-Two more pages share the site, its header and its look: **Theory** at `/theory`, visual
-music-theory lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, naming the degree
-of a note heard in a key ([`ear.md`](ear.md); being built, see #227). Each is a separate app that
+Two more pages share the site, its header and its look: **Theory** at `/theory`, guided
+ear-and-chord sessions ([`theory-sessions.md`](theory-sessions.md)) plus visual music-theory
+reference lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, beginner
+ear-training levels ([`ear.md`](ear.md)). Each is a separate app that
 imports none of the others; what they share is in `shared/` (below).
 
 ## Repository layout
@@ -28,7 +29,8 @@ imports none of the others; what they share is in `shared/` (below).
 /
 ├─ docs/
 │  ├─ architecture.md           # this file
-│  ├─ theory.md, ear.md         # the Theory app's and the ear trainer's conventions
+│  ├─ theory.md, ear.md         # Theory and ear-trainer conventions
+│  ├─ theory-sessions.md        # guided sessions (/theory, /theory/s/<slug>)
 │  ├─ i18n.md                   # how to add a language
 │  └─ glossary.md               # one term per idea, EN + VI, for every page
 ├─ index.html                   # Vite entry: title, meta, fonts, data-app="practice" (lime accent)

@@ -117,6 +117,14 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
 }
+.session-ear-link {
+  margin-block: 12px 20px;
+}
+.session-done {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
 .lesson-card .num {
   font-family: var(--f-mono);
   color: var(--accent);

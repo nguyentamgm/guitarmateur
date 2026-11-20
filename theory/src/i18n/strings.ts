@@ -85,6 +85,9 @@ const en = {
     capoFret: 'Capo fret',
     capoSounds: 'Sounds in',
     noCapo: 'No capo',
+    earLink: 'More practice for your ear: Ear training, level {n} →',
+    /** A done session's link to Practice: '{chords}' is 'G–D–Em–C', '{numerals}' is 'I–V–vi–IV'. */
+    practiceLink: 'Practise licks over {chords} ({numerals}) in Practice →',
   },
   tocLessons: 'Lessons',
   tocConcepts: 'Covers {names}',
@@ -224,6 +227,8 @@ const vi: UiStrings = {
     capoFret: 'Ngăn capo',
     capoSounds: 'Vang giọng',
     noCapo: 'Không capo',
+    earLink: 'Luyện thêm cho tai: app Luyện tai, cấp {n} →',
+    practiceLink: 'Tập lick trên {chords} ({numerals}) trong app Luyện tập →',
   },
   tocLessons: 'Các bài',
   tocConcepts: 'Khái niệm: {names}',
