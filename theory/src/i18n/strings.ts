@@ -56,6 +56,8 @@ const en = {
     barLabel: 'Bar {n}',
     roundsRight: '{right} of {total} rounds right.',
     showAnswer: 'Show answer',
+    pathDoneLead:
+      'You finished the path. Next: lead guitar, starting with the pentatonic map →',
     strum: 'Strum',
     play: 'Play',
     stop: 'Stop',
@@ -193,6 +195,8 @@ const vi: UiStrings = {
     barLabel: 'Bar {n}',
     roundsRight: '{right} / {total} vòng đúng.',
     showAnswer: 'Mở đáp án',
+    pathDoneLead:
+      'Bạn đã hoàn thành lộ trình. Tiếp theo: lead guitar, bắt đầu với bản đồ pentatonic →',
     strum: 'Quạt',
     play: 'Phát',
     stop: 'Dừng',

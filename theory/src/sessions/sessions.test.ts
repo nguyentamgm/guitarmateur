@@ -6,6 +6,7 @@ import sitemap from '../../../public/sitemap.xml?raw';
 import { mulberry32 } from '@shared/core/rng';
 import {
   BLOCK_COPY_FIELDS,
+  PARTS,
   SESSIONS,
   STAGES,
   findSession,
@@ -118,6 +119,64 @@ describe('session registry', () => {
     const sessionUrls = [...sitemap.matchAll(/<loc>https:\/\/guitarmateur\.com\/theory\/s\/([^<]+)<\/loc>/g)]
       .map((m) => m[1]);
     expect(sessionUrls).toEqual(SESSIONS.map((s) => s.slug));
+  });
+
+  it('has 16 sessions: 4 in stage A, 5 in B, 4 in C, 3 in D, matching docs/theory-sessions.md in order', () => {
+    expect(SESSIONS).toHaveLength(16);
+    expect(sessionsOf('accompany', 'A').map((s) => s.slug)).toEqual([
+      'major-or-minor',
+      'beat-and-bar',
+      'find-the-root',
+      'melody-by-ear',
+    ]);
+    expect(sessionsOf('accompany', 'B').map((s) => s.slug)).toEqual([
+      'chord-family',
+      'chord-changes',
+      'one-four-five',
+      'first-song',
+      'change-key',
+    ]);
+    expect(sessionsOf('accompany', 'C').map((s) => s.slug)).toEqual([
+      'the-six-chord',
+      'minor-keys',
+      'seventh-chords',
+      'three-four',
+    ]);
+    expect(sessionsOf('accompany', 'D').map((s) => s.slug)).toEqual([
+      'barre-chords',
+      'outside-chords',
+      'new-song',
+    ]);
+    expect(SESSIONS.map((s) => s.slug)).toEqual([
+      'major-or-minor',
+      'beat-and-bar',
+      'find-the-root',
+      'melody-by-ear',
+      'chord-family',
+      'chord-changes',
+      'one-four-five',
+      'first-song',
+      'change-key',
+      'the-six-chord',
+      'minor-keys',
+      'seventh-chords',
+      'three-four',
+      'barre-chords',
+      'outside-chords',
+      'new-song',
+    ]);
+  });
+
+  it('allows a part to have an empty block list', () => {
+    const session16 = findSession('new-song')!;
+    expect(session16).toBeDefined();
+    expect(session16.parts.listen).toEqual([]);
+    for (const part of PARTS) {
+      expect(session16.copy.en.parts[part].title).toBeTruthy();
+      expect(session16.copy.en.parts[part].body.length).toBeGreaterThan(0);
+      expect(session16.copy.vi.parts[part].title).toBeTruthy();
+      expect(session16.copy.vi.parts[part].body.length).toBeGreaterThan(0);
+    }
   });
 
   describe.each(SESSIONS.map((s) => [s.slug, s] as const))('%s', (_slug, session) => {

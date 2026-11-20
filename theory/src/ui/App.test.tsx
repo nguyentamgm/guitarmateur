@@ -4,7 +4,7 @@ import type { Player } from '../core/audio';
 import { LANG_STORAGE_KEY } from '../i18n';
 import { LESSONS, barre, blues, pentatonicMap } from '../lessons';
 import { backingWindow, earQuestion, earWindow, encodeTake, recordNote } from '../lessons/solo';
-import { PARTS, SONGS, majorOrMinor } from '../sessions';
+import { PARTS, SESSIONS, SONGS, majorOrMinor } from '../sessions';
 import { parseNote } from '../core/music';
 import { TAKE_STORAGE_KEY } from './savedTake';
 import { App } from './App';
@@ -1743,5 +1743,73 @@ describe('Theory app', () => {
     }
     expect(container.querySelector('section#check')).not.toBeNull();
     expect(container.querySelector('section#done')).not.toBeNull();
+  });
+
+  it('renders session 16 (/theory/s/new-song) top to bottom, links to pentatonic-map when done, and path page links to pentatonic-map when all done', () => {
+    // English
+    render('/theory/s/new-song');
+    expect(text()).toContain('Work out a new song');
+    expect(text()).toContain('Goal');
+    expect(text()).toContain('You will need');
+    expect(text()).toContain('Before you start');
+    for (const p of PARTS) {
+      expect(container.querySelector(`section#${p}`)).not.toBeNull();
+    }
+    // Listen part has 5 paragraphs and 0 interactive blocks
+    const listenSection = container.querySelector('section#listen')!;
+    expect(listenSection.querySelectorAll('p')).toHaveLength(5);
+    expect(listenSection.querySelector('button')).toBeNull();
+
+    // Check section
+    expect(container.querySelector('section#check')).not.toBeNull();
+    expect(container.querySelector('section#done')).not.toBeNull();
+
+    // Complete session 16
+    const checkBoxes = container.querySelectorAll('section#done input[type="checkbox"]');
+    expect(checkBoxes).toHaveLength(3);
+    checkBoxes.forEach((box) => click(box));
+    expect(text()).toContain('Session complete.');
+    const leadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
+    expect(leadLink).not.toBeNull();
+    expect(leadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
+
+    // Vietnamese
+    act(() => root.unmount());
+    root = createRoot(container);
+    localStorage.clear();
+    localStorage.setItem(LANG_STORAGE_KEY, 'vi');
+    render('/theory/s/new-song');
+    expect(text()).toContain('Dò hợp âm một bài hát mới');
+    expect(text()).toContain('Mục tiêu');
+    expect(text()).toContain('Bạn sẽ cần');
+    expect(text()).toContain('Trước khi bắt đầu');
+    const viListenSection = container.querySelector('section#listen')!;
+    expect(viListenSection.querySelectorAll('p')).toHaveLength(5);
+    expect(viListenSection.querySelector('button')).toBeNull();
+
+    // Ticking in Vietnamese shows Vietnamese lead link
+    const viBoxes = container.querySelectorAll('section#done input[type="checkbox"]');
+    viBoxes.forEach((box) => click(box));
+    expect(text()).toContain('Đã hoàn thành buổi học.');
+    const viLeadLink = container.querySelector('section#done a.btn[href="/theory/pentatonic-map"]')!;
+    expect(viLeadLink).not.toBeNull();
+    expect(viLeadLink.textContent).toContain('Bạn đã hoàn thành lộ trình. Tiếp theo: lead guitar, bắt đầu với bản đồ pentatonic →');
+
+    // Now test PathPage when all sessions are done
+    // Set all sessions done in storage
+    const allDoneTicks: Record<string, number[]> = {};
+    for (const s of SESSIONS) {
+      allDoneTicks[s.slug] = [0, 1, 2, 3];
+    }
+    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: allDoneTicks }));
+    localStorage.removeItem(LANG_STORAGE_KEY); // English
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    render('/theory');
+    expect(text()).toContain('You have completed every session.');
+    const pathLeadLink = container.querySelector('.hero a.btn[href="/theory/pentatonic-map"]')!;
+    expect(pathLeadLink).not.toBeNull();
+    expect(pathLeadLink.textContent).toContain('You finished the path. Next: lead guitar, starting with the pentatonic map →');
   });
 });
