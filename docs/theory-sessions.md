@@ -1,6 +1,6 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20). The remaining
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20) and the first two in Stage F (21–22). The remaining
 sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
@@ -98,7 +98,8 @@ export type Block =
   | { readonly kind: 'changeTap'; readonly key: string; readonly in: SessionKey; readonly pool: readonly ChordSpec[];
       readonly holds: readonly (1 | 2)[]; readonly bars: number; readonly bpm: number }
   | { readonly kind: 'fillBars'; readonly key: string; readonly in: SessionKey; readonly keys?: readonly string[];
-      readonly pool: readonly ChordSpec[]; readonly bars: number; readonly bpm: number }
+      readonly pool: readonly ChordSpec[]; readonly bpm: number;
+      readonly bars: number | { readonly plan: readonly ChordSpec[]; readonly blanks: readonly number[] } }
   | { readonly kind: 'song'; readonly key: string; readonly song: SongId; readonly in: SessionKey;
       readonly pool: readonly ChordSpec[]; readonly start: 'all' | 'none'; readonly keys?: readonly string[];
       readonly bpm?: number }
@@ -194,7 +195,7 @@ has a strummed event, or a `backingTrack` with strum or comp style. `sessions.te
 | `strumAlong` | `StrumAlong.tsx` | Bars drawn as a grid, a metronome click and the app strumming each bar's chord; a tempo slider; optional key chips (`keys`) to move the same numbers to another key; `numeralsOnly` hides chord names. |
 | `melodyEcho` | `MelodyEcho.tsx` | The app plays 3–4 notes of a major scale on one string; the learner taps them back on a one-string neck. |
 | `changeTap` | `ChangeTap.tsx` | The app plays 8 bars; the learner taps a button each time the chord changes; then the grid shows where the changes were. |
-| `fillBars` | `FillBars.tsx` | The app plays 4 bars; the learner picks a Roman numeral for each bar; Check marks each bar. |
+| `fillBars` | `FillBars.tsx` | A random form gives the first bar. A fixed form takes one-based blank bar numbers and opens them for answers after a complete playback. The learner picks a Roman numeral for each blank. |
 | `song` | `SongBench.tsx` | The song bench: a public-domain melody over a grid of chord slots; the learner picks a chord per slot, hears the tune over their chords, and checks against a reference. Any key. |
 | `transpose` | `TransposeTable.tsx` | A table: the same progression by numbers in several keys, with an optional capo table; click a row to hear it. |
 
@@ -350,11 +351,11 @@ introduces. The drill IDs are reserved now. Generators and playable sessions arr
 | 31 · H | `three-notes-per-string` | Hear two or three notes per beat (`dupleOrTripletRun`). | Add B or F to an A minor pentatonic lick, then play it in a three-notes-per-string position. |
 | 32 · H | `your-first-solo` | Find the root and mode of an unlabelled backing before revealing the key. | Compare and revise landings on screen. On guitar, keep the full form, return to a motif and land intentionally at two chosen changes. |
 
-**Lead blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The block may give the first note; the learner can tap back the phrase with higher/lower feedback. `backingTrack`
+**Lead blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The block may give the first note; the learner can tap back the phrase with higher/lower feedback. An optional `firstPhrase` supplies a model by scale degree before the random questions. `backingTrack`
 loops a supplied chord form, highlights the current bar and offers tempo, key and optional box
 controls. Strum and comp styles use the session strum spread. Rock and shuffle have their own
 patterns. Session 29 adds guide tones outside the selected scale in the same fret range.
-Sessions 21, 25 and 32 share the complete 12-bar blues form for the Practice handoff.
+`standardBlues12` is the common 12-bar blues form for session playback and the Practice handoffs in Sessions 21, 25 and 32.
 
 After session 18 the owner tries both sessions and records where singing, finding the fret or
 crossing strings first needs help, and whether both pentatonic comparisons are playable (#335).

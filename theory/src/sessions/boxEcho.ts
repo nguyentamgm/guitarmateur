@@ -1,7 +1,17 @@
 import { choice } from '@shared/core/rng';
+import type { DegreeLabel } from '../core/music';
 import type { SoloNote, SoloWindow } from '../lessons/solo';
 import { ECHO_BPM, judgeTap } from './echo';
 import type { Sound } from './sound';
+
+/** Use the lowest occurrence of each degree in the box for the model phrase. */
+export function fixedBoxPhrase(box: SoloWindow, degrees: readonly DegreeLabel[]): SoloNote[] {
+  return degrees.map((degree) => {
+    const note = box.notes.find((n) => n.degree === degree);
+    if (!note) throw new RangeError(`Degree ${degree} is outside the ${box.scale} box`);
+    return note;
+  });
+}
 
 export function boxEchoQuestion(
   box: SoloWindow,

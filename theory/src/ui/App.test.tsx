@@ -1827,6 +1827,72 @@ describe('Theory app', () => {
     });
   });
 
+  it('plays a full chorus before session 21 asks for the three missing chords', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, clicks } = fakePlayer();
+      render('/theory/s/shuffle-and-twelve-bar', player);
+      expect(text()).toContain('Shuffle and the 12-bar blues');
+      const challenge = container.querySelector('#challenge')!;
+      const control = (label: string) => [...challenge.querySelectorAll('button')].find((b) => b.textContent === label)!;
+      const choices = () => [...challenge.querySelectorAll('[role="radiogroup"]')];
+      click(control('Start'));
+      expect(choices()).toHaveLength(0);
+      click(control('Stop'));
+      expect(choices()).toHaveLength(0);
+
+      clicks.length = 0;
+      click(control('Play again'));
+      act(() => vi.advanceTimersByTime(35_000));
+      expect(clicks).toHaveLength(48);
+      expect(choices().map((group) => group.getAttribute('aria-label'))).toEqual(['Bar 5', 'Bar 9', 'Bar 10']);
+      choices().forEach((group, i) => {
+        const answer = ['IV7', 'V7', 'IV7'][i];
+        click([...group.querySelectorAll('button')].find((b) => b.textContent === answer)!);
+      });
+      click(control('Check'));
+      expect(challenge.querySelectorAll('.mark.good')).toHaveLength(3);
+      const chords = [...challenge.querySelectorAll('.sym')].map((symbol) => symbol.textContent);
+      expect(chords).toHaveLength(12);
+      expect([chords[4], chords[8], chords[9]]).toEqual(['D7', 'E7', 'D7']);
+
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(text()).toContain('Shuffle và 12-bar blues');
+      const done = container.querySelector('#done')!;
+      done.querySelectorAll('input[type="checkbox"]').forEach(click);
+      const { state, lang } = payload(done.querySelector('a.trainer')!);
+      expect(lang).toBe('vi');
+      expect(state.swingEnabled).toBe(true);
+      const bars = state.progression.flatMap(({ bars, chord }: { bars: number; chord: { tonic: { letter: string }; quality: string } }) =>
+        Array(bars).fill(`${chord.tonic.letter}:${chord.quality}`),
+      );
+      expect(bars).toHaveLength(12);
+      expect([bars[4], bars[8], bars[9]]).toEqual(['D:dom7', 'E:dom7', 'D:dom7']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('plays the fixed blue-note lick first, then offers another phrase in session 22', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/the-blue-note', player);
+    expect(container.querySelector('h1')?.textContent).toBe('The blue note');
+    const challenge = container.querySelector('#challenge')!;
+    click(challenge.querySelector('button')!);
+    expect(plucked).toEqual([45, 50, 51, 52]);
+    for (const fret of [5, 6, 7]) {
+      click(challenge.querySelector(`[aria-label*="fret ${fret}, string 5"]`)!);
+    }
+    const beforeNext = plucked.length;
+    click([...challenge.querySelectorAll('button')].find((b) => b.textContent === 'Next')!);
+    expect(plucked).toHaveLength(beforeNext + 4);
+    expect(plucked[beforeNext]).not.toBe(45);
+
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(container.querySelector('h1')?.textContent).toBe('Blue note');
+    expect(container.querySelector('a[href^="/ear-training?level=13"]')?.getAttribute('href')).toBe('/ear-training?level=13&lang=vi');
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

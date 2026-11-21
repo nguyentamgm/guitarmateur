@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { copyShape, emptyStrings } from '../i18n/copyShape';
 import { LANGS } from '../i18n';
 import { findLesson } from '../lessons';
+import { soloWindow } from '../lessons/solo';
+import { parseNote } from '../core/music';
 import sitemap from '../../../public/sitemap.xml?raw';
 import { mulberry32 } from '@shared/core/rng';
 import {
@@ -21,7 +23,9 @@ import {
   type SessionKey,
 } from '.';
 import { chordIn } from './chordSpec';
+import { fixedBoxPhrase } from './boxEcho';
 import { DRILLS, type DrillQuestion } from './drills';
+import { fixedFillPlan } from './fill';
 import { SONGS } from './songs';
 import { defaultPattern, strumSteps } from './strum';
 import { chordShape } from './voicing';
@@ -127,9 +131,24 @@ const BLOCK_CHECKS: { [K in Block['kind']]?: (block: Extract<Block, { kind: K }>
     for (const spec of b.pool) playable(b.in, spec);
   },
   fillBars: (b) => {
-    expect(b.bars).toBeGreaterThanOrEqual(3);
+    const barCount = typeof b.bars === 'number' ? b.bars : b.bars.plan.length;
+    expect(barCount).toBeGreaterThanOrEqual(3);
     expect(b.pool.length).toBeGreaterThanOrEqual(2);
     for (const spec of b.pool) playable(b.in, spec);
+    if (typeof b.bars !== 'number') {
+      const { plan, blanks } = b.bars;
+      expect(() => fixedFillPlan(b.pool, plan)).not.toThrow();
+      expect(blanks.length).toBeGreaterThan(0);
+      expect(new Set(blanks).size).toBe(blanks.length);
+      expect(blanks.every((bar) => Number.isInteger(bar) && bar >= 1 && bar <= barCount)).toBe(true);
+    }
+  },
+  boxEcho: (b) => {
+    const { firstPhrase } = b;
+    if (!firstPhrase) return;
+    const box = soloWindow(parseNote(b.tonic), b.scale ?? 'minorPentatonic');
+    expect(firstPhrase).toHaveLength(b.notes);
+    expect(() => fixedBoxPhrase(box, firstPhrase)).not.toThrow();
   },
   song: (b) => {
     expect(b.in.mode).toBe('major');

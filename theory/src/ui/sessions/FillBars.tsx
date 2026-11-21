@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { beatSeconds } from '../../core/rhythm';
 import { fill } from '../../i18n';
 import { chordIn } from '../../sessions/chordSpec';
-import { fillPlan, judgeFill } from '../../sessions/fill';
+import { fillPlan, fixedFillPlan, judgeFill } from '../../sessions/fill';
 import { strummed } from '../../sessions/sound';
 import { defaultPattern, strumSteps } from '../../sessions/strum';
 import type { Block, FillBarsCopy } from '../../sessions/types';
@@ -28,6 +28,19 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
   const { player, ui } = useTheory();
   const speed = useSessionStrumSpeed();
   const spread = STRUM_SPREADS[speed];
+  const fixed = typeof block.bars === 'number' ? null : block.bars;
+  const barCount = typeof block.bars === 'number' ? block.bars : block.bars.plan.length;
+  const blanks = useMemo(
+    () =>
+      fixed
+        ? fixed.blanks.map((bar) => bar - 1)
+        : Array.from({ length: barCount - 1 }, (_, i) => i + 1),
+    [barCount, fixed],
+  );
+  const writtenPlan = useMemo(
+    () => fixed && fixedFillPlan(block.pool, fixed.plan),
+    [block.pool, fixed],
+  );
 
   const [tonic, setTonic] = useState(block.in.tonic);
   useEffect(() => {
@@ -35,12 +48,9 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
   }, [block.in.tonic]);
 
   const [plan, setPlan] = useState<readonly number[] | null>(null);
-  const [picks, setPicks] = useState<readonly (number | null)[]>(() =>
-    Array(block.bars).fill(null),
-  );
+  const [picks, setPicks] = useState<readonly (number | null)[]>(() => Array(barCount).fill(null));
+  const [heard, setHeard] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [marks, setMarks] = useState<readonly (BarMark | null)[] | undefined>(undefined);
-  const [caption, setCaption] = useState('');
   const [rightRounds, setRightRounds] = useState(0);
   const [totalRounds, setTotalRounds] = useState(0);
 
@@ -65,7 +75,7 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
   poolChordsRef.current = poolChords;
 
   // 4 beats per bar, standard down strums on beats with click
-  const steps = useMemo(() => strumSteps(block.bars, 4, defaultPattern(4)), [block.bars]);
+  const steps = useMemo(() => strumSteps(barCount, 4, defaultPattern(4)), [barCount]);
 
   const onStep = useCallback(
     (i: number, delay: number) => {
@@ -79,41 +89,42 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
     [block.bpm, player, spread, steps],
   );
 
-  const clock = useClock(steps.length, beatSeconds(block.bpm) / 2, onStep, false);
+  const clock = useClock(
+    steps.length,
+    beatSeconds(block.bpm) / 2,
+    onStep,
+    false,
+    fixed ? () => setHeard(true) : undefined,
+  );
 
   // Reset when block key changes
   useEffect(() => {
     setPlan(null);
     planRef.current = null;
-    setPicks(Array(block.bars).fill(null));
+    setPicks(Array(barCount).fill(null));
+    setHeard(false);
     setChecked(false);
-    setMarks(undefined);
-    setCaption('');
     setRightRounds(0);
     setTotalRounds(0);
     clock.stop();
     player.cancel();
-  }, [block.bars, block.key]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [barCount, block.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startOrNextRound = useCallback(() => {
-    const newPlan = fillPlan(
-      Math.random,
-      block.pool.length,
-      block.bars,
-      planRef.current ?? undefined,
-    );
+    const newPlan =
+      writtenPlan ??
+      fillPlan(Math.random, block.pool.length, barCount, planRef.current ?? undefined);
     planRef.current = newPlan;
     setPlan(newPlan);
-    setPicks([0, ...Array(block.bars - 1).fill(null)]);
+    setPicks(Array(barCount).fill(null));
+    setHeard(false);
     setChecked(false);
-    setMarks(undefined);
-    setCaption('');
 
     if (clock.playing) {
       clock.stop();
     }
     clock.toggle();
-  }, [block.bars, block.pool.length, clock]);
+  }, [barCount, block.pool.length, clock, writtenPlan]);
 
   const playAgain = useCallback(() => {
     if (clock.playing) return;
@@ -146,75 +157,44 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
     [block.bpm, checked, player, spread],
   );
 
-  const allPicked = useMemo(
-    () =>
-      picks.length === block.bars &&
-      picks.slice(1).every((p) => p !== null && p !== undefined),
-    [block.bars, picks],
-  );
+  const canPick = !fixed || (heard && !clock.playing);
+  const allPicked = blanks.every((bar) => picks[bar] != null);
 
   const onCheck = useCallback(() => {
-    if (!planRef.current || !allPicked) return;
-    const currentPlan = planRef.current;
-    const judged = judgeFill(currentPlan, picks);
-    const isAllRight = judged.every(Boolean);
+    if (!plan || !canPick || !allPicked) return;
+    setChecked(true);
+    setTotalRounds((t) => t + 1);
+    if (judgeFill(plan, picks, blanks).every(Boolean)) {
+      setRightRounds((r) => r + 1);
+    }
+  }, [allPicked, blanks, canPick, picks, plan]);
 
-    const newMarks: readonly (BarMark | null)[] = judged.map((good) => ({
+  const currentBar = clock.current !== null ? (steps[clock.current]?.bar ?? null) : null;
+
+  const barCells: BarCell[] = Array.from({ length: barCount }, (_, bar) => {
+    if ((checked && plan) || !blanks.includes(bar)) {
+      const index = (plan ?? writtenPlan)?.[bar] ?? 0;
+      const chord = poolChords[index]!;
+      return { degree: chord.roman, symbol: chord.symbol };
+    }
+    const pick = picks[bar];
+    return { degree: pick == null ? '?' : poolChords[pick]!.roman, symbol: '' };
+  });
+  const gridLabel = checked
+    ? barCells.map((bar) => bar.degree).join('–')
+    : fixed
+      ? copy.ask
+      : `${barCount} bars`;
+  const judged = checked && plan ? judgeFill(plan, picks, blanks) : null;
+  const marks: (BarMark | null)[] | undefined = judged?.map((good, bar) => {
+    if (fixed && !blanks.includes(bar)) return null;
+    return {
       text: good ? '✓' : '✗',
       good,
       description: good ? ui.session.checkRight : ui.session.checkWrong,
-    }));
-
-    setChecked(true);
-    setMarks(newMarks);
-    setCaption(isAllRight ? copy.allRight : copy.someWrong);
-    setTotalRounds((t) => t + 1);
-    if (isAllRight) {
-      setRightRounds((r) => r + 1);
-    }
-  }, [allPicked, copy.allRight, copy.someWrong, picks, ui.session.checkRight, ui.session.checkWrong]);
-
-  const currentBar = clock.current !== null ? steps[clock.current]?.bar ?? null : null;
-
-  const barCells = useMemo((): readonly BarCell[] => {
-    const given = poolChords[0];
-    const bar0Cell: BarCell = {
-      degree: given?.roman ?? '',
-      symbol: given?.symbol ?? '',
     };
-
-    if (checked && plan) {
-      return plan.map((poolIdx) => {
-        const chord = poolChords[poolIdx];
-        return {
-          degree: chord?.roman ?? '',
-          symbol: chord?.symbol ?? '',
-        };
-      });
-    }
-
-    const cells: BarCell[] = [bar0Cell];
-    for (let bar = 1; bar < block.bars; bar++) {
-      const pick = picks[bar];
-      if (pick !== null && pick !== undefined && poolChords[pick]) {
-        cells.push({
-          degree: poolChords[pick].roman,
-          symbol: '',
-        });
-      } else {
-        cells.push({
-          degree: '?',
-          symbol: '',
-        });
-      }
-    }
-    return cells;
-  }, [block.bars, checked, picks, plan, poolChords]);
-
-  const gridLabel = useMemo(() => {
-    if (!checked || !plan) return `${block.bars} bars`;
-    return plan.map((idx) => poolChords[idx]?.roman ?? '').join('–');
-  }, [block.bars, checked, plan, poolChords]);
+  });
+  const allRight = judged?.every(Boolean);
 
   return (
     <div className="board">
@@ -234,19 +214,25 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
           <Button onClick={startOrNextRound}>{ui.session.start}</Button>
         ) : (
           <>
-            <button
-              type="button"
-              className="btn"
-              disabled={clock.playing}
-              onClick={playAgain}
-            >
-              {ui.session.playAgain}
-            </button>
+            {fixed && clock.playing ? (
+              <Button
+                onClick={() => {
+                  clock.stop();
+                  player.cancel();
+                }}
+              >
+                {ui.session.stop}
+              </Button>
+            ) : (
+              <button type="button" className="btn" disabled={clock.playing} onClick={playAgain}>
+                {ui.session.playAgain}
+              </button>
+            )}
             {!checked ? (
               <button
                 type="button"
                 className="btn"
-                disabled={!allPicked || clock.playing}
+                disabled={!canPick || !allPicked || clock.playing}
                 onClick={onCheck}
               >
                 {ui.session.check}
@@ -262,13 +248,13 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
 
       <BarGrid label={gridLabel} bars={barCells} current={currentBar} marks={marks} />
 
-      {plan && (
+      {plan && canPick && (
         <div
           className="controls"
           style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px' }}
         >
-          {Array.from({ length: block.bars - 1 }, (_, idx) => {
-            const barIndex = idx + 1;
+          {fixed && <p className="prose">{copy.ask}</p>}
+          {blanks.map((barIndex) => {
             const barNum = barIndex + 1;
             return (
               <ChipGroup<number>
@@ -286,9 +272,9 @@ export function FillBars({ block, copy }: { block: FillBarsBlock; copy: FillBars
         </div>
       )}
 
-      {caption && (
-        <p className={marks?.every((m) => m?.good) ? 'caption good' : 'caption'} aria-live="polite">
-          {caption}
+      {judged && (
+        <p className={allRight ? 'caption good' : 'caption'} aria-live="polite">
+          {allRight ? copy.allRight : copy.someWrong}
         </p>
       )}
 
