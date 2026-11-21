@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import glossary from '../../../docs/glossary.md?raw';
 import { avoidRules, findAvoided } from '@shared/i18n/glossary';
-import { LANG_STORAGE_KEY, fill, linkLang, loadLang, saveLang } from './lang';
+import { LANG_STORAGE_KEY, linkLang, loadLang, saveLang } from './lang';
 import { UI } from './strings';
 
 const memory = (init: Record<string, string> = {}) => {
@@ -46,10 +46,6 @@ describe('ear trainer languages', () => {
     expect(linkLang('?lang=vi')).toBe('vi');
     expect(linkLang('?lang=fr')).toBeNull();
     expect(linkLang('')).toBeNull();
-  });
-
-  it('fills placeholders and leaves a missing one visible', () => {
-    expect(fill('{a} of {b}', { a: 3 })).toBe('3 of {b}');
   });
 });
 

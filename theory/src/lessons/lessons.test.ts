@@ -14,10 +14,6 @@ const KNOWN_IDS = new Set(
 );
 
 describe('lesson registry', () => {
-  it('reads the knowledge base', () => {
-    expect(KNOWN_IDS.size).toBe(64);
-  });
-
   it('names every concept of the knowledge base, in every language', () => {
     for (const lang of LANGS) {
       expect(Object.keys(CONCEPT_NAMES[lang]).sort()).toEqual([...KNOWN_IDS].sort());

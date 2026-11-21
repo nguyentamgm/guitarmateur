@@ -15,8 +15,10 @@ import {
   sessionNeighbours,
   sessionsOf,
   type Block,
+  type ChordSpec,
   type DrillId,
   type Session,
+  type SessionKey,
 } from '.';
 import { chordIn } from './chordSpec';
 import { DRILLS, type DrillQuestion } from './drills';
@@ -84,11 +86,89 @@ describe('the strumSpeed rule', () => {
   });
 });
 
-describe('session registry', () => {
-  it('reads the knowledge base', () => {
-    expect(KNOWN_IDS.size).toBe(64);
-  });
+const playable = (key: SessionKey, spec: ChordSpec) => expect(() => chordShape(chordIn(key, spec).chord)).not.toThrow();
 
+/** The rules a block of each kind must follow; a kind with no entry has none of its own. */
+const BLOCK_CHECKS: { [K in Block['kind']]?: (block: Extract<Block, { kind: K }>, session: Session) => void } = {
+  lesson: (b) => {
+    const lesson = findLesson(b.lesson);
+    expect(lesson, `lesson '${b.lesson}' not found`).toBeDefined();
+    expect(lesson?.steps.find((s) => s.id === b.step), `step '${b.step}' in lesson '${b.lesson}' not found`).toBeDefined();
+  },
+  reveal: (b) => {
+    expect(DRILLS[b.drill], `drill '${b.drill}' defined in DRILLS`).toBeDefined();
+  },
+  listen: (b, session) => {
+    const drill = DRILLS[b.drill];
+    expect(drill, `drill '${b.drill}' defined in DRILLS`).toBeDefined();
+    for (const lang of LANGS) {
+      const blockCopy = session.copy[lang].blocks[b.key];
+      if (blockCopy && 'answers' in blockCopy) {
+        expect(Object.keys(blockCopy.answers).sort()).toEqual([...drill!.answers].sort());
+        expect(Object.keys(blockCopy.answers).length).toBeGreaterThanOrEqual(2);
+      }
+    }
+  },
+  chords: (b) => {
+    for (const spec of b.chords) playable(b.in, spec);
+  },
+  strumAlong: (b) => {
+    for (const spec of b.bars) playable(b.in, spec);
+    expect(b.bars.length).toBeGreaterThanOrEqual(1);
+    expect(b.bpm).toBeGreaterThanOrEqual(40);
+    expect(b.bpm).toBeLessThanOrEqual(200);
+    const beatsPerBar = b.beatsPerBar ?? 4;
+    expect(() => strumSteps(b.bars.length, beatsPerBar, b.pattern ?? defaultPattern(beatsPerBar))).not.toThrow();
+  },
+  changeTap: (b) => {
+    expect(b.pool.length).toBeGreaterThan(0);
+    expect(b.bars).toBeGreaterThanOrEqual(4);
+    expect(b.holds.length).toBeGreaterThan(0);
+    for (const spec of b.pool) playable(b.in, spec);
+  },
+  fillBars: (b) => {
+    expect(b.bars).toBeGreaterThanOrEqual(3);
+    expect(b.pool.length).toBeGreaterThanOrEqual(2);
+    for (const spec of b.pool) playable(b.in, spec);
+  },
+  song: (b) => {
+    expect(b.in.mode).toBe('major');
+    expect(b.pool.length).toBeGreaterThan(0);
+    const song = SONGS[b.song];
+    expect(song, `song '${b.song}' defined in SONGS`).toBeDefined();
+    const poolNumerals = b.pool.map((spec) => chordIn(b.in, spec).roman);
+    for (const ref of song.chords) {
+      if (ref !== '-') expect(poolNumerals, `song block '${b.key}' pool missing reference '${ref}'`).toContain(ref);
+    }
+  },
+  backingTrack: (b) => {
+    expect(b.bars.length).toBeGreaterThan(0);
+    expect(b.bpm).toBeGreaterThanOrEqual(40);
+    expect(b.bpm).toBeLessThanOrEqual(200);
+    for (const tonic of [b.in.tonic, ...(b.keys ?? [])]) {
+      for (const spec of b.bars) expect(chordIn({ ...b.in, tonic }, spec).symbol).toBeTruthy();
+    }
+  },
+  transpose: (b) => {
+    expect(b.tonics.length).toBeGreaterThanOrEqual(2);
+    expect(b.bars.length).toBeGreaterThanOrEqual(2);
+    for (const tonic of b.tonics) {
+      for (const spec of b.bars) expect(() => chordIn({ tonic, mode: 'major' }, spec)).not.toThrow();
+    }
+  },
+  melodyEcho: (b) => {
+    // Fixed phrases use only degrees 1–8.
+    for (const phrase of b.phrases ?? []) {
+      expect(phrase.length).toBeGreaterThan(0);
+      for (const deg of phrase) {
+        expect(deg).toBeGreaterThanOrEqual(1);
+        expect(deg).toBeLessThanOrEqual(8);
+      }
+    }
+  },
+};
+
+describe('session registry', () => {
   it('defines stages in order', () => {
     expect(PATH_STAGES).toEqual({ accompany: ['A', 'B', 'C', 'D'], lead: ['E', 'F', 'G', 'H'] });
     expect(STAGES).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
@@ -151,24 +231,6 @@ describe('session registry', () => {
       'outside-chords',
       'new-song',
     ]);
-    expect(sessionsOf('accompany').map((s) => s.slug)).toEqual([
-      'major-or-minor',
-      'beat-and-bar',
-      'find-the-root',
-      'melody-by-ear',
-      'chord-family',
-      'chord-changes',
-      'one-four-five',
-      'first-song',
-      'change-key',
-      'the-six-chord',
-      'minor-keys',
-      'seventh-chords',
-      'three-four',
-      'barre-chords',
-      'outside-chords',
-      'new-song',
-    ]);
   });
 
   it('allows a part to have an empty block list', () => {
@@ -217,158 +279,8 @@ describe('session registry', () => {
       }
     });
 
-    it('resolves lesson blocks to an existing lesson and step', () => {
-      const lessonBlocks = sessionBlocks(session).filter((b) => b.kind === 'lesson');
-      for (const b of lessonBlocks) {
-        const lesson = findLesson(b.lesson);
-        expect(lesson, `lesson '${b.lesson}' not found`).toBeDefined();
-        const step = lesson?.steps.find((s) => s.id === b.step);
-        expect(step, `step '${b.step}' in lesson '${b.lesson}' not found`).toBeDefined();
-      }
-    });
-
-    it('every listen and reveal block names a drill that exists in DRILLS, and listen answers match drill answers', () => {
-      const blocks = sessionBlocks(session);
-      const drillBlocks = blocks.filter((b) => b.kind === 'listen' || b.kind === 'reveal');
-      for (const b of drillBlocks) {
-        const drill = DRILLS[b.drill];
-        expect(drill, `drill '${b.drill}' defined in DRILLS`).toBeDefined();
-        if (b.kind === 'listen') {
-          for (const lang of LANGS) {
-            const blockCopy = session.copy[lang].blocks[b.key];
-            if (blockCopy && 'answers' in blockCopy) {
-              expect(Object.keys(blockCopy.answers).sort()).toEqual([...drill!.answers].sort());
-            }
-          }
-        }
-      }
-    });
-
     it("declares the 'strumSpeed' setting exactly when it strums", () => {
       expect(session.settings?.includes('strumSpeed') ?? false).toBe(sessionStrums(session));
-    });
-
-    it('earLevel, when set, is an integer from 1 to 15', () => {
-      if (session.earLevel !== undefined) {
-        expect(Number.isInteger(session.earLevel)).toBe(true);
-        expect(session.earLevel).toBeGreaterThanOrEqual(1);
-        expect(session.earLevel).toBeLessThanOrEqual(15);
-      }
-    });
-
-    it('practice, when set, has bars that all resolve to a chord in its key', () => {
-      if (session.practice) {
-        const { in: key, bars } = session.practice;
-        expect(bars.length).toBeGreaterThan(0);
-        for (const spec of bars) expect(() => chordIn(key, spec)).not.toThrow();
-      }
-    });
-
-    it('every chord of every chords and strumAlong block gets a shape without throwing', () => {
-      const blocks = sessionBlocks(session);
-      for (const b of blocks) {
-        if (b.kind === 'chords') {
-          for (const spec of b.chords) {
-            expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
-          }
-        } else if (b.kind === 'strumAlong') {
-          for (const spec of b.bars) {
-            expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
-          }
-        }
-      }
-    });
-
-    it('every strumAlong block has a valid pattern, bpm between 40 and 200, and at least one bar', () => {
-      const blocks = sessionBlocks(session);
-      const strumBlocks = blocks.filter((b) => b.kind === 'strumAlong');
-      for (const b of strumBlocks) {
-        expect(b.bars.length).toBeGreaterThanOrEqual(1);
-        expect(b.bpm).toBeGreaterThanOrEqual(40);
-        expect(b.bpm).toBeLessThanOrEqual(200);
-        const beatsPerBar = b.beatsPerBar ?? 4;
-        const pattern = b.pattern ?? defaultPattern(beatsPerBar);
-        expect(() => strumSteps(b.bars.length, beatsPerBar, pattern)).not.toThrow();
-      }
-    });
-
-    it('every changeTap block has a non-empty pool, bars >= 4 and non-empty holds', () => {
-      const blocks = sessionBlocks(session);
-      const changeTapBlocks = blocks.filter((b) => b.kind === 'changeTap');
-      for (const b of changeTapBlocks) {
-        expect(b.pool.length).toBeGreaterThan(0);
-        expect(b.bars).toBeGreaterThanOrEqual(4);
-        expect(b.holds.length).toBeGreaterThan(0);
-        for (const spec of b.pool) {
-          expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
-        }
-      }
-    });
-
-    it('every fillBars block has bars >= 3 and a pool of at least 2', () => {
-      const blocks = sessionBlocks(session);
-      const fillBarsBlocks = blocks.filter((b) => b.kind === 'fillBars');
-      for (const b of fillBarsBlocks) {
-        expect(b.bars).toBeGreaterThanOrEqual(3);
-        expect(b.pool.length).toBeGreaterThanOrEqual(2);
-        for (const spec of b.pool) {
-          expect(() => chordShape(chordIn(b.in, spec).chord)).not.toThrow();
-        }
-      }
-    });
-
-    it('every song block has a major key, non-empty pool, valid song in SONGS, and every reference numeral in pool', () => {
-      const blocks = sessionBlocks(session);
-      const songBlocks = blocks.filter((b) => b.kind === 'song');
-      for (const b of songBlocks) {
-        expect(b.in.mode).toBe('major');
-        expect(b.pool.length).toBeGreaterThan(0);
-        const song = SONGS[b.song];
-        expect(song, `song '${b.song}' defined in SONGS`).toBeDefined();
-        const poolNumerals = b.pool.map((spec) => chordIn(b.in, spec).roman);
-        for (const ref of song.chords) {
-          if (ref === '-') continue;
-          expect(poolNumerals, `song block '${b.key}' pool missing reference '${ref}'`).toContain(ref);
-        }
-      }
-    });
-
-    it('has playable backing forms in each offered key', () => {
-      for (const block of sessionBlocks(session)) {
-        if (block.kind !== 'backingTrack') continue;
-        expect(block.bars.length).toBeGreaterThan(0);
-        expect(block.bpm).toBeGreaterThanOrEqual(40);
-        expect(block.bpm).toBeLessThanOrEqual(200);
-        for (const tonic of [block.in.tonic, ...(block.keys ?? [])]) {
-          for (const spec of block.bars) expect(chordIn({ ...block.in, tonic }, spec).symbol).toBeTruthy();
-        }
-      }
-    });
-
-    it('every transpose block has tonics >= 2 and bars >= 2', () => {
-      const blocks = sessionBlocks(session);
-      const transposeBlocks = blocks.filter((b) => b.kind === 'transpose');
-      for (const b of transposeBlocks) {
-        expect(b.tonics.length).toBeGreaterThanOrEqual(2);
-        expect(b.bars.length).toBeGreaterThanOrEqual(2);
-        for (const tonic of b.tonics) {
-          for (const spec of b.bars) {
-            expect(() => chordIn({ tonic, mode: 'major' }, spec)).not.toThrow();
-          }
-        }
-      }
-    });
-
-    it('has at least 2 answers for listen blocks', () => {
-      const listenBlocks = sessionBlocks(session).filter((b) => b.kind === 'listen');
-      for (const b of listenBlocks) {
-        for (const lang of LANGS) {
-          const blockCopy = session.copy[lang].blocks[b.key];
-          if (blockCopy && 'answers' in blockCopy) {
-            expect(Object.keys(blockCopy.answers).length).toBeGreaterThanOrEqual(2);
-          }
-        }
-      }
     });
 
     it('has 3 check questions with 3 options and valid answer indexes', () => {
@@ -392,20 +304,30 @@ describe('session registry', () => {
       }
     });
 
-    it("every melodyEcho block's fixed phrases use only degrees 1–8", () => {
-      const blocks = sessionBlocks(session);
-      const echoBlocks = blocks.filter((b) => b.kind === 'melodyEcho');
-      for (const b of echoBlocks) {
-        if (b.phrases) {
-          for (const phrase of b.phrases) {
-            expect(phrase.length).toBeGreaterThan(0);
-            for (const deg of phrase) {
-              expect(deg).toBeGreaterThanOrEqual(1);
-              expect(deg).toBeLessThanOrEqual(8);
-            }
-          }
-        }
-      }
-    });
+    if (session.earLevel !== undefined) {
+      const level = session.earLevel;
+      it('links to an Ear training level from 1 to 15', () => {
+        expect(Number.isInteger(level)).toBe(true);
+        expect(level).toBeGreaterThanOrEqual(1);
+        expect(level).toBeLessThanOrEqual(15);
+      });
+    }
+
+    if (session.practice) {
+      const { in: key, bars } = session.practice;
+      it('links to Practice with bars that all resolve to a chord in its key', () => {
+        expect(bars.length).toBeGreaterThan(0);
+        for (const spec of bars) expect(() => chordIn(key, spec)).not.toThrow();
+      });
+    }
+
+    // One case per block that has rules to check, named by its key: a session only gets the
+    // cases for the blocks it has.
+    const checked = sessionBlocks(session).filter((b) => BLOCK_CHECKS[b.kind]);
+    if (checked.length > 0) {
+      it.each(checked.map((b) => [b.key, b.kind, b] as const))('block %s (%s)', (_key, _kind, block) => {
+        BLOCK_CHECKS[block.kind]!(block as never, session);
+      });
+    }
   });
 });

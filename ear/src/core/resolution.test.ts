@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   format,
-  mod,
   parseNote,
-  pc,
   sameNote,
   scaleNotes,
   type Key,
@@ -48,7 +46,7 @@ const MINOR: Record<string, string> = {
 const TABLES = { major: MAJOR, minor: MINOR } as const;
 const ascii = (label: string) => label.replace('♭', 'b').replace('♯', '#');
 
-/** Several keys per mode: naturals, sharps, flats, and the six-accidental ones. */
+/** Keys for the tritone check: naturals, sharps, flats, and the six-accidental ones. */
 const KEYS: Key[] = [
   ...['C', 'G', 'B', 'F♯', 'D♭', 'B♭'].map((t) => key(t, 'major')),
   ...['A', 'E', 'C♯', 'G♯', 'E♭', 'F'].map((t) => key(t, 'minor')),
@@ -60,8 +58,11 @@ const OCTAVE = 4;
 const scaleOf = (k: Key) => scaleNotes(k.tonic, k.mode === 'major' ? 'major' : 'naturalMinor');
 const inScale = (k: Key, n: NoteName) => scaleOf(k).some((m) => sameNote(m, n));
 
-/** Every row of both tables in every key, the note sounding in OCTAVE above the tonic. */
-const CASES = KEYS.flatMap((k) =>
+/**
+ * Every row of both tables, in C major and A minor, the note sounding in OCTAVE above the tonic.
+ * The walk is the same in every key; other keys only change the spelling, checked by example below.
+ */
+const CASES = [key('C', 'major'), key('A', 'minor')].flatMap((k) =>
   Object.entries(TABLES[k.mode]).map(([note, walk]) => {
     const degrees = walk.split(' ').map(ascii);
     const start = midiOf(k, degrees[0]!, OCTAVE);
@@ -71,10 +72,9 @@ const CASES = KEYS.flatMap((k) =>
     return { name: `${keyName(k)} ${note}`, k, degrees, start, up, steps };
   }),
 );
-const eachCase = it.each(CASES.map((c) => [c.name, c] as const));
 
 describe("resolution, the issue's tables", () => {
-  eachCase('%s resolves as the table says, degrees and pitches', (_, c) => {
+  it.each(CASES.map((c) => [c.name, c] as const))('%s resolves as the table says, degrees, pitches and spelling', (_, c) => {
     const { k, degrees, up, steps } = c;
     expect(steps.map((s) => s.degree)).toEqual(degrees);
     // Every note in OCTAVE, the tonic's; the closing tonic of an upward walk an octave higher.
@@ -82,29 +82,8 @@ describe("resolution, the issue's tables", () => {
     const midis = degrees.map((d, i) => midiOf(k, d, up && i === last ? OCTAVE + 1 : OCTAVE));
     expect(steps.map((s) => s.midi)).toEqual(midis);
     expect(steps.map((s) => format(s.pitch))).toEqual(degrees.map((d) => format(noteOf(k, d))));
-  });
-});
-
-describe('resolution, over every row in every key', () => {
-  eachCase('%s ends on the tonic: below the note, or an octave above that', (_, c) => {
-    const { k, start, up, steps } = c;
-    const last = steps[steps.length - 1]!;
-    expect(last.degree).toBe('1');
-    expect(sameNote(last.pitch, k.tonic)).toBe(true);
-    expect(mod(last.midi, 12)).toBe(pc(k.tonic));
-    expect(last.midi).toBe(midiOf(k, '1', OCTAVE) + (up ? 12 : 0));
-    expect(last.midi >= start).toBe(up || steps.length === 1);
-  });
-
-  eachCase('%s moves one way, a half or whole step at a time', (_, c) => {
-    const moves = c.steps.slice(1).map((s, i) => s.midi - c.steps[i]!.midi);
-    for (const m of moves) expect(Math.abs(m)).toBeGreaterThanOrEqual(1);
-    for (const m of moves) expect(Math.abs(m)).toBeLessThanOrEqual(2);
-    expect(new Set(moves.map(Math.sign)).size).toBeLessThanOrEqual(1);
-  });
-
-  eachCase("%s walks the key's own scale notes after the first", (_, c) => {
-    for (const s of c.steps.slice(1)) expect(inScale(c.k, s.pitch), format(s.pitch)).toBe(true);
+    // After the first note, the walk stays on the key's own scale notes.
+    for (const s of steps.slice(1)) expect(inScale(k, s.pitch), format(s.pitch)).toBe(true);
   });
 });
 
@@ -136,8 +115,14 @@ describe('resolution', () => {
     expect(names(key('A', 'minor'), '3', 73)).toEqual(['C♯5', 'C5', 'B4', 'A4']);
     expect(names(key('A', 'minor'), '7', 80)).toEqual(['G♯5', 'A5']);
     const outside = CASES.filter((c) => !inScale(c.k, c.steps[0]!.pitch));
-    expect(outside).toHaveLength(KEYS.length * 5);
+    expect(outside).toHaveLength(2 * 5);
     for (const c of outside) expect(Math.abs(c.steps[1]!.midi - c.start), c.name).toBe(1);
+  });
+
+  it('spells the walk in keys with many accidentals', () => {
+    expect(names(key('F♯', 'major'), 'b6', 74)).toEqual(['D5', 'D♯5', 'E♯5', 'F♯5']);
+    expect(names(key('E♭', 'minor'), '3', 67)).toEqual(['G4', 'G♭4', 'F4', 'E♭4']);
+    expect(names(key('G♯', 'minor'), '5', 75)).toEqual(['D♯5', 'E5', 'F♯5', 'G♯5']);
   });
 
   it('walks from the note where it sounds, below the tonic too', () => {

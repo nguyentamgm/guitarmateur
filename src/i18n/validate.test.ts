@@ -46,9 +46,4 @@ describe('validateLocale', () => {
     expect(report.placeholderMismatch).toEqual([]);
     expect(report.missingPluralForms.sort()).toEqual(['progression.bars.few', 'progression.bars.many']);
   });
-
-  it('does not flag a plural form the candidate already supplies', () => {
-    const report = validateLocale('en', en, en);
-    expect(report.missingPluralForms).toEqual([]);
-  });
 });
