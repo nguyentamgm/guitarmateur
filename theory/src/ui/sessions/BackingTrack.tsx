@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { EIGHTHS_PER_BAR, STYLE_SWINGS } from '../../core/audio';
 import { parseNote } from '../../core/music';
+import { lickNotes, lickPlan, planGlide } from '../../lessons/blues';
 import { soloWindow, toneIn } from '../../lessons/solo';
 import { chordIn, type Block } from '../../sessions';
 import { chordShape, shapeMidis } from '../../sessions/voicing';
@@ -13,6 +15,8 @@ import { useBacking } from '../useBacking';
 import { useSessionStrumSpeed } from './sessionSettingsContext';
 import { STRUM_SPREADS } from './strumSpeed';
 
+const isCallBar = (bar: number) => bar % 4 < 2;
+
 export function BackingTrack({
   block,
   label,
@@ -20,11 +24,25 @@ export function BackingTrack({
   block: Extract<Block, { kind: 'backingTrack' }>;
   label: string;
 }) {
-  const { ui } = useTheory();
+  const { player, ui } = useTheory();
   const [tonic, setTonic] = useState(block.in.tonic);
   const [bpm, setBpm] = useState(block.bpm);
   const speed = useSessionStrumSpeed();
   const strums = block.style === 'strum' || block.style === 'comp';
+  const swing = STYLE_SWINGS[block.style] ? 1 : 0;
+  const callPlans = useMemo(() => {
+    if (!block.call) return null;
+    const notes = lickNotes(
+      parseNote(tonic),
+      block.call,
+      1,
+      block.scale === 'minorBlues' ? block.scale : undefined,
+    );
+    return new Map(lickPlan(notes).map((plan) => [plan.cell, plan]));
+  }, [block.call, block.scale, tonic]);
+  useEffect(() => {
+    if (block.call) return () => player.cancel();
+  }, [block.call, player]);
   const bars = useMemo(
     () =>
       block.bars.map((spec) => {
@@ -42,7 +60,13 @@ export function BackingTrack({
     bars,
     block.style,
     bpm,
-    undefined,
+    callPlans
+      ? ({ bar, eighth, at, seconds }) => {
+          if (!isCallBar(bar)) return;
+          const plan = callPlans.get((bar % 4) * EIGHTHS_PER_BAR + eighth);
+          if (plan) player.pluck(plan.midi, at, seconds(plan.cells), planGlide(plan, bpm, swing));
+        }
+      : undefined,
     true,
     strums ? STRUM_SPREADS[speed] : undefined,
   );
@@ -77,12 +101,26 @@ export function BackingTrack({
             }}
           />
         )}
-        <Button onClick={backing.toggle}>
+        <Button
+          onClick={() => {
+            player.cancel();
+            backing.toggle();
+          }}
+        >
           {backing.playing ? ui.session.stop : ui.session.play}
         </Button>
         <Tempo bpm={bpm} onChange={setBpm} />
       </div>
       <BarGrid bars={bars} current={backing.bar} label={label} />
+      {callPlans && (
+        <p className="caption" aria-live="polite">
+          {backing.bar === null
+            ? ''
+            : isCallBar(backing.bar)
+              ? ui.session.listenToCall
+              : ui.session.yourResponse}
+        </p>
+      )}
       {box && dots && <Fretboard box={box} dots={dots} geometry={geometry} label={label} />}
     </div>
   );

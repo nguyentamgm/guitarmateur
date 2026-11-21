@@ -3,7 +3,7 @@ import type { StringNumber } from '../core/fretboard';
 import type { ChordId, DegreeLabel, Mode, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
-import type { LickNote } from '../lessons/blues';
+import type { LickEvent, LickNote } from '../lessons/blues';
 import type { SongId } from './songs';
 
 export type PathId = 'accompany' | 'lead';
@@ -73,6 +73,8 @@ export type Block =
       readonly bpm: number;
       readonly scale?: ScaleId;
       readonly keys?: readonly string[];
+      /** A two-bar box 1 lick that starts every four bars, leaving the other two bars to answer. */
+      readonly call?: readonly LickEvent[];
     }
   | {
       readonly kind: 'lesson';
@@ -85,6 +87,7 @@ export type Block =
       readonly key: string;
       readonly notes: readonly LickNote[];
       readonly bpm: number;
+      readonly metronome?: boolean;
     }
   | {
       readonly kind: 'chords';

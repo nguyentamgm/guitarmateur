@@ -1,6 +1,6 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20) and the first four in Stage F (21–24). The remaining
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20) and five in Stage F (21–25). The remaining
 sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
@@ -87,7 +87,8 @@ export type ChordSpec = number | { readonly root: DegreeLabel; readonly id: Chor
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
   | { readonly kind: 'lesson'; readonly key: string; readonly lesson: string; readonly step: string }
-  | { readonly kind: 'tabPhrase'; readonly key: string; readonly notes: readonly LickNote[]; readonly bpm: number }
+  | { readonly kind: 'tabPhrase'; readonly key: string; readonly notes: readonly LickNote[];
+      readonly bpm: number; readonly metronome?: boolean }
   | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[] }
   | { readonly kind: 'strumAlong'; readonly key: string; readonly in: SessionKey; readonly bars: readonly ChordSpec[];
       readonly bpm: number; readonly beatsPerBar?: 3 | 4; readonly pattern?: string; readonly keys?: readonly string[];
@@ -191,7 +192,7 @@ has a strummed event, or a `backingTrack` with strum or comp style. `sessions.te
 | kind | Component (`ui/sessions/`) | What the learner sees |
 | --- | --- | --- |
 | `lesson` | `LessonScene` (`ui/lessons/`) | One existing lesson scene, e.g. `chords` / `open`. |
-| `tabPhrase` | `TabPhrase.tsx` | A fixed playable tab. Connected notes use the pitch movement from the blues lesson. |
+| `tabPhrase` | `TabPhrase.tsx` | A fixed playable tab with an optional metronome. Connected notes use the pitch movement from the blues lesson. |
 | `chords` | `ChordCards.tsx` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for `OPEN_SHAPE_CHORDS`, otherwise lowest barre ≥ 1 from `barreOptions()`), click to strum. |
 | `listen` | `ListenDrill.tsx` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. |
 | `reveal` | `Reveal.tsx` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. |
@@ -357,7 +358,7 @@ introduces. The drill IDs are reserved now. Generators and playable sessions arr
 **Lead blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The block may give the first note; the learner can tap back the phrase with higher/lower feedback. An optional `firstPhrase` supplies a model by scale degree before the random questions. `backingTrack`
 loops a supplied chord form, highlights the current bar and offers tempo, key and optional box
 controls. Strum and comp styles use the session strum spread. Rock and shuffle have their own
-patterns. Session 29 adds guide tones outside the selected scale in the same fret range.
+patterns. An optional `call` plays a two-bar lick over each four-bar group on the same backing clock. The next two bars are left open for the learner to answer. Session 29 adds guide tones outside the selected scale in the same fret range.
 `standardBlues12` is the common 12-bar blues form for session playback and the Practice handoffs in Sessions 21, 25 and 32.
 
 After session 18 the owner tries both sessions and records where singing, finding the fret or

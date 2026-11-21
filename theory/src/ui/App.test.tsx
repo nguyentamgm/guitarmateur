@@ -1931,6 +1931,45 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays the two-bar blues call, leaves two bars to answer, and hands the whole chorus to Practice', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      const pluck = vi.spyOn(player, 'pluck');
+      const lead = () => pluck.mock.calls.filter(([, , , glide]) => glide).map(([midi]) => midi);
+      render('/theory/s/first-blues-licks', player);
+      expect(container.querySelector('h1')?.textContent).toBe('First blues licks');
+      const challenge = container.querySelector('#challenge')!;
+      click(challenge.querySelector('button')!);
+      act(() => vi.advanceTimersByTime(6_000));
+      expect(challenge.textContent).toContain('Your turn to answer');
+      const call = [57, 60, 63, 64, 60, 62];
+      expect(lead()).toEqual(call);
+
+      const beforeAnswer = plucked.length;
+      act(() => vi.advanceTimersByTime(5_000));
+      expect(plucked.length).toBeGreaterThan(beforeAnswer);
+      expect(lead()).toEqual(call);
+
+      act(() => vi.advanceTimersByTime(5_000));
+      expect(lead()).toEqual([...call, ...call]);
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Lick blues đầu tiên');
+      expect(challenge.textContent).toContain('Nghe câu gọi');
+      click(challenge.querySelector('button')!);
+      expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=14&lang=vi');
+
+      const done = container.querySelector('#done')!;
+      done.querySelectorAll('input[type="checkbox"]').forEach(click);
+      const { state, lang } = payload(done.querySelector('a.trainer')!);
+      expect(lang).toBe('vi');
+      expect(state).toMatchObject({ key: { scaleId: 'blues' }, positions: [0], swingEnabled: true });
+      expect(state.progression.reduce((sum: number, chord: { bars: number }) => sum + chord.bars, 0)).toBe(12);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

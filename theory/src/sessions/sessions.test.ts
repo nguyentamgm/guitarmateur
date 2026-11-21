@@ -6,6 +6,7 @@ import { soloWindow } from '../lessons/solo';
 import { parseNote } from '../core/music';
 import sitemap from '../../../public/sitemap.xml?raw';
 import { mulberry32 } from '@shared/core/rng';
+import { EIGHTHS_PER_BAR } from '../core/audio';
 import {
   BLOCK_COPY_FIELDS,
   PARTS,
@@ -166,6 +167,11 @@ const BLOCK_CHECKS: { [K in Block['kind']]?: (block: Extract<Block, { kind: K }>
     expect(b.bpm).toBeLessThanOrEqual(200);
     for (const tonic of [b.in.tonic, ...(b.keys ?? [])]) {
       for (const spec of b.bars) expect(chordIn({ ...b.in, tonic }, spec).symbol).toBeTruthy();
+    }
+    if (b.call) {
+      expect(b.bars.length % 4).toBe(0);
+      expect(b.call.length).toBeGreaterThan(0);
+      expect(b.call.every(({ cell, cells }) => cell >= 0 && cell + cells <= 2 * EIGHTHS_PER_BAR)).toBe(true);
     }
   },
   transpose: (b) => {

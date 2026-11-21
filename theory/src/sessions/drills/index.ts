@@ -1,5 +1,6 @@
 import type { DrillId } from '../types';
 import { bendPitch } from './bendPitch';
+import { callAndResponse } from './callAndResponse';
 import { chordCount } from './chordCount';
 import { finished } from './finished';
 import { fourOrFive } from './fourOrFive';
@@ -25,6 +26,7 @@ import type { Drill } from './types';
 
 export * from './types';
 export { bendPitch } from './bendPitch';
+export { callAndResponse } from './callAndResponse';
 export { chordCount } from './chordCount';
 export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
@@ -61,6 +63,7 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   hasBlueNote,
   bendPitch,
   pickOrLegato,
+  callAndResponse,
   moves,
   chordCount,
   fourOrFive,
