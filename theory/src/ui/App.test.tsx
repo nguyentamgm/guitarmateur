@@ -1761,6 +1761,34 @@ describe('Theory app', () => {
     expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=12&lang=vi');
   });
 
+  it('plays the same box phrase two frets higher and stops when the key cycle takes over', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      render('/theory/s/pentatonic-keys-and-modes', player);
+      const board = container.querySelector('#understand .board')!;
+      const button = (label: string) =>
+        [...board.querySelectorAll('button')].find((b) => b.textContent === label)!;
+      const compare = 'Hear the same phrase in A minor and B minor';
+      click(button(compare));
+      expect(board.querySelector('.dot.hit')?.getAttribute('aria-label')).toContain('fret 5, string 6');
+      act(() => vi.advanceTimersByTime(4 * 520));
+      expect(board.querySelector('.dot.hit')?.getAttribute('aria-label')).toContain('fret 7, string 6');
+      act(() => vi.advanceTimersByTime(4 * 520));
+      expect(plucked).toEqual([45, 48, 50, 45, 47, 50, 52, 47]);
+      expect(board.querySelector('.dot.hit')).toBeNull();
+
+      click(button(compare));
+      click(button('Slide through keys'));
+      click(button('Stop'));
+      const count = plucked.length;
+      act(() => vi.advanceTimersByTime(4000));
+      expect(plucked).toHaveLength(count);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

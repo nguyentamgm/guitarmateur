@@ -13,13 +13,15 @@ export const vi: SessionCopy = {
     listen: {
       title: 'Nghe',
       body: [
-        'Nghe hợp âm rồi nghe câu pentatonic nối tiếp. So sánh độ cọ xát kiểu blues của minor pentatonic với nét sáng của major pentatonic.',
+        'Nghe hợp âm trưởng rồi nghe câu pentatonic theo sau. Câu minor pentatonic nghe hơi căng (harmonic tension), đậm chất blues, còn câu major pentatonic nghe sáng hơn.',
       ],
     },
     understand: {
       title: 'Hiểu',
       body: [
-        'Hình bấm box 1 không bao giờ đổi. Trượt nó dọc dây 6 giúp bạn chuyển giọng, và dời root 3 phím biến minor pentatonic thành major pentatonic.',
+        'Box 1 là một hình bấm. Trên dây 6, đặt ngón trỏ ở phím 5 (A) để chơi A minor pentatonic. Trượt cả hình lên hai phím, đến phím 7 (B), bạn sẽ chơi được cùng câu đó ở B minor. Mọi nốt đều cao lên hai phím.',
+        'Quay lại box ở phím 5. Năm nốt A, C, D, E, G thuộc cả A minor pentatonic và C major pentatonic. Trên nền Am, thử kết câu ở A. Trên nền C trưởng, thử kết ở C. A là root khi chơi trên Am, còn C là root khi chơi trên C trưởng. Lắng nghe cảm giác trọn câu khi kết ở root.',
+        'Giờ giữ A làm root. Để chơi A major pentatonic, lùi cả box từ phím 5 về phím 2 (F♯). Box bắt đầu ở F♯, còn A vẫn ở phím 5 trên dây 6. Thử chơi một câu trong box mới rồi kết ở A.',
       ],
     },
     play: {
@@ -40,7 +42,7 @@ export const vi: SessionCopy = {
   blocks: {
     mode: {
       intro:
-        'Nghe hợp âm rồi nghe câu năm nốt theo sau. So sánh độ cọ xát kiểu blues của minor pentatonic với nét sáng của major pentatonic.',
+        'Nghe hợp âm rồi nghe câu năm nốt theo sau. Để nhận ra minor pentatonic, hãy lắng nghe bậc ♭3: trên nền hợp âm trưởng, nốt này nghe hơi căng.',
       ask: 'Bạn vừa nghe pentatonic nào?',
       answers: { minorPenta: 'Minor pentatonic', majorPenta: 'Major pentatonic' },
       right: 'Đúng. Bạn vừa nghe {answer} trên {detail}.',
@@ -85,7 +87,7 @@ export const vi: SessionCopy = {
     {
       question: 'Vì sao có thể dùng minor pentatonic trên vòng blues ở giọng trưởng?',
       options: [
-        'Vì bậc ♭3 tạo độ cọ xát với hợp âm trưởng để sinh ra chất blues',
+        'Vì bậc ♭3 nghe hơi căng trên nền hợp âm trưởng, tạo nên chất blues',
         'Vì minor pentatonic không có root',
         'Vì bài blues không bao giờ dùng hợp âm dominant 7',
       ],

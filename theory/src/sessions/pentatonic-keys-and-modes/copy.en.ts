@@ -19,7 +19,9 @@ export const en: SessionCopy = {
     understand: {
       title: 'Understand',
       body: [
-        'The box 1 shape never changes. Sliding it along string 6 moves you between keys, and moving the root three frets turns a minor pentatonic into a major pentatonic.',
+        'Box 1 is a fingering pattern. Put your index finger on string 6 at fret 5 (A) to play A minor pentatonic. Slide the whole shape up two frets to fret 7 (B) and play the same phrase in B minor. Every note moves up two frets.',
+        'Return to the box at fret 5. The notes A, C, D, E and G belong to both A minor pentatonic and C major pentatonic. Over Am, try ending on A. Over a C major chord, try ending on C. Listen for the note where the phrase feels at rest. That is home, the root.',
+        'Now keep A as home. To play A major pentatonic, slide the whole box back from fret 5 to fret 2 (F♯). The box starts on F♯, and A is still at fret 5 on string 6. Try a phrase in the new box and finish on A.',
       ],
     },
     play: {
