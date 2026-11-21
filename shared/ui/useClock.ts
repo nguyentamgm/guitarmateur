@@ -24,17 +24,24 @@ let stopPlaying: (() => void) | null = null;
  * the next 120 ms to `onStep(i, delaySec)` with its exact delay, which the audio player schedules
  * on its own clock. Timer jitter therefore moves only the cursor, never the sound. `stepSec` is
  * read on every step, so a tempo change takes effect at once. `loop` repeats from step 0.
+ * `onComplete` runs when a non-looping pass reaches its end.
  */
-export function useClock(steps: number, stepSec: number, onStep: (i: number, delaySec: number) => void, loop = true): Clock {
+export function useClock(
+  steps: number,
+  stepSec: number,
+  onStep: (i: number, delaySec: number) => void,
+  loop = true,
+  onComplete?: () => void,
+): Clock {
   const [current, setCurrent] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const cursors = useRef(new Set<ReturnType<typeof setTimeout>>());
   const next = useRef({ i: 0, t: 0 });
-  const live = useRef({ steps, stepSec, onStep, loop });
+  const live = useRef({ steps, stepSec, onStep, loop, onComplete });
   const stopRef = useRef<(() => void) | null>(null);
   useEffect(() => {
-    live.current = { steps, stepSec, onStep, loop };
+    live.current = { steps, stepSec, onStep, loop, onComplete };
   });
 
   const stop = useCallback(() => {
@@ -67,7 +74,10 @@ export function useClock(steps: number, stepSec: number, onStep: (i: number, del
         if (!again || n === 0) {
           if (timer.current !== null) clearInterval(timer.current);
           timer.current = null;
-          later(next.current.t - t, stop);
+          later(next.current.t - t, () => {
+            stop();
+            live.current.onComplete?.();
+          });
           return;
         }
         i = 0;

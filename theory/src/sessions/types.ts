@@ -60,6 +60,8 @@ export type Block =
       readonly scale?: 'minorPentatonic' | 'majorPentatonic' | 'minorBlues';
       readonly notes: 3 | 4;
       readonly giveFirst?: boolean;
+      /** A model of the same length as `notes`, as scale degrees. Further questions use random notes. */
+      readonly firstPhrase?: readonly DegreeLabel[];
     }
   | {
       readonly kind: 'backingTrack';
@@ -121,7 +123,8 @@ export type Block =
       readonly in: SessionKey;
       readonly keys?: readonly string[];
       readonly pool: readonly ChordSpec[];
-      readonly bars: number;
+      /** A random form length, or a fixed progression and its one-based blank bar numbers. */
+      readonly bars: number | { readonly plan: readonly ChordSpec[]; readonly blanks: readonly number[] };
       readonly bpm: number;
     }
   | {

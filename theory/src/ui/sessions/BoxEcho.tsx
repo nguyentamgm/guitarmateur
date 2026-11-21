@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { parseNote } from '../../core/music';
 import { soloWindow, type SoloNote } from '../../lessons/solo';
-import { boxEchoQuestion, boxEchoSound, judgeBoxTap } from '../../sessions/boxEcho';
+import { boxEchoQuestion, boxEchoSound, fixedBoxPhrase, judgeBoxTap } from '../../sessions/boxEcho';
 import type { Block, MelodyEchoCopy } from '../../sessions/types';
 import { useTheory } from '../context';
 import { Button } from '../controls';
@@ -30,7 +30,10 @@ export function BoxEcho({
   useEffect(() => () => player.cancel(), [player]);
 
   function next() {
-    const notes = boxEchoQuestion(box, block.notes, Math.random, phrase);
+    const notes =
+      phrase.length === 0 && block.firstPhrase
+        ? fixedBoxPhrase(box, block.firstPhrase)
+        : boxEchoQuestion(box, block.notes, Math.random, phrase);
     setPhrase(notes);
     setFound(block.giveFirst === false ? 0 : 1);
     setFeedback(null);

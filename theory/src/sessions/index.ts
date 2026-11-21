@@ -13,6 +13,8 @@ import { octaveShapes } from './octave-shapes';
 import { minorKeys } from './minor-keys';
 import { oneFourFive } from './one-four-five';
 import { seventhChords } from './seventh-chords';
+import { shuffleAndTwelveBar } from './shuffle-and-twelve-bar';
+import { theBlueNote } from './the-blue-note';
 import { theSixChord } from './the-six-chord';
 import { threeFour } from './three-four';
 import { barreChords } from './barre-chords';
@@ -21,6 +23,7 @@ import { outsideChords } from './outside-chords';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
+export { standardBlues12 } from './blues';
 export * from './changes';
 export * from './chordSpec';
 export * from './echo';
@@ -46,6 +49,8 @@ export { outsideChords } from './outside-chords';
 export { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
 export { octaveShapes } from './octave-shapes';
 export { seventhChords } from './seventh-chords';
+export { shuffleAndTwelveBar } from './shuffle-and-twelve-bar';
+export { theBlueNote } from './the-blue-note';
 export { theSixChord } from './the-six-chord';
 export { threeFour } from './three-four';
 
@@ -70,6 +75,8 @@ export const SESSIONS: readonly Session[] = [
   pentatonicKeysAndModes,
   octaveShapes,
   fiveBoxesAndSequences,
+  shuffleAndTwelveBar,
+  theBlueNote,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {
