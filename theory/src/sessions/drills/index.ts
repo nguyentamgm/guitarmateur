@@ -1,4 +1,5 @@
 import type { DrillId } from '../types';
+import { bendPitch } from './bendPitch';
 import { chordCount } from './chordCount';
 import { finished } from './finished';
 import { fourOrFive } from './fourOrFive';
@@ -10,6 +11,7 @@ import { oddChord } from './oddChord';
 import { onBeat } from './onBeat';
 import { pentatonicOrMajor } from './pentatonicOrMajor';
 import { pentaMode } from './pentaMode';
+import { pickOrLegato } from './pickOrLegato';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
 import { octaveOrFifth } from './octaveOrFifth';
@@ -22,6 +24,7 @@ import { meter } from './meter';
 import type { Drill } from './types';
 
 export * from './types';
+export { bendPitch } from './bendPitch';
 export { chordCount } from './chordCount';
 export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
@@ -34,6 +37,7 @@ export { oddChord } from './oddChord';
 export { onBeat } from './onBeat';
 export { pentatonicOrMajor } from './pentatonicOrMajor';
 export { pentaMode } from './pentaMode';
+export { pickOrLegato } from './pickOrLegato';
 export { quality } from './quality';
 export { rootNote } from './rootNote';
 export { octaveOrFifth } from './octaveOrFifth';
@@ -55,6 +59,8 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   sequenceKind,
   straightOrShuffle,
   hasBlueNote,
+  bendPitch,
+  pickOrLegato,
   moves,
   chordCount,
   fourOrFive,

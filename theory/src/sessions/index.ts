@@ -1,10 +1,12 @@
 import { beatAndBar } from './beat-and-bar';
+import { bendsAndVibrato } from './bends-and-vibrato';
 import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
 import { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 import { firstSong } from './first-song';
+import { legatoAndSlides } from './legato-and-slides';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { minorPentatonicBox } from './minor-pentatonic-box';
@@ -33,12 +35,14 @@ export * from './strum';
 export * from './transposeTable';
 export { barreChords } from './barre-chords';
 export { beatAndBar } from './beat-and-bar';
+export { bendsAndVibrato } from './bends-and-vibrato';
 export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
 export { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 export { firstSong } from './first-song';
+export { legatoAndSlides } from './legato-and-slides';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
 export { minorKeys } from './minor-keys';
@@ -77,6 +81,8 @@ export const SESSIONS: readonly Session[] = [
   fiveBoxesAndSequences,
   shuffleAndTwelveBar,
   theBlueNote,
+  bendsAndVibrato,
+  legatoAndSlides,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

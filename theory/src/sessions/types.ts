@@ -3,6 +3,7 @@ import type { StringNumber } from '../core/fretboard';
 import type { ChordId, DegreeLabel, Mode, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
+import type { LickNote } from '../lessons/blues';
 import type { SongId } from './songs';
 
 export type PathId = 'accompany' | 'lead';
@@ -78,6 +79,12 @@ export type Block =
       readonly key: string;
       readonly lesson: string;
       readonly step: string;
+    }
+  | {
+      readonly kind: 'tabPhrase';
+      readonly key: string;
+      readonly notes: readonly LickNote[];
+      readonly bpm: number;
     }
   | {
       readonly kind: 'chords';
@@ -198,6 +205,11 @@ export interface BaseBlockCopy {
   readonly intro: string;
 }
 
+export interface TabPhraseCopy extends BaseBlockCopy {
+  readonly label: string;
+  readonly play: string;
+}
+
 export type BlockCopy =
   | BaseBlockCopy
   | ListenCopy
@@ -206,6 +218,7 @@ export type BlockCopy =
   | ChangeTapCopy
   | FillBarsCopy
   | SongCopy
+  | TabPhraseCopy
   | TransposeCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
@@ -216,6 +229,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   listen: ['intro', 'ask', 'answers', 'right', 'wrong'],
   reveal: ['intro', 'ask', 'answer'],
   backingTrack: ['intro'],
+  tabPhrase: ['intro', 'label', 'play'],
   boxEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],

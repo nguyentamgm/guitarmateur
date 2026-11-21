@@ -1893,6 +1893,44 @@ describe('Theory app', () => {
     expect(container.querySelector('a[href^="/ear-training?level=13"]')?.getAttribute('href')).toBe('/ear-training?level=13&lang=vi');
   });
 
+  it('plays a reference and a bend in session 23’s listening round and Vietnamese challenge', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/bends-and-vibrato', player);
+    expect(container.querySelector('h1')?.textContent).toBe('Bends and vibrato');
+    click(container.querySelector('#listen button')!);
+    expect(plucked).toHaveLength(2);
+    expect(plucked[0]! - plucked[1]!).toBe(2);
+
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(container.querySelector('h1')?.textContent).toBe('Bend và vibrato');
+    const challenge = container.querySelector('#challenge')!;
+    click(challenge.querySelector('button')!);
+    expect(plucked).toHaveLength(4);
+    expect(plucked[2]! - plucked[3]!).toBe(2);
+    expect(challenge.textContent).toContain('Đúng cao độ');
+  });
+
+  it('shows all three techniques and sounds one attack per pair in the session 24 tab', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      render('/theory/s/legato-and-slides', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Legato and slides');
+      const challenge = container.querySelector('#challenge')!;
+      const marks = [...challenge.querySelectorAll('.tab [role="button"]')].map((note) => note.textContent);
+      expect(marks).toEqual(['5', 'h8', '8', 'p5', '5', '/8~']);
+      click(button('Play the tab'));
+      act(() => vi.advanceTimersByTime(7_000));
+      expect(plucked).toEqual([69, 72, 69]);
+
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Legato và slide');
+      expect(button('Phát câu trên tab')).toBeDefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);
