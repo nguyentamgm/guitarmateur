@@ -6,6 +6,8 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    # A normal run takes 2–3 minutes. Stop a stuck one at 5 rather than pay for the wait; re-run it later.
+    timeout-minutes: 5
     steps:
       # Every PR must target main: a PR stacked on another branch merges there and never reaches main.
       - if: github.event_name == 'pull_request' && github.base_ref != 'main'
