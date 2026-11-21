@@ -43,6 +43,8 @@ export interface AppState {
   swingEnabled: boolean;
   /** Metronome click gain [0–1], added in schema v5. */
   clickGain: number;
+  /** Backing chord gain [0–1], default 0.5. */
+  backingGain: number;
   /** Note gain [0–1], added in schema v5. */
   noteGain: number;
   /** Mirror fretboard and tab for left-handed players, added in schema v6. */
@@ -75,6 +77,7 @@ export type Action =
   | { type: 'setTempo'; bpm: number }
   | { type: 'setSwing'; value: boolean }
   | { type: 'setClickGain'; gain: number }
+  | { type: 'setBackingGain'; gain: number }
   | { type: 'setNoteGain'; gain: number }
   | { type: 'setLeftHanded'; value: boolean }
   | { type: 'setLanguage'; language: LocaleId }
@@ -141,6 +144,7 @@ export function defaultState(nextSeed: () => number = defaultNextSeed, language:
     tempoBpm: DEFAULT_BPM,
     swingEnabled: false,
     clickGain: 0.6,
+    backingGain: 0.5,
     noteGain: 0.9,
     leftHanded: false,
     language,
@@ -219,6 +223,8 @@ export function reducer(state: AppState, action: Action, nextSeed: () => number)
       return { ...state, swingEnabled: action.value };
     case 'setClickGain':
       return { ...state, clickGain: action.gain };
+    case 'setBackingGain':
+      return { ...state, backingGain: action.gain };
     case 'setNoteGain':
       return { ...state, noteGain: action.gain };
     case 'setLeftHanded':

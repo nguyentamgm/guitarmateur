@@ -18,7 +18,7 @@ afterEach(() => {
 
 describe('persistence', () => {
   it('save + load round-trips state (minus ui), non-default swing and gains included', () => {
-    const state = { ...defaultState(() => 42), swingEnabled: true, clickGain: 0.3, noteGain: 0.7 };
+    const state = { ...defaultState(() => 42), swingEnabled: true, clickGain: 0.3, backingGain: 0.4, noteGain: 0.7 };
     saveState(state);
     const loaded = loadState()!;
     expect(loaded.schemaVersion).toBe(7);
@@ -29,6 +29,7 @@ describe('persistence', () => {
     expect(loaded.progression.length).toBe(state.progression.length);
     expect(loaded.swingEnabled).toBe(true);
     expect(loaded.clickGain).toBe(0.3);
+    expect(loaded.backingGain).toBe(0.4);
     expect(loaded.noteGain).toBe(0.7);
     // UI is not persisted
     expect(loaded.ui.advancedOpen).toBe(false);

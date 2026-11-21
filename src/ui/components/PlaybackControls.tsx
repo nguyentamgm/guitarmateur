@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Lick } from '../../lick';
+import type { Chord } from '../../music';
 import type { LocaleId } from '../../i18n';
 import { MIN_BPM, MAX_BPM } from '../../state';
 import { font, theme } from '../theme';
@@ -7,9 +8,10 @@ import { PillButton } from './primitives';
 import { useT } from '../useT';
 import type { UseTransport } from '../useTransport';
 
-/** Playback controls bar (sticky): transport, tempo, count-in / loop toggles, and click / note mix. */
+/** Playback controls bar (sticky): transport, tempo, count-in / loop toggles, and click / backing / note mix. */
 export function PlaybackControls({
   licks,
+  chords,
   tempoBpm,
   onTempoChange,
   transport,
@@ -20,12 +22,15 @@ export function PlaybackControls({
   swingEnabled,
   onSwingChange,
   clickGain,
+  backingGain,
   noteGain,
   onClickGainChange,
+  onBackingGainChange,
   onNoteGainChange,
   language,
 }: {
   licks: Lick[];
+  chords?: readonly Chord[];
   tempoBpm: number;
   onTempoChange: (bpm: number) => void;
   transport: UseTransport;
@@ -36,8 +41,10 @@ export function PlaybackControls({
   swingEnabled: boolean;
   onSwingChange: (v: boolean) => void;
   clickGain: number;
+  backingGain?: number;
   noteGain: number;
   onClickGainChange: (gain: number) => void;
+  onBackingGainChange?: (gain: number) => void;
   onNoteGainChange: (gain: number) => void;
   language: LocaleId;
 }) {
@@ -78,7 +85,7 @@ export function PlaybackControls({
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0, clickGain, noteGain });
+      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0, chords, clickGain, backingGain, noteGain });
     }
   };
 
@@ -166,6 +173,14 @@ export function PlaybackControls({
           value={clickGain}
           onChange={(v) => { transport.setClickGain(v); onClickGainChange(v); }}
         />
+        {backingGain !== undefined && onBackingGainChange && (
+          <MixSlider
+            label={t('playback.backing')}
+            ariaLabel={t('playback.mixVolumeAria', { label: t('playback.backing') })}
+            value={backingGain}
+            onChange={(v) => { transport.setBackingGain?.(v); onBackingGainChange(v); }}
+          />
+        )}
         <MixSlider
           label={t('playback.notes')}
           ariaLabel={t('playback.mixVolumeAria', { label: t('playback.notes') })}

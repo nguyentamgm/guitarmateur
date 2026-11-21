@@ -249,4 +249,26 @@ describe("swing feel", () => {
     expect(p[1]!.fromMidi).toBe(p[0]!.midi);
     expect(p[3]!.fromMidi).toBe(p[2]!.midi);
   });
+
+  it('schedules backing chords per bar when chords are given, swinging with swing feel', () => {
+    const aMinor = { tonic: { letter: 'A', alter: 0 }, quality: 'm' } as const;
+    const dMinor = { tonic: { letter: 'D', alter: 0 }, quality: 'm' } as const;
+    // 2-bar Am followed by 1-bar Dm
+    const prog = [lick(8, [0]), lick(4, [0])];
+    const { events } = compileProgression(prog, {
+      tempoBpm: 60,
+      metronome: false,
+      swing: 1,
+      chords: [aMinor, dMinor],
+    });
+    const backings = events.filter((e): e is Extract<AudioEvent, { kind: 'backing' }> => e.kind === 'backing');
+    // Shuffle style plays 2 notes (bass + boogie fifth/sixth) on every eighth (8 eighths per bar * 3 bars = 48 notes)
+    expect(backings).toHaveLength(3 * 8 * 2);
+    // Bar 0 and Bar 1 have A bass (MIDI 45); Bar 2 (at 8s) has D bass (MIDI 50)
+    expect(backings.filter((e) => e.timeSec === 0).map((e) => e.midi)).toContain(45);
+    expect(backings.filter((e) => e.timeSec === 4).map((e) => e.midi)).toContain(45);
+    expect(backings.filter((e) => e.timeSec === 8).map((e) => e.midi)).toContain(50);
+    // Off-beat eighth (eighth 1) is swung to 2/3 s
+    expect(backings.some((e) => Math.abs(e.timeSec - 2 / 3) < 1e-6)).toBe(true);
+  });
 });

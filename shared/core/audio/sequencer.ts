@@ -31,6 +31,8 @@ export type SeqEvent<Tag = unknown> =
       readonly muted?: boolean;
       /** How hard it is played, 0..1 (default 1): an accent, or a soft legato note. */
       readonly velocity?: number;
+      /** Which mix level scales this note: 'note' (default) or 'backing'. */
+      readonly channel?: 'note' | 'backing';
       /** Handed back to `onSound`, e.g. which chord and note this is. */
       readonly tag?: Tag;
     };
@@ -167,8 +169,8 @@ export class Sequencer<Tag = unknown> {
   private fire(e: SeqEvent<Tag>, now: number): void {
     const delay = Math.max(0, e.timeSec - now);
     if (e.kind === 'click') this.player.click(e.accent, delay);
-    else if (e.muted) this.player.mute(e.midi, delay);
-    else this.player.pluck(e.midi, delay, e.lengthSec, e.glide, e.velocity);
+    else if (e.muted) this.player.mute(e.midi, delay, e.velocity, e.channel);
+    else this.player.pluck(e.midi, delay, e.lengthSec, e.glide, e.velocity, e.channel);
     if (this.cb.onSound) {
       const t = this.deps.setTimeout(() => {
         this.timers.delete(t);

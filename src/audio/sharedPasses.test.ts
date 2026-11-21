@@ -53,6 +53,18 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     expect(slid).toMatchObject({ kind: 'note', midi: 69, tag: { entryIndex: 0, noteIndex: 1 } });
   });
 
+  it('routes backing events to the backing channel without note tags or damping lick strings', () => {
+    const lick: Lick = { lengthBeats: 4, difficulty: 1, notes: [n(0, A4)] };
+    const chords = [{ tonic: { letter: 'A', alter: 0 }, quality: 'm' } as const];
+    const seqEvents = toSeqEvents(compileProgression([lick], { tempoBpm: 60, metronome: false, chords }).events);
+    const backingNotes = seqEvents.filter((e) => e.kind === 'note' && e.channel === 'backing');
+    const lickNotes = seqEvents.filter((e) => e.kind === 'note' && e.channel !== 'backing');
+    expect(backingNotes.length).toBeGreaterThan(0);
+    expect(backingNotes.every((e) => e.tag === undefined)).toBe(true);
+    expect(lickNotes).toHaveLength(1);
+    expect(lickNotes[0]!.tag).toEqual({ entryIndex: 0, noteIndex: 0 });
+  });
+
   it('plays a whole progression and its licks through the shared engine (prototype)', () => {
     const state = defaultState(() => 7);
     const licks = licksForState(state).map((l) => l.lick);

@@ -57,8 +57,8 @@ describe('useTransport (lick playback on the shared guitar sound)', () => {
   it('plays a lick through the player, with the mix, and stops', () => {
     const t = mount();
     t.render();
-    act(() => t.get().play([lick], { tempoBpm: 60, metronome: false, clickGain: 0.3, noteGain: 0.7 }));
-    expect(calls.levels).toContainEqual({ click: 0.3, note: 0.7 });
+    act(() => t.get().play([lick], { tempoBpm: 60, metronome: false, clickGain: 0.3, backingGain: 0.4, noteGain: 0.7 }));
+    expect(calls.levels).toContainEqual({ click: 0.3, backing: 0.4, note: 0.7 });
     expect(t.get().isPlaying).toBe(true);
     expect(calls.plucks).toEqual([69]);
     act(() => vi.advanceTimersByTime(200));

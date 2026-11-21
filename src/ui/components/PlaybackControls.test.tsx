@@ -20,6 +20,7 @@ const transport: UseTransport = {
   play: noop,
   stop: noop,
   setClickGain: noop,
+  setBackingGain: noop,
   setNoteGain: noop,
 };
 

@@ -11,8 +11,8 @@ const CURRENT_SCHEMA = 7;
 // parameter and thread it into `migrate`.
 
 export function encodeState(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, backingGain, noteGain, leftHanded } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, backingGain, noteGain, leftHanded };
   return VERSION_PREFIX + btoa(encodeURIComponent(JSON.stringify(persisted)));
 }
 
@@ -31,8 +31,8 @@ export function decodeState(raw: string, language?: LocaleId): AppState | null {
 }
 
 export function exportStateToJson(state: AppState): string {
-  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded } = state;
-  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, noteGain, leftHanded };
+  const { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, backingGain, noteGain, leftHanded } = state;
+  const persisted = { schemaVersion, tuningId, key, positions, progression, level, targetRole, resolveToNext, tempoBpm, swingEnabled, clickGain, backingGain, noteGain, leftHanded };
   return JSON.stringify({ v: CURRENT_SCHEMA, state: persisted }, null, 2);
 }
 
