@@ -61,15 +61,6 @@ describe('pickContour', () => {
     const b = pickContour(3, mulberry32(42));
     expect(a).toBe(b);
   });
-
-  it('different seeds can produce different results', () => {
-    const a = pickContour(3, mulberry32(1));
-    const b = pickContour(3, mulberry32(2));
-    // Occasionally they'd match, but for different seeds this is rare enough
-    // that we just verify it returns something valid
-    expect(['ascend', 'descend', 'arch', 'valley', 'wave']).toContain(a);
-    expect(['ascend', 'descend', 'arch', 'valley', 'wave']).toContain(b);
-  });
 });
 
 describe('pickChordTone', () => {

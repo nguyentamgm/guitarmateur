@@ -1,5 +1,5 @@
 import { SEQUENCE_IDS, homeFret, midiAt, samePos, scaleNeck } from '../../core/fretboard';
-import { MAJOR_KEY_TONICS, MINOR_KEY_TONICS, format, parseNote, pc, scaleNotes } from '../../core/music';
+import { MINOR_KEY_TONICS, format, parseNote, pc, scaleNotes } from '../../core/music';
 import {
   DRILL_BPM,
   MAJOR_KEYS,
@@ -99,7 +99,9 @@ describe('step 4: major keys (K3.3)', () => {
     expect(MAJOR_KEYS.map(format)).toEqual(['E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B', 'C', 'D♭', 'D', 'E♭']);
   });
 
-  it.each(MAJOR_KEY_TONICS.map((k) => [format(k), k] as const))('%s: box 1 is the minor shape 3 frets below the major home', (_k, k) => {
+  // G and C fit as is; F's home on fret 1 has no room 3 frets below, so both go up an octave.
+  it.each(['G', 'C', 'F', 'Eb'])('%s: box 1 is the minor shape 3 frets below the major home', (name) => {
+    const k = n(name);
     const v = majorView(k);
     expect(v.box1.notes[0]).toMatchObject({ string: 6, fret: v.minorFret });
     expect(v.majorFret - v.minorFret).toBe(3);
@@ -108,6 +110,10 @@ describe('step 4: major keys (K3.3)', () => {
     expect(major.name).toBe(format(k));
     expect(v.box1.maxFret).toBeLessThanOrEqual(NECK_FRETS);
     expect(v.notes.every((x) => ['1', '2', '3', '5', '6'].includes(x.degree))).toBe(true);
+  });
+
+  it('takes a major home below fret 3 up an octave: F at 13, box 1 at 10', () => {
+    expect([majorView(n('F')).majorFret, majorView(n('F')).minorFret]).toEqual([13, 10]);
   });
 
   it('runs from the major home to its octave and back: 1 2 3 5 6 1 6 5 3 2 1', () => {
@@ -153,7 +159,8 @@ describe('step 5: which shape? (K3.7)', () => {
     expect([q('minor', 'A'), q('major', 'G'), q('blues', 'E')].map(songChordSymbol)).toEqual(['Am', 'G', 'E7']);
   });
 
-  it.each(QUIZ_POOL.map((x) => [`${x.kind} ${format(x.tonic)}`, x] as const))('%s: the shown box starts where the answer says and fits the vamp loop', (_l, x) => {
+  // One of each kind, plus a major key whose box 1 sits an octave up (F, see step 4).
+  it.each([q('minor', 'A'), q('blues', 'E'), q('major', 'G'), q('major', 'F')].map((x) => [`${x.kind} ${format(x.tonic)}`, x] as const))('%s: the shown box starts where the answer says and fits the vamp loop', (_l, x) => {
     const v = quizView(x);
     expect(v.box1.notes[0]).toMatchObject({ string: 6, fret: answerFret(x) });
     expect(v.run[0]!.isTonic && pc(n(v.run[0]!.name.replace('♯', '#').replace('♭', 'b'))) === pc(x.tonic)).toBe(true);

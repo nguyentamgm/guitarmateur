@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Button, Chip, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
+import { Chip, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
 
 const roots: Root[] = [];
 function render(el: ReactElement) {
@@ -114,11 +114,6 @@ describe('shared controls', () => {
     const c = render(createElement(OnOff, { label: 'Loop', on: 'On', off: 'Off', value: false, onChange }));
     act(() => c.querySelectorAll<HTMLButtonElement>('button.chip')[1]!.click());
     expect(onChange).toHaveBeenCalledWith(true);
-  });
-
-  it('Button: filled or ghost', () => {
-    expect(render(createElement(Button, { onClick: () => {}, children: 'Play' })).querySelector('button')!.className).toBe('btn');
-    expect(render(createElement(Button, { onClick: () => {}, ghost: true, children: 'Stop' })).querySelector('button')!.className).toBe('btn ghost');
   });
 
   it('Slider: label, range, value text and an optional badge', () => {

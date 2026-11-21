@@ -100,5 +100,7 @@ two notes at once.
 - **`phrase.test.ts`**: the generated route (motifs, contours, call and response, step approach,
   leap limits).
 - **`solo.test.ts`**: voice leading across chord changes and the arc.
-- **`generate.sweep.test.ts`**: the whole UI parameter space stays playable and lands on the
-  requested chord tone.
+- **`generate.situations.test.ts`**: a table of named learner situations (a beginner in one box,
+  two joined boxes, a missing 7th, resolving into the next chord, a two-bar lick, blues with bends)
+  stays playable and lands on the requested chord tone. Add a row for a new situation rather than
+  a loop over every scale, key and box.

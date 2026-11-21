@@ -28,24 +28,9 @@ describe('App', () => {
       expect(document.title).toBe('Practice · Guitarmateur');
       expect(description.getAttribute('content')).toMatch(/^Guitarmateur Practice: /);
 
-      // The shared site header: brand · Practice (current) · Ear training | Theory · Tests · language.
+      // The shared site header (its order and radios: shared/ui/SiteHeader.test.tsx), Practice current.
       const header = container.querySelector('header.topbar')!;
-      expect(header.querySelector('a.brand')?.getAttribute('href')).toBe('/');
-      const nav = [...header.querySelectorAll('nav a')].map((a) => [
-        a.textContent,
-        a.getAttribute('href'),
-      ]);
-      expect(nav).toEqual([
-        ['Practice', '/'],
-        ['Ear training', '/ear-training'],
-        ['Theory', '/theory'],
-        ['Tests', '/theory/review'],
-      ]);
       expect(header.querySelector('nav a[aria-current="page"]')?.textContent).toBe('Practice');
-      // No sound toggle: nothing sounds until a click asks for it.
-      const language = header.querySelector('nav')!.nextElementSibling!;
-      expect(language.getAttribute('aria-label')).toBe('Language');
-      expect(language.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
 
       // The page's own actions stay in the page, out of the site header.
       expect(header.textContent).not.toContain('Share');
@@ -55,7 +40,7 @@ describe('App', () => {
 
       // The EN/VI switch translates the nav: no untranslated labels in VI.
       await act(async () => {
-        language.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
+        header.querySelector<HTMLButtonElement>('button[lang="vi"]')!.click();
       });
       expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual([
         'Luyện tập',

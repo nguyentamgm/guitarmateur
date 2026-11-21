@@ -40,6 +40,20 @@ typecheck → test before every push and stops it on a failure; don't bypass it 
   not exhaustive coverage. Test core logic and music rules, stored data (reading and migration),
   and the main user path of a new screen. Skip obvious edge cases, every permutation, copy and
   styling, and headless-browser checks unless the issue asks for them.
+  - **Before adding a test**, name the bug a user could hit, then look for an existing test that
+    already catches it. If one does, leave the suite alone. If the behaviour changed, update the test
+    that covers it rather than adding another next to it.
+  - **Music rules: test the logic layer with representative cases.** Example: a lick that resolves
+    to the next chord lands on that chord's tone at the change, shown with one change whose chords
+    share few notes, not a loop over every key, box and level.
+  - **UI: test what the learner does and what they get.** Example: pressing Stop stops the notes
+    (no more plucks after the timers run), not the class names or the markup.
+  - **Widen to more keys, seeds or languages only when they can fail differently**: a sharp or
+    flat spelling, a shape that wraps an octave, a placeholder only one language has. The same rule
+    over 12 keys is one case.
+  - **Don't copy data into a test** (a count of IDs, a list of slugs repeated, a CSS class string,
+    one config field). Test the rule the data must follow instead: unique, valid references, both
+    languages in step.
 - **No code review step is needed before merging:** CI (lint → typecheck → test → build) is the gate.
 - **Code the apps share** goes in `shared/` (imported as `@shared/…`; it imports none of them) —
   see the "Shared code" section of [`docs/architecture.md`](docs/architecture.md).

@@ -120,26 +120,12 @@ describe('Theory app', () => {
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('shows the shared header: brand, Practice, Ear training, Theory, Tests, language', () => {
+  // Order, links and the language radios are SiteHeader's (shared/ui/SiteHeader.test.tsx); here,
+  // Theory's part: which section is current, and the labels in the page language.
+  it('marks a lesson as Theory in the shared header, and translates the header', () => {
     render('/theory/fretboard');
     const header = container.querySelector('header.topbar')!;
-    expect(header.querySelector('a.brand')!.getAttribute('href')).toBe('/');
-    expect(header.querySelector('a.brand')!.textContent).toBe('Guitarmateur');
-    const nav = [...header.querySelectorAll('nav a')].map((a) => [
-      a.textContent,
-      a.getAttribute('href'),
-    ]);
-    expect(nav).toEqual([
-      ['Practice', '/'],
-      ['Ear training', '/ear-training'],
-      ['Theory', '/theory'],
-      ['Tests', '/theory/review'],
-    ]);
-    // A lesson belongs to Theory.
     expect(header.querySelector('nav a[aria-current="page"]')!.textContent).toBe('Theory');
-    expect(header.querySelector('nav')!.nextElementSibling!.getAttribute('aria-label')).toBe(
-      'Language',
-    );
     click(container.querySelector('button[lang="vi"]')!);
     expect([...header.querySelectorAll('nav a')].map((a) => a.textContent)).toEqual([
       'Luyện tập',
@@ -176,12 +162,6 @@ describe('Theory app', () => {
     expect(status[0]!.textContent).toBe('Đã dừng');
   });
 
-  it('marks the language switcher with a globe', () => {
-    render('/theory');
-    const group = container.querySelector('[role="radiogroup"][aria-label="Language"]')!;
-    expect(group.querySelector('svg.globe[aria-hidden="true"]')).not.toBeNull();
-  });
-
   it('lists the lessons in order, the fretboard first', () => {
     render('/theory/library');
     const cards = [...container.querySelectorAll('a.lesson-card')].map((a) =>
@@ -199,17 +179,14 @@ describe('Theory app', () => {
     expect(document.title).toBe(`${pentatonicMap.copy.en.title} · Guitarmateur Theory`);
   });
 
-  describe.each(LESSONS.map((l) => [l.slug, l] as const))('%s', (slug, lesson) => {
-    it.each(['en', 'vi'] as const)('renders every step in %s', (lang) => {
-      localStorage.setItem(LANG_STORAGE_KEY, lang);
-      render(`/theory/${slug}`);
-      const copy = lesson.copy[lang];
-      for (const s of lesson.steps) {
-        expect(text()).toContain(copy.steps[s.id]!.title);
-        expect(text()).toContain(copy.steps[s.id]!.takeaway);
-        expect(container.querySelector(`section#${s.id} svg`)).not.toBeNull();
-      }
-    });
+  // Every scene mounts and draws. Translations are checked for parity in lessons.test.ts, and
+  // switching the page's language in 'switches to Vietnamese and remembers it'.
+  it.each(LESSONS.map((l) => [l.slug, l] as const))('%s renders a drawn scene for every step', (slug, lesson) => {
+    render(`/theory/${slug}`);
+    for (const s of lesson.steps) {
+      expect(container.querySelector(`section#${s.id} h2`)?.textContent).toContain(lesson.copy.en.steps[s.id]!.title);
+      expect(container.querySelector(`section#${s.id} svg`), s.id).not.toBeNull();
+    }
   });
 
   it('plays the note you click', () => {
@@ -318,17 +295,11 @@ describe('Theory app', () => {
       expect(document.title).toBe(`${LESSONS[1]!.copy.en.title} · Guitarmateur Theory`);
     });
 
-    it.each(LESSONS.map((l) => [l.slug, l] as const))(
-      '%s links to Practice only if it has a Practice key',
-      (slug, lesson) => {
-        render(`/theory/${slug}`);
-        const link = nav().querySelector('a.trainer');
-        expect(link !== null).toBe(lesson.practice !== undefined);
-        if (!link) return;
-        expect(link.textContent).toBe('Practise licks from this lesson in Practice →');
-        expect(payload(link).lang).toBe('en');
-      },
-    );
+    it('has no Practice link when the lesson has no Practice key', () => {
+      expect(LESSONS[0]!.practice).toBeUndefined();
+      render(`/theory/${LESSONS[0]!.slug}`);
+      expect(nav().querySelector('a.trainer')).toBeNull();
+    });
 
     it("opens Practice on the lesson's key and chords", () => {
       localStorage.setItem(LANG_STORAGE_KEY, 'vi');
@@ -1014,18 +985,6 @@ describe('Theory app', () => {
     expect(slowStrumPlucks[1]!.delay! - slowStrumPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
   });
 
-  it('renders session settings bar in session 2 and allows controlling strum speed', () => {
-    render('/theory/s/beat-and-bar');
-    const settingsBar = container.querySelector('.session-settings-bar')!;
-    expect(settingsBar).not.toBeNull();
-    const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
-      (b) => b.textContent === 'Slow',
-    )!;
-    expect(slowChip).toBeDefined();
-    click(slowChip);
-    expect(localStorage.getItem('theory.strumSpeed')).toBe('slow');
-  });
-
   it('plays clicks and strums in session 2 strum-along and stops', () => {
     vi.useFakeTimers({
       toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
@@ -1096,38 +1055,6 @@ describe('Theory app', () => {
     }
   });
 
-  it('plays fillBars in session 7 and honours slow strum speed widening string gap', () => {
-    vi.useFakeTimers({
-      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
-    });
-    try {
-      const { player, plucks } = fakePlayer();
-      render('/theory/s/one-four-five', player);
-
-      const settingsBar = container.querySelector('.session-settings-bar')!;
-      expect(settingsBar).not.toBeNull();
-      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
-        (b) => b.textContent === 'Slow',
-      )!;
-      expect(slowChip).toBeDefined();
-      click(slowChip);
-
-      const challengeSection = container.querySelector('section#challenge')!;
-      const startBtn = [...challengeSection.querySelectorAll('button')].find(
-        (b) => b.textContent === 'Start',
-      )!;
-      expect(startBtn).toBeDefined();
-      click(startBtn);
-
-      // At step 0, FillBars plays chord strum with slow speed (spread = 0.08)
-      expect(plucks.length).toBeGreaterThanOrEqual(6);
-      const firstStrum = plucks.slice(0, 6);
-      expect(firstStrum[1]!.delay! - firstStrum[0]!.delay!).toBeCloseTo(0.08, 3);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
   it('plays song bench in session 8 and honours slow strum speed widening string gap', () => {
     vi.useFakeTimers({
       toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
@@ -1154,38 +1081,6 @@ describe('Theory app', () => {
       // At step 0, SongBench plays a melody pluck and a chord strum with slow speed (spread = 0.08)
       expect(plucks.length).toBeGreaterThanOrEqual(7);
       const chordPlucks = plucks.slice(1, 7);
-      expect(chordPlucks[1]!.delay! - chordPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('plays transpose table in session 9 and honours slow strum speed widening string gap', () => {
-    vi.useFakeTimers({
-      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'],
-    });
-    try {
-      const { player, plucks } = fakePlayer();
-      render('/theory/s/change-key', player);
-
-      const settingsBar = container.querySelector('.session-settings-bar')!;
-      expect(settingsBar).not.toBeNull();
-      const slowChip = [...settingsBar.querySelectorAll('[role="radio"]')].find(
-        (b) => b.textContent === 'Slow',
-      )!;
-      expect(slowChip).toBeDefined();
-      click(slowChip);
-
-      const listenSection = container.querySelector('section#listen')!;
-      const playBtn = [...listenSection.querySelectorAll('button')].find(
-        (b) => b.textContent === 'Play',
-      )!;
-      expect(playBtn).toBeDefined();
-      click(playBtn);
-
-      // At step 0, TransposeTable plays G chord with slow speed (spread = 0.08)
-      expect(plucks.length).toBeGreaterThanOrEqual(6);
-      const chordPlucks = plucks.slice(0, 6);
       expect(chordPlucks[1]!.delay! - chordPlucks[0]!.delay!).toBeCloseTo(0.08, 3);
     } finally {
       vi.useRealTimers();
