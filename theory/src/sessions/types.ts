@@ -90,6 +90,12 @@ export type Block =
       readonly metronome?: boolean;
     }
   | {
+      readonly kind: 'powerRiff';
+      readonly key: string;
+      readonly tonic: string;
+      readonly keys: readonly string[];
+    }
+  | {
       readonly kind: 'chords';
       readonly key: string;
       readonly in: SessionKey;
@@ -213,6 +219,14 @@ export interface TabPhraseCopy extends BaseBlockCopy {
   readonly play: string;
 }
 
+export interface PowerRiffCopy extends BaseBlockCopy {
+  readonly grid: string;
+  readonly rest: string;
+  readonly articulation: string;
+  readonly muted: string;
+  readonly open: string;
+}
+
 export type BlockCopy =
   | BaseBlockCopy
   | ListenCopy
@@ -222,6 +236,7 @@ export type BlockCopy =
   | FillBarsCopy
   | SongCopy
   | TabPhraseCopy
+  | PowerRiffCopy
   | TransposeCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
@@ -233,6 +248,7 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   reveal: ['intro', 'ask', 'answer'],
   backingTrack: ['intro'],
   tabPhrase: ['intro', 'label', 'play'],
+  powerRiff: ['intro', 'grid', 'rest', 'articulation', 'muted', 'open'],
   boxEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],

@@ -8,6 +8,7 @@ import { hasBlueNote } from './hasBlueNote';
 import { keyMode } from './keyMode';
 import { minorBar } from './minorBar';
 import { moves } from './moves';
+import { muteOrOpen } from './muteOrOpen';
 import { oddChord } from './oddChord';
 import { onBeat } from './onBeat';
 import { pentatonicOrMajor } from './pentatonicOrMajor';
@@ -20,6 +21,7 @@ import { rootAcrossStrings } from './rootAcrossStrings';
 import { sameChord } from './sameChord';
 import { sequenceKind } from './sequenceKind';
 import { seventh } from './seventh';
+import { singleDoubleOrOctave } from './singleDoubleOrOctave';
 import { straightOrShuffle } from './straightOrShuffle';
 import { meter } from './meter';
 import type { Drill } from './types';
@@ -35,6 +37,7 @@ export { keyMode } from './keyMode';
 export { meter } from './meter';
 export { minorBar } from './minorBar';
 export { moves } from './moves';
+export { muteOrOpen } from './muteOrOpen';
 export { oddChord } from './oddChord';
 export { onBeat } from './onBeat';
 export { pentatonicOrMajor } from './pentatonicOrMajor';
@@ -47,6 +50,7 @@ export { rootAcrossStrings } from './rootAcrossStrings';
 export { sameChord } from './sameChord';
 export { sequenceKind } from './sequenceKind';
 export { seventh } from './seventh';
+export { singleDoubleOrOctave } from './singleDoubleOrOctave';
 export { straightOrShuffle } from './straightOrShuffle';
 
 export const DRILLS: Partial<Record<DrillId, Drill>> = {
@@ -64,6 +68,8 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   bendPitch,
   pickOrLegato,
   callAndResponse,
+  muteOrOpen,
+  singleDoubleOrOctave,
   moves,
   chordCount,
   fourOrFive,

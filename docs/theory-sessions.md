@@ -1,6 +1,6 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20) and five in Stage F (21–25). The remaining
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20), five in Stage F (21–25), and two in Stage G (26–27). The remaining
 sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
@@ -89,6 +89,7 @@ export type Block =
   | { readonly kind: 'lesson'; readonly key: string; readonly lesson: string; readonly step: string }
   | { readonly kind: 'tabPhrase'; readonly key: string; readonly notes: readonly LickNote[];
       readonly bpm: number; readonly metronome?: boolean }
+  | { readonly kind: 'powerRiff'; readonly key: string; readonly tonic: string; readonly keys: readonly string[] }
   | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[] }
   | { readonly kind: 'strumAlong'; readonly key: string; readonly in: SessionKey; readonly bars: readonly ChordSpec[];
       readonly bpm: number; readonly beatsPerBar?: 3 | 4; readonly pattern?: string; readonly keys?: readonly string[];
@@ -156,6 +157,7 @@ export interface SessionCopy {
 | --- | --- |
 | `lesson` | `intro` (the scene itself uses the lesson's own scene copy) |
 | `tabPhrase` | `intro`, `label`, `play` |
+| `powerRiff` | `intro`, `grid`, `rest`, `articulation`, `muted`, `open` |
 | `chords` | `intro` |
 | `strumAlong` | `intro` |
 | `listen` | `intro`, `ask`, `answers` (label per answer id), `right`, `wrong` (may use `{answer}` and `{detail}`) |
@@ -193,6 +195,7 @@ has a strummed event, or a `backingTrack` with strum or comp style. `sessions.te
 | --- | --- | --- |
 | `lesson` | `LessonScene` (`ui/lessons/`) | One existing lesson scene, e.g. `chords` / `open`. |
 | `tabPhrase` | `TabPhrase.tsx` | A fixed playable tab with an optional metronome. Connected notes use the pitch movement from the blues lesson. |
+| `powerRiff` | `PowerRiff.tsx` | Loops two eighth-note power chords on each of beats 1–3, with a rest on beat 4. Choose the key and whether to palm mute. |
 | `chords` | `ChordCards.tsx` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for `OPEN_SHAPE_CHORDS`, otherwise lowest barre ≥ 1 from `barreOptions()`), click to strum. |
 | `listen` | `ListenDrill.tsx` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. |
 | `reveal` | `Reveal.tsx` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. |

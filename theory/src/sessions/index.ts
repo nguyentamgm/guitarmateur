@@ -3,6 +3,7 @@ import { bendsAndVibrato } from './bends-and-vibrato';
 import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
+import { doubleStopsAndBoogie } from './double-stops-and-boogie';
 import { findTheRoot } from './find-the-root';
 import { firstBluesLicks } from './first-blues-licks';
 import { fiveBoxesAndSequences } from './five-boxes-and-sequences';
@@ -12,6 +13,7 @@ import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { minorPentatonicBox } from './minor-pentatonic-box';
 import { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
+import { powerChordsAndPalmMute } from './power-chords-and-palm-mute';
 import { octaveShapes } from './octave-shapes';
 import { minorKeys } from './minor-keys';
 import { oneFourFive } from './one-four-five';
@@ -40,6 +42,7 @@ export { bendsAndVibrato } from './bends-and-vibrato';
 export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
+export { doubleStopsAndBoogie } from './double-stops-and-boogie';
 export { findTheRoot } from './find-the-root';
 export { firstBluesLicks } from './first-blues-licks';
 export { fiveBoxesAndSequences } from './five-boxes-and-sequences';
@@ -53,6 +56,7 @@ export { newSong } from './new-song';
 export { oneFourFive } from './one-four-five';
 export { outsideChords } from './outside-chords';
 export { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
+export { powerChordsAndPalmMute } from './power-chords-and-palm-mute';
 export { octaveShapes } from './octave-shapes';
 export { seventhChords } from './seventh-chords';
 export { shuffleAndTwelveBar } from './shuffle-and-twelve-bar';
@@ -86,6 +90,8 @@ export const SESSIONS: readonly Session[] = [
   bendsAndVibrato,
   legatoAndSlides,
   firstBluesLicks,
+  powerChordsAndPalmMute,
+  doubleStopsAndBoogie,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

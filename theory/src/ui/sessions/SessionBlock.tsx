@@ -6,6 +6,7 @@ import type {
   FillBarsCopy,
   ListenCopy,
   MelodyEchoCopy,
+  PowerRiffCopy,
   RevealCopy,
   Session,
   SongCopy,
@@ -21,6 +22,7 @@ import { ChordCards } from './ChordCards';
 import { FillBars } from './FillBars';
 import { ListenDrill } from './ListenDrill';
 import { MelodyEcho } from './MelodyEcho';
+import { PowerRiff } from './PowerRiff';
 import { Reveal } from './Reveal';
 import { SongBench } from './SongBench';
 import { StrumAlong } from './StrumAlong';
@@ -38,6 +40,8 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     }
     case 'tabPhrase':
       return <TabPhrase block={block} copy={session.copy[lang].blocks[block.key] as TabPhraseCopy} />;
+    case 'powerRiff':
+      return <PowerRiff block={block} copy={session.copy[lang].blocks[block.key] as PowerRiffCopy} />;
     case 'listen': {
       const copy = session.copy[lang].blocks[block.key] as ListenCopy;
       const drill = DRILLS[block.drill]!;
