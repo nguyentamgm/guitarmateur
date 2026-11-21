@@ -1,8 +1,8 @@
-import type { Chord } from '../../core/music';
+import type { Chord, DegreeLabel } from '../../core/music';
 import { chordIn } from '../../sessions/chordSpec';
 import { strummed } from '../../sessions/sound';
 import type { ChordSpec, SessionKey } from '../../sessions/types';
-import { chordShape, shapeMidis } from '../../sessions/voicing';
+import { chordShape, shapeMidis, upperVoicing } from '../../sessions/voicing';
 import { BarreBar } from '../BarreBar';
 import { useTheory } from '../context';
 import { Button } from '../controls';
@@ -13,11 +13,22 @@ import { playSound } from './playSound';
 import { useSessionStrumSpeed } from './sessionSettingsContext';
 import { STRUM_SPREADS } from './strumSpeed';
 
-export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
+export function ChordCard({
+  chord,
+  roman,
+  upperDegrees,
+}: {
+  chord: Chord;
+  roman?: string;
+  upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel];
+}) {
   const { player, ui } = useTheory();
   const speed = useSessionStrumSpeed();
-  const shape = chordShape(chord);
-  const fretCount = shape.barreFret !== null ? shape.barreFret + 3 : 4;
+  const shape = upperDegrees ? upperVoicing(chord, upperDegrees) : chordShape(chord);
+  const fretCount = Math.max(
+    shape.barreFret !== null ? shape.barreFret + 3 : 4,
+    ...shape.notes.map((n) => n.fret),
+  );
   const g = useNeckGeometry(fretCount, { fretWidth: 72 });
 
   const dots: FretDot[] = shape.notes.map((n) => ({
@@ -26,6 +37,8 @@ export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
     fret: n.fret,
     midi: n.midi,
     label: degreeText(n.degree),
+    name: upperDegrees ? n.name : undefined,
+    degree: upperDegrees ? degreeText(n.degree) : undefined,
     tone: n.degree === '1' ? 'home' : 'plain',
   }));
 
@@ -81,15 +94,24 @@ export function ChordCard({ chord, roman }: { chord: Chord; roman?: string }) {
 export function ChordCards({
   in: sessionKey,
   chords,
+  upperDegrees,
 }: {
   in: SessionKey;
   chords: readonly ChordSpec[];
+  upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel];
 }) {
   return (
     <>
       {chords.map((spec, i) => {
         const specChord = chordIn(sessionKey, spec);
-        return <ChordCard key={i} chord={specChord.chord} roman={specChord.roman} />;
+        return (
+          <ChordCard
+            key={i}
+            chord={specChord.chord}
+            roman={specChord.roman}
+            upperDegrees={upperDegrees}
+          />
+        );
       })}
     </>
   );

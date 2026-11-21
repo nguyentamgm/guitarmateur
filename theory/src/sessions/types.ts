@@ -73,6 +73,8 @@ export type Block =
       readonly bpm: number;
       readonly scale?: ScaleId;
       readonly keys?: readonly string[];
+      /** Draw the sounding chord's 3rd and 7th inside the box, including pitches outside the scale. */
+      readonly guideTones?: boolean;
       /** A two-bar box 1 lick that starts every four bars, leaving the other two bars to answer. */
       readonly call?: readonly LickEvent[];
     }
@@ -100,6 +102,8 @@ export type Block =
       readonly key: string;
       readonly in: SessionKey;
       readonly chords: readonly ChordSpec[];
+      /** Chord degrees on strings 3, 2 and 1 for a three-note upper voicing. */
+      readonly upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel];
     }
   | {
       readonly kind: 'strumAlong';

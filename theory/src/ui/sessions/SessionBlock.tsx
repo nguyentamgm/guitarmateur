@@ -53,8 +53,8 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
       return <Reveal drill={drill} copy={copy} />;
     }
     case 'chords': {
-      const { in: key, chords } = block;
-      return <ChordCards in={key} chords={chords} />;
+      const { in: key, chords, upperDegrees } = block;
+      return <ChordCards in={key} chords={chords} upperDegrees={upperDegrees} />;
     }
     case 'strumAlong':
       return <StrumAlong block={block} />;
