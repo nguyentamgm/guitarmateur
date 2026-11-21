@@ -94,7 +94,7 @@ export const en: SessionCopy = {
   ],
   canDo: [
     'I can hear whether a pentatonic phrase sounds bright (major) or bluesy (minor) over a major chord.',
-    'I can use box 1 in both minor and major keys by finding the right home fret on string 6.',
+    'I can use box 1 in both minor and major keys by finding the root on string 6.',
     'I can solo over a rock backing track and a strummed major backing track in time.',
   ],
 };

@@ -94,7 +94,7 @@ export const vi: SessionCopy = {
   ],
   canDo: [
     'Tôi có thể phân biệt câu pentatonic sáng (major) hay đanh nét blues (minor) trên nền hợp âm trưởng.',
-    'Tôi có thể dùng box 1 cho cả giọng thứ lẫn giọng trưởng bằng cách đặt đúng phím bắt đầu trên dây 6.',
+    'Tôi có thể dùng box 1 cho cả giọng thứ lẫn giọng trưởng bằng cách tìm root trên dây 6.',
     'Tôi có thể solo đúng nhịp trên backing track rock và backing track quạt chả giọng trưởng.',
   ],
 };
