@@ -1,6 +1,6 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 begins with the playable box 1 session (#334). The remaining
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20). The remaining
 sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is

@@ -14,6 +14,7 @@ import { rootNote } from './rootNote';
 import { octaveOrFifth } from './octaveOrFifth';
 import { rootAcrossStrings } from './rootAcrossStrings';
 import { sameChord } from './sameChord';
+import { sequenceKind } from './sequenceKind';
 import { seventh } from './seventh';
 import { meter } from './meter';
 import type { Drill } from './types';
@@ -35,6 +36,7 @@ export { rootNote } from './rootNote';
 export { octaveOrFifth } from './octaveOrFifth';
 export { rootAcrossStrings } from './rootAcrossStrings';
 export { sameChord } from './sameChord';
+export { sequenceKind } from './sequenceKind';
 export { seventh } from './seventh';
 
 export const DRILLS: Partial<Record<DrillId, Drill>> = {
@@ -46,6 +48,7 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   rootNote,
   octaveOrFifth,
   rootAcrossStrings,
+  sequenceKind,
   moves,
   chordCount,
   fourOrFive,
