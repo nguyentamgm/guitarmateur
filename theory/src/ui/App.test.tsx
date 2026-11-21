@@ -2014,6 +2014,59 @@ describe('Theory app', () => {
     expect(challenge.textContent).toContain('6/4');
   });
 
+  it('plays the chord-tone drill and updates the same box across the Am–G change in session 28', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      render('/theory/s/chord-tones-in-the-box', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Chord tones in the box');
+      click(container.querySelector('#listen button')!);
+      expect(plucked.length).toBeGreaterThan(3);
+
+      const play = container.querySelector('#play')!;
+      const onStringTwo = (note: string, fret: number) => play.querySelector(`[aria-label^="${note}, fret ${fret}, string 2"]`);
+      expect(onStringTwo('E', 5)?.textContent).toBe('5');
+      click([...play.querySelectorAll('button')].find((control) => control.textContent === 'Play')!);
+      act(() => vi.advanceTimersByTime(3_000));
+      expect(onStringTwo('G', 8)?.textContent).toBe('1');
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Nốt của hợp âm trong box');
+      expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=9&lang=vi');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows the guide tones in box 1 at the D7 and G7 changes in session 29', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      render('/theory/s/guide-tones', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Guide tones on the change');
+      container.querySelectorAll('#understand .power-symbol').forEach(click);
+      expect(plucked).toEqual([61, 67, 69, 62, 66, 72]);
+
+      const bluesTrack = container.querySelector('#play')!;
+      const fSharp = () => bluesTrack.querySelector('[aria-label^="F♯, fret 7, string 2, 3"]');
+      expect(fSharp()).toBeNull();
+      click([...bluesTrack.querySelectorAll('button')].find((control) => control.textContent === 'Play')!);
+      act(() => vi.advanceTimersByTime(12_300));
+      expect(fSharp()).not.toBeNull();
+      click(fSharp()!);
+      expect(plucked.at(-1)).toBe(66);
+
+      const jazz = container.querySelector('#challenge')!;
+      click(jazz.querySelector('button')!);
+      act(() => vi.advanceTimersByTime(3_000));
+      expect(jazz.querySelector('[aria-label^="B, fret 7, string 1, 3"]')).not.toBeNull();
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Guide tone khi đổi hợp âm');
+      expect(jazz.querySelector('[aria-label^="F, phím 6, dây 2, ♭7"]')).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

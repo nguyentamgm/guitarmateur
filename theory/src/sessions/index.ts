@@ -3,11 +3,13 @@ import { bendsAndVibrato } from './bends-and-vibrato';
 import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
+import { chordTonesInTheBox } from './chord-tones-in-the-box';
 import { doubleStopsAndBoogie } from './double-stops-and-boogie';
 import { findTheRoot } from './find-the-root';
 import { firstBluesLicks } from './first-blues-licks';
 import { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 import { firstSong } from './first-song';
+import { guideTones } from './guide-tones';
 import { legatoAndSlides } from './legato-and-slides';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
@@ -42,11 +44,13 @@ export { bendsAndVibrato } from './bends-and-vibrato';
 export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
+export { chordTonesInTheBox } from './chord-tones-in-the-box';
 export { doubleStopsAndBoogie } from './double-stops-and-boogie';
 export { findTheRoot } from './find-the-root';
 export { firstBluesLicks } from './first-blues-licks';
 export { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 export { firstSong } from './first-song';
+export { guideTones } from './guide-tones';
 export { legatoAndSlides } from './legato-and-slides';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
@@ -92,6 +96,8 @@ export const SESSIONS: readonly Session[] = [
   firstBluesLicks,
   powerChordsAndPalmMute,
   doubleStopsAndBoogie,
+  chordTonesInTheBox,
+  guideTones,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

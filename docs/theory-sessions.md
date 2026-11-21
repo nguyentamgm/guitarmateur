@@ -1,6 +1,6 @@
 # Theory sessions
 
-**Status:** Path 1 has 16 playable sessions (#292). Path 2 has four playable sessions in Stage E (17–20), five in Stage F (21–25), and two in Stage G (26–27). The remaining
+**Status:** Path 1 has 16 playable sessions (#292). Path 2 has playable sessions 17–29 across stages E–H. The remaining
 sessions follow the curriculum plan (#332). Empty stages show “Coming soon” in the learner's language.
 
 ## What a session is
@@ -90,7 +90,8 @@ export type Block =
   | { readonly kind: 'tabPhrase'; readonly key: string; readonly notes: readonly LickNote[];
       readonly bpm: number; readonly metronome?: boolean }
   | { readonly kind: 'powerRiff'; readonly key: string; readonly tonic: string; readonly keys: readonly string[] }
-  | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[] }
+  | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[];
+      readonly upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel] }
   | { readonly kind: 'strumAlong'; readonly key: string; readonly in: SessionKey; readonly bars: readonly ChordSpec[];
       readonly bpm: number; readonly beatsPerBar?: 3 | 4; readonly pattern?: string; readonly keys?: readonly string[];
       readonly numeralsOnly?: boolean }
@@ -361,7 +362,7 @@ introduces. The drill IDs are reserved now. Generators and playable sessions arr
 **Lead blocks (#334).** `boxEcho` plays three or four pitches in a six-string box. The block may give the first note; the learner can tap back the phrase with higher/lower feedback. An optional `firstPhrase` supplies a model by scale degree before the random questions. `backingTrack`
 loops a supplied chord form, highlights the current bar and offers tempo, key and optional box
 controls. Strum and comp styles use the session strum spread. Rock and shuffle have their own
-patterns. An optional `call` plays a two-bar lick over each four-bar group on the same backing clock. The next two bars are left open for the learner to answer. Session 29 adds guide tones outside the selected scale in the same fret range.
+patterns. An optional `call` plays a two-bar lick over each four-bar group on the same backing clock. The next two bars are left open for the learner to answer. With `guideTones`, Session 29 also highlights the sounding chord's third and seventh in the same fret range, including notes outside the scale.
 `standardBlues12` is the common 12-bar blues form for session playback and the Practice handoffs in Sessions 21, 25 and 32.
 
 After session 18 the owner tries both sessions and records where singing, finding the fret or

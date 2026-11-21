@@ -6,7 +6,7 @@
  */
 import { EIGHTHS_PER_BAR, type BackingStyle } from '../../core/audio';
 import { MAX_BPM, MIN_BPM } from '../../core/rhythm';
-import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
+import { STRINGS, allPositions, byHomeFret, closestPath, midiAt, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
   LICK_EIGHTHS,
@@ -14,6 +14,7 @@ import {
   SCALES,
   bluesChord,
   chordSymbol,
+  chordNotes,
   chordToneDegree,
   format,
   landOn,
@@ -150,6 +151,17 @@ export function uniqueChords(bars: readonly BackingBar[]): BackingBar[] {
  * that tell one chord from the next), then the root, then the 5th (K7.2).
  */
 const TARGET_RANK: readonly (readonly DegreeLabel[])[] = [['3', 'b3'], ['7', 'b7', 'bb7'], ['1'], ['5', 'b5', '#5']];
+
+/** All thirds and sevenths of the chord within the current box's fret range. */
+export function guideTonePositions(box: Pick<SoloWindow, 'minFret' | 'maxFret'>, chord: Chord) {
+  return chordNotes(chord).flatMap((pitch) => {
+    const degree = chordToneDegree(chord, pitch)!;
+    if (!TARGET_RANK.slice(0, 2).some((degrees) => degrees.includes(degree))) return [];
+    return allPositions(pitch, box.maxFret)
+      .filter(({ fret }) => fret >= box.minFret)
+      .map((pos) => ({ ...pos, midi: midiAt(pos), degree, name: format(pitch) }));
+  });
+}
 
 /** The notes of the box that are the best target the box has for a chord, and which degree that is. */
 export function targets(window: SoloWindow, chord: Chord): { degree: DegreeLabel; notes: SoloNote[] } {

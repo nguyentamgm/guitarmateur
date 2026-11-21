@@ -6,6 +6,7 @@ import { finished } from './finished';
 import { fourOrFive } from './fourOrFive';
 import { hasBlueNote } from './hasBlueNote';
 import { keyMode } from './keyMode';
+import { landedOnChordTone } from './landedOnChordTone';
 import { minorBar } from './minorBar';
 import { moves } from './moves';
 import { muteOrOpen } from './muteOrOpen';
@@ -23,6 +24,7 @@ import { sequenceKind } from './sequenceKind';
 import { seventh } from './seventh';
 import { singleDoubleOrOctave } from './singleDoubleOrOctave';
 import { straightOrShuffle } from './straightOrShuffle';
+import { thirdOrRoot } from './thirdOrRoot';
 import { meter } from './meter';
 import type { Drill } from './types';
 
@@ -34,6 +36,7 @@ export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
 export { hasBlueNote } from './hasBlueNote';
 export { keyMode } from './keyMode';
+export { landedOnChordTone } from './landedOnChordTone';
 export { meter } from './meter';
 export { minorBar } from './minorBar';
 export { moves } from './moves';
@@ -52,6 +55,7 @@ export { sequenceKind } from './sequenceKind';
 export { seventh } from './seventh';
 export { singleDoubleOrOctave } from './singleDoubleOrOctave';
 export { straightOrShuffle } from './straightOrShuffle';
+export { thirdOrRoot } from './thirdOrRoot';
 
 export const DRILLS: Partial<Record<DrillId, Drill>> = {
   pentatonicOrMajor,
@@ -70,6 +74,8 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   callAndResponse,
   muteOrOpen,
   singleDoubleOrOctave,
+  landedOnChordTone,
+  thirdOrRoot,
   moves,
   chordCount,
   fourOrFive,

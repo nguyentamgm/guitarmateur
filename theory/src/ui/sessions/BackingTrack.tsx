@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { EIGHTHS_PER_BAR, STYLE_SWINGS } from '../../core/audio';
 import { parseNote } from '../../core/music';
 import { lickNotes, lickPlan, planGlide } from '../../lessons/blues';
-import { soloWindow, toneIn } from '../../lessons/solo';
+import { guideTonePositions, soloWindow, toneIn } from '../../lessons/solo';
 import { chordIn, type Block } from '../../sessions';
 import { chordShape, shapeMidis } from '../../sessions/voicing';
 import { BarGrid } from '../BarGrid';
@@ -78,15 +78,28 @@ export function BackingTrack({
     from: Math.max(0, (box?.minFret ?? 0) - 1),
   });
   const chord = bars[backing.bar ?? 0]!.chord;
-  const dots = box?.notes.map((n): FretDot => {
-    const degree = toneIn(n, chord);
-    return {
-      ...n,
-      key: posKey(n),
-      label: degreeText(degree ?? n.degree),
-      tone: degree === '1' ? 'home' : degree ? 'chord' : 'plain',
-    };
-  });
+  const guides = box && block.guideTones ? guideTonePositions(box, chord) : [];
+  const guideKeys = new Set(guides.map(posKey));
+  const dots = box?.notes
+    .filter((n) => !guideKeys.has(posKey(n)))
+    .map((n): FretDot => {
+      const degree = toneIn(n, chord);
+      return {
+        ...n,
+        key: posKey(n),
+        label: degreeText(degree ?? n.degree),
+        tone: degree === '1' ? 'home' : degree ? 'chord' : 'plain',
+      };
+    });
+  dots?.push(
+    ...guides.map((note): FretDot => ({
+      ...note,
+      key: posKey(note),
+      degree: degreeText(note.degree),
+      label: degreeText(note.degree),
+      tone: 'target',
+    })),
+  );
   return (
     <div className="board">
       <div className="controls">

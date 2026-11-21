@@ -1,5 +1,6 @@
 import {
   barreOptions,
+  fretsOf,
   midiAt,
   openVoicing,
   pitchAtPos,
@@ -12,8 +13,10 @@ import {
   chordSymbol,
   chordToneDegree,
   format,
+  interval,
   parseNote,
   sameNote,
+  transpose,
   type Chord,
   type ChordId,
   type DegreeLabel,
@@ -59,7 +62,9 @@ function shapeNote(pos: FretPos, chord: Chord): ShapeNote {
   const pitch = pitchAtPos(pos, context);
   const degree = chordToneDegree(chord, pitch);
   if (!degree) {
-    throw new Error(`Note at string ${pos.string} fret ${pos.fret} is not a chord tone of ${chordSymbol(chord)}`);
+    throw new Error(
+      `Note at string ${pos.string} fret ${pos.fret} is not a chord tone of ${chordSymbol(chord)}`,
+    );
   }
   return {
     ...pos,
@@ -103,3 +108,15 @@ export function chordShape(chord: Chord): Shape {
 
 /** The notes' midi, low to high (string 6 → 1). */
 export const shapeMidis = (s: Shape): number[] => s.notes.map((n) => n.midi);
+
+/** A chord's selected degrees in the first octave of frets on the top three strings. */
+export function upperVoicing(
+  chord: Chord,
+  degrees: readonly [DegreeLabel, DegreeLabel, DegreeLabel],
+): Shape {
+  const notes = ([3, 2, 1] as const).map((string, i) => {
+    const pitch = transpose(chord.root, interval(degrees[i]!));
+    return shapeNote({ string, fret: fretsOf(pitch, string, 11)[0]! }, chord);
+  });
+  return { chord, symbol: chordSymbol(chord), notes, muted: [6, 5, 4], barreFret: null };
+}
