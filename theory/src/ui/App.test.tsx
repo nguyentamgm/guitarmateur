@@ -2067,6 +2067,46 @@ describe('Theory app', () => {
     }
   });
 
+  it('plays the A–C–E motif with space after it in session 30', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked, clicks } = fakePlayer();
+      render('/theory/s/phrasing-and-motifs', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Phrasing and motifs');
+      click(button('Hear the motif'));
+      act(() => vi.advanceTimersByTime(3_000));
+      expect(plucked).toEqual([45, 48, 52]);
+      expect(clicks).toHaveLength(4);
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Xây câu nhạc với motif');
+      expect(button('Nghe motif')).toBeDefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('adds B over the same chord and shows it in the session 31 position', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player } = fakePlayer();
+      const pluck = vi.spyOn(player, 'pluck');
+      render('/theory/s/three-notes-per-string', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Three notes per string');
+      const listen = container.querySelector('#listen')!;
+      click([...listen.querySelectorAll('button')].find((control) => control.textContent === 'Play')!);
+      act(() => vi.advanceTimersByTime(5_700));
+      // The rock backing uses mute(), so these plucks are the lead line.
+      expect(pluck.mock.calls.map(([midi]) => midi)).toEqual([45, 48, 52, 45, 47, 48, 52]);
+      const challenge = container.querySelector('#challenge')!;
+      expect(challenge.querySelector('[aria-label^="B, fret 7, string 6"]')).not.toBeNull();
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Ba nốt mỗi dây');
+      expect(challenge.querySelector('[aria-label^="F, phím 8, dây 5"]')).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

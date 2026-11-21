@@ -2,12 +2,14 @@ import type { DrillId } from '../types';
 import { bendPitch } from './bendPitch';
 import { callAndResponse } from './callAndResponse';
 import { chordCount } from './chordCount';
+import { dupleOrTripletRun } from './dupleOrTripletRun';
 import { finished } from './finished';
 import { fourOrFive } from './fourOrFive';
 import { hasBlueNote } from './hasBlueNote';
 import { keyMode } from './keyMode';
 import { landedOnChordTone } from './landedOnChordTone';
 import { minorBar } from './minorBar';
+import { motifOrNoodling } from './motifOrNoodling';
 import { moves } from './moves';
 import { muteOrOpen } from './muteOrOpen';
 import { oddChord } from './oddChord';
@@ -32,6 +34,7 @@ export * from './types';
 export { bendPitch } from './bendPitch';
 export { callAndResponse } from './callAndResponse';
 export { chordCount } from './chordCount';
+export { dupleOrTripletRun } from './dupleOrTripletRun';
 export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
 export { hasBlueNote } from './hasBlueNote';
@@ -39,6 +42,7 @@ export { keyMode } from './keyMode';
 export { landedOnChordTone } from './landedOnChordTone';
 export { meter } from './meter';
 export { minorBar } from './minorBar';
+export { motifOrNoodling } from './motifOrNoodling';
 export { moves } from './moves';
 export { muteOrOpen } from './muteOrOpen';
 export { oddChord } from './oddChord';
@@ -76,6 +80,8 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   singleDoubleOrOctave,
   landedOnChordTone,
   thirdOrRoot,
+  motifOrNoodling,
+  dupleOrTripletRun,
   moves,
   chordCount,
   fourOrFive,
