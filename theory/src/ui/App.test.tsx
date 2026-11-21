@@ -1789,6 +1789,20 @@ describe('Theory app', () => {
     }
   });
 
+  it('gives the starting fret, then reveals and plays both higher octaves in Vietnamese', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/octave-shapes?lang=vi', player);
+    const challenge = container.querySelector('#challenge .board')!;
+    click(challenge.querySelector('button')!);
+    const fret = plucked[0]! - 40;
+    expect(plucked).toHaveLength(1);
+    expect(challenge.querySelector('.question')!.textContent).toContain(`dây 6 phím ${fret}`);
+    expect(challenge.querySelector('.good')).toBeNull();
+    click(challenge.querySelectorAll('button')[1]!);
+    expect(challenge.querySelector('.good')!.textContent).toContain(`dây 4 phím ${fret + 2}, rồi dây 2 phím ${fret + 5}`);
+    expect(plucked.slice(1)).toEqual([40 + fret, 52 + fret, 64 + fret]);
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);

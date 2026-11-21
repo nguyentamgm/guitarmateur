@@ -48,19 +48,26 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
     );
   }
 
+  const vars = { ...question.vars, answer: question.answer, detail: question.detail ?? '' };
+  const replay = revealed && question.revealSound ? question.revealSound : question.sound;
   return (
     <div className="board">
       <div className="quiz">
-        <span className="question">{copy.ask}</span>
+        <span className="question">{fill(copy.ask, vars)}</span>
         <Button
-          onClick={() =>
-            playSound(player, question.sound, { leadInSec: 0.15, strumSpreadSec: spread })
-          }
+          onClick={() => playSound(player, replay, { leadInSec: 0.15, strumSpreadSec: spread })}
         >
           {ui.session.playAgain}
         </Button>
         {!revealed ? (
-          <Button onClick={() => setRevealed(true)}>{ui.session.showAnswer}</Button>
+          <Button
+            onClick={() => {
+              setRevealed(true);
+              if (question.revealSound) playSound(player, question.revealSound);
+            }}
+          >
+            {ui.session.showAnswer}
+          </Button>
         ) : (
           <Button onClick={next} ghost>
             {ui.session.next}
@@ -70,7 +77,7 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
       {revealed && (
         <>
           <p className="caption good" aria-live="polite">
-            {fill(copy.answer, { answer: question.answer, detail: question.detail ?? '' })}
+            {fill(copy.answer, vars)}
           </p>
           {question.chord && <ChordCard chord={question.chord} />}
         </>

@@ -6,6 +6,8 @@ export interface DrillQuestion {
   readonly sound: Sound;
   readonly compare?: Sound; // played after a wrong answer
   readonly detail?: string; // fills {detail} in copy: a chord symbol, a fret, a note name
+  readonly vars?: Readonly<Record<string, string | number>>; // named values for localized prompts
+  readonly revealSound?: Sound; // played when the learner opens the answer
   readonly chord?: Chord;
   readonly run?: number; // optional run count for repetition avoidance
 }
