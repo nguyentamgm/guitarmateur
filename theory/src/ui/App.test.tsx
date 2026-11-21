@@ -1970,6 +1970,50 @@ describe('Theory app', () => {
     }
   });
 
+  it('rests through beat four before repeating the session 26 riff', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      render('/theory/s/power-chords-and-palm-mute', player);
+      expect(container.querySelector('h1')?.textContent).toBe('Power chords and palm mute');
+      const riff = container.querySelector('#play .board')!;
+      click(riff.querySelector('button.btn')!);
+      act(() => vi.advanceTimersByTime(1_900));
+      expect(plucked).toHaveLength(12);
+      act(() => vi.advanceTimersByTime(500));
+      expect(plucked).toHaveLength(12);
+      act(() => vi.advanceTimersByTime(250));
+      expect(plucked.slice(12)).toEqual([40, 47]);
+
+      const a = [...riff.querySelectorAll('[role="radio"]')].find((radio) => radio.textContent === 'A')!;
+      click(a);
+      click(riff.querySelector('button.btn')!);
+      expect(plucked.slice(-2)).toEqual([45, 52]);
+      click(container.querySelector('button[lang="vi"]')!);
+      expect(container.querySelector('h1')?.textContent).toBe('Power chord và palm mute');
+      expect(riff.querySelector('[aria-label="Dấu lặng"]')).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('plays the session 27 double-stop answer and shows where it fits in the chorus', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/double-stops-and-boogie', player);
+    expect(container.querySelector('h1')?.textContent).toBe('Double stops and boogie');
+    click(button('2–1 · 5'));
+    click(button('Slide in'));
+    expect(plucked).toEqual([62, 67]);
+
+    const challenge = container.querySelector('#challenge')!;
+    expect(challenge.querySelectorAll('.bars .sym')).toHaveLength(12);
+    expect(challenge.textContent).toContain('beat 1 of bar 12');
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(container.querySelector('h1')?.textContent).toBe('Double stop và boogie');
+    expect(challenge.textContent).toContain('phách 1 của bar 12');
+    expect(challenge.textContent).toContain('6/4');
+  });
+
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
     const { player, plucked } = fakePlayer();
     render('/theory/s/pentatonic-keys-and-modes', player);
