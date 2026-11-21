@@ -4,6 +4,7 @@ import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
+import { firstBluesLicks } from './first-blues-licks';
 import { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 import { firstSong } from './first-song';
 import { legatoAndSlides } from './legato-and-slides';
@@ -40,6 +41,7 @@ export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
+export { firstBluesLicks } from './first-blues-licks';
 export { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 export { firstSong } from './first-song';
 export { legatoAndSlides } from './legato-and-slides';
@@ -83,6 +85,7 @@ export const SESSIONS: readonly Session[] = [
   theBlueNote,
   bendsAndVibrato,
   legatoAndSlides,
+  firstBluesLicks,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {
