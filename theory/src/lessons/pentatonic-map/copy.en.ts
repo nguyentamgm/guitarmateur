@@ -77,6 +77,7 @@ export const en: PentatonicMapCopy = {
     },
     keys: {
       finder: 'Root on string 6',
+      compare: 'Hear the same phrase in A minor and B minor',
       cycle: 'Slide through keys',
       stop: 'Stop',
       caption: '{key} minor: root on string 6 at fret {fret}',

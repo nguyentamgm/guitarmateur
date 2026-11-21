@@ -112,6 +112,12 @@ export const inBox = (box: Pick<Box, 'minFret' | 'maxFret'>, pos: FretPos): bool
 /** Minor keys by home fret on string 6 (0…11), named by the core's minor-key rule. */
 export const FINDER_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
 
+/** Play degrees 1–♭3–4–1 in box 1 with the same fingering in both keys. */
+export const keyComparison = [EXAMPLE_TONIC, parseNote('B')].flatMap((tonic) => {
+  const notes = boxes(tonic)[0]!.notes;
+  return [0, 1, 2, 0].map((index, beat) => ({ tonic, note: notes[index]!, startsPhrase: beat === 0 }));
+});
+
 export interface KeyView {
   readonly tonic: NoteName;
   readonly homeFret: number;
