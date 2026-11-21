@@ -72,6 +72,7 @@ export type Block =
       readonly style: BackingStyle;
       readonly bpm: number;
       readonly scale?: ScaleId;
+      readonly notesPerString?: 3;
       readonly keys?: readonly string[];
       /** Draw the sounding chord's 3rd and 7th inside the box, including pitches outside the scale. */
       readonly guideTones?: boolean;

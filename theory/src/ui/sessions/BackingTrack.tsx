@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { EIGHTHS_PER_BAR, STYLE_SWINGS } from '../../core/audio';
 import { parseNote } from '../../core/music';
-import { lickNotes, lickPlan, planGlide } from '../../lessons/blues';
+import { lickNotes, lickNotesFrom, lickPlan, planGlide } from '../../lessons/blues';
 import { guideTonePositions, soloWindow, toneIn } from '../../lessons/solo';
 import { chordIn, type Block } from '../../sessions';
 import { chordShape, shapeMidis } from '../../sessions/voicing';
@@ -30,16 +30,23 @@ export function BackingTrack({
   const speed = useSessionStrumSpeed();
   const strums = block.style === 'strum' || block.style === 'comp';
   const swing = STYLE_SWINGS[block.style] ? 1 : 0;
+  const box = useMemo(
+    () => block.scale && soloWindow(parseNote(tonic), block.scale, block.notesPerString),
+    [block.scale, block.notesPerString, tonic],
+  );
   const callPlans = useMemo(() => {
     if (!block.call) return null;
-    const notes = lickNotes(
-      parseNote(tonic),
-      block.call,
-      1,
-      block.scale === 'minorBlues' ? block.scale : undefined,
-    );
+    const notes =
+      block.notesPerString === 3 && box
+        ? lickNotesFrom(box.notes, block.call)
+        : lickNotes(
+            parseNote(tonic),
+            block.call,
+            1,
+            block.scale === 'minorBlues' ? block.scale : undefined,
+          );
     return new Map(lickPlan(notes).map((plan) => [plan.cell, plan]));
-  }, [block.call, block.scale, tonic]);
+  }, [block.call, block.notesPerString, block.scale, box, tonic]);
   useEffect(() => {
     if (block.call) return () => player.cancel();
   }, [block.call, player]);
@@ -69,10 +76,6 @@ export function BackingTrack({
       : undefined,
     true,
     strums ? STRUM_SPREADS[speed] : undefined,
-  );
-  const box = useMemo(
-    () => block.scale && soloWindow(parseNote(tonic), block.scale),
-    [block.scale, tonic],
   );
   const geometry = useNeckGeometry((box?.maxFret ?? 4) + 1, {
     from: Math.max(0, (box?.minFret ?? 0) - 1),

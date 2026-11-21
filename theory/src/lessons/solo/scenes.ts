@@ -101,21 +101,22 @@ const pentatonicOf = (scale: ScaleId): ScaleId => (SCALES[scale].quality === 'mi
 /**
  * Every note of the scale inside the frets of pentatonic box 1 (K3.4): the box itself for a
  * pentatonic, the box with the blue note for the blues scale, the box with the 4 and 7 filled in
- * for the major scale. One hand position, whatever the scale.
+ * for the major scale. Pass 3 to use the generated first three-notes-per-string position instead.
  */
-export function soloWindow(tonic: NoteName, scale: ScaleId): SoloWindow {
-  const box = positions({ tonic, scale: pentatonicOf(scale), notesPerString: 2 })[0]!;
+export function soloWindow(tonic: NoteName, scale: ScaleId, notesPerString: 2 | 3 = 2): SoloWindow {
+  const base = pentatonicOf(scale);
+  const box = positions({ tonic, scale: notesPerString === 3 ? scale : base, notesPerString })[0]!;
   const context = scaleNotes(tonic, scale);
   const pcs = new Set(context.map(pc));
-  const basePcs = new Set(scaleNotes(tonic, pentatonicOf(scale)).map(pc));
-  const notes = STRINGS.flatMap((string) =>
+  const basePcs = new Set(scaleNotes(tonic, base).map(pc));
+  const cells = notesPerString === 3 ? box.notes : STRINGS.flatMap((string) =>
     Array.from({ length: box.maxFret - box.minFret + 1 }, (_, k) => ({ string, fret: box.minFret + k }))
-      .filter((p) => pcs.has(mod(openMidi(p.string) + p.fret, 12)))
-      .map((p): SoloNote => {
-        const pitch = pitchAtPos(p, context);
-        return { ...neckNote(p, tonic, context), pitch, isAdded: !basePcs.has(pc(pitch)) };
-      }),
-  ).sort((a, b) => a.midi - b.midi);
+      .filter((p) => pcs.has(mod(openMidi(p.string) + p.fret, 12))),
+  );
+  const notes = cells.map((p): SoloNote => {
+    const pitch = pitchAtPos(p, context);
+    return { ...neckNote(p, tonic, context), pitch, isAdded: !basePcs.has(pc(pitch)) };
+  }).sort((a, b) => a.midi - b.midi);
   return { tonic, scale, minFret: box.minFret, maxFret: box.maxFret, notes };
 }
 

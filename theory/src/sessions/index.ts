@@ -15,6 +15,7 @@ import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { minorPentatonicBox } from './minor-pentatonic-box';
 import { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
+import { phrasingAndMotifs } from './phrasing-and-motifs';
 import { powerChordsAndPalmMute } from './power-chords-and-palm-mute';
 import { octaveShapes } from './octave-shapes';
 import { minorKeys } from './minor-keys';
@@ -24,6 +25,7 @@ import { shuffleAndTwelveBar } from './shuffle-and-twelve-bar';
 import { theBlueNote } from './the-blue-note';
 import { theSixChord } from './the-six-chord';
 import { threeFour } from './three-four';
+import { threeNotesPerString } from './three-notes-per-string';
 import { barreChords } from './barre-chords';
 import { newSong } from './new-song';
 import { outsideChords } from './outside-chords';
@@ -60,6 +62,7 @@ export { newSong } from './new-song';
 export { oneFourFive } from './one-four-five';
 export { outsideChords } from './outside-chords';
 export { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
+export { phrasingAndMotifs } from './phrasing-and-motifs';
 export { powerChordsAndPalmMute } from './power-chords-and-palm-mute';
 export { octaveShapes } from './octave-shapes';
 export { seventhChords } from './seventh-chords';
@@ -67,6 +70,7 @@ export { shuffleAndTwelveBar } from './shuffle-and-twelve-bar';
 export { theBlueNote } from './the-blue-note';
 export { theSixChord } from './the-six-chord';
 export { threeFour } from './three-four';
+export { threeNotesPerString } from './three-notes-per-string';
 
 export const SESSIONS: readonly Session[] = [
   majorOrMinor,
@@ -98,6 +102,8 @@ export const SESSIONS: readonly Session[] = [
   doubleStopsAndBoogie,
   chordTonesInTheBox,
   guideTones,
+  phrasingAndMotifs,
+  threeNotesPerString,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {
