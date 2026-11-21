@@ -7,6 +7,7 @@ import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
 import { minorPentatonicBox } from './minor-pentatonic-box';
+import { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
 import { minorKeys } from './minor-keys';
 import { oneFourFive } from './one-four-five';
 import { seventhChords } from './seventh-chords';
@@ -35,9 +36,11 @@ export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
 export { minorKeys } from './minor-keys';
+export { minorPentatonicBox } from './minor-pentatonic-box';
 export { newSong } from './new-song';
 export { oneFourFive } from './one-four-five';
 export { outsideChords } from './outside-chords';
+export { pentatonicKeysAndModes } from './pentatonic-keys-and-modes';
 export { seventhChords } from './seventh-chords';
 export { theSixChord } from './the-six-chord';
 export { threeFour } from './three-four';
@@ -60,6 +63,7 @@ export const SESSIONS: readonly Session[] = [
   outsideChords,
   newSong,
   minorPentatonicBox,
+  pentatonicKeysAndModes,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

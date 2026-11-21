@@ -1866,6 +1866,43 @@ describe('Theory app', () => {
     expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=12&lang=vi');
   });
 
+  it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/pentatonic-keys-and-modes', player);
+    expect(text()).toContain('Keys and modes');
+    expect(plucked).toEqual([]);
+
+    const listen = container.querySelector('#listen')!;
+    const startBtn = [...listen.querySelectorAll('button')].find((b) => b.textContent === 'Start')!;
+    expect(startBtn).toBeDefined();
+    click(startBtn);
+    expect(plucked.length).toBeGreaterThan(0);
+
+    const minorBtn = [...listen.querySelectorAll('button')].find((b) => b.textContent === 'Minor pentatonic')!;
+    expect(minorBtn).toBeDefined();
+    click(minorBtn);
+    expect(listen.textContent).toMatch(/over (A|G|E|C|D)/);
+
+    const tracks = [...container.querySelectorAll('#play .board')].filter((b) => b.querySelector('.bars'));
+    expect(tracks).toHaveLength(2);
+    expect(tracks[0]!.textContent).toContain('Em');
+    expect(tracks[1]!.textContent).toContain('G');
+
+    const control = (track: Element, label: string) =>
+      [...track.querySelectorAll('button')].find((b) => b.textContent === label)!;
+    click(control(tracks[0]!, 'Play'));
+    expect(control(tracks[0]!, 'Stop')).toBeDefined();
+    click(control(tracks[0]!, 'Stop'));
+
+    click(control(tracks[1]!, 'Play'));
+    expect(control(tracks[1]!, 'Stop')).toBeDefined();
+    click(control(tracks[1]!, 'Stop'));
+
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(text()).toContain('Giọng và mode');
+    expect(container.querySelector('.session-ear-link a')?.getAttribute('href')).toBe('/ear-training?level=10&lang=vi');
+  });
+
   it('links sessions with earLevel to Ear training in the page language, and omits the link when unset', () => {
     render('/theory/s/major-or-minor');
     const earLink = container.querySelector('main a[href^="/ear-training"]')!;
