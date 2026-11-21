@@ -51,7 +51,7 @@ export const en: SessionCopy = {
     },
     scale: {
       intro:
-        'Choose Rock i–VII–VI–VII. Look at the A minor pentatonic box and listen to the four chords underneath it.',
+        'Choose Rock i–VII–VI–VII. Look at the A minor pentatonic box and listen to the changing roots. The backing in Play adds the thirds so you can hear the full chords.',
     },
     tones: {
       intro:

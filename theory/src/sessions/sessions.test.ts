@@ -5,6 +5,7 @@ import { findLesson } from '../lessons';
 import { soloWindow } from '../lessons/solo';
 import { parseNote } from '../core/music';
 import sitemap from '../../../public/sitemap.xml?raw';
+import sessionDocs from '../../../docs/theory-sessions.md?raw';
 import { mulberry32 } from '@shared/core/rng';
 import { EIGHTHS_PER_BAR } from '../core/audio';
 import {
@@ -232,32 +233,16 @@ describe('session registry', () => {
     expect(sessionUrls).toEqual(SESSIONS.map((s) => s.slug));
   });
 
-  it('has 16 sessions: 4 in stage A, 5 in B, 4 in C, 3 in D, matching docs/theory-sessions.md in order', () => {
+  it('has 32 sessions across both paths and matches the order and stages in the curriculum docs', () => {
+    expect(SESSIONS).toHaveLength(32);
     expect(sessionsOf('accompany')).toHaveLength(16);
-    expect(sessionsOf('accompany', 'A').map((s) => s.slug)).toEqual([
-      'major-or-minor',
-      'beat-and-bar',
-      'find-the-root',
-      'melody-by-ear',
-    ]);
-    expect(sessionsOf('accompany', 'B').map((s) => s.slug)).toEqual([
-      'chord-family',
-      'chord-changes',
-      'one-four-five',
-      'first-song',
-      'change-key',
-    ]);
-    expect(sessionsOf('accompany', 'C').map((s) => s.slug)).toEqual([
-      'the-six-chord',
-      'minor-keys',
-      'seventh-chords',
-      'three-four',
-    ]);
-    expect(sessionsOf('accompany', 'D').map((s) => s.slug)).toEqual([
-      'barre-chords',
-      'outside-chords',
-      'new-song',
-    ]);
+    expect(sessionsOf('lead')).toHaveLength(16);
+    expect(PATH_STAGES.accompany.map((stage) => sessionsOf('accompany', stage).length)).toEqual([4, 5, 4, 3]);
+    expect(PATH_STAGES.lead.map((stage) => sessionsOf('lead', stage).length)).toEqual([4, 5, 2, 5]);
+
+    const rows = [...sessionDocs.matchAll(/^\| (\d+)(?: · ([E-H]))? \| `([a-z0-9-]+)` \| (?:([A-D]) \| )?/gm)];
+    expect(rows.map(([, number, lead, slug, accompany]) => [Number(number), slug, lead ?? accompany]))
+      .toEqual(SESSIONS.map((session, i) => [i + 1, session.slug, session.stage]));
   });
 
   it('allows a part to have an empty block list', () => {

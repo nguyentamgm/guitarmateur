@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { EIGHTHS_PER_BAR, STYLE_SWINGS } from '../../core/audio';
+import { EIGHTHS_PER_BAR, STYLE_SWINGS, chordMidis } from '../../core/audio';
 import { parseNote } from '../../core/music';
 import { lickNotes, lickNotesFrom, lickPlan, planGlide } from '../../lessons/blues';
 import { guideTonePositions, soloWindow, toneIn } from '../../lessons/solo';
@@ -54,11 +54,16 @@ export function BackingTrack({
     () =>
       block.bars.map((spec) => {
         const { roman, symbol, chord } = chordIn({ tonic, mode: block.in.mode }, spec);
+        const midis = strums
+          ? shapeMidis(chordShape(chord))
+          : block.fullChords
+            ? chordMidis(chord)
+            : undefined;
         return {
           degree: roman,
           symbol,
           chord,
-          midis: strums ? shapeMidis(chordShape(chord)) : undefined,
+          midis,
         };
       }),
     [block, tonic, strums],
@@ -117,12 +122,7 @@ export function BackingTrack({
             }}
           />
         )}
-        <Button
-          onClick={() => {
-            player.cancel();
-            backing.toggle();
-          }}
-        >
+        <Button onClick={backing.toggle}>
           {backing.playing ? ui.session.stop : ui.session.play}
         </Button>
         <Tempo bpm={bpm} onChange={setBpm} />

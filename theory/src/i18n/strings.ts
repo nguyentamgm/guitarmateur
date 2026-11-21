@@ -31,7 +31,7 @@ const en = {
   pathOneTitle: 'Path 1 · Play songs by ear',
   pathLeadTitle: 'Path 2 · Lead guitar',
   pathLeadBody:
-    'Start with a short phrase in box 1. Explore more pentatonic, blues and soloing lessons in the library.',
+    'Start with a phrase in box 1, then learn to play through chord changes and record your first solo. Look up any of the 13 topic lessons in the reference library.',
   pathLibraryLink: 'Explore the library →',
   libraryTitle: 'Reference: all lessons',
   libraryLead:
@@ -179,7 +179,7 @@ const vi: UiStrings = {
   pathOneTitle: 'Lộ trình 1 · Đệm hát bằng tai',
   pathLeadTitle: 'Lộ trình 2 · Lead guitar điện',
   pathLeadBody:
-    'Bắt đầu bằng một câu ngắn trong box 1. Trong thư viện còn có các bài về pentatonic, blues và solo.',
+    'Bắt đầu bằng một câu trong box 1, rồi tập chơi qua các lần đổi hợp âm và thu bản solo đầu tiên. Bạn có thể xem 13 bài theo chủ đề trong thư viện tra cứu.',
   pathLibraryLink: 'Khám phá thư viện →',
   libraryTitle: 'Thư viện: tất cả các bài',
   libraryLead:

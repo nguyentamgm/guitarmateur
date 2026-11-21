@@ -44,10 +44,10 @@ const STRUM: readonly ('down' | 'up' | null)[] = ['down', null, 'down', 'up', nu
 
 /**
  * What the backing plays on eighth `eighth` (0–7) of a bar of `chord`. Empty on a rest. `voicing`
- * (MIDI, low to high) is what a strum or a comp plays, so a scene can sound the shape it draws;
- * by default `chordMidis(chord)`.
+ * (MIDI, low to high) supplies the notes for strum, comp and rock. Strum and comp default to
+ * `chordMidis(chord)`, and rock defaults to a power chord.
  */
-export function backingAt(chord: Chord, style: BackingStyle, eighth: number, voicing: readonly number[] = chordMidis(chord)): BackingHit[] {
+export function backingAt(chord: Chord, style: BackingStyle, eighth: number, voicing?: readonly number[]): BackingHit[] {
   const e = mod(eighth, EIGHTHS_PER_BAR);
   const bass = bassMidi(chord.root);
   switch (style) {
@@ -58,14 +58,14 @@ export function backingAt(chord: Chord, style: BackingStyle, eighth: number, voi
       if (!stroke) return [];
       let next = e + 1;
       while (next < EIGHTHS_PER_BAR && !STRUM[next]) next++;
-      return [{ midis: voicing, eighths: next - e, stroke }];
+      return [{ midis: voicing ?? chordMidis(chord), eighths: next - e, stroke }];
     }
     case 'rock':
-      return [{ midis: [bass, bass + 7, bass + 12], eighths: 1, muted: true }];
+      return [{ midis: voicing ?? [bass, bass + 7, bass + 12], eighths: 1, muted: true }];
     case 'comp': {
       const hits: BackingHit[] = [];
       if (e === 0 || e === 4) hits.push({ midis: [e === 0 ? bass : bass + 7 - (bass + 7 > 51 ? 12 : 0)], eighths: 4 });
-      if (e === 0 || e === 3) hits.push({ midis: voicing.slice(1), eighths: e === 0 ? 2 : 4 });
+      if (e === 0 || e === 3) hits.push({ midis: (voicing ?? chordMidis(chord)).slice(1), eighths: e === 0 ? 2 : 4 });
       return hits;
     }
   }

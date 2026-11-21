@@ -49,7 +49,7 @@ export const vi: SessionCopy = {
         'Bấm phím 7 dây 5 để tìm E cao hơn C. Phát cặp nốt để nghe quãng 3 trưởng. Hạ E nửa cung để nghe quãng 3 thứ.',
     },
     scale: {
-      intro: 'Chọn Rock i–VII–VI–VII. Nhìn box A minor pentatonic và nghe bốn hợp âm ở bên dưới.',
+      intro: 'Chọn Rock i–VII–VI–VII. Nhìn box A minor pentatonic và nghe các root thay đổi. Backing ở phần Chơi thêm các nốt bậc 3 để bạn nghe rõ từng hợp âm.',
     },
     tones: {
       intro:

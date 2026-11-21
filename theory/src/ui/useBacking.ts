@@ -2,6 +2,7 @@
  * The backing player is shared with the practice app (shared/ui/useBacking.ts); Theory's hooks play
  * it on Theory's player, with the signatures the scenes use.
  */
+import { useCallback } from 'react';
 import type { BackingStyle } from '../core/audio';
 import type { Chord } from '../core/music';
 import {
@@ -26,8 +27,13 @@ export function useBacking(
 ): Backing {
   const { player } = useTheory();
   const backing = useSharedBacking(player, bars, style, bpm, onEighth, loop, strumSpread);
+  const { toggle } = backing;
+  const switchPlayback = useCallback(() => {
+    player.cancel();
+    toggle();
+  }, [player, toggle]);
   useReportPlaying(backing.playing);
-  return backing;
+  return { ...backing, toggle: switchPlayback };
 }
 
 export function useStrumLoop(views: readonly { readonly chord: Chord; readonly notes: readonly { readonly midi: number }[] }[], bpm: number): Backing {

@@ -1,10 +1,9 @@
 import type { Session } from '../sessions';
 import {
   SESSIONS_STORAGE_KEY,
+  createSessionProgress,
   isDone,
-  loadTicks,
   nextSession,
-  storeToggle,
   toggleTick,
   type SessionTicks,
 } from './sessionProgress';
@@ -122,14 +121,13 @@ describe('sessionProgress', () => {
     });
   });
 
-  describe('loadTicks', () => {
+  describe('loading ticks', () => {
     it('returns empty object on missing, null, corrupt JSON, or wrong version', () => {
-      expect(loadTicks(null)).toEqual({});
-      expect(loadTicks(memory())).toEqual({});
-      expect(loadTicks(memory({ [SESSIONS_STORAGE_KEY]: 'not json{' }))).toEqual({});
-      expect(loadTicks(memory({ [SESSIONS_STORAGE_KEY]: '[1, 2]' }))).toEqual({});
-      expect(loadTicks(memory({ [SESSIONS_STORAGE_KEY]: JSON.stringify({ v: 2, ticks: { s: [0] } }) }))).toEqual({});
-      expect(loadTicks(memory({ [SESSIONS_STORAGE_KEY]: JSON.stringify({ v: 1, ticks: null }) }))).toEqual({});
+      expect(createSessionProgress(null).load()).toEqual({});
+      expect(createSessionProgress(memory()).load()).toEqual({});
+      for (const raw of ['not json{', '[1, 2]', '{"v":2,"ticks":{"s":[0]}}', '{"v":1,"ticks":null}']) {
+        expect(createSessionProgress(memory({ [SESSIONS_STORAGE_KEY]: raw })).load()).toEqual({});
+      }
     });
 
     it('keeps good entries and drops broken ones', () => {
@@ -146,11 +144,11 @@ describe('sessionProgress', () => {
           },
         }),
       });
-      expect(loadTicks(store)).toEqual({ valid: [0, 1] });
+      expect(createSessionProgress(store).load()).toEqual({ valid: [0, 1] });
     });
   });
 
-  describe('storeToggle', () => {
+  describe('saving ticks', () => {
     it('stores the tick and keeps unknown slugs from storage', () => {
       const store = memory({
         [SESSIONS_STORAGE_KEY]: JSON.stringify({
@@ -159,7 +157,7 @@ describe('sessionProgress', () => {
         }),
       });
 
-      const next = storeToggle('current-session', 0, store);
+      const next = createSessionProgress(store).toggle('current-session', 0);
       expect(next).toEqual({
         'future-session': [0, 1],
         'current-session': [0],
@@ -175,16 +173,26 @@ describe('sessionProgress', () => {
       });
     });
 
-    it('survives a setItem that throws and returns next ticks for this visit', () => {
-      const broken = {
-        getItem: () => null,
-        setItem: () => {
-          throw new Error('QuotaExceededError');
+    it('keeps unsaved checks and merges them with another tab when writes recover', () => {
+      const store = memory({ [SESSIONS_STORAGE_KEY]: '{"v":1,"ticks":{"s1":[3]}}' });
+      let canSave = false;
+      const progress = createSessionProgress({
+        getItem: store.getItem,
+        setItem(key, value) {
+          if (!canSave) throw new Error('QuotaExceededError');
+          store.setItem(key, value);
         },
-      };
+      });
 
-      const result = storeToggle('s1', 0, broken);
-      expect(result).toEqual({ s1: [0] });
+      progress.toggle('s1', 3);
+      progress.toggle('s1', 0);
+      expect(progress.toggle('s1', 1)).toEqual({ s1: [0, 1] });
+
+      store.setItem(SESSIONS_STORAGE_KEY, '{"v":1,"ticks":{"s1":[3,4],"s2":[0]}}');
+      expect(progress.load()).toEqual({ s1: [0, 1, 4], s2: [0] });
+      canSave = true;
+      expect(progress.toggle('s1', 2)).toEqual({ s1: [0, 1, 2, 4], s2: [0] });
+      expect(createSessionProgress(store).load()).toEqual({ s1: [0, 1, 2, 4], s2: [0] });
     });
   });
 });

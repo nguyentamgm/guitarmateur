@@ -50,7 +50,8 @@ export type DrillId =
   | 'landedOnChordTone'
   | 'thirdOrRoot'
   | 'motifOrNoodling'
-  | 'dupleOrTripletRun';
+  | 'dupleOrTripletRun'
+  | 'soloKey';
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
@@ -74,6 +75,8 @@ export type Block =
       readonly scale?: ScaleId;
       readonly notesPerString?: 3;
       readonly keys?: readonly string[];
+      /** Include the whole chord in rock playback. */
+      readonly fullChords?: boolean;
       /** Draw the sounding chord's 3rd and 7th inside the box, including pitches outside the scale. */
       readonly guideTones?: boolean;
       /** A two-bar box 1 lick that starts every four bars, leaving the other two bars to answer. */
@@ -91,6 +94,8 @@ export type Block =
       readonly notes: readonly LickNote[];
       readonly bpm: number;
       readonly metronome?: boolean;
+      /** Duration in bars when the model ends with a full bar of rest. */
+      readonly bars?: number;
     }
   | {
       readonly kind: 'powerRiff';
@@ -179,6 +184,8 @@ export interface RevealCopy {
   readonly intro: string;
   readonly ask: string;
   readonly answer: string;
+  /** Offers the answer sound separately and keeps Play again on the original example. */
+  readonly replayAnswer?: string;
 }
 
 export interface MelodyEchoCopy {
@@ -278,6 +285,7 @@ export interface SessionCopy {
     readonly why: string;
   }[];
   readonly canDo: readonly string[]; // "I can …" boxes; all ticked = done
+  readonly practiceLabel?: string;
 }
 
 export interface Session {

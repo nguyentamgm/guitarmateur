@@ -30,7 +30,7 @@ const RING = 0.85;
  * A backing track over one chord per bar, played on `player` (each app passes its own), in a style from core/audio, swung when the style swings
  * (K1.5). `onEighth` runs on every eighth with the same timing, so a melody over the backing stays
  * in time with it and swings with it. With `loop` false it plays the form once and stops. A bar's
- * `midis` (low to high) is the voicing a strum or comp plays, so the sound matches a shape on the neck.
+ * `midis` (low to high) can supply a voicing for strum, comp or rock.
  */
 export function useBacking(
   player: Player,

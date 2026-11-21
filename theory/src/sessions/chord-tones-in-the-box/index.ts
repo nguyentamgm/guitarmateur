@@ -26,6 +26,7 @@ export const chordTonesInTheBox: Session = {
         in: minorKey,
         bars: minorForm,
         style: 'rock',
+        fullChords: true,
         bpm: 88,
         scale: 'minorPentatonic',
         keys: ['A', 'E', 'D'],

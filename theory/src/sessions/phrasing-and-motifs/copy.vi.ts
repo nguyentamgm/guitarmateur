@@ -47,11 +47,11 @@ export const vi: SessionCopy = {
     },
     rock: {
       intro:
-        'Bấm A và C ở phím 5 và 8 dây 6. E ở phím 7 dây 5. Tiến thêm một phím trên dây 5 để tới F, root của hợp âm thứ ba.',
+        'Bắt đầu ở giọng A. Bấm A và C ở phím 5 và 8 dây 6. E ở phím 7 dây 5. Cao hơn một phím là F, root của hợp âm thứ ba. F nằm ngoài pentatonic. Bạn vẫn thấy nốt này trong cùng vùng phím.',
     },
     model: {
-      intro: 'Gõ chân theo A–C–E. Phách 4 để trống. Giữ nguyên tiết tấu khi đổi nốt kết.',
-      label: 'Tab của motif A–C–E',
+      intro: 'Gõ chân theo A–C–E khi câu lặp lại, rồi nghe nốt F ở bar 3. Đếm đủ bốn tiếng click trong bar thứ tư để trống.',
+      label: 'Tab motif bốn bar có nốt kết mới và một bar nghỉ',
       play: 'Nghe motif',
     },
     ear: {

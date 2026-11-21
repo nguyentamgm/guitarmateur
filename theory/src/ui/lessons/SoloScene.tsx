@@ -1,5 +1,5 @@
 /** The six scenes of "Soloing over the changes". Backings, boxes, targets and phrases come from lessons/solo. */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { EIGHTHS_PER_BAR, seededRandom } from '../../core/audio';
 import { LICK_EIGHTHS, SCALES, format, sameNote, type DegreeLabel, type NoteName, type ScaleId } from '../../core/music';
 import { cellSeconds } from '../../core/rhythm';
@@ -489,7 +489,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   // A shared link or the take saved last time, read once.
   const [opened] = useState(() => initialTake());
   const choice = useBackingChoice(opened?.saved);
-  const [take, setTake] = useState<TakeNote[]>(() => [...(opened?.saved.take ?? [])]);
+  const [take, setTake] = useState<readonly TakeNote[]>(() => opened?.saved.take ?? []);
   const [mode, setMode] = useState<TakeMode>('idle');
   const [recorded, setRecorded] = useState(opened !== null);
   const [notice, setNotice] = useState<string | null>(opened ? (opened.from === 'link' ? c.shared : c.restored) : null);
@@ -507,14 +507,32 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   const live = useRef<{ mode: TakeMode; take: readonly TakeNote[]; playback: readonly TakeNote[] }>({ mode: 'idle', take: opened?.saved.take ?? [], playback: [] });
   /** When each eighth of this pass sounds (seconds, performance clock): clicks go to the nearest. */
   const times = useRef(new Map<number, number>());
+  const pendingTaps = useRef<{ note: SoloNote; at: number }[]>([]);
+  const captureTaps = useCallback((through: number) => {
+    let next = live.current.take;
+    pendingTaps.current = pendingTaps.current.filter(({ note, at }) => {
+      if (at > through) return true;
+      const step = nearestStep(times.current, at);
+      if (step !== null) next = recordNote(next, note, step);
+      return false;
+    });
+    if (next !== live.current.take) {
+      live.current.take = next;
+      setTake(next);
+    }
+  }, []);
   const backing = useBacking(
     choice.bars,
     BACKINGS[choice.id].style,
     choice.bpm,
     (s) => {
-      times.current.set(s.step, performance.now() / 1000 + s.at);
-      if (live.current.mode !== 'playing') return;
-      for (const t of live.current.playback) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
+      if (live.current.mode === 'recording') {
+        const at = performance.now() / 1000 + s.at;
+        times.current.set(s.step, at);
+        captureTaps(at);
+      } else if (live.current.mode === 'playing') {
+        for (const t of live.current.playback) if (t.step === s.step) player.pluck(t.note.midi, s.at, s.seconds(2));
+      }
     },
     false,
   );
@@ -524,8 +542,9 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   useEffect(() => {
     if (backing.playing || live.current.mode !== 'recording') return;
     live.current.mode = 'idle';
-    if (latest.current.take.length > 0) storeTake(latest.current);
-  }, [backing.playing]);
+    captureTaps(Infinity);
+    if (live.current.take.length > 0) storeTake({ ...latest.current, take: live.current.take });
+  }, [backing.playing, captureTaps]);
 
   const keep = (next: TakeNote[]) => {
     live.current.take = next;
@@ -552,6 +571,7 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
     setNotice(null);
     if (m === 'playing') live.current.playback = shown;
     times.current.clear();
+    pendingTaps.current = [];
     if (m === 'recording') {
       keep([]);
       setRecorded(true);
@@ -561,14 +581,19 @@ function RecordScene({ copy }: { copy: SceneCopy }) {
   };
   // A new backing or key makes the old take meaningless.
   const reset = () => {
+    pendingTaps.current = [];
     keep([]);
     setRecorded(false);
   };
   const click = (d: FretDot) => {
     if (active !== 'recording') return;
     const n = choice.box.notes.find((x) => posKey(x) === d.key);
-    const step = nearestStep(times.current, performance.now() / 1000);
-    if (n && step !== null) keep(recordNote(live.current.take, n, step));
+    if (!n) return;
+    pendingTaps.current.push({ note: n, at: performance.now() / 1000 });
+    // Wait for an enclosing eighth if the clock has scheduled only earlier ones.
+    const last = times.current.size - 1;
+    const end = choice.bars.length * EIGHTHS_PER_BAR - 1;
+    captureTaps(last === end ? Infinity : (times.current.get(last) ?? -Infinity));
   };
 
   const barIndex = backing.bar ?? 0;
