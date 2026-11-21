@@ -51,6 +51,7 @@
   "note.letter.F": "F",
   "note.letter.G": "G",
   "playback.audioUnavailable": "This browser can’t play sound. The tab and the neck still work.",
+  "playback.backing": "Backing",
   "playback.bpm": "BPM",
   "playback.click": "Click",
   "playback.countIn": "Count-in",

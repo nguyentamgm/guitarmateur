@@ -1,5 +1,19 @@
-import { midi } from '../music';
+import { EIGHTHS_PER_BAR, backingAt, type BackingStyle } from '@shared/core/audio';
+import type { Chord as SharedChord, ChordId } from '@shared/core/music';
+import { strumDelays, swingOnset } from '@shared/core/rhythm';
+import { midi, type Chord, type QualityId } from '../music';
 import type { Lick, LickNote, Technique } from '../lick';
+
+const SHARED_CHORD_ID: Readonly<Record<QualityId, ChordId>> = {
+  M: 'major',
+  m: 'minor',
+  dom7: 'dom7',
+  m7: 'm7',
+  M7: 'maj7',
+};
+
+/** Sounding part of a backing note's length: slightly short so repeated notes do not run together. */
+const BACKING_RING = 0.85;
 
 /**
  * A single scheduled audio event on the transport timeline. Times are in seconds relative to the
@@ -33,6 +47,13 @@ export type AudioEvent =
       vibrato?: boolean;
       /** How hard it is played, 0..1 — see `noteVelocity`. */
       velocity: number;
+    }
+  | {
+      timeSec: number;
+      kind: 'backing';
+      midi: number;
+      durationSec: number;
+      muted?: boolean;
     };
 
 export interface CompileOptions {
@@ -45,6 +66,10 @@ export interface CompileOptions {
   repeats?: number;
   /** Swing/shuffle feel: 0 = straight (default), 1 = full triplet swing. Off-beat 8ths are delayed by swing * (1/6) beats. */
   swing?: number;
+  /** Chords of the progression (one per lick): when provided, schedules backing chords under the licks. */
+  chords?: readonly Chord[];
+  /** Backing pattern style; defaults to `'shuffle'` when `swing > 0`, otherwise `'strum'`. */
+  backingStyle?: BackingStyle;
 }
 
 export interface CompiledProgression {
@@ -156,6 +181,37 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
           });
         }
       });
+
+      const chord = opts.chords?.[entryIndex];
+      if (chord) {
+        const style: BackingStyle = opts.backingStyle ?? (swing > 0 ? 'shuffle' : 'strum');
+        const sharedChord: SharedChord = { root: chord.tonic, id: SHARED_CHORD_ID[chord.quality] };
+        const bars = Math.max(1, Math.round(lick.lengthBeats / BEATS_PER_BAR));
+        for (let bar = 0; bar < bars; bar++) {
+          const barStartBeat = entryStartBeat + bar * BEATS_PER_BAR;
+          for (let eighth = 0; eighth < EIGHTHS_PER_BAR; eighth++) {
+            const onsetBeats = swingOnset(eighth, swing);
+            const atSec = (barStartBeat + onsetBeats) * secPerBeat;
+            for (const hit of backingAt(sharedChord, style, eighth)) {
+              const durationSec = (swingOnset(eighth + hit.eighths, swing) - onsetBeats) * secPerBeat * BACKING_RING;
+              if (hit.muted) {
+                for (const m of hit.midis) {
+                  events.push({ timeSec: atSec, kind: 'backing', midi: m, durationSec, muted: true });
+                }
+              } else if (hit.stroke) {
+                for (const s of strumDelays(hit.midis, hit.stroke)) {
+                  events.push({ timeSec: atSec + s.delay, kind: 'backing', midi: s.item, durationSec });
+                }
+              } else {
+                for (const m of hit.midis) {
+                  events.push({ timeSec: atSec, kind: 'backing', midi: m, durationSec });
+                }
+              }
+            }
+          }
+        }
+      }
+
       entryStartBeat += lick.lengthBeats;
     });
 

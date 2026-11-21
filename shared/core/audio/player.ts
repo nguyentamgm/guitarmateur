@@ -34,12 +34,13 @@ export interface Player {
   /**
    * Play a MIDI note now, or `delaySec` from now; with `lengthSec`, damp it after that long (a
    * note's length, K1.2). A `glide` bends, slides or hammers the same sound without a new pick
-   * (K6.3, K6.4). Silently does nothing when disabled or unsupported.
+   * (K6.3, K6.4). `channel` ('note' default, or 'backing') picks which mix level scales it.
+   * Silently does nothing when disabled or unsupported.
    */
   /** `velocity` (0..1, default 1) scales this note against the others: accents, legato notes. */
-  pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide, velocity?: number): void;
+  pluck(midi: number, delaySec?: number, lengthSec?: number, glide?: Glide, velocity?: number, channel?: 'note' | 'backing'): void;
   /** A palm-muted note (K6.5): darker and much shorter than `pluck`. Same rules. */
-  mute(midi: number, delaySec?: number): void;
+  mute(midi: number, delaySec?: number, velocity?: number, channel?: 'note' | 'backing'): void;
   /** A metronome click, `delaySec` from now; `accent` for beat 1. Same rules as `pluck`. */
   click(accent?: boolean, delaySec?: number): void;
   /** Stop every note and click that is scheduled or still sounding, with a short fade. */
@@ -51,8 +52,8 @@ export interface Player {
    * there is none yet (so call it from a user gesture, like `pluck`); null when there is no audio.
    */
   now(): number | null;
-  /** Levels, 0..1, for the notes (pluck, mute) and the click: a mix. Defaults: note 0.5, click 1. */
-  setLevels(levels: { readonly note?: number; readonly click?: number }): void;
+  /** Levels, 0..1, for the notes (pluck, mute), backing chords, and the click: a mix. Defaults: note 0.5, backing 0.5, click 1. */
+  setLevels(levels: { readonly note?: number; readonly backing?: number; readonly click?: number }): void;
 }
 
 export function isAudioSupported(): boolean {
@@ -64,7 +65,7 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
   const make = opts.createContext ?? (() => new AudioContext() as unknown as MiniAudioContext);
   let ctx: MiniAudioContext | null = null;
   let enabled = true;
-  const levels = { note: 0.5, click: 1 };
+  const levels = { note: 0.5, backing: 0.5, click: 1 };
   const cache = new Map<string, AudioBuffer>();
   /** Notes and clicks scheduled or sounding, for `cancel()`. */
   const active = new Set<{ readonly src: AudioBufferSourceNode; readonly gain: GainNode }>();
@@ -178,13 +179,14 @@ export function createPlayer(opts: PlayerOptions = {}): Player {
     },
     setLevels(next) {
       if (next.note !== undefined) levels.note = clamp(next.note);
+      if (next.backing !== undefined) levels.backing = clamp(next.backing);
       if (next.click !== undefined) levels.click = clamp(next.click);
     },
-    pluck(midi, delaySec = 0, lengthSec, glide, velocity = 1) {
-      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels.note * velocity);
+    pluck(midi, delaySec = 0, lengthSec, glide, velocity = 1, channel = 'note') {
+      play(`p${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate }), delaySec, lengthSec, glide, levels[channel] * velocity);
     },
-    mute(midi, delaySec = 0) {
-      play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec, undefined, undefined, levels.note);
+    mute(midi, delaySec = 0, velocity = 1, channel = 'note') {
+      play(`m${midi}`, (sampleRate) => pluckSamples({ midi, sampleRate, muted: true }), delaySec, undefined, undefined, levels[channel] * velocity);
     },
     click(accent = false, delaySec = 0) {
       play(accent ? 'cA' : 'c', (sampleRate) => clickSamples({ sampleRate, accent }), delaySec, undefined, undefined, levels.click);
