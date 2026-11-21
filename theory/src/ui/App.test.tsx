@@ -571,15 +571,14 @@ describe('Theory app', () => {
         (d) => d.querySelector('text')?.textContent === '1',
       )!;
       click(root);
-      advance(2700);
-      expect(caption()).toBe('Recording · bar 2, D. Click notes on the box.');
-      // Bar 2: a box note that is not in the D chord carries no label.
-      const off = [...section.querySelectorAll('.dot')].find((d) => !d.querySelector('text'))!;
-      click(off);
+      advance(2220);
+      // E is tapped 149ms before D, nearer to its downbeat than to G's final eighth.
+      expect(caption()).toBe('Recording · bar 1, G. Click notes on the box.');
+      click(section.querySelector('[aria-label*="fret 2, string 4"]')!);
       advance(9000);
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
       // The finished pass is kept in this browser.
-      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toMatch(/^1\.pop\.G\.92\./);
+      expect(localStorage.getItem(TAKE_STORAGE_KEY)).toMatch(/^1\.pop\.G\.92\..+_8-4-2$/);
       expect(
         [...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent),
       ).toEqual(['✓ 1', '✗']);
@@ -589,12 +588,12 @@ describe('Theory app', () => {
       expect(inSection('Clear')).toBeDefined();
 
       // Bar 2's crossed first note, moved to the nearest D chord tone.
-      click(inSection('Landings fixed'));
+      click(inSection('Fixed landings'));
       expect(
         [...section.querySelectorAll('.bars .mark')].map((m) => m.lastChild!.textContent),
       ).toEqual(['✓ 1', expect.stringMatching(/^✓ /)]);
       expect(caption()).toBe(
-        '2 of 2 bars landed on a chord tone · 2 of 2 notes were chord tones. Landings fixed: 1, each crossed first note moved to the nearest chord tone. Hear both and compare.',
+        '2 of 2 bars landed on a chord tone · 2 of 2 notes were chord tones. Landings moved to the nearest chord tone (1). Hear both and compare.',
       );
       click(inSection('Your take'));
       expect(caption()).toBe('1 of 2 bars landed on a chord tone · 1 of 2 notes were chord tones.');
@@ -1648,7 +1647,7 @@ describe('Theory app', () => {
     expect(container.querySelector('section#done')).not.toBeNull();
   });
 
-  it('renders session 16 (/theory/s/new-song) top to bottom, continues to session 17, and offers the library after all published sessions', () => {
+  it('renders session 16 in English and Vietnamese and continues to session 17', () => {
     // English
     render('/theory/s/new-song');
     expect(text()).toContain('Work out a new song');
@@ -1715,23 +1714,111 @@ describe('Theory app', () => {
     expect(viPracticeLink).not.toBeNull();
     expect(viPracticeLink.textContent).toBe('Tập lick trên G–D–Em–C (I–V–vi–IV) trong app Luyện tập →');
     expect(payload(viPracticeLink).lang).toBe('vi');
+  });
 
-    // Now test PathPage when all sessions are done
-    // Set all sessions done in storage
-    const allDoneTicks: Record<string, number[]> = {};
-    for (const s of SESSIONS) {
-      allDoneTicks[s.slug] = [0, 1, 2, 3];
+  it('starts the next lesson with its own controls and no answers or playback from the previous session', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
+    try {
+      const { player, plucked } = fakePlayer();
+      const playButton = (label: string) =>
+        [...container.querySelectorAll('#play button')].find((b) => b.textContent === label)!;
+      const next = () => click(container.querySelector('a.lesson-nav-card.next')!);
+
+      render('/theory/s/the-blue-note', player);
+      click(playButton('E'));
+      click(container.querySelector('#check button')!);
+      next();
+      expect(container.querySelector('#play button[aria-checked="true"]')?.textContent).toBe('A');
+      expect(container.querySelector('#check button[aria-pressed="true"]')).toBeNull();
+
+      click(playButton('Play'));
+      act(() => vi.advanceTimersByTime(18_000));
+      expect(playButton('Stop')).toBeDefined();
+      next();
+      expect(container.querySelector('h1')?.textContent).toBe('Legato and slides');
+      expect(playButton('Play')).toBeDefined();
+      const before = plucked.length;
+      act(() => vi.advanceTimersByTime(1_000));
+      expect(plucked).toHaveLength(before);
+    } finally {
+      vi.useRealTimers();
     }
-    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: allDoneTicks }));
-    localStorage.removeItem(LANG_STORAGE_KEY); // English
+  });
 
-    act(() => root.unmount());
-    root = createRoot(container);
-    render('/theory');
-    expect(text()).toContain('You have completed every session.');
-    const pathLeadLink = container.querySelector('.hero a.btn[href="/theory/library"]')!;
-    expect(pathLeadLink).not.toBeNull();
-    expect(pathLeadLink.textContent).toBe('Explore the library →');
+  it.each([
+    ['en', 'Your first solo', 'Start', 'Show answer', 'Hear the root', 'Play again', 'Record', 'You have completed every session.'],
+    ['vi', 'Bản solo đầu tiên của bạn', 'Bắt đầu', 'Mở đáp án', 'Nghe root', 'Nghe lại', 'Thu', 'Bạn đã hoàn thành tất cả các buổi học.'],
+  ])('reveals the listening answer and opens Practice after the final guitar self-check (%s)', (lang, title, start, reveal, hearRoot, replay, record, allDone) => {
+    const ticks = Object.fromEntries(
+      SESSIONS.slice(0, -1).map((session) => [session.slug, session.copy.en.canDo.map((_, i) => i)]),
+    );
+    localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks }));
+    const { player, plucked } = fakePlayer();
+    render(`/theory/s/your-first-solo?lang=${lang}`, player);
+
+    expect(container.querySelector('h1')?.textContent).toBe(title);
+    const listen = container.querySelector('#listen')!;
+    const random = vi.spyOn(Math, 'random').mockReturnValueOnce(0);
+    try {
+      click(button(start));
+    } finally {
+      random.mockRestore();
+    }
+    expect(plucked.length).toBeGreaterThan(1);
+    const backingNotes = [...plucked];
+    expect(listen.textContent).not.toContain('G major pentatonic');
+    expect(listen.querySelector('[aria-live]')).toBeNull();
+    expect(button(hearRoot)).toBeUndefined();
+
+    // The prerecorded listening example and the recording booth share one player.
+    const recordButton = button(record);
+    const cancel = vi.spyOn(player, 'cancel');
+    click(recordButton);
+    expect(cancel).toHaveBeenCalledOnce();
+    cancel.mockRestore();
+    expect(button(record)).toBeUndefined();
+
+    click(button(reveal));
+    expect(listen.querySelector('[aria-live]')?.textContent).toContain('G major pentatonic');
+    expect(button(record)?.closest('section')?.id).toBe('challenge');
+    const beforeRoot = plucked.length;
+    click(button(hearRoot));
+    expect(plucked.slice(beforeRoot)).toEqual([43]);
+    const beforeReplay = plucked.length;
+    click([...listen.querySelectorAll('button')].find((control) => control.textContent === replay)!);
+    expect(plucked.slice(beforeReplay)).toEqual(backingNotes);
+
+    const done = container.querySelector('#done')!;
+    const boxes = [...done.querySelectorAll('input[type="checkbox"]')];
+    expect(boxes).toHaveLength(3);
+    boxes.slice(0, 2).forEach(click);
+    expect(done.querySelector('a.trainer')).toBeNull();
+    expect(done.textContent).not.toContain(allDone);
+    click(boxes[2]!);
+
+    expect(done.querySelector('[role="status"]')?.textContent).toBe(allDone);
+    expect(done.querySelector(`a[href="/?lang=${lang}"]`)).not.toBeNull();
+    expect(done.querySelector('a[href="/theory/review"]')).not.toBeNull();
+    const practice = payload(done.querySelector('a.trainer')!);
+    expect(practice).toMatchObject({
+      lang,
+      state: {
+        key: { tonic: { letter: 'A', alter: 0 }, scaleId: 'blues' },
+        positions: [0],
+        swingEnabled: true,
+      },
+    });
+    const bars = practice.state.progression.flatMap(
+      ({ bars, chord }: { bars: number; chord: { tonic: { letter: string }; quality: string } }) =>
+        Array.from({ length: bars }, () => `${chord.tonic.letter}:${chord.quality}`),
+    );
+    expect(bars).toEqual('A A A A D D A A E D A A'.split(' ').map((root) => `${root}:dom7`));
+
+    click(container.querySelector('.hero a[href="/theory"]')!);
+    const hero = container.querySelector('.hero')!;
+    expect(hero.textContent).toContain(allDone);
+    expect(hero.querySelector(`a[href="/?lang=${lang}"]`)).not.toBeNull();
+    expect(hero.querySelector('a[href="/theory/review"]')).not.toBeNull();
   });
 
   it('echoes a box phrase and plays the transposable session 17 backing', () => {
@@ -2018,6 +2105,7 @@ describe('Theory app', () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
     try {
       const { player, plucked } = fakePlayer();
+      const muted = vi.spyOn(player, 'mute');
       render('/theory/s/chord-tones-in-the-box', player);
       expect(container.querySelector('h1')?.textContent).toBe('Chord tones in the box');
       click(container.querySelector('#listen button')!);
@@ -2027,6 +2115,8 @@ describe('Theory app', () => {
       const onStringTwo = (note: string, fret: number) => play.querySelector(`[aria-label^="${note}, fret ${fret}, string 2"]`);
       expect(onStringTwo('E', 5)?.textContent).toBe('5');
       click([...play.querySelectorAll('button')].find((control) => control.textContent === 'Play')!);
+      // The opening Am actually sounds its minor third, C.
+      expect(muted.mock.calls.some(([midi]) => midi % 12 === 0)).toBe(true);
       act(() => vi.advanceTimersByTime(3_000));
       expect(onStringTwo('G', 8)?.textContent).toBe('1');
       click(container.querySelector('button[lang="vi"]')!);
@@ -2067,16 +2157,17 @@ describe('Theory app', () => {
     }
   });
 
-  it('plays the A–C–E motif with space after it in session 30', () => {
+  it('demonstrates the changed F landing and counts through a full bar of rest in session 30', () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance'] });
     try {
       const { player, plucked, clicks } = fakePlayer();
       render('/theory/s/phrasing-and-motifs', player);
       expect(container.querySelector('h1')?.textContent).toBe('Phrasing and motifs');
+      expect(container.querySelector('#play [aria-label^="F, fret 8, string 5"]')).not.toBeNull();
       click(button('Hear the motif'));
-      act(() => vi.advanceTimersByTime(3_000));
-      expect(plucked).toEqual([45, 48, 52]);
-      expect(clicks).toHaveLength(4);
+      act(() => vi.advanceTimersByTime(11_000));
+      expect(plucked).toEqual([45, 48, 52, 45, 48, 52, 45, 48, 53]);
+      expect(clicks).toHaveLength(16);
       click(container.querySelector('button[lang="vi"]')!);
       expect(container.querySelector('h1')?.textContent).toBe('Xây câu nhạc với motif');
       expect(button('Nghe motif')).toBeDefined();

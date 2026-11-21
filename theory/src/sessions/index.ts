@@ -29,6 +29,7 @@ import { threeNotesPerString } from './three-notes-per-string';
 import { barreChords } from './barre-chords';
 import { newSong } from './new-song';
 import { outsideChords } from './outside-chords';
+import { yourFirstSolo } from './your-first-solo';
 import type { PathId, Session, StageId } from './types';
 
 export * from './types';
@@ -71,6 +72,7 @@ export { theBlueNote } from './the-blue-note';
 export { theSixChord } from './the-six-chord';
 export { threeFour } from './three-four';
 export { threeNotesPerString } from './three-notes-per-string';
+export { yourFirstSolo } from './your-first-solo';
 
 export const SESSIONS: readonly Session[] = [
   majorOrMinor,
@@ -104,6 +106,7 @@ export const SESSIONS: readonly Session[] = [
   guideTones,
   phrasingAndMotifs,
   threeNotesPerString,
+  yourFirstSolo,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

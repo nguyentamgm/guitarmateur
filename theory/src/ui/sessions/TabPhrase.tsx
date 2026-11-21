@@ -10,7 +10,7 @@ import { Tab, type TabNote } from '../Tab';
 import { useClock } from '../useClock';
 
 export function TabPhrase({
-  block: { notes, bpm, metronome },
+  block: { notes, bpm, metronome, bars },
   copy,
 }: {
   block: Extract<Block, { kind: 'tabPhrase' }>;
@@ -19,11 +19,12 @@ export function TabPhrase({
   const { player, ui } = useTheory();
   const columns = useMemo(() => {
     const end = notes.reduce((last, { event }) => Math.max(last, event.cell + event.cells), 0);
-    const cells = metronome ? Math.ceil(end / EIGHTHS_PER_BAR) * EIGHTHS_PER_BAR : end;
+    const endWithClick = metronome ? Math.ceil(end / EIGHTHS_PER_BAR) * EIGHTHS_PER_BAR : end;
+    const cells = Math.max(endWithClick, (bars ?? 0) * EIGHTHS_PER_BAR);
     const tab: TabNote[][] = Array.from({ length: cells }, () => []);
     for (const note of notes) tab[note.event.cell]!.push({ ...note, key: posKey(note) });
     return tab;
-  }, [metronome, notes]);
+  }, [bars, metronome, notes]);
   const barLines = Array.from(
     { length: Math.ceil(columns.length / EIGHTHS_PER_BAR) - 1 },
     (_, i) => (i + 1) * EIGHTHS_PER_BAR,

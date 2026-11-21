@@ -25,6 +25,7 @@ import { sameChord } from './sameChord';
 import { sequenceKind } from './sequenceKind';
 import { seventh } from './seventh';
 import { singleDoubleOrOctave } from './singleDoubleOrOctave';
+import { soloKey } from './soloKey';
 import { straightOrShuffle } from './straightOrShuffle';
 import { thirdOrRoot } from './thirdOrRoot';
 import { meter } from './meter';
@@ -78,6 +79,7 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   callAndResponse,
   muteOrOpen,
   singleDoubleOrOctave,
+  soloKey,
   landedOnChordTone,
   thirdOrRoot,
   motifOrNoodling,

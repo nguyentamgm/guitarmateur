@@ -17,11 +17,11 @@ trainer built around a three-step practice loop:
 No accounts, no server-side state: the app is a fully static SPA on free-tier hosting, and
 everything the user does persists in `localStorage`.
 
-Two more pages share the site, its header and its look: **Theory** at `/theory`, guided
-ear-and-chord sessions ([`theory-sessions.md`](theory-sessions.md)) plus visual music-theory
-reference lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, beginner
-ear-training levels ([`ear.md`](ear.md)). Each is a separate app that
-imports none of the others; what they share is in `shared/` (below).
+**Theory** at `/theory` has 32 guided sessions across Play songs by ear and Lead guitar, plus
+13 visual reference lessons at `/theory/library`. The final lead session uses Theory's recording
+booth and links to Practice on a full 12-bar A blues. **Ear training** at `/ear-training` has
+beginner ear-training levels. Each app imports its common code from `shared/`.
+See [Theory conventions](theory.md), [Theory sessions](theory-sessions.md) and [Ear training](ear.md).
 
 ## Repository layout
 

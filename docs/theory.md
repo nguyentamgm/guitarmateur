@@ -105,7 +105,7 @@ ui → sessions → lessons → core/fretboard → core/music
   `core/audio/backing.ts` (styles `shuffle`, `strum`, `rock`, `comp`; `bassMidi()` and `chordMidis()`
   voice it). Its `onEighth` callback gets the same swung delay, so a melody over it stays in time.
   Do not write a per-lesson backing. `useBacking(…, loop = false)` plays the form once (a recorded take, K7.6).
-  A bar may carry `midis` (its voicing, low to high), so a strum or comp sounds the shape a scene draws;
+  A bar may carry `midis` (its voicing, low to high) for a strum, comp or rock backing.
   `useStrumLoop(views, bpm)` strums a loop of drawn chord shapes, one bar each (`/theory/barre`, `/theory/keys`).
   `BarGrid` takes optional `marks` per bar (a short text, good or not, and a spoken description).
 - Anything that plays in time uses `ui/useClock.ts`: it hands each step to the player ahead of
@@ -208,16 +208,20 @@ ui → sessions → lessons → core/fretboard → core/music
 
 ## Sessions
 
-Short guided sessions (path `/theory/s/<slug>`, listed at `/theory`) teach playing songs by ear,
-rhythm, and chords step by step; see [`theory-sessions.md`](theory-sessions.md) for the full model,
-block list, and contributor guides. Blocks are drawn by `ui/sessions/SessionBlock.tsx`. Ear and
+The 32 guided sessions at `/theory/s/<slug>` are listed in order at `/theory`. Play songs by ear
+starts with rhythm, keys and chords. Lead guitar builds from pentatonic box 1 to recording a solo
+over chord changes. Learners can open any session and use the 13 topic lessons at `/theory/library`.
+See [`theory-sessions.md`](theory-sessions.md) for the data model, blocks and contributor guidance.
+Blocks are drawn by `ui/sessions/SessionBlock.tsx`. Ear and
 challenge drills are pure TypeScript (`sessions/drills/`), and their sound is pure data
 (`sessions/sound.ts`) played through the Web Audio player by `ui/sessions/playSound.ts`. Chord
 shapes for sessions come from `sessions/voicing.ts` (open shape for beginner chords, lowest barre
 otherwise). Sessions that strum declare `settings: ['strumSpeed']` to show the sticky settings bar
 (`ui/sessions/SessionSettings.tsx`). Sessions with `earLevel` link to `/ear-training?level=n&lang=…`
-after the challenge part, and a session with `practice` (`new-song`: G major over I–V–vi–IV) links
-to Practice when completed.
+after the challenge part. A session with `practice` links to Practice when completed. For example,
+`new-song` opens G major over I–V–vi–IV, and `your-first-solo` opens the full A blues in box 1
+with swing. After all 32 sessions are complete, the path page and completion panel offer Practice
+and Theory Review.
 
 ## Commands
 

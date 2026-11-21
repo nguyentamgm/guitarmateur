@@ -19,6 +19,11 @@ const now = () => performance.now() / 1000;
 /** Stops the clock that is playing, if any: one clock plays at a time on a page. */
 let stopPlaying: (() => void) | null = null;
 
+/** Release the current clock before starting audio that uses its own scheduling. */
+export function stopCurrentClock(): void {
+  stopPlaying?.();
+}
+
 /**
  * A steady clock for metronomes and grids. A timer wakes every 25 ms and hands each step due in
  * the next 120 ms to `onStep(i, delaySec)` with its exact delay, which the audio player schedules
@@ -92,7 +97,7 @@ export function useClock(
 
   const start = useCallback(() => {
     stop();
-    stopPlaying?.();
+    stopCurrentClock();
     stopPlaying = stop;
     next.current = { i: 0, t: now() + LEAD_SEC };
     setPlaying(true);

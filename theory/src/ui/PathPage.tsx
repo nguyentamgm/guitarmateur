@@ -26,12 +26,9 @@ export function PathPage({ missingPath }: { missingPath?: string }) {
         ) : (
           <div>
             <p className="prose">{ui.pathAllDone}</p>
-            <Link
-              href={hrefFor({ page: 'library' })}
-              className="btn"
-            >
-              {ui.pathLibraryLink}
-            </Link>
+            <a href={`/?lang=${lang}`} className="btn">
+              {ui.navPractice}
+            </a>
           </div>
         )}
         <Link href={hrefFor({ page: 'review' })} className="toc-review">

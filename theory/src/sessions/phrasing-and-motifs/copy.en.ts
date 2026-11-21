@@ -51,12 +51,12 @@ export const en: SessionCopy = {
     },
     rock: {
       intro:
-        'Use frets 5 and 8 on string 6 for A and C. E is fret 7 on string 5. Move one fret higher on string 5 to reach F, the root of the third chord.',
+        'Start in A. Use frets 5 and 8 on string 6 for A and C. E is fret 7 on string 5. F is one fret higher, the root of the third chord. F is outside the pentatonic scale and appears here in the same fret range.',
     },
     model: {
       intro:
-        'Tap along with A–C–E. Its fourth beat is empty. Keep that rhythm when you change the ending.',
-      label: 'Tab of the A–C–E motif',
+        'Tap along as A–C–E repeats, then listen for F in bar 3. Count all four clicks in the empty fourth bar.',
+      label: 'Tab of the four-bar motif with its changed ending and rest',
       play: 'Hear the motif',
     },
     ear: {

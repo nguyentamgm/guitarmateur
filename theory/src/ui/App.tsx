@@ -21,8 +21,7 @@ import { parseRoute } from './router';
 import { SessionPage } from './SessionPage';
 import {
   SESSIONS_STORAGE_KEY,
-  loadTicks,
-  storeToggle,
+  createSessionProgress,
   type SessionTicks,
 } from './sessionProgress';
 
@@ -44,26 +43,27 @@ export function App({ player: given }: { player?: Player } = {}) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [player] = useState(() => given ?? createPlayer());
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
-  const [ticks, setTicks] = useState<SessionTicks>(() => loadTicks());
+  const [sessionProgress] = useState(() => createSessionProgress());
+  const [ticks, setTicks] = useState<SessionTicks>(sessionProgress.load);
   // Each answer goes straight through storage, so another tab's answers are never overwritten.
   const recordQuiz = useCallback(
     (id: QuizId, right: boolean) => setProgress(storeAnswer(id, right, Date.now())),
     [],
   );
   const toggleSessionTick = useCallback(
-    (slug: string, index: number) => setTicks(storeToggle(slug, index)),
-    [],
+    (slug: string, index: number) => setTicks(sessionProgress.toggle(slug, index)),
+    [sessionProgress],
   );
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === PROGRESS_STORAGE_KEY || e.key === null) setProgress(loadProgress());
-      if (e.key === SESSIONS_STORAGE_KEY || e.key === null) setTicks(loadTicks());
+      if (e.key === SESSIONS_STORAGE_KEY || e.key === null) setTicks(sessionProgress.load());
       // The language is shared with the practice app: a change in another tab shows here too.
       if (e.key === LANG_STORAGE_KEY || e.key === null) setLangState(loadLang());
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  }, [sessionProgress]);
 
   // Take ?lang= off the address, so a reload or a bookmark doesn't override a later choice.
   useEffect(() => {
@@ -133,7 +133,7 @@ export function App({ player: given }: { player?: Player } = {}) {
           {lesson ? (
             <LessonPage lesson={lesson} />
           ) : session ? (
-            <SessionPage session={session} />
+            <SessionPage key={session.slug} session={session} />
           ) : route.page === 'library' ? (
             <LibraryPage />
           ) : route.page === 'review' ? (
