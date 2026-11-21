@@ -77,6 +77,7 @@ export const vi: PentatonicMapCopy = {
     },
     keys: {
       finder: 'Root trên dây 6',
+      compare: 'Nghe cùng câu ở A thứ và B thứ',
       cycle: 'Trượt qua các giọng',
       stop: 'Dừng',
       caption: '{key} thứ: root trên dây 6 ở phím {fret}',

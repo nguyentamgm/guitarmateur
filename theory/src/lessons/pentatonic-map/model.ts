@@ -31,6 +31,7 @@ export interface SceneCopy {
   };
   readonly keys: {
     readonly finder: string;
+    readonly compare: string;
     readonly cycle: string;
     readonly stop: string;
     /** {key} {fret} */

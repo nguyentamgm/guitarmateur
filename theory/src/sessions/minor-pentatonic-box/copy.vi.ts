@@ -1,7 +1,8 @@
 import type { MelodyEchoCopy, SessionCopy } from '../types';
 
 const echo: MelodyEchoCopy = {
-  intro: 'Nghe một lượt. Ngân nga ba nốt, tìm trên đàn rồi bấm lại trên hình. Nốt đầu đã sáng.',
+  intro:
+    'Nốt đầu đã được tô sáng. Tìm nốt thứ hai trên đàn rồi bấm vào chấm tương ứng trên hình. Làm tương tự với nốt cuối. Bạn có thể nghe lại cả câu bất cứ lúc nào.',
   ask: 'Bạn tìm được nốt tiếp theo chưa?',
   right: 'Đúng cao độ.',
   higher: 'Thử một nốt cao hơn.',
@@ -18,36 +19,47 @@ export const vi: SessionCopy = {
   parts: {
     listen: {
       title: 'Nghe',
-      body: ['Lấy nốt đầu làm mốc. Nghe lại câu nhạc bao nhiêu lần tùy bạn.'],
+      body: [
+        'Hãy nghe ba nốt như một câu hát ngắn, rồi ngân nga lại bằng một tiếng “la” cho mỗi nốt. Khi nghe lại, để ý giai điệu đi lên hay đi xuống sau nốt đầu.',
+      ],
     },
     understand: {
       title: 'Hiểu',
       body: [
-        'A minor pentatonic gồm năm nốt A, C, D, E và G. Một box gom các nốt ấy vào vùng phím nằm trong tầm tay.',
+        'Pentatonic là một scale gồm năm nốt. Với A minor pentatonic, đó là A, C, D, E và G. Thử hát A–C–D, rồi hát trở về A. Trong giọng A thứ, kết ở A cho ta cảm giác câu nhạc đã về đến nơi. Ta gọi A là root và lấy nó làm bậc 1.',
+        'Trên một dây, bạn phải đi dọc cần đàn để chơi hết năm nốt. Bạn cũng có thể chơi chúng trên các dây kế nhau trong khoảng phím 5–8. Cách sắp xếp đó là box 1 của A minor pentatonic. Trong box có nhiều hơn năm chấm vì cùng một tên nốt lặp lại ở những quãng 8 khác nhau.',
       ],
     },
     play: {
       title: 'Chơi',
-      body: ['Bắt đầu chậm. Chơi ba nốt qua hai dây, mỗi phách một nốt. Nghỉ ở phách bốn.'],
+      body: [
+        'Trước khi bật nhạc đệm, đếm đều “một, hai, ba, bốn”. Gảy A ở phách một, C ở phách hai và D ở phách ba. Đến phách bốn, chạm nhẹ vào dây đang ngân để ngắt tiếng. Vẫn đếm phách bốn thành tiếng để vào lại nốt A đúng lúc.',
+      ],
     },
     challenge: {
       title: 'Thử thách',
       body: [
-        'Nghe và tìm một câu mới trên đàn. Sau đó chơi câu qua hai dây hai lần theo nhạc đệm.',
+        'Với mỗi câu mới, hãy ngân nga cả câu trước khi dò đàn. Sau bốn câu, quay lại phần Chơi, bật nhạc đệm ở giọng A và chơi A–C–D hai lượt. Sau khoảng lặng ở phách bốn, nốt A của lượt sau có rơi đúng phách một không?',
       ],
     },
   },
   blocks: {
     call: echo,
-    tab: { intro: 'Đọc tab từ trái sang phải. Mỗi dòng là một dây và mỗi con số là một phím.' },
+    tab: {
+      intro:
+        'Tab ghi vị trí bấm bằng sáu dòng. Dòng dưới cùng là dây 6 (dây dày nhất), dòng trên cùng là dây 1 (dây mảnh nhất). Đọc từ trái sang phải. Ví dụ, số 5 trên dòng dưới cùng nghĩa là bấm phím 5 dây 6 rồi gảy dây đó. Bấm thử một số trên tab để thấy vị trí tương ứng trên cần đàn.',
+    },
     formula: {
-      intro: 'Hát các bậc từ root đi lên: 1 ♭3 4 5 ♭7. Sau đó hát root ở quãng 8 phía trên.',
+      intro:
+        'Nghe từ A ở phím 5 trên dây 6. Từ A đến C cách ba phím, từ C đến D cách hai phím. Các số có dấu + trên hình cho biết đi thêm bao nhiêu phím. Các nhãn 1, ♭3, 4, 5, ♭7 lần lượt là bậc của A, C, D, E, G. Cuối lượt bạn lại nghe A, cao hơn A ban đầu một quãng 8.',
     },
     box: {
-      intro: 'Tìm A trên dây 6 rồi lần theo các nốt của box 1. Chơi từ thấp lên cao rồi quay về.',
+      intro:
+        'Chọn box 1 và bật nhãn tên nốt. Tìm A rồi C trên dây 6 ở phím 5 và 8. Để chơi D, chuyển sang dây 5 ở phím 5. Bấm ba chấm theo thứ tự đó, rồi chơi lại trên đàn. Tay bấm vẫn ở cùng một vị trí.',
     },
     fingers: {
-      intro: 'Giữ tay bấm ở một vị trí. Khi chuyển dây, luân phiên gảy xuống và gảy lên.',
+      intro:
+        'Tập chuyển dây theo tiếng click, luân phiên gảy xuống và gảy lên (alternate picking). Mỗi ngón phụ trách một phím. Khi trở lại câu A–C–D, dùng ngón trỏ cho phím 5, ngón út cho phím 8, rồi chuyển ngón trỏ sang dây 5.',
     },
     backing: {
       intro:
@@ -55,7 +67,7 @@ export const vi: SessionCopy = {
     },
     scales: {
       intro:
-        'Hai câu đều đi từ cùng một root lên quãng 8. Hãy nghe khoảng cách giữa các nốt ở giữa câu.',
+        'Hai câu bắt đầu cùng một nốt và kết ở quãng 8 phía trên. Hãy nghe bước từ nốt đầu sang nốt thứ hai. Ở câu minor pentatonic, bước này rộng ba phím, giống A lên C bạn vừa chơi. Ở câu major scale, bước đầu chỉ rộng hai phím.',
       ask: 'Bạn vừa nghe scale nào?',
       answers: { pentatonic: 'Minor pentatonic', majorScale: 'Major scale' },
       right: 'Đúng. Bạn vừa nghe {answer} từ {detail}.',
