@@ -3,6 +3,7 @@ import { changeKey } from './change-key';
 import { chordChanges } from './chord-changes';
 import { chordFamily } from './chord-family';
 import { findTheRoot } from './find-the-root';
+import { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 import { firstSong } from './first-song';
 import { majorOrMinor } from './major-or-minor';
 import { melodyByEar } from './melody-by-ear';
@@ -33,6 +34,7 @@ export { changeKey } from './change-key';
 export { chordChanges } from './chord-changes';
 export { chordFamily } from './chord-family';
 export { findTheRoot } from './find-the-root';
+export { fiveBoxesAndSequences } from './five-boxes-and-sequences';
 export { firstSong } from './first-song';
 export { majorOrMinor } from './major-or-minor';
 export { melodyByEar } from './melody-by-ear';
@@ -67,6 +69,7 @@ export const SESSIONS: readonly Session[] = [
   minorPentatonicBox,
   pentatonicKeysAndModes,
   octaveShapes,
+  fiveBoxesAndSequences,
 ];
 
 export const PATH_STAGES: Readonly<Record<PathId, readonly StageId[]>> = {

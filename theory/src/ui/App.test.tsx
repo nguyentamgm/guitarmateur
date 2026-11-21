@@ -1791,7 +1791,9 @@ describe('Theory app', () => {
 
   it('gives the starting fret, then reveals and plays both higher octaves in Vietnamese', () => {
     const { player, plucked } = fakePlayer();
-    render('/theory/s/octave-shapes?lang=vi', player);
+    render('/theory/s/octave-shapes', player);
+    expect(text()).toContain('Find the root with octave shapes');
+    click(container.querySelector('button[lang="vi"]')!);
     const challenge = container.querySelector('#challenge .board')!;
     click(challenge.querySelector('button')!);
     const fret = plucked[0]! - 40;
@@ -1801,6 +1803,28 @@ describe('Theory app', () => {
     click(challenge.querySelectorAll('button')[1]!);
     expect(challenge.querySelector('.good')!.textContent).toContain(`dây 4 phím ${fret + 2}, rồi dây 2 phím ${fret + 5}`);
     expect(plucked.slice(1)).toEqual([40 + fret, 52 + fret, 64 + fret]);
+  });
+
+  it('plays the session 20 crossing in both directions and links to Practice after the self-check', () => {
+    const { player, plucked } = fakePlayer();
+    render('/theory/s/five-boxes-and-sequences', player);
+    expect(text()).toContain('Connect the pentatonic boxes');
+
+    const challenge = container.querySelector('#challenge')!;
+    for (const fret of [5, 8, 10, 10, 8, 5]) {
+      click(challenge.querySelector(`[aria-label*="fret ${fret}, string 1"]`)!);
+    }
+    expect(plucked).toEqual([69, 72, 74, 74, 72, 69]);
+
+    click(container.querySelector('button[lang="vi"]')!);
+    expect(text()).toContain('Nối các box pentatonic');
+    const done = container.querySelector('#done')!;
+    expect(done.querySelector('a.trainer')).toBeNull();
+    done.querySelectorAll('input[type="checkbox"]').forEach(click);
+    expect(payload(done.querySelector('a.trainer')!)).toMatchObject({
+      lang: 'vi',
+      state: { key: { scaleId: 'minorPentatonic' }, positions: [0, 1] },
+    });
   });
 
   it('renders session 18 pentatonic keys and modes, plays the drill, backing tracks, and switches language', () => {
