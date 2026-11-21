@@ -9,6 +9,7 @@ import type {
   RevealCopy,
   Session,
   SongCopy,
+  TabPhraseCopy,
   TransposeCopy,
 } from '../../sessions/types';
 import { useTheory } from '../context';
@@ -23,6 +24,7 @@ import { MelodyEcho } from './MelodyEcho';
 import { Reveal } from './Reveal';
 import { SongBench } from './SongBench';
 import { StrumAlong } from './StrumAlong';
+import { TabPhrase } from './TabPhrase';
 import { TransposeTable } from './TransposeTable';
 
 export function SessionBlock({ session, block }: { session: Session; block: Block }) {
@@ -34,6 +36,8 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
       const sceneCopy = lesson ? lesson.copy[lang].scene : undefined;
       return <LessonScene slug={block.lesson} step={block.step} copy={sceneCopy} />;
     }
+    case 'tabPhrase':
+      return <TabPhrase block={block} copy={session.copy[lang].blocks[block.key] as TabPhraseCopy} />;
     case 'listen': {
       const copy = session.copy[lang].blocks[block.key] as ListenCopy;
       const drill = DRILLS[block.drill]!;
