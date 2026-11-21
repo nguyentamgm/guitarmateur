@@ -11,6 +11,8 @@ import { pentatonicOrMajor } from './pentatonicOrMajor';
 import { pentaMode } from './pentaMode';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
+import { octaveOrFifth } from './octaveOrFifth';
+import { rootAcrossStrings } from './rootAcrossStrings';
 import { sameChord } from './sameChord';
 import { seventh } from './seventh';
 import { meter } from './meter';
@@ -30,6 +32,8 @@ export { pentatonicOrMajor } from './pentatonicOrMajor';
 export { pentaMode } from './pentaMode';
 export { quality } from './quality';
 export { rootNote } from './rootNote';
+export { octaveOrFifth } from './octaveOrFifth';
+export { rootAcrossStrings } from './rootAcrossStrings';
 export { sameChord } from './sameChord';
 export { seventh } from './seventh';
 
@@ -40,6 +44,8 @@ export const DRILLS: Partial<Record<DrillId, Drill>> = {
   onBeat,
   finished,
   rootNote,
+  octaveOrFifth,
+  rootAcrossStrings,
   moves,
   chordCount,
   fourOrFive,
