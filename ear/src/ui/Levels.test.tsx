@@ -159,7 +159,7 @@ describe('the welcome and its sound check (first visit only)', () => {
 });
 
 describe('the level map', () => {
-  it('five stages, fifteen levels: level 1 ready, the rest locked; Continue opens level 1', () => {
+  it('six stages, seventeen levels: level 1 ready, the rest locked; Continue opens level 1', () => {
     welcomed();
     render(fakePlayer().player);
     expect([...host.querySelectorAll('.lv-stage h3')].map((h) => h.textContent)).toEqual([
@@ -168,12 +168,13 @@ describe('the level map', () => {
       'Stage 3 · Finding the root',
       'Stage 4 · The soloing notes',
       'Stage 5 · On your guitar',
+      'Stage 6 · Chords and progressions',
     ]);
     const cards = [...host.querySelectorAll('.lv-card')];
-    expect(cards).toHaveLength(15);
+    expect(cards).toHaveLength(17);
     expect(cards.map((c) => c.className.split(' ')[1])).toEqual([
       'ready',
-      ...Array<string>(14).fill('locked'),
+      ...Array<string>(16).fill('locked'),
     ]);
     expect(cards[0]!.textContent).toBe(
       'Level 1Same or different?Tell if two notes are the same.▶ ReadyHow does this level work?',
@@ -185,7 +186,7 @@ describe('the level map', () => {
     );
   });
 
-  it('with the real sounds, Stage 1 opens level by level and levels 5–15 stay locked', () => {
+  it('with the real sounds, Stage 1 opens level by level and levels 5–17 stay locked', () => {
     const progress = Object.fromEntries(
       [1, 2, 3].map((id) => [id, { step: 2, best: 9, done: true, counts: {} }]),
     );
@@ -195,7 +196,7 @@ describe('the level map', () => {
     );
     act(() => root.render(createElement(App, { player: fakePlayer().player })));
     const states = [...host.querySelectorAll('.lv-card')].map((c) => c.className.split(' ')[1]);
-    expect(states).toEqual(['done', 'done', 'done', 'ready', ...Array<string>(11).fill('locked')]);
+    expect(states).toEqual(['done', 'done', 'done', 'ready', ...Array<string>(13).fill('locked')]);
     click(button('Continue'));
     expect(heading()).toBe('Level 4 · Close or far?');
   });
@@ -431,7 +432,7 @@ describe('level 14: answer on the neck', () => {
 });
 
 describe('level 15: find the root on your guitar', () => {
-  it('tune first; tap a fret of the thickest string; passing it finishes every level', () => {
+  it('tune first; tap a fret of the thickest string; passing it unlocks level 16', () => {
     const levels = Object.fromEntries(
       Array.from({ length: 14 }, (_, i) => [i + 1, { step: 2, best: 9, done: true, counts: {} }]),
     );
@@ -443,7 +444,7 @@ describe('level 15: find the root on your guitar', () => {
       demo: () => [{ answer: 5, part: note(DEMO_MIDI) }],
     };
     const { player, played } = fakePlayer();
-    render(player, { findRoot });
+    render(player, { findRoot, chordQuality: stub });
     click(button('Continue'));
     expect(heading()).toBe('Level 15 · Find the root on your guitar');
     expect(text()).toContain('Your guitar needs to be in tune.');
@@ -462,10 +463,7 @@ describe('level 15: find the root on your guitar', () => {
       click(button('Next'));
     }
     expect(heading()).toBe('10 of 10 right!');
-    expect(text()).toContain('You finished every level!');
-    expect(host.querySelector<HTMLAnchorElement>('.lv-end a')!.getAttribute('href')).toBe(
-      '/?lang=en',
-    );
+    expect(button('Next level')).toBeTruthy();
     expect(loadEar().levels[15]).toMatchObject({ done: true, best: 10 });
   });
 });

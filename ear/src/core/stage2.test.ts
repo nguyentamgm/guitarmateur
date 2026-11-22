@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { diatonicChords, pc } from '@shared/core/music';
 import { findLevel } from './levels';
-import { cadenceQuestion, chordQuestion } from './stage2';
+import { cadenceQuestion, chordQuestion, otherQuality, progressionQuestion } from './stage2';
 
 const SEEDS = Array.from({ length: 200 }, (_, i) => i + 1);
 
@@ -41,5 +41,58 @@ describe('level 6: finished or not', () => {
       }
     }
     expect(keys.size).toBeGreaterThan(6);
+  });
+});
+
+describe('level 16: major, minor or dominant 7th', () => {
+  const level = findLevel(16)!;
+  it('builds major, minor and dom7 chords across steps and compares the picked quality against the right one', () => {
+    for (const seed of SEEDS.slice(0, 30)) {
+      for (const answer of ['major', 'minor', 'dom7'] as const) {
+        const [a, b, c] = [0, 1, 2].map((step) =>
+          chordQuestion(level, { level: 16, step, answer, seed }),
+        );
+        for (const x of [a!, b!, c!]) expect(x.chord.id).toBe(answer);
+        expect([a!.style, b!.style, c!.style]).toEqual(['strum', 'strum', 'arpeggio']);
+      }
+    }
+    const q = { level: 16, step: 0, answer: 'dom7' as const, seed: 7 };
+    const right = chordQuestion(level, q).chord;
+    expect(otherQuality(right, 'major')).toEqual({ root: right.root, id: 'major' });
+    expect(otherQuality(right, 'minor')).toEqual({ root: right.root, id: 'minor' });
+  });
+});
+
+describe('level 17: four-bar chord progressions', () => {
+  const level = findLevel(17)!;
+  it('builds I–IV–V–I, I–V–vi–IV and i–iv–V7–i on the same tonic', () => {
+    for (const seed of SEEDS.slice(0, 30)) {
+      for (const step of [0, 1, 2]) {
+        const turn = progressionQuestion(level, { level: 17, step, answer: 'I-IV-V-I', seed });
+        const pop = progressionQuestion(level, { level: 17, step, answer: 'I-V-vi-IV', seed });
+        const minor = progressionQuestion(level, { level: 17, step, answer: 'i-iv-V7-i', seed });
+        const majorTriads = diatonicChords(turn.key);
+        const minorTriads = diatonicChords(minor.key);
+
+        expect(turn.chords).toEqual([
+          majorTriads[0]!.chord,
+          majorTriads[3]!.chord,
+          majorTriads[4]!.chord,
+          majorTriads[0]!.chord,
+        ]);
+        expect(pop.chords).toEqual([
+          majorTriads[0]!.chord,
+          majorTriads[4]!.chord,
+          majorTriads[5]!.chord,
+          majorTriads[3]!.chord,
+        ]);
+        expect(minor.chords).toEqual([
+          minorTriads[0]!.chord,
+          minorTriads[3]!.chord,
+          { root: minorTriads[4]!.chord.root, id: 'dom7' },
+          minorTriads[0]!.chord,
+        ]);
+      }
+    }
   });
 });

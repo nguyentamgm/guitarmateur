@@ -142,8 +142,8 @@ from "How does this level work?") → the questions → the end of the round.
 
 - **Playable:** a level opens once its kind has sounds in `LEVEL_SOUNDS` (`audio/levelSounds.ts`:
   `question`, `compare`, `demo`) **and** its words in `ui.play` (`i18n/strings.ts`); until then its
-  card says "Coming soon". Each stage issue added both for its kinds; all 15 levels are built
-  (#256, #258, #260, #261, #262, #263). Every level has its map name and one-line "what you'll learn" from the start.
+  card says "Coming soon". Each stage issue added both for its kinds; all 17 levels are built
+  (#256, #258, #260, #261, #262, #263, #363). Every level has its map name and one-line "what you'll learn" from the start.
 - **The round** (`ui/useRound.ts`) starts from a click, never a mount, so its first sound comes
   from a user gesture (iOS) and StrictMode's double mount plays nothing twice. Each round effect
   goes to the store (`storeRoundEffect`) as it happens, so a reload loses no answer. A question's
@@ -191,8 +191,13 @@ from "How does this level work?") → the questions → the end of the round.
   (`findRootLine`: "Right! Fret 5: that's A. The song is in A major." / "Close! You picked fret 7
   (B). The root was fret 5 (A). …", each note spelled from the key); a wrong answer plays the home
   chord and the fret picked, then the chord and the root's fret. Like level 14 it waits for Next.
-  Passing it, the last level, says "You finished every level!" with a link to Practice
-  (`/?lang=`). The app never listens to the guitar.
+  The app never listens to the guitar.
+- **Stage 6** (`core/stage2.ts`, levels 16–17): level 16 (`chordQuality`) adds dominant 7th (`dom7`)
+  alongside major and minor across open roots (E, A, D), moved roots and arpeggios; a wrong answer
+  plays the same chord in the quality picked, then as it was. Level 17 (`progression`) plays four
+  strummed bars of `I–IV–V–I`, `I–V–vi–IV` or `i–iv–V7–i` (in A at 70 and 100 BPM, then across all
+  12 keys); a wrong answer plays the progression picked on the same tonic, then the right one.
+  Passing level 17, the last level, says "You finished every level!" with a link to Practice (`/?lang=`).
 - **Sound check:** one guitar note (`SOUND_CHECK_MIDI`). When audio cannot start at all, the
   welcome and the question screen say so (`levelsNoAudio`) instead of asking.
 - **Sizes:** no text under 18px, answer buttons 56px tall, every other tap at least 44px; right is

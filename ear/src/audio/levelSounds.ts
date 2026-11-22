@@ -13,7 +13,13 @@ import {
 } from '../core/levels';
 import type { RoundQuestion } from '../core/round';
 import { stageOneNotes } from '../core/stage1';
-import { cadenceQuestion, chordQuestion, homeChord, otherQuality } from '../core/stage2';
+import {
+  cadenceQuestion,
+  chordQuestion,
+  homeChord,
+  otherQuality,
+  progressionQuestion,
+} from '../core/stage2';
 import { degreeQuestion } from '../core/stage3';
 import { findRootQuestion } from '../core/stage5';
 import { resolution } from '../core/resolution';
@@ -95,13 +101,13 @@ const chordQuestionPart: LevelSounds['question'] = (level, q) => {
   return chordPart(chord, style, CHORD_BPM);
 };
 
-/** Level 5: a wrong answer plays the same chord in the quality picked, then as it was. */
+/** Level 5 and level 16: a wrong answer plays the same chord in the quality picked, then as it was. */
 const chordQuality: LevelSounds = {
   question: chordQuestionPart,
-  compare: (level, q) => {
+  compare: (level, q, picked) => {
     const { chord, style } = chordQuestion(level, q);
     return answerComparePart(
-      chordPart(otherQuality(chord), style, CHORD_BPM),
+      chordPart(otherQuality(chord, String(picked)), style, CHORD_BPM),
       chordPart(chord, style, CHORD_BPM),
       CHORD_BPM,
     );
@@ -122,6 +128,32 @@ const finished: LevelSounds = {
     return progressionPart([...chords, homeChord(key)], bpm);
   },
   demo: demoOf(cadencePart),
+};
+
+const progressionSoundPart: LevelSounds['question'] = (level, q) => {
+  const { chords, bpm } = progressionQuestion(level, q);
+  return progressionPart(chords, bpm);
+};
+
+/** Level 17: a wrong answer plays the progression picked on the same tonic, then what it was. */
+const progression: LevelSounds = {
+  question: progressionSoundPart,
+  compare: (level, q, picked) => {
+    const right = progressionQuestion(level, q);
+    const fallback = q.answer === 'I-IV-V-I' ? 'I-V-vi-IV' : 'I-IV-V-I';
+    const pickedId =
+      (picked === 'I-IV-V-I' || picked === 'I-V-vi-IV' || picked === 'i-iv-V7-i') &&
+      picked !== q.answer
+        ? picked
+        : fallback;
+    const chosen = progressionQuestion(level, { ...q, answer: pickedId });
+    return answerComparePart(
+      progressionPart(chosen.chords, right.bpm),
+      progressionPart(right.chords, right.bpm),
+      right.bpm,
+    );
+  },
+  demo: demoOf(progressionSoundPart),
 };
 
 /** Stage 3's tempo: the cadence, the note and the walk home. */
@@ -201,6 +233,7 @@ export const LEVEL_SOUNDS: KindSounds = {
   distance: stageOne,
   chordQuality,
   finished,
+  progression,
   degree,
   findRoot,
 };

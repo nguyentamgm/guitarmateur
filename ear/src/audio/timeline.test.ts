@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { chordMidis } from '@shared/core/audio';
 import { MAJOR_KEY_TONICS, parseNote, type Chord, type Key } from '@shared/core/music';
-import { MIDDLE_RANGE } from '../core/levels';
+import { MIDDLE_RANGE, findLevel } from '../core/levels';
 import { resolution } from '../core/resolution';
+import { LEVEL_SOUNDS } from './levelSounds';
 import {
   STRUM_SPREAD_SEC,
   answerComparePart,
@@ -261,5 +262,21 @@ describe("the beginner levels' parts, at 60 BPM (a beat is 1 s)", () => {
     expect(tunePart([60, 62], 999)).toEqual(tunePart([60, 62], 200));
     expect(chordPart(A, 'arpeggio', 0)).toEqual(chordPart(A, 'arpeggio', 40));
     expect(progressionPart([A], 500)).toEqual(progressionPart([A], 200));
+  });
+
+  it('level 16 and level 17 compare the picked chord or progression against the right answer', () => {
+    const level16 = findLevel(16)!;
+    const q16 = { level: 16, step: 0, answer: 'dom7' as const, seed: 7 };
+    const cmpMajor = LEVEL_SOUNDS.chordQuality!.compare(level16, q16, 'major');
+    const cmpMinor = LEVEL_SOUNDS.chordQuality!.compare(level16, q16, 'minor');
+    expect(cmpMajor.sounds.map((s) => s.midi)).not.toEqual(cmpMinor.sounds.map((s) => s.midi));
+
+    const level17 = findLevel(17)!;
+    const q17 = { level: 17, step: 0, answer: 'i-iv-V7-i' as const, seed: 11 };
+    const cmpProg = LEVEL_SOUNDS.progression!.compare(level17, q17, 'I-V-vi-IV');
+    const pickedPart = LEVEL_SOUNDS.progression!.question(level17, { ...q17, answer: 'I-V-vi-IV' });
+    const rightPart = LEVEL_SOUNDS.progression!.question(level17, q17);
+    expect(cmpProg.sounds.slice(0, pickedPart.sounds.length)).toEqual(pickedPart.sounds);
+    expect(cmpProg.sounds).toHaveLength(pickedPart.sounds.length + rightPart.sounds.length);
   });
 });

@@ -79,7 +79,7 @@ describe('the beginner levels (version 2)', () => {
           counts: { same: { asked: 4, right: 3 }, maybe: { asked: 1, right: 1 } },
         },
         '2': { step: 3, best: 11, done: 'true', counts: { higher: { asked: 1, right: 2 } } },
-        '16': { step: 0 },
+        '18': { step: 0 },
         '3': 'garbage',
       },
     });
@@ -88,6 +88,19 @@ describe('the beginner levels (version 2)', () => {
       1: { step: 2, best: 9, done: true, counts: { same: { asked: 4, right: 3 } } },
       2: { step: 0, best: 0, done: false, counts: {} },
     });
+  });
+
+  it('preserves progress on levels 1–15 from existing gm.ear storage and unlocks level 16', () => {
+    const first15 = Object.fromEntries(
+      Array.from({ length: 15 }, (_, i) => [String(i + 1), { step: 2, best: 9, done: true, counts: {} }]),
+    );
+    const data = migrate({ version: 2, welcomed: true, levels: first15 });
+    expect(data.welcomed).toBe(true);
+    for (let id = 1; id <= 15; id++) {
+      expect(data.levels[id]).toMatchObject({ step: 2, best: 9, done: true });
+    }
+    expect(isUnlocked(data.levels, 16)).toBe(true);
+    expect(isUnlocked(data.levels, 17)).toBe(false);
   });
 
   it('round-trips the stored data, building on what another tab stored', () => {

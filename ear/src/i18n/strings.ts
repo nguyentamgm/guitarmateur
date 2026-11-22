@@ -95,6 +95,7 @@ const en = {
     3: 'Finding the root',
     4: 'The soloing notes',
     5: 'On your guitar',
+    6: 'Chords and progressions',
   },
   levelNumber: 'Level {n}',
   levelState: {
@@ -123,6 +124,14 @@ const en = {
     15: {
       name: 'Find the root on your guitar',
       learn: 'Hear a song, then find its root on your own guitar.',
+    },
+    16: {
+      name: 'Major, minor or dominant 7th?',
+      learn: 'Hear the tense ♭7 of a dominant 7th chord.',
+    },
+    17: {
+      name: 'Chord progressions',
+      learn: 'Tell common four-bar progressions apart by ear.',
     },
   } as Readonly<Record<number, LevelText>>,
   /** The words of each level that can be played so far, by level id. */
@@ -289,6 +298,36 @@ const en = {
       tip: 'The app does not listen to your guitar: you play along, then tap the fret that sounded like home.',
       learned: "a song's root, and find it on your guitar",
     },
+    16: {
+      intro:
+        'Add ♭7 to a major chord and you get a dominant 7th chord. It sounds bright like a major chord, but with a bluesy tension that wants to resolve.',
+      question: 'Was that chord major, minor or dominant 7th?',
+      answers: { major: 'Major', minor: 'Minor', dom7: 'Dominant 7th' },
+      heard: {
+        major: 'a major chord: bright and steady',
+        minor: 'a minor chord: dark and sad',
+        dom7: 'a dominant 7th chord: bright with a tense ♭7',
+      },
+      tip: 'Listen for the extra note at the top: a major chord can rest, while a dominant 7th leans forward.',
+      learned: 'the tense ♭7 of a dominant 7th chord against major and minor chords',
+    },
+    17: {
+      intro:
+        "You'll hear a four-bar chord progression. Listen for whether the key is major or minor, where the minor vi chord sits, and whether the last bar comes back to I.",
+      question: 'Which chord progression was that?',
+      answers: {
+        'I-IV-V-I': 'I–IV–V–I',
+        'I-V-vi-IV': 'I–V–vi–IV',
+        'i-iv-V7-i': 'i–iv–V7–i',
+      },
+      heard: {
+        'I-IV-V-I': 'I–IV–V–I: three major chords that come home to I',
+        'I-V-vi-IV': 'I–V–vi–IV: drops to the minor vi chord in bar 3 and ends on IV',
+        'i-iv-V7-i': 'i–iv–V7–i: a minor key with V7 pulling back to i',
+      },
+      tip: 'Check the first chord (major I or minor i), then listen to bar 3: a sad vi in a major song, or a tense V7 in a minor song.',
+      learned: 'the shape of I–IV–V–I, I–V–vi–IV and i–iv–V7–i by ear',
+    },
   } as Readonly<Partial<Record<number, PlayText>>>,
   /** A Stage 1 wrong answer's picture: the notes on one string. */
   gapLabel: 'On the neck: the two notes are {n} frets apart',
@@ -435,6 +474,7 @@ const vi: UiStrings = {
     3: 'Tìm root',
     4: 'Các nốt để solo',
     5: 'Trên cây đàn của bạn',
+    6: 'Hợp âm và vòng hợp âm',
   },
   levelNumber: 'Cấp {n}',
   levelState: {
@@ -463,6 +503,14 @@ const vi: UiStrings = {
     15: {
       name: 'Tìm root trên đàn của bạn',
       learn: 'Nghe một bài, rồi tìm root của nó trên chính cây đàn của bạn.',
+    },
+    16: {
+      name: 'Trưởng, thứ hay dominant 7?',
+      learn: 'Nghe ra bậc ♭7 căng của hợp âm dominant 7.',
+    },
+    17: {
+      name: 'Vòng hợp âm',
+      learn: 'Phân biệt các vòng hợp âm 4 bar quen thuộc bằng tai.',
     },
   },
   play: {
@@ -628,6 +676,36 @@ const vi: UiStrings = {
       },
       tip: 'Ứng dụng không nghe tiếng đàn của bạn: bạn tự chơi theo, rồi bấm vào phím nghe như về nhà.',
       learned: 'root của một bài, và tìm được nó trên đàn của bạn',
+    },
+    16: {
+      intro:
+        'Thêm bậc ♭7 vào hợp âm trưởng, bạn có hợp âm dominant 7. Nó vẫn sáng như hợp âm trưởng, nhưng có thêm độ căng chất blues luôn muốn resolve.',
+      question: 'Hợp âm đó là trưởng, thứ hay dominant 7?',
+      answers: { major: 'Trưởng', minor: 'Thứ', dom7: 'Dominant 7' },
+      heard: {
+        major: 'hợp âm trưởng: sáng và vững',
+        minor: 'hợp âm thứ: tối và buồn',
+        dom7: 'hợp âm dominant 7: sáng nhưng căng ở bậc ♭7',
+      },
+      tip: 'Lắng nghe nốt thêm vào: hợp âm trưởng có thể đứng yên, còn hợp âm dominant 7 muốn đi tiếp.',
+      learned: 'bậc ♭7 căng của hợp âm dominant 7 so với hợp âm trưởng và thứ',
+    },
+    17: {
+      intro:
+        'Bạn sẽ nghe một vòng hợp âm 4 bar. Hãy nghe xem bài ở giọng trưởng hay thứ, hợp âm thứ vi nằm ở đâu, và bar cuối có quay về I không.',
+      question: 'Đó là vòng hợp âm nào?',
+      answers: {
+        'I-IV-V-I': 'I–IV–V–I',
+        'I-V-vi-IV': 'I–V–vi–IV',
+        'i-iv-V7-i': 'i–iv–V7–i',
+      },
+      heard: {
+        'I-IV-V-I': 'I–IV–V–I: ba hợp âm trưởng quay về I',
+        'I-V-vi-IV': 'I–V–vi–IV: qua hợp âm thứ vi ở bar 3 và kết ở IV',
+        'i-iv-V7-i': 'i–iv–V7–i: giọng thứ với hợp âm V7 hút về i',
+      },
+      tip: 'Nghe hợp âm đầu tiên (I trưởng hay i thứ), rồi nghe bar 3: hợp âm vi buồn trong bài trưởng, hay V7 căng trong bài thứ.',
+      learned: 'nhận diện các vòng hợp âm I–IV–V–I, I–V–vi–IV và i–iv–V7–i bằng tai',
     },
   },
   gapLabel: 'Trên cần đàn: hai nốt cách nhau {n} phím',

@@ -29,8 +29,8 @@ describe('unlocking', () => {
   });
 
   it('points at the last level once every level is done, and knows no other ids', () => {
-    expect(currentLevel(done(...ids))).toBe(15);
-    expect(isUnlocked(done(...ids), 16)).toBe(false);
+    expect(currentLevel(done(...ids))).toBe(17);
+    expect(isUnlocked(done(...ids), 18)).toBe(false);
     expect(isUnlocked({}, 0)).toBe(false);
   });
 

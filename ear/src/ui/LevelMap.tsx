@@ -10,7 +10,7 @@ import { ROUND_QUESTIONS } from '../core/round';
 import { fill, type UiStrings } from '../i18n';
 import { levelText } from './levelWords';
 
-const STAGES: readonly Stage[] = [1, 2, 3, 4, 5];
+const STAGES: readonly Stage[] = [1, 2, 3, 4, 5, 6];
 
 type CardState = 'locked' | 'ready' | 'done' | 'soon';
 
