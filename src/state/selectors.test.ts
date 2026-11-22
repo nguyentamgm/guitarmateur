@@ -76,6 +76,7 @@ describe('licksForState', () => {
     const lastPcOn = pc(notesOn[notesOn.length - 1]!.pitch);
     const aMinorPcs = chordNotes(aMinor).map(pc);
     expect(aMinorPcs).toContain(lastPcOn);
+    expect(notesOn[notesOn.length - 1]!.startBeat).toBe(resultOn[0]!.lick.lengthBeats);
 
     // resolveToNext: false — entry 0 targets its own chord (gMajor)
     const stateOff = { ...stateOn, resolveToNext: false };

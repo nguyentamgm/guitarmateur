@@ -117,21 +117,65 @@ export function pickPattern(level: LickParams['level'], rng: Rng): RhythmPattern
 /** How often the second bar answers the first with the same rhythm (call and response). */
 const RESPONSE_SAME_RHYTHM = 0.6;
 
+/** The slot for a downbeat resolution note landing on Beat 1 of the next chord. */
+export function downbeatSlot(lengthBeats: number): RhythmSlot {
+  return { startBeat: lengthBeats, durationBeats: 1 };
+}
+
 /**
  * Build a `bars`-bar rhythm by tiling 1-bar patterns, each offset by `LENGTH_BEATS`. A later bar
  * usually **answers** the first with the same rhythm — call and response, the backbone of blues
  * phrasing, where the answer is recognisably the same gesture — and otherwise gets a fresh pattern
  * so 2-bar licks are not always symmetrical. Deterministic: successive bars advance the shared `rng`.
+ *
+ * When `downbeat` is `true`, bar 0 leaves Beat 1 open (a rest of at least half a beat) and the
+ * last bar's held ending becomes active lead-in notes finishing at `bars * LENGTH_BEATS`.
  */
-export function buildRhythm(level: LickParams['level'], bars: number, rng: Rng): RhythmPattern {
+export function buildRhythm(level: LickParams['level'], bars: number, rng: Rng, downbeat = false): RhythmPattern {
   const out: RhythmPattern = [];
   const call = pickPattern(level, rng);
   for (let bar = 0; bar < bars; bar++) {
     const offset = bar * LENGTH_BEATS;
     const pattern = bar === 0 || rng() < RESPONSE_SAME_RHYTHM ? call : pickPattern(level, rng);
-    for (const slot of pattern) {
-      out.push({ ...slot, startBeat: slot.startBeat + offset });
+    let barSlots: RhythmSlot[] = pattern.map((slot) => ({ ...slot, startBeat: slot.startBeat + offset }));
+    if (downbeat && bar === 0) {
+      const first = barSlots[0]!;
+      if (!(first.rest && first.durationBeats >= 0.5)) {
+        if (first.durationBeats === 2) {
+          barSlots = [
+            { startBeat: 0, durationBeats: 1, rest: true },
+            { startBeat: 1, durationBeats: 1 },
+            ...barSlots.slice(1),
+          ];
+        } else if (first.durationBeats === 1.5) {
+          barSlots = [
+            { startBeat: 0, durationBeats: 1, rest: true },
+            { startBeat: 1, durationBeats: 0.5 },
+            ...barSlots.slice(1),
+          ];
+        } else {
+          barSlots = barSlots.map((slot) => (slot.startBeat < 0.5 ? { ...slot, rest: true } : slot));
+        }
+      }
     }
+    if (downbeat && bar === bars - 1) {
+      const last = barSlots[barSlots.length - 1]!;
+      const rest = barSlots.slice(0, -1);
+      if (last.durationBeats === 2) {
+        barSlots = [
+          ...rest,
+          ...(level === 1 ? [q(offset + 2), q(offset + 3)] : [q(offset + 2), e(offset + 3), e(offset + 3.5)]),
+        ];
+      } else if (last.durationBeats === 1.5) {
+        barSlots = [
+          ...rest,
+          ...(level <= 2 ? [e(offset + 2.5), q(offset + 3)] : [e(offset + 2.5), e(offset + 3), e(offset + 3.5)]),
+        ];
+      } else if (last.durationBeats === 1) {
+        barSlots = [...rest, ...(level === 1 ? [q(offset + 3)] : [e(offset + 3), e(offset + 3.5)])];
+      }
+    }
+    out.push(...barSlots);
   }
   return out;
 }

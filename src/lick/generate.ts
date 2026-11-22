@@ -1,7 +1,7 @@
 import { midi, toneRole, type Chord } from '../music';
 import type { Box } from '../fretboard';
 import { mulberry32 } from '@shared/core/rng';
-import { activeSlots, buildRhythm, patternLengthBeats } from './rhythm';
+import { activeSlots, buildRhythm, downbeatSlot, patternLengthBeats } from './rhythm';
 import { pickChordTone, pickContour, pickFirstNote } from './contour';
 import { countUnplayableMoves, fillPath } from './path';
 import { scoreLick, type ScorableNote } from './score';
@@ -43,6 +43,7 @@ const SCORE_TOLERANCE = 0.75;
  */
 export function generateLick(box: Box, chord: Chord, next: Chord | null, params: LickParams, prevLastMidi?: number): Lick {
   const targetChord = params.resolveToNext && next ? next : chord;
+  const downbeat = Boolean(params.resolveToNext && next);
   const bars = params.bars ?? 1;
   const tonic = box.notes.find((n) => n.isTonic);
   const tonicPc = tonic ? midi(tonic.pitch) % 12 : null;
@@ -58,7 +59,7 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   const routeRng = mulberry32(attemptSeed(params.seed, 1000));
   if (tonicPc !== null && routeRng() < VOCABULARY_SHARE) {
     const phrased = vocabularyLick(
-      { box, chord, targetChord, params, tonicPc, prevLastMidi, registerMidi },
+      { box, chord, targetChord, params, tonicPc, prevLastMidi, registerMidi, downbeat },
       routeRng,
     );
     if (phrased) {
@@ -71,9 +72,9 @@ export function generateLick(box: Box, chord: Chord, next: Chord | null, params:
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const rng = mulberry32(attemptSeed(params.seed, attempt));
 
-    const pattern = buildRhythm(params.level, bars, rng);
-    const slots = activeSlots(pattern);
+    const pattern = buildRhythm(params.level, bars, rng, downbeat);
     const lengthBeats = patternLengthBeats(pattern);
+    const slots = downbeat ? [...activeSlots(pattern), downbeatSlot(lengthBeats)] : activeSlots(pattern);
     const contour = pickContour(params.level, rng);
 
     const last = pickChordTone(box, targetChord, params.targetRole, rng, registerMidi);

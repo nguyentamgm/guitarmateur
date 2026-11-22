@@ -67,7 +67,16 @@ const SITUATIONS: Situation[] = [
 const SEEDS = Array.from({ length: 12 }, (_, i) => i);
 
 /** Everything wrong with one lick, as readable messages (empty when it is fine). */
-function check(lick: Lick, box: Box, chord: Chord, target: Chord, role: ToneRole, level: LickParams['level'], bars: number): string[] {
+function check(
+  lick: Lick,
+  box: Box,
+  chord: Chord,
+  target: Chord,
+  role: ToneRole,
+  level: LickParams['level'],
+  bars: number,
+  resolveToNext = false,
+): string[] {
   const problems: string[] = [];
   const fail = (ok: boolean, msg: string) => ok || problems.push(msg);
   const cells = new Set(box.notes.map((n) => `${n.string}:${n.fret}`));
@@ -93,7 +102,17 @@ function check(lick: Lick, box: Box, chord: Chord, target: Chord, role: ToneRole
   });
   const last = notes.at(-1);
   if (last) {
-    fail(Math.abs(last.startBeat + last.durationBeats - lick.lengthBeats) < 0.001, 'the last note does not sustain to the end');
+    if (resolveToNext) {
+      fail(Math.abs(last.startBeat - lick.lengthBeats) < 0.001, 'the last note does not land on the downbeat');
+      fail(notes[0]!.startBeat > 0, 'beat 1 is not left open');
+      const prev = notes.at(-2);
+      fail(
+        prev !== undefined && Math.abs(prev.startBeat + prev.durationBeats - lick.lengthBeats) < 0.001,
+        'the penultimate note does not finish at the bar line',
+      );
+    } else {
+      fail(Math.abs(last.startBeat + last.durationBeats - lick.lengthBeats) < 0.001, 'the last note does not sustain to the end');
+    }
     fail(last.role === landingRole(box, target, role), `lands on ${String(last.role)}, expected ${landingRole(box, target, role)}`);
   }
   fail(countUnplayableMoves(notes, level) === 0, 'unplayable moves');
@@ -114,7 +133,9 @@ describe('generateLick in named situations', () => {
         const params: LickParams = { level, targetRole: s.role, resolveToNext: s.resolveToNext ?? false, seed, bars };
         const lick = generateLick(box, chord, next, params);
         licks.push(lick);
-        for (const p of check(lick, box, chord, target, s.role, level, bars)) problems.push(`level ${level} seed ${seed}: ${p}`);
+        for (const p of check(lick, box, chord, target, s.role, level, bars, Boolean(s.resolveToNext && next))) {
+          problems.push(`level ${level} seed ${seed}: ${p}`);
+        }
       }
     }
     expect(problems.slice(0, 10)).toEqual([]);

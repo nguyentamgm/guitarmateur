@@ -4,7 +4,7 @@ import { TONICS, SCALE_IDS, defaultProgression, midi, type Chord } from '../musi
 import { TUNINGS, positions, mergedBox } from '../fretboard';
 import { PHRASES, phraseKind, type Phrase } from './vocabulary';
 import { realizePhrase, spell } from './realize';
-import { callAndResponse, candidates, displaced, nativeLevel, withRest, type PhraseContext } from './select';
+import { callAndResponse, candidates, displaced, nativeLevel, toDownbeat, withRest, type PhraseContext } from './select';
 import { generateLick, type LickParams } from './index';
 
 const A = TONICS.find((t) => t.letter === 'A' && t.alter === 0)!;
@@ -160,6 +160,18 @@ describe('selection and variation', () => {
     expect(r.notes.length).toBe(p.notes.length - 1);
     expect(r.notes[0]).toEqual(p.notes[0]);
     expect(r.notes.at(-1)).toEqual(p.notes.at(-1));
+  });
+
+  it('toDownbeat shifts 1-bar and 2-bar phrases so the target lands at phrase.beats with Beat 1 open', () => {
+    for (const id of ['minor-descent', 'three-step-home', 'two-bar-call-answer']) {
+      const p = byId(id);
+      const db = toDownbeat(p)!;
+      expect(db).not.toBeNull();
+      expect(db.notes[0]!.at).toBeGreaterThan(0);
+      const prev = db.notes.at(-2)!;
+      expect(prev.at + prev.dur).toBe(p.beats);
+      expect(db.notes.at(-1)).toMatchObject({ at: p.beats, dur: 1 });
+    }
   });
 });
 

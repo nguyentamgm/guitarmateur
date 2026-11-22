@@ -105,6 +105,8 @@ describe('generateLick — integration', () => {
     const pc = midi(last.pitch) % 12;
     // G major: G=7, B=11, D=2
     expect([7, 11, 2]).toContain(pc);
+    expect(last.startBeat).toBe(4);
+    expect(lick.notes[0]!.startBeat).toBeGreaterThan(0);
   });
 
   it('level 1-2: no techniques on any note', () => {
@@ -138,6 +140,8 @@ describe('generateLick — integration', () => {
         level: 2, targetRole: 'R', resolveToNext: true, seed, bars: 1,
       });
       const last = lick.notes[lick.notes.length - 1]!;
+      expect(last.startBeat).toBe(4);
+      expect(lick.notes[0]!.startBeat).toBeGreaterThan(0);
       const nextPcs = [0, 4, 7]; // C major: C, E, G
       const pcs = (p: typeof last.pitch) => midi(p) % 12;
       if (nextPcs.includes(pcs(last.pitch)) && pcs(last.pitch) === 0) {

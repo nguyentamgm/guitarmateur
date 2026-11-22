@@ -19,6 +19,7 @@ export interface PhraseContext {
   prevLastMidi?: number;
   /** Where the solo's arc wants the landing (see `progressionArc`). */
   registerMidi?: number;
+  readonly downbeat?: boolean;
 }
 
 export interface PhraseLick {
@@ -116,11 +117,40 @@ export function displaced(phrase: Phrase): Phrase | null {
 }
 
 /**
+ * Shift a phrase so its target landing note falls on Beat 1 (`at: phrase.beats`, `dur: 1`) of the
+ * next bar, pushing the final bar's notes forward to lead continuously across the barline and
+ * leaving Beat 1 of bar 0 open. Returns `null` if the phrase lacks a continuous approach into the
+ * target or cannot start after Beat 1.
+ */
+export function toDownbeat(phrase: Phrase): Phrase | null {
+  const ns = phrase.notes;
+  if (ns.length < 2) return null;
+  const last = ns[ns.length - 1]!;
+  const prev = ns[ns.length - 2]!;
+  if (!last.p || !('target' in last.p)) return null;
+  if (Math.abs(prev.at + prev.dur - last.at) >= 1e-9) return null;
+  const shift = phrase.beats - last.at;
+  if (shift <= 0) return null;
+  const barStart = phrase.beats - 4;
+  const mapped = ns.map((n, i) => {
+    if (i === ns.length - 1) return { ...n, at: phrase.beats, dur: 1 };
+    if (n.at >= barStart - 1e-9) return { ...n, at: n.at + shift };
+    return n;
+  });
+  if (mapped[0]!.at <= 0) return null;
+  for (let i = 0; i < mapped.length - 1; i++) {
+    if (mapped[i]!.at + mapped[i]!.dur > mapped[i + 1]!.at + 1e-9) return null;
+  }
+  if (Math.abs(mapped[ns.length - 2]!.at + mapped[ns.length - 2]!.dur - phrase.beats) >= 1e-9) return null;
+  return { ...phrase, notes: mapped };
+}
+
+/**
  * Leave one note out — a rest where it was — for space. Not the first note (the phrase must still
  * start somewhere recognisable), not the landing, and not a note a bend, release, scale step or
- * approach hangs on.
+ * approach hangs on. When `keepApproach` is `true`, also keeps the penultimate approach note.
  */
-export function withRest(phrase: Phrase, rng: Rng): Phrase | null {
+export function withRest(phrase: Phrase, rng: Rng, keepApproach = false): Phrase | null {
   const ns = phrase.notes;
   const dependsOnPrev = (k: number) => {
     const x = ns[k];
@@ -130,9 +160,10 @@ export function withRest(phrase: Phrase, rng: Rng): Phrase | null {
     const p = ns[k]?.p;
     return p !== undefined && ('above' in p || 'below' in p);
   };
+  const limit = keepApproach ? ns.length - 2 : ns.length - 1;
   const options = ns
     .map((_, i) => i)
-    .filter((i) => i > 0 && i < ns.length - 1 && !dependsOnPrev(i + 1) && !dependsOnPrev(i) && !dependsOnNext(i) && !dependsOnNext(i - 1));
+    .filter((i) => i > 0 && i < limit && !dependsOnPrev(i + 1) && !dependsOnPrev(i) && !dependsOnNext(i) && !dependsOnNext(i - 1));
   if (!options.length) return null;
   const drop = options[Math.floor(rng() * options.length)]!;
   return { ...phrase, notes: ns.filter((_, i) => i !== drop) };
@@ -178,15 +209,26 @@ export function vocabularyLick(ctx: PhraseContext, rng: Rng): PhraseLick | null 
 
     let phrase = pick;
     if (bars === 2 && phrase.beats === 4) {
+      let call = phrase;
+      if (ctx.downbeat && call.notes[0]!.at === 0) {
+        const d = displaced(call);
+        if (!d) continue;
+        call = d;
+      }
       // Answer with the same phrase (repetition) or another one-bar phrase.
       // The answer must share the call's reference (key or chord) to be read in the same terms.
-      const sameRef = pool1.filter((c) => c.item.ref === phrase.ref);
-      const answer = rng() < 0.5 || !sameRef.length ? phrase : weightedChoice(rng, sameRef);
-      phrase = callAndResponse(phrase, answer, rng);
+      const sameRef = pool1.filter((c) => c.item.ref === call.ref);
+      const answer = rng() < 0.5 || !sameRef.length ? call : weightedChoice(rng, sameRef);
+      phrase = callAndResponse(call, answer, rng);
     }
     // Displacing leaves a dotted last note, which the easy levels' rhythms do not use.
-    if (params.level >= 3 && rng() < 0.25) phrase = displaced(phrase) ?? phrase;
-    if (rng() < 0.2) phrase = withRest(phrase, rng) ?? phrase;
+    if (!ctx.downbeat && params.level >= 3 && rng() < 0.25) phrase = displaced(phrase) ?? phrase;
+    if (rng() < 0.2) phrase = withRest(phrase, rng, Boolean(ctx.downbeat)) ?? phrase;
+    if (ctx.downbeat) {
+      const db = toDownbeat(phrase);
+      if (!db) continue;
+      phrase = db;
+    }
 
     const placed = bestPlacement(phrase, ctx);
     if (placed) {
