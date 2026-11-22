@@ -24,6 +24,10 @@ export interface UseTransport {
   position: Position | null;
   /** The bar being heard (0-based, a 2-bar chord counts twice), or null when idle or counting in. */
   bar: number | null;
+  /** Index of the single card being looped, or null when playing the whole progression or idle. */
+  cardIndex?: number | null;
+  /** True during the learner's response pass in trade (call and response) mode. */
+  isResponding?: boolean;
   play: (licks: Lick[], opts: PlayOptions) => void;
   stop: () => void;
   setClickGain: (value: number) => void;
@@ -42,19 +46,32 @@ export function useTransport(): UseTransport {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
   const [bar, setBar] = useState<number | null>(null);
+  const [cardIndex, setCardIndex] = useState<number | null>(null);
+  const [isResponding, setIsResponding] = useState(false);
 
   const ensureSequencer = useCallback((): Sequencer<PlayTag> | null => {
     if (!supported) return null;
     sequencerRef.current ??= new Sequencer<PlayTag>(getPlayer(), {
       onSound: (e) => {
         if (!e.tag) return;
-        if ('bar' in e.tag) setBar(e.tag.bar);
-        else setPosition(e.tag);
+        if ('bar' in e.tag) {
+          setBar(e.tag.bar);
+          const resp = Boolean(e.tag.response);
+          setIsResponding(resp);
+          if (resp && e.tag.entryIndex !== undefined) {
+            setPosition({ entryIndex: e.tag.entryIndex, noteIndex: -1 });
+          }
+        } else {
+          setIsResponding(false);
+          setPosition(e.tag);
+        }
       },
       onEnd: () => {
         setIsPlaying(false);
         setPosition(null);
         setBar(null);
+        setCardIndex(null);
+        setIsResponding(false);
       },
     });
     return sequencerRef.current;
@@ -66,13 +83,24 @@ export function useTransport(): UseTransport {
       if (!sequencer) return;
       const { loop = false, clickGain, backingGain, noteGain, ...compile } = opts;
       getPlayer().setLevels({ click: clickGain, backing: backingGain, note: noteGain });
-      if (licks.length === 0 || (licks.every((l) => l.notes.length === 0) && (!compile.chords || compile.chords.length === 0))) {
+      const activeLicks =
+        compile.cardIndex !== undefined
+          ? licks[compile.cardIndex]
+            ? [licks[compile.cardIndex]!]
+            : []
+          : licks;
+      if (
+        activeLicks.length === 0 ||
+        (activeLicks.every((l) => l.notes.length === 0) && (!compile.chords || compile.chords.length === 0))
+      ) {
         sequencer.stop();
         return;
       }
       const passes = lickPasses(licks, compile, loop);
-      sequencer.play(passes.first, loop ? passes.next : undefined);
+      sequencer.play(passes.first, loop || compile.trade ? passes.next : undefined);
       setIsPlaying(sequencer.isPlaying);
+      setCardIndex(sequencer.isPlaying ? (compile.cardIndex ?? null) : null);
+      setIsResponding(false);
     },
     [ensureSequencer],
   );
@@ -80,7 +108,10 @@ export function useTransport(): UseTransport {
   const stop = useCallback(() => {
     sequencerRef.current?.stop();
     setIsPlaying(false);
+    setPosition(null);
     setBar(null);
+    setCardIndex(null);
+    setIsResponding(false);
   }, []);
 
   const setClickGain = useCallback((value: number) => getPlayer().setLevels({ click: value }), []);
@@ -95,5 +126,5 @@ export function useTransport(): UseTransport {
     };
   }, []);
 
-  return { supported, isPlaying, position, bar, play, stop, setClickGain, setBackingGain, setNoteGain };
+  return { supported, isPlaying, position, bar, cardIndex, isResponding, play, stop, setClickGain, setBackingGain, setNoteGain };
 }

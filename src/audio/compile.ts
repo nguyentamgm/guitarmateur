@@ -27,6 +27,10 @@ export type AudioEvent =
       /** On a downbeat of the music: which bar starts (0-based, a 2-bar chord counts twice). Not
        *  on the count-in. Drives the bar grid's highlight. */
       bar?: number;
+      /** Which progression entry covers this downbeat. */
+      entryIndex?: number;
+      /** True on a downbeat of the learner's response pass in trade mode. */
+      response?: boolean;
     }
   | {
       timeSec: number;
@@ -70,6 +74,10 @@ export interface CompileOptions {
   chords?: readonly Chord[];
   /** Backing pattern style; defaults to `'shuffle'` when `swing > 0`, otherwise `'strum'`. */
   backingStyle?: BackingStyle;
+  /** When set, compile only this progression card (0-based index into `licks`), preserving its `entryIndex` and bar offset. */
+  cardIndex?: number;
+  /** Trade bars (call and response): odd passes play the lick; even passes silence the lick notes and keep click (and backing) for the learner to answer. */
+  trade?: boolean;
 }
 
 export interface CompiledProgression {
@@ -109,7 +117,17 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
   const swing = Math.min(1, Math.max(0, opts.swing ?? 0));
   const secPerBeat = 60 / opts.tempoBpm;
 
-  const musicBeats = licks.reduce((sum, l) => sum + l.lengthBeats, 0);
+  const entries: { lick: Lick; entryIndex: number }[] =
+    opts.cardIndex !== undefined
+      ? licks[opts.cardIndex]
+        ? [{ lick: licks[opts.cardIndex]!, entryIndex: opts.cardIndex }]
+        : []
+      : licks.map((lick, entryIndex) => ({ lick, entryIndex }));
+  const barOffset =
+    opts.cardIndex !== undefined && opts.cardIndex > 0
+      ? Math.floor(licks.slice(0, opts.cardIndex).reduce((sum, l) => sum + l.lengthBeats, 0) / BEATS_PER_BAR)
+      : 0;
+  const musicBeats = entries.reduce((sum, { lick }) => sum + lick.lengthBeats, 0);
   const countInBeats = countIn ? BEATS_PER_BAR : 0;
 
   const events: AudioEvent[] = [];
@@ -120,67 +138,70 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
 
   for (let pass = 0; pass < repeats; pass++) {
     const passStartBeat = countInBeats + pass * musicBeats;
+    const isResponse = Boolean(opts.trade) && pass % 2 === 1;
 
     let entryStartBeat = passStartBeat;
-    licks.forEach((lick, entryIndex) => {
-      lick.notes.forEach((note, noteIndex) => {
-        let adjustedBeat = entryStartBeat + note.startBeat;
-        // A technique articulates *into* a note, so it needs where the previous note was. Licks
-        // never articulate across a chord change, hence the lookup stays inside this lick. We also
-        // consult `prev` in the swing block below to spot the closing 8th of a notated shuffle unit.
-        const prev = noteIndex > 0 ? lick.notes[noteIndex - 1] : undefined;
-        // The app has two independent swing mechanisms and this note can sit at the seam of both.
-        // (1) The Swing toggle delays off-beat 8th notes (durationBeats >= 0.5) by swing * (1/6) beat.
-        // (2) rhythm.ts also notates a shuffle feel directly, as the dotted-quarter + 8th `shuffleUnit`
-        //     (a 1.5-beat long half followed by a 0.5-beat 8th on the "and") — the long-short pair
-        //     already encodes the 3:1 boogie by its durations.
-        // If both fire on that closing 8th, the notated 3:1 (gaps 1.5, 0.5) collapses into a 5:1 lurch
-        // (gaps 1.667, 0.333). So skip the swing offset when this note closes a shuffle unit: it must
-        // keep its notated time. We detect that via the previous note being the dotted quarter
-        // (durationBeats === 1.5, which occurs only as shuffleUnit's long half) exactly 1.5 beats
-        // earlier. This mirrors the 16th-grid fix from commit e22c559 (PR #67). 16ths keep their
-        // notated timing too — swung-16th feels are already encoded as long-short durations.
-        const closesShuffleUnit =
-          prev !== undefined &&
-          prev.durationBeats === 1.5 &&
-          Math.abs(note.startBeat - prev.startBeat - 1.5) < 1e-9;
-        if (
-          swing > 0 &&
-          note.durationBeats >= 0.5 &&
-          Math.abs((note.startBeat % 1) - 0.5) < 0.01 &&
-          !closesShuffleUnit
-        ) {
-          adjustedBeat += swing * (1 / 6);
-        }
-        const velocity = noteVelocity(note);
-        events.push({
-          timeSec: adjustedBeat * secPerBeat,
-          kind: 'pluck',
-          midi: midi(note.pitch),
-          durationSec: note.durationBeats * secPerBeat,
-          string: note.string,
-          entryIndex,
-          noteIndex,
-          technique: note.technique,
-          fromMidi: prev ? midi(prev.pitch) : undefined,
-          vibrato: note.vibrato,
-          velocity,
-        });
-        // A double stop: its second note is struck with the first, on its own string.
-        if (note.partner) {
+    entries.forEach(({ lick, entryIndex }) => {
+      if (!isResponse) {
+        lick.notes.forEach((note, noteIndex) => {
+          let adjustedBeat = entryStartBeat + note.startBeat;
+          // A technique articulates *into* a note, so it needs where the previous note was. Licks
+          // never articulate across a chord change, hence the lookup stays inside this lick. We also
+          // consult `prev` in the swing block below to spot the closing 8th of a notated shuffle unit.
+          const prev = noteIndex > 0 ? lick.notes[noteIndex - 1] : undefined;
+          // The app has two independent swing mechanisms and this note can sit at the seam of both.
+          // (1) The Swing toggle delays off-beat 8th notes (durationBeats >= 0.5) by swing * (1/6) beat.
+          // (2) rhythm.ts also notates a shuffle feel directly, as the dotted-quarter + 8th `shuffleUnit`
+          //     (a 1.5-beat long half followed by a 0.5-beat 8th on the "and") — the long-short pair
+          //     already encodes the 3:1 boogie by its durations.
+          // If both fire on that closing 8th, the notated 3:1 (gaps 1.5, 0.5) collapses into a 5:1 lurch
+          // (gaps 1.667, 0.333). So skip the swing offset when this note closes a shuffle unit: it must
+          // keep its notated time. We detect that via the previous note being the dotted quarter
+          // (durationBeats === 1.5, which occurs only as shuffleUnit's long half) exactly 1.5 beats
+          // earlier. This mirrors the 16th-grid fix from commit e22c559 (PR #67). 16ths keep their
+          // notated timing too — swung-16th feels are already encoded as long-short durations.
+          const closesShuffleUnit =
+            prev !== undefined &&
+            prev.durationBeats === 1.5 &&
+            Math.abs(note.startBeat - prev.startBeat - 1.5) < 1e-9;
+          if (
+            swing > 0 &&
+            note.durationBeats >= 0.5 &&
+            Math.abs((note.startBeat % 1) - 0.5) < 0.01 &&
+            !closesShuffleUnit
+          ) {
+            adjustedBeat += swing * (1 / 6);
+          }
+          const velocity = noteVelocity(note);
           events.push({
             timeSec: adjustedBeat * secPerBeat,
             kind: 'pluck',
-            midi: midi(note.partner.pitch),
+            midi: midi(note.pitch),
             durationSec: note.durationBeats * secPerBeat,
-            string: note.partner.string,
+            string: note.string,
             entryIndex,
             noteIndex,
+            technique: note.technique,
+            fromMidi: prev ? midi(prev.pitch) : undefined,
             vibrato: note.vibrato,
-            velocity: velocity * 0.9,
+            velocity,
           });
-        }
-      });
+          // A double stop: its second note is struck with the first, on its own string.
+          if (note.partner) {
+            events.push({
+              timeSec: adjustedBeat * secPerBeat,
+              kind: 'pluck',
+              midi: midi(note.partner.pitch),
+              durationSec: note.durationBeats * secPerBeat,
+              string: note.partner.string,
+              entryIndex,
+              noteIndex,
+              vibrato: note.vibrato,
+              velocity: velocity * 0.9,
+            });
+          }
+        });
+      }
 
       const chord = opts.chords?.[entryIndex];
       if (chord) {
@@ -217,11 +238,27 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
 
     if (metronome) {
       for (let b = 0; b < musicBeats; b++) {
+        const isDownbeat = b % BEATS_PER_BAR === 0;
+        let downbeatEntry: number | undefined;
+        if (isDownbeat) {
+          let cursor = 0;
+          for (const { lick, entryIndex } of entries) {
+            if (b >= cursor && b < cursor + lick.lengthBeats) {
+              downbeatEntry = entryIndex;
+              break;
+            }
+            cursor += lick.lengthBeats;
+          }
+        }
         events.push({
           timeSec: (passStartBeat + b) * secPerBeat,
           kind: 'click',
-          accented: b % BEATS_PER_BAR === 0,
-          ...(b % BEATS_PER_BAR === 0 && { bar: b / BEATS_PER_BAR }),
+          accented: isDownbeat,
+          ...(isDownbeat && {
+            bar: barOffset + b / BEATS_PER_BAR,
+            ...(downbeatEntry !== undefined && { entryIndex: downbeatEntry }),
+            ...(isResponse && { response: true }),
+          }),
         });
       }
     }

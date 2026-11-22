@@ -101,4 +101,56 @@ describe('useTransport (lick playback on the shared guitar sound)', () => {
     expect(calls.plucks).toEqual([]);
     t.unmount();
   });
+
+  it('loops a single card and alternates call and response passes in trade mode', () => {
+    const t = mount();
+    t.render();
+    const run = (sec: number) => {
+      for (let i = 0; i < sec / 0.025; i++) {
+        clock += 0.025;
+        act(() => vi.advanceTimersByTime(25));
+      }
+    };
+    const G4 = { letter: 'G', alter: 0, octave: 4 } as const;
+    const secondCard: Lick = {
+      lengthBeats: 4,
+      difficulty: 1,
+      notes: [{ string: 1, fret: 3, pitch: G4, startBeat: 0, durationBeats: 1 }],
+    };
+    act(() =>
+      t.get().play([lick, secondCard], {
+        tempoBpm: 60,
+        countIn: false,
+        loop: true,
+        trade: true,
+        cardIndex: 1,
+      }),
+    );
+    expect(t.get().cardIndex).toBe(1);
+    expect(t.get().isResponding).toBe(false);
+
+    // Pass 1 (0..4s): plays only card 1's note (G4 = MIDI 67), not card 0's (A4 = MIDI 69), with 4 clicks.
+    run(1);
+    expect(calls.plucks).toEqual([67]);
+    expect(t.get().position).toEqual({ entryIndex: 1, noteIndex: 0 });
+    expect(t.get().bar).toBe(1);
+
+    // Pass 2 (4..8s, response): no new lick plucks, clicks continue, isResponding becomes true.
+    run(4);
+    expect(calls.plucks).toEqual([67]);
+    expect(calls.clicks).toBeGreaterThanOrEqual(5);
+    expect(t.get().isResponding).toBe(true);
+    expect(t.get().position).toEqual({ entryIndex: 1, noteIndex: -1 });
+
+    // Pass 3 (8..12s, call again): card 1's note plucks again and isResponding resets to false.
+    run(4);
+    expect(calls.plucks).toEqual([67, 67]);
+    expect(t.get().isResponding).toBe(false);
+    expect(t.get().position).toEqual({ entryIndex: 1, noteIndex: 0 });
+
+    act(() => t.get().stop());
+    expect(t.get().cardIndex).toBeNull();
+    expect(t.get().isResponding).toBe(false);
+    t.unmount();
+  });
 });
