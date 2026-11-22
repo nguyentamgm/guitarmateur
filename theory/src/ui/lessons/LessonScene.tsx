@@ -26,10 +26,28 @@ import { RhythmScene } from './RhythmScene';
 import { SoloScene } from './SoloScene';
 import { ThreePerStringScene } from './ThreePerStringScene';
 
-export function LessonScene({ slug, step, copy }: { slug: string; step: string; copy: unknown }) {
+export function LessonScene({
+  slug,
+  step,
+  copy,
+  inSession = false,
+}: {
+  slug: string;
+  step: string;
+  copy: unknown;
+  inSession?: boolean;
+}) {
   switch (slug) {
     case 'fretboard':
-      return <FretboardScene step={step as Fretboard.StepId} copy={copy as Fretboard.SceneCopy} />;
+      return (
+        <FretboardScene
+          step={step as Fretboard.StepId}
+          copy={copy as Fretboard.SceneCopy}
+          strings={inSession ? [6] : undefined}
+          allowAllNotes={!inSession}
+          defaultNames={inSession ? 'hide' : 'show'}
+        />
+      );
     case 'rhythm':
       return <RhythmScene step={step as Rhythm.StepId} copy={copy as Rhythm.SceneCopy} />;
     case 'major-scale':

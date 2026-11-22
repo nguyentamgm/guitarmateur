@@ -11,14 +11,17 @@ describe('rootNote drill', () => {
   });
 
   it.each([
-    ['G', '3'],
-    ['A', '5'],
-    ['E', '0'],
-    ['C', '8'],
-  ])('in %s the root is on fret %s of string 6', (tonic, fret) => {
+    ['G', '3', 3],
+    ['A', '5', 5],
+    ['E', '0', 0],
+    ['C', '8', 8],
+    ['D', '10', 10],
+  ])('in %s the root is on fret %s of string 6', (tonic, fret, fretNum) => {
     const q = rootNoteQuestion(parseNote(tonic));
     expect(q.answer).toBe(fret);
     expect(q.detail).toBe(tonic);
+    expect(q.pos).toEqual({ string: 6, fret: fretNum });
+    expect(q.chord).toBeUndefined();
   });
 
   it('plays I, IV, V, I for 2 beats each at 80 BPM, then holds the I chord for 4 beats', () => {
@@ -36,12 +39,13 @@ describe('rootNote drill', () => {
     ]);
   });
 
-  it('picks natural tonics and never the same key twice in a row', () => {
+  it('picks from G, A, D, C, E and never the same key twice in a row', () => {
     const rng = mulberry32(3);
     let prev: DrillQuestion | undefined;
     for (let i = 0; i < 100; i++) {
       const q = rootNote.next(rng, prev);
-      expect(q.chord!.root.alter).toBe(0);
+      expect(['G', 'A', 'D', 'C', 'E']).toContain(q.detail);
+      expect(q.pos?.string).toBe(6);
       if (prev) expect(q.detail).not.toBe(prev.detail);
       prev = q;
     }

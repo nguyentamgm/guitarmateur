@@ -266,6 +266,7 @@ export interface DrillQuestion {
   readonly sound: Sound;
   readonly compare?: Sound;            // played after a wrong answer
   readonly detail?: string;            // fills {detail} in copy: a chord symbol, a fret, a note name
+  readonly pos?: { readonly string: number; readonly fret: number };
   readonly vars?: Readonly<Record<string, string | number>>;
   readonly revealSound?: Sound;        // played when the answer is revealed
   readonly chord?: Chord;
@@ -345,7 +346,7 @@ Blocks are listed part by part. `lesson a/b` is the lesson block `{ lesson: 'a',
 | --- | --- | --- | --- | --- |
 | 1 | `listen quality` | `lesson fretboard/strings`, `lesson chords/open` | `chords` Em and E | `reveal quality`. Hear an E, A or D chord in major or minor, play it back and show the answer. |
 | 2 | `listen onBeat` | `lesson rhythm/beat`, `lesson rhythm/counting` | `chords` Em and Am, then `strumAlong` Em Em Am Am at 60 BPM, all downstrums | `strumAlong` Em Am Em Am at 80 BPM. Loop for eight bars without a late change. |
-| 3 | `listen finished` | `lesson fretboard/semitones`, `lesson fretboard/home` | `strumAlong` in G: I I I I (hum the root over it) | `reveal rootNote` |
+| 3 | `listen finished` | `lesson fretboard/home` (string 6 naturals only) | `strumAlong` in G: G G G G (`symbolsOnly`, hum the root over it) | `reveal rootNote` (with string 6 neck) |
 | 4 | `listen moves` | `lesson major-scale/formula` | `melodyEcho` 3 notes, degrees 1–5 | `melodyEcho` the tune "Frère Jacques", phrase by phrase |
 | 5 | `listen chordCount` | `lesson keys/family` | `chords` G C D with numerals; `strumAlong` I IV V I in G | `strumAlong` I IV V I in G (`numeralsOnly`) |
 | 6 | `changeTap` (easy: a change every 2 bars) | `lesson rhythm/strum` | `strumAlong` I I IV IV V V I I, pattern `D-D-D-DU` | `changeTap` (changes after 1 or 2 bars) |

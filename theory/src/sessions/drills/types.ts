@@ -1,3 +1,4 @@
+import type { FretPos } from '../../core/fretboard';
 import type { Chord } from '../../core/music';
 import type { Sound } from '../sound';
 
@@ -9,6 +10,7 @@ export interface DrillQuestion {
   readonly vars?: Readonly<Record<string, string | number>>; // named values for localized prompts
   readonly revealSound?: Sound; // played when the learner opens the answer
   readonly chord?: Chord;
+  readonly pos?: FretPos;
   readonly run?: number; // optional run count for repetition avoidance
 }
 

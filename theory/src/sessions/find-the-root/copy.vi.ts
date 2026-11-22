@@ -24,7 +24,7 @@ export const vi: SessionCopy = {
         'Mỗi bài hát có một nốt mà ở đó nó nghỉ lại và nghe như về nhà. Nốt đó là root.',
         'Tập hợp các nốt và hợp âm quanh root đó là giọng của bài hát. Khi nói "bài này ở giọng G", G là root.',
         'Lên một phím là nốt kế tiếp: cao hơn nửa cung.',
-        'Trên dây to nhất, các nốt lần lượt là E (dây buông), F (phím 1), G (phím 3), A (phím 5), B (phím 7), C (phím 8) và D (phím 10). Hình vẽ ghi tên từng nốt.',
+        'Trên dây to nhất, các nốt lần lượt là E (dây buông), F (phím 1), G (phím 3), A (phím 5), B (phím 7), C (phím 8) và D (phím 10).',
       ],
     },
     play: {
@@ -39,7 +39,7 @@ export const vi: SessionCopy = {
       title: 'Thử thách',
       body: [
         'Ứng dụng chơi bốn hợp âm ở một giọng nào đó. Hãy ngân nga nốt nghe như về nhà.',
-        'Dò tìm nốt đó trên dây 6, từng phím một, rồi xem đáp án.',
+        'Bấm thử các phím trên dây 6 bên dưới (hoặc gảy trên đàn của bạn) để tìm đúng nốt đó, rồi mở đáp án.',
       ],
     },
   },
@@ -51,18 +51,15 @@ export const vi: SessionCopy = {
       right: 'Đúng: {answer}.',
       wrong: 'Đó là {answer}. Một câu nhạc chỉ kết thúc khi hợp âm cuối là hợp âm mà âm nhạc muốn nghỉ lại: {detail}. Hãy nghe lại bốn hợp âm, giờ có thêm {detail} ở cuối.',
     },
-    semitones: {
-      intro: 'Mỗi phím làm nốt cao thêm nửa cung.',
-    },
     home: {
-      intro: 'Hãy làm bài trắc nghiệm này cho đến khi bạn tìm được G, A, C và D mà không cần đếm.',
+      intro: 'Bấm vào nốt bất kỳ trên dây 6 để nghe thử, rồi làm bài đố cho đến khi bạn tìm được G, A, C, D và E mà không cần đếm.',
     },
     hum: {
       intro: 'Ngân nga theo hợp âm G cho đến khi một nốt nghe như được nghỉ ngơi. Rồi gảy G ở dây 6, phím 3, trên mỗi phách 1.',
     },
     root: {
       intro: 'Nghe bốn hợp âm, ngân nga nốt nghe như về nhà, rồi dò tìm nó trên dây 6.',
-      ask: 'Tìm root trên dây to nhất của bạn.',
+      ask: 'Tìm root trên dây 6.',
       answer: 'Root là {detail}: phím {answer} trên dây 6.',
     },
   },
