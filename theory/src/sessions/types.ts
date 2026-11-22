@@ -58,6 +58,7 @@ export type Block =
       readonly pattern?: string;
       readonly keys?: readonly string[];
       readonly numeralsOnly?: boolean;
+      readonly symbolsOnly?: boolean;
     }
   | { readonly kind: 'listen'; readonly key: string; readonly drill: DrillId }
   | { readonly kind: 'reveal'; readonly key: string; readonly drill: DrillId }

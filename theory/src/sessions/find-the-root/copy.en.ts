@@ -24,7 +24,7 @@ export const en: SessionCopy = {
         'Every song has one note where it rests and sounds like home. That note is the root.',
         'The set of notes and chords around that root is the song\'s key. When people say "this song is in G", G is the root.',
         'One fret up is the next note: one semitone higher.',
-        'On the thickest string the notes go E (open), F (fret 1), G (fret 3), A (fret 5), B (fret 7), C (fret 8) and D (fret 10). The picture names them.',
+        'On the thickest string the notes go E (open), F (fret 1), G (fret 3), A (fret 5), B (fret 7), C (fret 8) and D (fret 10).',
       ],
     },
     play: {
@@ -39,7 +39,7 @@ export const en: SessionCopy = {
       title: 'Challenge',
       body: [
         'The app plays four chords in some key. Hum the note that feels like home.',
-        'Hunt for that note on string 6, one fret at a time, then show the answer.',
+        'Click the frets on string 6 below (or pluck your own guitar) to match that note, then show the answer.',
       ],
     },
   },
@@ -51,18 +51,15 @@ export const en: SessionCopy = {
       right: 'Right: {answer}.',
       wrong: 'That was {answer}. A phrase is finished only when its last chord is the one the music wants to rest on: {detail}. Hear the four chords again, now with {detail} added at the end.',
     },
-    semitones: {
-      intro: 'Each fret raises the note by one semitone.',
-    },
     home: {
-      intro: 'Use this quiz until you can find G, A, C and D without counting.',
+      intro: 'Click any note on string 6 to hear it, then use the quiz until you can find G, A, C, D and E without counting.',
     },
     hum: {
       intro: 'Hum along with the G chord until one note feels at rest. Then pick G on string 6, fret 3, on every beat 1.',
     },
     root: {
       intro: 'Listen to the four chords, hum the note that sounds like home, and hunt for it on string 6.',
-      ask: 'Find the root on your thickest string.',
+      ask: 'Find the root on string 6.',
       answer: 'The root is {detail}: fret {answer} on string 6.',
     },
   },

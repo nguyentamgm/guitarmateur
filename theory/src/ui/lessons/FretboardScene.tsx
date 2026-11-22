@@ -31,7 +31,19 @@ import { Tab, type TabNote } from '../Tab';
 import { useSequence } from '../useSequence';
 
 
-export function FretboardScene({ step, copy }: { step: StepId; copy: SceneCopy }) {
+export function FretboardScene({
+  step,
+  copy,
+  strings = HOME_STRINGS,
+  allowAllNotes = true,
+  defaultNames = 'show',
+}: {
+  step: StepId;
+  copy: SceneCopy;
+  strings?: readonly (6 | 5)[];
+  allowAllNotes?: boolean;
+  defaultNames?: 'show' | 'hide';
+}) {
   switch (step) {
     case 'strings':
       return <StringsScene copy={copy.strings} />;
@@ -42,7 +54,14 @@ export function FretboardScene({ step, copy }: { step: StepId; copy: SceneCopy }
     case 'octaves':
       return <OctavesScene copy={copy.octaves} />;
     case 'home':
-      return <HomeScene copy={copy.home} />;
+      return (
+        <HomeScene
+          copy={copy.home}
+          strings={strings}
+          allowAllNotes={allowAllNotes}
+          defaultNames={defaultNames}
+        />
+      );
   }
 }
 
@@ -283,29 +302,42 @@ type Feedback =
   | { readonly kind: 'wrongFret'; readonly fret: number; readonly heard: string }
   | { readonly kind: 'between'; readonly fret: number };
 
-function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
+function HomeScene({
+  copy,
+  strings = HOME_STRINGS,
+  allowAllNotes = true,
+  defaultNames = 'show',
+}: {
+  copy: SceneCopy['home'];
+  strings?: readonly (6 | 5)[];
+  allowAllNotes?: boolean;
+  defaultNames?: 'show' | 'hide';
+}) {
   const { player } = useTheory();
   const g = useNeckGeometry(12, { fretWidth: 52 });
-  const [names, setNames] = useState<'show' | 'hide'>('show');
+  const [names, setNames] = useState<'show' | 'hide'>(defaultNames);
   const [pool, setPool] = useState<QuizNotes>('naturals');
-  const [question, setQuestion] = useState<QuizQuestion>(() => quizQuestion(Math.random));
+  const [question, setQuestion] = useState<QuizQuestion>(() =>
+    quizQuestion(Math.random, undefined, 'naturals', strings),
+  );
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [missed, setMissed] = useState(false);
   const { score, settle } = useQuizScore('fretboard-root');
   const [lit, setLit] = useState<string | null>(null);
   const solved = feedback?.kind === 'right';
 
-  const dots: FretDot[] = HOME_STRINGS.flatMap((string) =>
+  const dots: FretDot[] = strings.flatMap((string) =>
     Array.from({ length: 13 }, (_, fret): FretDot => {
       const pos = { string, fret };
       const natural = naturalAt(pos);
+      const isRightDot = solved && isAnswer(question, pos);
       return {
         key: posKey(pos),
         string,
         fret,
         midi: midiAt(pos),
-        label: names === 'show' && natural ? format(natural) : undefined,
-        tone: solved && isAnswer(question, pos) ? 'home' : 'plain',
+        label: (names === 'show' || isRightDot) && natural ? format(natural) : undefined,
+        tone: isRightDot ? 'home' : 'plain',
       };
     }),
   );
@@ -330,7 +362,7 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
   const next = (notes: QuizNotes = pool, skip = true) => {
     // Skipping a question you never answered counts as a miss, as in every other quiz.
     if (skip && !solved && !missed) settle(false);
-    setQuestion((q) => quizQuestion(Math.random, q, notes));
+    setQuestion((q) => quizQuestion(Math.random, q, notes, strings));
     setFeedback(null);
     setMissed(false);
     setLit(null);
@@ -373,19 +405,21 @@ function HomeScene({ copy }: { copy: SceneCopy['home'] }) {
           value={names}
           onChange={setNames}
         />
-        <ChipGroup<QuizNotes>
-          label={copy.pool}
-          items={[
-            { value: 'naturals', text: copy.naturals },
-            { value: 'all', text: copy.all },
-          ]}
-          value={pool}
-          onChange={choosePool}
-        />
+        {allowAllNotes && (
+          <ChipGroup<QuizNotes>
+            label={copy.pool}
+            items={[
+              { value: 'naturals', text: copy.naturals },
+              { value: 'all', text: copy.all },
+            ]}
+            value={pool}
+            onChange={choosePool}
+          />
+        )}
       </div>
       {names === 'show' && (
         <div className="homemap" role="group" aria-label={copy.mapTitle}>
-          {HOME_STRINGS.map((s) => (
+          {strings.map((s) => (
             <div key={s} className="finder">
               <span className="muted small">{fill(copy.onString, { n: s })}</span>
               {naturalHomes(s).map((c) => (

@@ -284,7 +284,7 @@ Blocks are listed part by part. `lesson a/b` is the lesson block `{ lesson: 'a',
 | --- | --- | --- | --- | --- |
 | 1 | `listen quality` | `lesson fretboard/strings`, `lesson chords/open` | `chords` Em, E (key E minor: 1; then `{root:'1', id:'major'}`) | `reveal quality`: hear E or Em, play it back, show the answer |
 | 2 | `listen onBeat` | `lesson rhythm/beat`, `lesson rhythm/counting` | `chords` Em, Am; `strumAlong` Em Em Am Am at 60 BPM, pattern all downs | `strumAlong` Em Am Em Am, one bar each, 80 BPM: 8 bars without a late change |
-| 3 | `listen finished` | `lesson fretboard/semitones`, `lesson fretboard/home` | `strumAlong` in G: I I I I (hum the root over it) | `reveal rootNote` |
+| 3 | `listen finished` | `lesson fretboard/home` (string 6 naturals only) | `strumAlong` in G: G G G G (`symbolsOnly`, hum the root over it) | `reveal rootNote` (with string 6 neck) |
 | 4 | `listen moves` | `lesson major-scale/formula` | `melodyEcho` 3 notes, degrees 1–5 | `melodyEcho` the tune "Frère Jacques", phrase by phrase |
 | 5 | `listen chordCount` | `lesson keys/family` | `chords` G C D with numerals; `strumAlong` I IV V I in G | `strumAlong` I IV V I in G (`numeralsOnly`) |
 | 6 | `changeTap` (easy: a change every 2 bars) | `lesson rhythm/strum` | `strumAlong` I I IV IV V V I I, pattern `D-D-D-DU` | `changeTap` (changes after 1 or 2 bars) |

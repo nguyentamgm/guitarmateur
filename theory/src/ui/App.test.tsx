@@ -1294,6 +1294,50 @@ describe('Theory app', () => {
     expect(headings).toEqual(['Listen', 'Understand', 'Play', 'Challenge']);
   });
 
+  it('renders session 3 (/theory/s/find-the-root) focused on string 6 naturals, hides Roman numerals in Play, and shows string 6 neck in Challenge', () => {
+    render('/theory/s/find-the-root');
+    expect(text()).toContain('The root: the note that sounds like home');
+
+    // Understand: only string 6 is shown in home scene, names start hidden, and no ♯/♭ pool switch
+    const understand = container.querySelector('section#understand')!;
+    expect(understand.querySelectorAll('.homemap .finder')).toHaveLength(0);
+    expect(understand.textContent).not.toContain('String 5');
+    expect(understand.textContent).not.toContain('All 12 (♯/♭)');
+    const showBtn = [...understand.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Show',
+    )!;
+    const hideBtn = [...understand.querySelectorAll('[role="radio"]')].find(
+      (b) => b.textContent === 'Hide',
+    )!;
+    expect(hideBtn.getAttribute('aria-checked')).toBe('true');
+    click(showBtn);
+    expect(understand.querySelectorAll('.homemap .finder')).toHaveLength(1);
+    expect(understand.textContent).toContain('String 6');
+
+    // Play: BarGrid shows chord symbol G without Roman numeral I
+    const play = container.querySelector('section#play')!;
+    expect([...play.querySelectorAll('.bars text.sym')].map((t) => t.textContent?.trim())).toEqual([
+      'G',
+      'G',
+      'G',
+      'G',
+    ]);
+    expect([...play.querySelectorAll('.bars text.deg')].map((t) => t.textContent?.trim())).toEqual([
+      '',
+      '',
+      '',
+      '',
+    ]);
+
+    // Challenge: starts with a interactive string 6 neck, reveals root on string 6 without a chord card
+    const challenge = container.querySelector('section#challenge')!;
+    click([...challenge.querySelectorAll('button')].find((b) => b.textContent === 'Start')!);
+    expect(challenge.querySelector('svg')).not.toBeNull();
+    click([...challenge.querySelectorAll('button')].find((b) => b.textContent === 'Show answer')!);
+    expect(challenge.textContent).toMatch(/The root is [GADCE]: fret \d+ on string 6\./);
+    expect(challenge.querySelector('.power-symbol')).toBeNull();
+  });
+
   it('renders session 4 (/theory/s/melody-by-ear) top to bottom in English and Vietnamese', () => {
     // English
     render('/theory/s/melody-by-ear');

@@ -44,12 +44,12 @@ export function StrumAlong({ block }: { block: StrumAlongBlock }) {
       const shape = chordShape(specChord.chord);
       const midis = shapeMidis(shape);
       return {
-        roman: specChord.roman,
+        roman: block.symbolsOnly ? '' : specChord.roman,
         symbol: block.numeralsOnly ? '' : specChord.symbol,
         midis,
       };
     });
-  }, [block.bars, block.in.mode, block.numeralsOnly, tonic]);
+  }, [block.bars, block.in.mode, block.numeralsOnly, block.symbolsOnly, tonic]);
 
   const onStep = useCallback(
     (i: number, delay: number) => {
@@ -70,7 +70,10 @@ export function StrumAlong({ block }: { block: StrumAlongBlock }) {
 
   const currentBar = clock.current !== null ? steps[clock.current]?.bar ?? null : null;
   const currentBeat = clock.current !== null ? steps[clock.current]?.beat ?? null : null;
-  const label = useMemo(() => barChords.map((c) => c.roman).join('–'), [barChords]);
+  const label = useMemo(
+    () => barChords.map((c) => c.roman || c.symbol).join('–'),
+    [barChords],
+  );
 
   return (
     <div className="board">

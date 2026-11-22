@@ -148,8 +148,13 @@ export const QUIZ_NOTES: Readonly<Record<QuizNotes, readonly NoteName[]>> = {
  * Pick a note and string 6 or 5 with `random()` in [0, 1), never repeating the previous
  * question exactly.
  */
-export function quizQuestion(random: () => number, previous?: QuizQuestion, notes: QuizNotes = 'naturals'): QuizQuestion {
-  const all = HOME_STRINGS.flatMap((string) => QUIZ_NOTES[notes].map((name) => ({ name, string })));
+export function quizQuestion(
+  random: () => number,
+  previous?: QuizQuestion,
+  notes: QuizNotes = 'naturals',
+  strings: readonly HomeString[] = HOME_STRINGS,
+): QuizQuestion {
+  const all = strings.flatMap((string) => QUIZ_NOTES[notes].map((name) => ({ name, string })));
   const pool = previous ? all.filter((q) => !(q.string === previous.string && sameNote(q.name, previous.name))) : all;
   return pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))]!;
 }

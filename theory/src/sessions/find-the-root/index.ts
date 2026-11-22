@@ -11,11 +11,17 @@ export const findTheRoot: Session = {
   settings: ['strumSpeed'],
   parts: {
     listen: [{ kind: 'listen', key: 'finished', drill: 'finished' }],
-    understand: [
-      { kind: 'lesson', key: 'semitones', lesson: 'fretboard', step: 'semitones' },
-      { kind: 'lesson', key: 'home', lesson: 'fretboard', step: 'home' },
+    understand: [{ kind: 'lesson', key: 'home', lesson: 'fretboard', step: 'home' }],
+    play: [
+      {
+        kind: 'strumAlong',
+        key: 'hum',
+        in: { tonic: 'G', mode: 'major' },
+        bars: [1, 1, 1, 1],
+        bpm: 70,
+        symbolsOnly: true,
+      },
     ],
-    play: [{ kind: 'strumAlong', key: 'hum', in: { tonic: 'G', mode: 'major' }, bars: [1, 1, 1, 1], bpm: 70 }],
     challenge: [{ kind: 'reveal', key: 'root', drill: 'rootNote' }],
   },
   checkAnswers: [1, 0, 2],

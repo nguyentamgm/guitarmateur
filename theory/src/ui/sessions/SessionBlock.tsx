@@ -30,7 +30,7 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
     case 'lesson': {
       const lesson = findLesson(block.lesson);
       const sceneCopy = lesson ? lesson.copy[lang].scene : undefined;
-      return <LessonScene slug={block.lesson} step={block.step} copy={sceneCopy} />;
+      return <LessonScene slug={block.lesson} step={block.step} copy={sceneCopy} inSession />;
     }
     case 'listen': {
       const copy = session.copy[lang].blocks[block.key] as ListenCopy;
