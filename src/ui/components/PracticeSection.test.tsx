@@ -180,3 +180,25 @@ describe('PracticeSection playback status', () => {
     expect(status.textContent).toBe('Stopped');
   });
 });
+
+describe('PracticeSection fingering toggle', () => {
+  it('shows suggested fingers on card TabStaff and Fretboard when toggled on', async () => {
+    await mount();
+    expect(container.querySelectorAll('text.tabfinger')).toHaveLength(0);
+
+    const toggle = byName(/Show suggested fingering \(1–4\)/);
+    expect(toggle).not.toBeNull();
+    await act(async () => { toggle!.click(); });
+
+    const tabFingers = [...container.querySelectorAll('text.tabfinger')];
+    expect(tabFingers.length).toBeGreaterThan(0);
+    for (const el of tabFingers) {
+      expect(el.textContent).toMatch(/^[1-4](\/[1-4])?$/);
+    }
+
+    const firstBoard = container.querySelector('svg[role="group"]')!;
+    const dotLabels = [...firstBoard.querySelectorAll('g.dot text')].map((el) => el.textContent);
+    expect(dotLabels.length).toBeGreaterThan(0);
+    expect(dotLabels.every((text) => /^[1-4]$/.test(text ?? ''))).toBe(true);
+  });
+});

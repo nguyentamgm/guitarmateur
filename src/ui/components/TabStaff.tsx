@@ -1,7 +1,7 @@
 import { useRef, type KeyboardEvent } from 'react';
 import { tabBoxWidth, useKeepInView } from '@shared/ui/tab';
 import { midi } from '../../music';
-import type { Lick, LickNote } from '../../lick';
+import type { Lick, LickNote, NoteFingering } from '../../lick';
 import { durationGlyph, tabText } from '../labels';
 
 const STRING_LABELS = ['E', 'A', 'D', 'G', 'B', 'E'];
@@ -22,6 +22,8 @@ export interface TabStaffProps {
   play?: (midi: number) => void;
   /** A number button's accessible name, from its string (1 = thinnest) and its tab text. */
   noteLabel?: (stringNumber: number, text: string) => string;
+  /** Optional per-note suggested fingers (same order as lick.notes sorted by startBeat). */
+  fingers?: readonly NoteFingering[];
 }
 
 const LEFT = 30;
@@ -52,6 +54,7 @@ export function TabStaff({
   emptyLabel,
   play,
   noteLabel = (n, text) => `${n} ${text}`,
+  fingers,
 }: TabStaffProps) {
   const labels = stringLabelsProp ?? STRING_LABELS;
   const numStrings = labels.length;
@@ -76,8 +79,12 @@ export function TabStaff({
   const width = LEFT + stageW + RIGHT;
   const staffBottom = TOP + (numStrings - 1) * GAP;
   const hasRoles = notes.some((n) => n.role);
+  const hasFingers = Boolean(
+    fingers?.some((f) => f.finger !== null || (f.partnerFinger ?? null) !== null),
+  );
   const roleY = staffBottom + ROW;
-  const durY = roleY + (hasRoles ? ROW : 0);
+  const fingerY = roleY + (hasRoles ? ROW : 0);
+  const durY = fingerY + (hasFingers ? ROW : 0);
   const height = durY + 12;
 
   const y = (string: number) => TOP + (numStrings - 1 - string) * GAP;
@@ -188,6 +195,26 @@ export function TabStaff({
               </text>
             ) : null,
           )}
+        {hasFingers &&
+          fingers &&
+          notes.map((n, i) => {
+            const f = fingers[i];
+            if (!f) return null;
+            const label =
+              f.finger !== null && f.partnerFinger != null
+                ? `${f.finger}/${f.partnerFinger}`
+                : f.finger !== null
+                  ? String(f.finger)
+                  : f.partnerFinger != null
+                    ? String(f.partnerFinger)
+                    : null;
+            if (label === null) return null;
+            return (
+              <text key={`f${i}`} className="tabfinger" x={x(n.startBeat)} y={fingerY} transform={unmirror(x(n.startBeat))}>
+                {label}
+              </text>
+            );
+          })}
         {notes.map((n, i) => (
           <text key={`d${i}`} className="tabcount" x={x(n.startBeat)} y={durY} transform={unmirror(x(n.startBeat))}>
             {durationGlyph(n.durationBeats)}

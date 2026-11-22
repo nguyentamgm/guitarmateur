@@ -41,6 +41,7 @@ describe('compileProgression', () => {
     expect(c.map((e) => e.timeSec)).toEqual([0, 1, 2, 3]);
     expect(c[0]!.accented).toBe(true);
     expect(c.slice(1).every((e) => !e.accented)).toBe(true);
+    expect(c.map((e) => e.countInBeat)).toEqual([1, 2, 3, 4]);
     // The single note now starts at beat 4 (after the count-in bar).
     expect(plucks(events)[0]!.timeSec).toBeCloseTo(4);
   });
@@ -61,6 +62,7 @@ describe('compileProgression', () => {
       [8, 1],
       [12, 2],
     ]);
+    expect(c.filter((e) => e.timeSec >= 4).every((e) => e.countInBeat === undefined)).toBe(true);
   });
 
   it('lays chords end-to-end; a 2-bar chord occupies 8 beats', () => {

@@ -70,3 +70,4 @@
 .tabbeat { stroke: var(--line); stroke-width: 1; stroke-dasharray: 1 3; }
 .tabbeatnum { fill: var(--muted); font-size: 11px; text-anchor: middle; dominant-baseline: middle; }
 .tabrole { fill: var(--accent); font-size: 12px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; }
+.tabfinger { fill: var(--ink); font-size: 11px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; }

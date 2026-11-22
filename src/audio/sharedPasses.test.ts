@@ -93,7 +93,7 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     const bars: number[] = [];
     const onSound = (e: { tag?: PlayTag }) => {
       if (e.tag && 'bar' in e.tag) bars.push(e.tag.bar);
-      else if (e.tag) heard.push(e.tag);
+      else if (e.tag && 'noteIndex' in e.tag) heard.push(e.tag);
     };
     const seq = new Sequencer<PlayTag>(player, { onSound }, deps);
 
@@ -134,8 +134,14 @@ describe("Practice's licks as passes for the shared sequencer", () => {
       { entryIndex: 1, noteIndex: 0 },
       { entryIndex: 1, noteIndex: 1 },
     ]);
-    const callDownbeats = passes.first.events.filter((e) => e.kind === 'click' && e.tag !== undefined);
-    expect(callDownbeats.map((e) => e.tag)).toEqual([{ bar: 2 }]);
+    const callTaggedClicks = passes.first.events.filter((e) => e.kind === 'click' && e.tag !== undefined);
+    expect(callTaggedClicks.filter((e) => 'countInBeat' in e.tag!).map((e) => e.tag)).toEqual([
+      { countInBeat: 1 },
+      { countInBeat: 2 },
+      { countInBeat: 3 },
+      { countInBeat: 4 },
+    ]);
+    expect(callTaggedClicks.filter((e) => 'bar' in e.tag!).map((e) => e.tag)).toEqual([{ bar: 2 }]);
 
     // Pass 2 (first next(), response): 4s duration, lick notes silenced, clicks and backing preserved.
     const pass2 = passes.next();

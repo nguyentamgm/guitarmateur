@@ -153,4 +153,18 @@ describe('TabStaff in Theory\'s look', () => {
     expect(container.querySelector('[role="button"]')).toBeNull();
     await unmount();
   });
+
+  it('renders suggested fingers for fretted notes and skips open strings', async () => {
+    const lick = makeLick(4, [
+      { string: 0, fret: 0, pitch: { letter: 'E', alter: 0, octave: 2 }, startBeat: 0, durationBeats: 1 },
+      { string: 0, fret: 3, pitch: { letter: 'G', alter: 0, octave: 2 }, startBeat: 1, durationBeats: 1 },
+      { string: 1, fret: 2, pitch: { letter: 'B', alter: 0, octave: 2 }, startBeat: 2, durationBeats: 1, partner: { string: 2, fret: 4, pitch: { letter: 'F', alter: 1, octave: 3 } } },
+    ]);
+    const { container, unmount } = await mount({
+      lick,
+      fingers: [{ finger: null }, { finger: 3 }, { finger: 1, partnerFinger: 3 }],
+    });
+    expect(texts(container, 'text.tabfinger')).toEqual(['3', '1/3']);
+    await unmount();
+  });
 });

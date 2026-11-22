@@ -24,6 +24,8 @@ export interface UseTransport {
   position: Position | null;
   /** The bar being heard (0-based, a 2-bar chord counts twice), or null when idle or counting in. */
   bar: number | null;
+  /** Active 1-based beat (1..4) during count-in; null once bar 1 starts or when stopped. */
+  readonly countInBeat?: number | null;
   /** Index of the single card being looped, or null when playing the whole progression or idle. */
   cardIndex?: number | null;
   /** True during the learner's response pass in trade (call and response) mode. */
@@ -46,6 +48,7 @@ export function useTransport(): UseTransport {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState<Position | null>(null);
   const [bar, setBar] = useState<number | null>(null);
+  const [countInBeat, setCountInBeat] = useState<number | null>(null);
   const [cardIndex, setCardIndex] = useState<number | null>(null);
   const [isResponding, setIsResponding] = useState(false);
 
@@ -54,7 +57,10 @@ export function useTransport(): UseTransport {
     sequencerRef.current ??= new Sequencer<PlayTag>(getPlayer(), {
       onSound: (e) => {
         if (!e.tag) return;
-        if ('bar' in e.tag) {
+        if ('countInBeat' in e.tag) {
+          setCountInBeat(e.tag.countInBeat);
+        } else if ('bar' in e.tag) {
+          setCountInBeat(null);
           setBar(e.tag.bar);
           const resp = Boolean(e.tag.response);
           setIsResponding(resp);
@@ -62,6 +68,7 @@ export function useTransport(): UseTransport {
             setPosition({ entryIndex: e.tag.entryIndex, noteIndex: -1 });
           }
         } else {
+          setCountInBeat(null);
           setIsResponding(false);
           setPosition(e.tag);
         }
@@ -70,6 +77,7 @@ export function useTransport(): UseTransport {
         setIsPlaying(false);
         setPosition(null);
         setBar(null);
+        setCountInBeat(null);
         setCardIndex(null);
         setIsResponding(false);
       },
@@ -94,6 +102,7 @@ export function useTransport(): UseTransport {
         (activeLicks.every((l) => l.notes.length === 0) && (!compile.chords || compile.chords.length === 0))
       ) {
         sequencer.stop();
+        setCountInBeat(null);
         return;
       }
       const passes = lickPasses(licks, compile, loop);
@@ -101,6 +110,7 @@ export function useTransport(): UseTransport {
       setIsPlaying(sequencer.isPlaying);
       setCardIndex(sequencer.isPlaying ? (compile.cardIndex ?? null) : null);
       setIsResponding(false);
+      setCountInBeat(null);
     },
     [ensureSequencer],
   );
@@ -110,6 +120,7 @@ export function useTransport(): UseTransport {
     setIsPlaying(false);
     setPosition(null);
     setBar(null);
+    setCountInBeat(null);
     setCardIndex(null);
     setIsResponding(false);
   }, []);
@@ -126,5 +137,5 @@ export function useTransport(): UseTransport {
     };
   }, []);
 
-  return { supported, isPlaying, position, bar, cardIndex, isResponding, play, stop, setClickGain, setBackingGain, setNoteGain };
+  return { supported, isPlaying, position, bar, countInBeat, cardIndex, isResponding, play, stop, setClickGain, setBackingGain, setNoteGain };
 }
