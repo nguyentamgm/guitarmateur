@@ -21,11 +21,11 @@ const answersOf = (level: Level): (string | number)[][] =>
   level.steps.map((_, i) => [...stepAnswers(level as LevelOf<typeof level.kind>, i)]);
 
 describe('LEVELS', () => {
-  it('numbers the 15 levels 1–15 in order, in stages 1–5', () => {
-    expect(LEVELS.map((l) => l.id)).toEqual(Array.from({ length: 15 }, (_, i) => i + 1));
-    expect(LEVELS.map((l) => l.stage)).toEqual([1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5]);
+  it('numbers the 17 levels 1–17 in order, in stages 1–6', () => {
+    expect(LEVELS.map((l) => l.id)).toEqual(Array.from({ length: 17 }, (_, i) => i + 1));
+    expect(LEVELS.map((l) => l.stage)).toEqual([1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6]);
     expect(findLevel(7)?.kind).toBe('degree');
-    expect(findLevel(16)).toBeUndefined();
+    expect(findLevel(18)).toBeUndefined();
   });
 
   it('asks each kind in the levels of docs/ear-levels.md', () => {
@@ -38,6 +38,8 @@ describe('LEVELS', () => {
       'finished',
       ...Array<'degree'>(8).fill('degree'),
       'findRoot',
+      'chordQuality',
+      'progression',
     ]);
   });
 

@@ -23,8 +23,12 @@ export type QuestionKind =
   | 'distance'
   | 'chordQuality'
   | 'finished'
+  | 'progression'
   | 'degree'
   | 'findRoot';
+
+/** Four-bar chord progression forms for level 17. */
+export type ProgressionId = 'I-IV-V-I' | 'I-V-vi-IV' | 'i-iv-V7-i';
 
 /** Each kind's answer ids. A degree level's answers are degree ids; 'notRoot' is every other degree. */
 export interface AnswerByKind {
@@ -32,8 +36,9 @@ export interface AnswerByKind {
   higherLower: 'higher' | 'lower';
   contour: 'up' | 'down' | 'upDown' | 'downUp';
   distance: 'close' | 'far';
-  chordQuality: Mode;
+  chordQuality: Mode | 'dom7';
   finished: 'finished' | 'notFinished';
+  progression: ProgressionId;
   degree: DegreeLabel | 'notRoot';
   /** A fret of the thickest string. */
   findRoot: number;
@@ -99,6 +104,7 @@ export interface StepByKind {
   distance: DistanceStep;
   chordQuality: ChordStep;
   finished: CadenceStep;
+  progression: CadenceStep;
   degree: DegreeStep;
   findRoot: FindRootStep;
 }
@@ -108,10 +114,10 @@ export type Step<K extends QuestionKind> = StepByKind[K] & {
   readonly answers?: readonly AnswerByKind[K][];
 };
 
-export type Stage = 1 | 2 | 3 | 4 | 5;
+export type Stage = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface LevelOf<K extends QuestionKind> {
-  /** 1–15, in the order they unlock. */
+  /** 1–17, in the order they unlock. */
   readonly id: number;
   readonly stage: Stage;
   readonly kind: K;
@@ -373,6 +379,28 @@ const findRoot: LevelOf<'findRoot'> = {
   answerOn: 'string',
 };
 
+const dominantSeventh: LevelOf<'chordQuality'> = {
+  id: 16,
+  stage: 6,
+  kind: 'chordQuality',
+  answers: ['major', 'minor', 'dom7'],
+  steps: [{ voicing: 'open' }, { voicing: 'moved' }, { voicing: 'arpeggio' }],
+  answerOn: 'buttons',
+};
+
+const chordProgressions: LevelOf<'progression'> = {
+  id: 17,
+  stage: 6,
+  kind: 'progression',
+  answers: ['I-IV-V-I', 'I-V-vi-IV', 'i-iv-V7-i'],
+  steps: [
+    { bpm: 70, keys: [A_MAJOR] },
+    { bpm: 100, keys: [A_MAJOR] },
+    { bpm: 100, keys: MAJOR_KEYS },
+  ],
+  answerOn: 'buttons',
+};
+
 /** Every level, in the order they unlock. */
 export const LEVELS: readonly Level[] = [
   sameDifferent,
@@ -390,6 +418,8 @@ export const LEVELS: readonly Level[] = [
   bluesNote,
   onTheNeck,
   findRoot,
+  dominantSeventh,
+  chordProgressions,
 ];
 
 export const findLevel = (id: number): Level | undefined => LEVELS.find((l) => l.id === id);
