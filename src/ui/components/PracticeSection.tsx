@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { chordLabel, romanNumeral, SCALES, type Chord } from '../../music';
-import { mergedBox, positions, TUNINGS } from '../../fretboard';
+import { boxFingerings, mergedBox, positions, TUNINGS } from '../../fretboard';
 import { licksForState } from '../../state';
 import type { Action, AppState } from '../../state';
 import { font, theme } from '../theme';
@@ -17,7 +17,7 @@ import { useTransport } from '../useTransport';
 import { KeyboardShortcuts } from '../KeyboardShortcuts';
 import { intervalLabel, targetBadgeText } from '../labels';
 import { useT } from '../useT';
-import { phraseKind, type PhraseKind } from '../../lick';
+import { lickFingering, phraseKind, type PhraseKind } from '../../lick';
 import type { TranslationKey } from '../../i18n';
 
 /** The label for each kind of vocabulary phrase, shown next to "Lick" on a card. */
@@ -57,6 +57,7 @@ export function PracticeSection({
   const [countIn, setCountIn] = useState(true);
   const [loop, setLoop] = useState(true);
   const [trade, setTrade] = useState(false);
+  const [showFingering, setShowFingering] = useState(false);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
   const chords = useMemo(() => state.progression.map((e) => e.chord), [state.progression]);
   const active = transport.position;
@@ -91,6 +92,7 @@ export function PracticeSection({
     const pos = positions(TUNINGS[state.tuningId], stateKey);
     return mergedBox(pos, state.positions);
   }, [state.tuningId, stateKey, state.positions]);
+  const fingers = useMemo(() => (showFingering ? boxFingerings(box) : undefined), [showFingering, box]);
 
   const names = useMemo(() => tuningNames(TUNINGS[state.tuningId]), [state.tuningId]);
   // The tab names its strings as the neck does (low → high here): one source, 'e' for the thinnest.
@@ -192,6 +194,15 @@ export function PracticeSection({
               onChange={(value) => dispatch({ type: 'setResolveToNext', value })}
               label={t('practice.landOnNextChord')}
               ariaLabel={t('practice.landOnNextChord')}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 13, marginBottom: 6 }}>&nbsp;</div>
+            <Toggle
+              checked={showFingering}
+              onChange={setShowFingering}
+              label={t('practice.fingering')}
+              ariaLabel={t('practice.fingeringAria')}
             />
           </div>
           <button
@@ -345,6 +356,7 @@ export function PracticeSection({
                         highlight: { chord, targetRole: state.targetRole },
                         landing: lastNote ? { string: lastNote.string, fret: lastNote.fret } : undefined,
                         from: cardGeometry.from,
+                        fingers,
                       })}
                       label={t('practice.diagramTitle', { chord: targetTone, role: targetLabel })}
                       labels={labels}
@@ -381,6 +393,7 @@ export function PracticeSection({
                       leftHanded={state.leftHanded}
                       play={notePlayer(state.noteGain)}
                       noteLabel={(n, text) => t('tab.noteAria', { n, text })}
+                      fingers={showFingering ? lickFingering(lick, box) : undefined}
                     />
 
                     {/* Per-card regenerate */}

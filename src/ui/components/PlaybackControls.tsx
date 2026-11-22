@@ -111,27 +111,64 @@ export function PlaybackControls({
         borderRadius: 10,
       }}
     >
-      {/* Play / stop */}
-      <button
-        type="button"
-        onClick={togglePlay}
-        disabled={!canPlay}
-        aria-label={transport.isPlaying ? t('playback.stop') : t('playback.play')}
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          border: 'none',
-          background: canPlay ? theme.accent : theme.border,
-          color: theme.accentText,
-          fontSize: 16,
-          cursor: canPlay ? 'pointer' : 'not-allowed',
-          fontFamily: 'inherit',
-          flex: '0 0 auto',
-        }}
-      >
-        {transport.isPlaying ? '■' : '▶'}
-      </button>
+      {/* Play / stop + visual count-in */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button
+          type="button"
+          onClick={togglePlay}
+          disabled={!canPlay}
+          aria-label={transport.isPlaying ? t('playback.stop') : t('playback.play')}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            border: 'none',
+            background: canPlay ? theme.accent : theme.border,
+            color: theme.accentText,
+            fontSize: 16,
+            cursor: canPlay ? 'pointer' : 'not-allowed',
+            fontFamily: 'inherit',
+            flex: '0 0 auto',
+          }}
+        >
+          {transport.isPlaying ? '■' : '▶'}
+        </button>
+        {transport.isPlaying && transport.countInBeat != null && (
+          <div
+            className="transport-countin"
+            aria-label={t('playback.countInBeatAria', { n: transport.countInBeat })}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+          >
+            {([1, 2, 3, 4] as const).map((beat) => {
+              const active = beat === transport.countInBeat;
+              const passed = beat < (transport.countInBeat ?? 0);
+              return (
+                <span
+                  key={beat}
+                  data-countin-beat={beat}
+                  data-active={active || undefined}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: font.mono,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: active ? theme.accent : theme.panel,
+                    color: active ? theme.accentText : passed ? theme.text : theme.muted,
+                    border: `1px solid ${active ? theme.accent : theme.border}`,
+                  }}
+                >
+                  {beat}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Tempo */}
       <label className="transport-tempo" style={{ display: 'flex', alignItems: 'center' }}>

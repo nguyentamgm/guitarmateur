@@ -8,7 +8,7 @@ import type { DotWords } from '@shared/ui/dotName';
 import type { Translate } from '../i18n';
 import type { StringNames, StringNumber } from '@shared/core/neck';
 import { format, midi, SCALES, toneRole, type Chord, type Key, type ToneRole } from '../music';
-import type { Box } from '../fretboard';
+import type { Box, Finger } from '../fretboard';
 import type { Tuning } from '../fretboard/tuning';
 import { intervalLabel } from './labels';
 
@@ -33,6 +33,8 @@ export interface DotOptions {
   readonly landing?: { readonly string: number; readonly fret: number };
   /** Only frets above this are drawn (a window of the neck); fret 0 needs `from` 0. */
   readonly from?: number;
+  /** Suggested left-hand fingerings keyed by `${string}:${fret}` (0-based string). */
+  readonly fingers?: ReadonlyMap<string, Finger>;
 }
 
 /**
@@ -57,11 +59,13 @@ export function boxDots(box: Box, key: Key, opts: DotOptions = {}): FretDot[] {
             ? 'blue'
             : 'plain';
       const iv = intervals[n.degree - 1];
+      const finger = opts.fingers?.get(`${n.string}:${n.fret}`);
       return {
         key: `${n.string}:${n.fret}`,
         string: stringNumber(n.string),
         fret: n.fret,
         midi: midi(n.pitch),
+        ...(finger !== undefined && { label: String(finger) }),
         degree: iv ? intervalLabel(iv) : String(n.degree),
         name: format(n.pitch),
         tone,

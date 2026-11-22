@@ -35,7 +35,8 @@ async function type(input: HTMLInputElement, text: string): Promise<void> {
   });
 }
 
-async function mount(): Promise<{
+async function mount(override?: Partial<UseTransport>): Promise<{
+  container: HTMLDivElement;
   tempoField: HTMLInputElement;
   tempoSlider: HTMLInputElement;
   calls: number[];
@@ -53,7 +54,7 @@ async function mount(): Promise<{
         licks: [],
         tempoBpm: 90,
         onTempoChange: (bpm: number) => { calls.push(bpm); },
-        transport,
+        transport: { ...transport, ...override },
         countIn: false,
         loop: false,
         onCountInChange: noop,
@@ -71,6 +72,7 @@ async function mount(): Promise<{
   const tempoField = container.querySelector<HTMLInputElement>('input[type="number"]')!;
   const tempoSlider = container.querySelector<HTMLInputElement>('input[type="range"]')!;
   return {
+    container,
     tempoField,
     tempoSlider,
     calls,
@@ -111,5 +113,26 @@ describe('PlaybackControls tempo field', () => {
     await blurTempoField();
     expect(tempoField.value).toBe('90');
     await unmount();
+  });
+});
+
+describe('PlaybackControls visual count-in', () => {
+  it('renders beats 1..4 with the active beat highlighted during count-in, and hides when null or undefined', async () => {
+    const active = await mount({ isPlaying: true, countInBeat: 3 });
+    const counter = active.container.querySelector('.transport-countin');
+    expect(counter).not.toBeNull();
+    expect(counter!.getAttribute('aria-label')).toBe('Count-in beat 3');
+    const beats = [...counter!.querySelectorAll('[data-countin-beat]')];
+    expect(beats.map((b) => b.textContent)).toEqual(['1', '2', '3', '4']);
+    expect(beats.map((b) => b.getAttribute('data-active'))).toEqual([null, null, 'true', null]);
+    await active.unmount();
+
+    const withNull = await mount({ isPlaying: true, countInBeat: null });
+    expect(withNull.container.querySelector('.transport-countin')).toBeNull();
+    await withNull.unmount();
+
+    const withUndefined = await mount({ isPlaying: true });
+    expect(withUndefined.container.querySelector('.transport-countin')).toBeNull();
+    await withUndefined.unmount();
   });
 });

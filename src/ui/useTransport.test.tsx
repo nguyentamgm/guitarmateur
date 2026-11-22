@@ -153,4 +153,39 @@ describe('useTransport (lick playback on the shared guitar sound)', () => {
     expect(t.get().isResponding).toBe(false);
     t.unmount();
   });
+
+  it('tracks countInBeat 1..4 during count-in, resets on bar 1 and on stop', () => {
+    const t = mount();
+    t.render();
+    const run = (sec: number) => {
+      for (let i = 0; i < sec / 0.025; i++) {
+        clock += 0.025;
+        act(() => vi.advanceTimersByTime(25));
+      }
+    };
+
+    act(() => t.get().play([lick], { tempoBpm: 60, countIn: true }));
+    run(0.2);
+    expect(t.get().countInBeat).toBe(1);
+    run(1);
+    expect(t.get().countInBeat).toBe(2);
+    run(1);
+    expect(t.get().countInBeat).toBe(3);
+    run(1);
+    expect(t.get().countInBeat).toBe(4);
+    run(1);
+    expect(t.get().countInBeat).toBeNull();
+    expect(t.get().bar).toBe(0);
+    act(() => t.get().stop());
+
+    // Calling stop() mid-count-in resets countInBeat to null.
+    act(() => t.get().play([lick], { tempoBpm: 60, countIn: true }));
+    run(0.2);
+    expect(t.get().countInBeat).toBe(1);
+    run(1);
+    expect(t.get().countInBeat).toBe(2);
+    act(() => t.get().stop());
+    expect(t.get().countInBeat).toBeNull();
+    t.unmount();
+  });
 });

@@ -9,4 +9,7 @@ export { positions } from './positions';
 export type { Box } from './merge';
 export { mergedBox, areAdjacent } from './merge';
 
+export type { Finger } from './fingering';
+export { boxFingerings, fingerForFret } from './fingering';
+
 export { recommendedPosition } from './recommend';

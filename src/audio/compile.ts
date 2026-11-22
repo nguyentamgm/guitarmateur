@@ -24,6 +24,8 @@ export type AudioEvent =
       timeSec: number;
       kind: 'click';
       accented: boolean;
+      /** 1-based beat number (1..4) during the count-in bar; absent on music clicks. */
+      countInBeat?: number;
       /** On a downbeat of the music: which bar starts (0-based, a 2-bar chord counts twice). Not
        *  on the count-in. Drives the bar grid's highlight. */
       bar?: number;
@@ -133,7 +135,12 @@ export function compileProgression(licks: Lick[], opts: CompileOptions): Compile
   const events: AudioEvent[] = [];
 
   for (let b = 0; b < countInBeats; b++) {
-    events.push({ timeSec: b * secPerBeat, kind: 'click', accented: b % BEATS_PER_BAR === 0 });
+    events.push({
+      timeSec: b * secPerBeat,
+      kind: 'click',
+      accented: b % BEATS_PER_BAR === 0,
+      countInBeat: (b % BEATS_PER_BAR) + 1,
+    });
   }
 
   for (let pass = 0; pass < repeats; pass++) {

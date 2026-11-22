@@ -23,8 +23,13 @@ export interface BarTag {
   readonly response?: boolean;
 }
 
-/** What a sounding event reports: a note (`NoteTag`) or a bar's downbeat (`BarTag`). */
-export type PlayTag = NoteTag | BarTag;
+/** Which beat (1..4) of the count-in bar a count-in click sounds on. */
+export interface CountInTag {
+  readonly countInBeat: number;
+}
+
+/** What a sounding event reports: a note (`NoteTag`), a bar's downbeat (`BarTag`), or a count-in beat (`CountInTag`). */
+export type PlayTag = NoteTag | BarTag | CountInTag;
 
 /**
  * How a technique reaches a note picked `fromSemis` away from it (at the previous note's pitch):
@@ -74,19 +79,23 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i]!;
     if (e.kind === 'click') {
+      const tag: PlayTag | undefined =
+        e.bar !== undefined
+          ? {
+              bar: e.bar,
+              ...(e.response && {
+                response: true,
+                ...(e.entryIndex !== undefined && { entryIndex: e.entryIndex }),
+              }),
+            }
+          : e.countInBeat !== undefined
+            ? { countInBeat: e.countInBeat }
+            : undefined;
       out[i] = {
         timeSec: e.timeSec,
         kind: 'click',
         accent: e.accented,
-        ...(e.bar !== undefined && {
-          tag: {
-            bar: e.bar,
-            ...(e.response && {
-              response: true,
-              ...(e.entryIndex !== undefined && { entryIndex: e.entryIndex }),
-            }),
-          },
-        }),
+        ...(tag !== undefined && { tag }),
       };
       continue;
     }
