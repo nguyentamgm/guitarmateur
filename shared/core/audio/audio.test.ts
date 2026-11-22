@@ -233,7 +233,7 @@ describe('player: clock and levels (for a sequencer)', () => {
     expect(make).toHaveBeenCalledTimes(1);
   });
 
-  it('mixes notes and clicks by their own levels, note 0.5 and click 1 by default', () => {
+  it('mixes notes, backing and clicks by their own levels, note 0.5, backing 0.5 and click 1 by default', () => {
     const f = fakeContext();
     const gains: { value: number }[] = [];
     const ctx: MiniAudioContext = {
@@ -246,11 +246,15 @@ describe('player: clock and levels (for a sequencer)', () => {
     };
     const p = createPlayer({ createContext: () => ctx, gain: 0.5 });
     p.pluck(60);
-    p.setLevels({ note: 0.5, click: 0.2 });
+    p.setLevels({ note: 0.5, backing: 0.4, click: 0.2 });
     p.pluck(60);
+    p.pluck(45, 0, undefined, undefined, 1, 'backing');
     p.click();
+    p.setLevels({ note: 0 });
+    p.pluck(60);
+    p.pluck(45, 0, undefined, undefined, 1, 'backing');
     p.setLevels({ note: 7 });
     p.mute(60);
-    expect(gains.map((g) => g.value)).toEqual([0.25, 0.25, 0.1, 0.5]);
+    expect(gains.map((g) => g.value)).toEqual([0.25, 0.25, 0.2, 0.1, 0, 0.2, 0.5]);
   });
 });

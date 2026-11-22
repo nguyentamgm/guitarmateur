@@ -29,8 +29,7 @@ describe('neckWindow, over every key, register and degree', () => {
       const problems: string[] = [];
       let cases = 0;
       for (const key of KEYS) {
-        const settings = { key, degrees: CHROMATIC, register, keyChange: 'fixed' as const };
-        const tonic = questionTonic(key, settings);
+        const tonic = questionTonic(key, { degrees: CHROMATIC, register });
         for (const degree of CHROMATIC) {
           const s = interval(degree).semitones;
           const offsets =

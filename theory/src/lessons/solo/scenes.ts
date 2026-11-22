@@ -6,7 +6,7 @@
  */
 import { EIGHTHS_PER_BAR, type BackingStyle } from '../../core/audio';
 import { MAX_BPM, MIN_BPM } from '../../core/rhythm';
-import { STRINGS, byHomeFret, closestPath, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
+import { STRINGS, allPositions, byHomeFret, closestPath, midiAt, neckNote, openMidi, pitchAtPos, positions, type NeckNote } from '../../core/fretboard';
 import {
   MAJOR_KEY_TONICS,
   LICK_EIGHTHS,
@@ -14,6 +14,7 @@ import {
   SCALES,
   bluesChord,
   chordSymbol,
+  chordNotes,
   chordToneDegree,
   format,
   landOn,
@@ -100,21 +101,22 @@ const pentatonicOf = (scale: ScaleId): ScaleId => (SCALES[scale].quality === 'mi
 /**
  * Every note of the scale inside the frets of pentatonic box 1 (K3.4): the box itself for a
  * pentatonic, the box with the blue note for the blues scale, the box with the 4 and 7 filled in
- * for the major scale. One hand position, whatever the scale.
+ * for the major scale. Pass 3 to use the generated first three-notes-per-string position instead.
  */
-export function soloWindow(tonic: NoteName, scale: ScaleId): SoloWindow {
-  const box = positions({ tonic, scale: pentatonicOf(scale), notesPerString: 2 })[0]!;
+export function soloWindow(tonic: NoteName, scale: ScaleId, notesPerString: 2 | 3 = 2): SoloWindow {
+  const base = pentatonicOf(scale);
+  const box = positions({ tonic, scale: notesPerString === 3 ? scale : base, notesPerString })[0]!;
   const context = scaleNotes(tonic, scale);
   const pcs = new Set(context.map(pc));
-  const basePcs = new Set(scaleNotes(tonic, pentatonicOf(scale)).map(pc));
-  const notes = STRINGS.flatMap((string) =>
+  const basePcs = new Set(scaleNotes(tonic, base).map(pc));
+  const cells = notesPerString === 3 ? box.notes : STRINGS.flatMap((string) =>
     Array.from({ length: box.maxFret - box.minFret + 1 }, (_, k) => ({ string, fret: box.minFret + k }))
-      .filter((p) => pcs.has(mod(openMidi(p.string) + p.fret, 12)))
-      .map((p): SoloNote => {
-        const pitch = pitchAtPos(p, context);
-        return { ...neckNote(p, tonic, context), pitch, isAdded: !basePcs.has(pc(pitch)) };
-      }),
-  ).sort((a, b) => a.midi - b.midi);
+      .filter((p) => pcs.has(mod(openMidi(p.string) + p.fret, 12))),
+  );
+  const notes = cells.map((p): SoloNote => {
+    const pitch = pitchAtPos(p, context);
+    return { ...neckNote(p, tonic, context), pitch, isAdded: !basePcs.has(pc(pitch)) };
+  }).sort((a, b) => a.midi - b.midi);
   return { tonic, scale, minFret: box.minFret, maxFret: box.maxFret, notes };
 }
 
@@ -150,6 +152,17 @@ export function uniqueChords(bars: readonly BackingBar[]): BackingBar[] {
  * that tell one chord from the next), then the root, then the 5th (K7.2).
  */
 const TARGET_RANK: readonly (readonly DegreeLabel[])[] = [['3', 'b3'], ['7', 'b7', 'bb7'], ['1'], ['5', 'b5', '#5']];
+
+/** All thirds and sevenths of the chord within the current box's fret range. */
+export function guideTonePositions(box: Pick<SoloWindow, 'minFret' | 'maxFret'>, chord: Chord) {
+  return chordNotes(chord).flatMap((pitch) => {
+    const degree = chordToneDegree(chord, pitch)!;
+    if (!TARGET_RANK.slice(0, 2).some((degrees) => degrees.includes(degree))) return [];
+    return allPositions(pitch, box.maxFret)
+      .filter(({ fret }) => fret >= box.minFret)
+      .map((pos) => ({ ...pos, midi: midiAt(pos), degree, name: format(pitch) }));
+  });
+}
 
 /** The notes of the box that are the best target the box has for a chord, and which degree that is. */
 export function targets(window: SoloWindow, chord: Chord): { degree: DegreeLabel; notes: SoloNote[] } {

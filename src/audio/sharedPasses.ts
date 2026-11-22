@@ -74,6 +74,17 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
       out[i] = { timeSec: e.timeSec, kind: 'click', accent: e.accented, ...(e.bar !== undefined && { tag: { bar: e.bar } }) };
       continue;
     }
+    if (e.kind === 'backing') {
+      out[i] = {
+        timeSec: e.timeSec,
+        kind: 'note',
+        midi: e.midi,
+        lengthSec: e.durationSec,
+        ...(e.muted && { muted: true }),
+        channel: 'backing',
+      };
+      continue;
+    }
     const fromSemis = e.fromMidi === undefined ? 0 : e.fromMidi - e.midi;
     const into = glideInto(e.technique, fromSemis);
     // Ring for the notated length plus a tail (at least through a glide), but never past the next

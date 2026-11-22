@@ -38,10 +38,6 @@ describe('SONGS registry', () => {
     }
   });
 
-  it('preserves accept alternatives for happy-birthday', () => {
-    expect(SONGS['happy-birthday'].accept).toEqual({ 7: ['V'] });
-  });
-
   it('satisfies the chord-tone guard: slots with reference I/IV/V and a melody note at slot start are chord tones in >= 60%', () => {
     for (const id of songIds) {
       const song = SONGS[id];

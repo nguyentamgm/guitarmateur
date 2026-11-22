@@ -168,9 +168,13 @@ export interface BendView {
   readonly targetMidi: number;
 }
 
-/** Box `index` (1–5) of the minor pentatonic on `tonic`, spelled in the minor blues. */
-export const lickBox = (tonic: NoteName = EXAMPLE_TONIC, index = 1): Box => {
-  const box = positions({ tonic, scale: 'minorPentatonic', notesPerString: 2 })[index - 1]!;
+/** Box `index` (1–5) on `tonic`, spelled in the minor blues. */
+export const lickBox = (
+  tonic: NoteName = EXAMPLE_TONIC,
+  index = 1,
+  scale: 'minorPentatonic' | 'minorBlues' = 'minorPentatonic',
+): Box => {
+  const box = positions({ tonic, scale, notesPerString: 2 })[index - 1]!;
   return { ...box, notes: bluesNotes(box.notes, tonic, 'minor') };
 };
 const box1 = (tonic: NoteName = EXAMPLE_TONIC): Box => lickBox(tonic, 1);
@@ -251,9 +255,9 @@ export interface LickNote extends NeckNote {
   readonly text: string;
 }
 
-/** Place lick events in a box of a key and write their tab. */
-function toLickNotes(events: readonly LickEvent[], tonic: NoteName, box = 1): LickNote[] {
-  const notes = lickBox(tonic, box).notes;
+/** Place lick events on a position's pitch-ordered notes and write their tab. */
+export function lickNotesFrom(notes: readonly CoreNeckNote[], events: readonly LickEvent[]): LickNote[] {
+  const mark = markBlue('minor');
   return events.map((event) => {
     const n = notes[event.note]!;
     const f = String(n.fret);
@@ -265,12 +269,17 @@ function toLickNotes(events: readonly LickEvent[], tonic: NoteName, box = 1): Li
       bend: `${f}b${n.fret + (event.bend ?? 0)}`,
       release: `r${f}`,
     }[event.technique];
-    return { ...n, event, text: event.vibrato ? `${text}~` : text };
+    return { ...mark(n), event, text: event.vibrato ? `${text}~` : text };
   });
 }
 
 /** The lick's notes in box `box` of a key. `LICK` is written for box 1 only. */
-export const lickNotes = (tonic: NoteName = EXAMPLE_TONIC, events: readonly LickEvent[] = LICK, box = 1): LickNote[] => toLickNotes(events, tonic, box);
+export const lickNotes = (
+  tonic: NoteName = EXAMPLE_TONIC,
+  events: readonly LickEvent[] = LICK,
+  box = 1,
+  scale?: 'minorPentatonic' | 'minorBlues',
+): LickNote[] => lickNotesFrom(lickBox(tonic, box, scale).notes, events);
 
 /** Keys the lick can be played in: each minor pentatonic spelled from the core (C♯, not D♭), by home fret. */
 export const LICK_KEYS: readonly NoteName[] = byHomeFret(MINOR_KEY_TONICS);
@@ -444,6 +453,6 @@ export function demoNotes(id: DemoId, tonic: NoteName = EXAMPLE_TONIC): LickNote
       { cell: 3, cells: 3, note: 7, technique: 'release', bend: 2 },
     ],
   };
-  return toLickNotes(events[id], tonic);
+  return lickNotes(tonic, events[id]);
 }
 

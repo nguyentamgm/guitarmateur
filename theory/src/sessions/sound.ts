@@ -1,8 +1,12 @@
+import type { Glide } from '../core/audio';
+
 export interface SoundEvent {
   readonly at: number; // beats from the start
-  readonly midis?: readonly number[]; // low to high; one note, or a chord
-  readonly strum?: boolean; // spread the notes as a down strum
+  readonly midis?: readonly number[]; // one note or a chord, in sounding order
+  readonly strum?: boolean; // spread the notes across the strum
   readonly length?: number; // beats the note rings (default 1)
+  readonly glide?: Glide; // seconds and semitones from each pluck
+  readonly mute?: boolean; // play a palm-muted attack
   readonly click?: 'accent' | 'plain'; // a metronome click instead of notes
 }
 

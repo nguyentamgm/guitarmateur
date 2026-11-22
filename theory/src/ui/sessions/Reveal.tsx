@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { stopCurrentClock } from '@shared/ui/useClock';
 import { midiAt } from '../../core/fretboard';
 import { format } from '../../core/music';
 import { fill } from '../../i18n';
@@ -30,19 +31,23 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
   }, [player]);
 
   const spread = STRUM_SPREADS[speed];
+  const play = (sound: DrillQuestion['sound'], leadInSec = 0) => {
+    stopCurrentClock();
+    playSound(player, sound, { leadInSec, strumSpreadSec: spread });
+  };
 
   const start = () => {
     const q = drill.next(Math.random);
     setQuestion(q);
     setRevealed(false);
-    playSound(player, q.sound, { leadInSec: 0.5, strumSpreadSec: spread });
+    play(q.sound, 0.5);
   };
 
   const next = () => {
     const nextQ = drill.next(Math.random, question ?? undefined);
     setQuestion(nextQ);
     setRevealed(false);
-    playSound(player, nextQ.sound, { leadInSec: 0.4, strumSpreadSec: spread });
+    play(nextQ.sound, 0.4);
   };
 
   const posDots = useMemo((): FretDot[] => {
@@ -74,21 +79,31 @@ export function Reveal({ drill, copy }: { drill: Drill; copy: RevealCopy }) {
     );
   }
 
-  const answerText = fill(copy.answer, { answer: question.answer, detail: question.detail ?? '' });
-
+  const vars = { ...question.vars, answer: question.answer, detail: question.detail ?? '' };
+  const answerText = fill(copy.answer, vars);
+  const answerSound = question.revealSound;
+  const replay = revealed && answerSound && !copy.replayAnswer ? answerSound : question.sound;
   return (
     <div className="board">
       <div className="quiz">
-        <span className="question">{copy.ask}</span>
-        <Button
-          onClick={() =>
-            playSound(player, question.sound, { leadInSec: 0.15, strumSpreadSec: spread })
-          }
-        >
+        <span className="question">{fill(copy.ask, vars)}</span>
+        <Button onClick={() => play(replay, 0.15)}>
           {ui.session.playAgain}
         </Button>
+        {revealed && answerSound && copy.replayAnswer && (
+          <Button onClick={() => play(answerSound)} ghost>
+            {copy.replayAnswer}
+          </Button>
+        )}
         {!revealed ? (
-          <Button onClick={() => setRevealed(true)}>{ui.session.showAnswer}</Button>
+          <Button
+            onClick={() => {
+              setRevealed(true);
+              if (answerSound) play(answerSound);
+            }}
+          >
+            {ui.session.showAnswer}
+          </Button>
         ) : (
           <Button onClick={next} ghost>
             {ui.session.next}

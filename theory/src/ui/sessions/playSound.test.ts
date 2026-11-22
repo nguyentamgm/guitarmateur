@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import type { Player } from '../../core/audio';
+import { describe, expect, it, vi } from 'vitest';
+import { bend, type Player } from '../../core/audio';
 import { strummed, type Sound } from '../../sessions/sound';
 import { playSound } from './playSound';
 
@@ -77,6 +77,21 @@ describe('playSound', () => {
     expect(fake.clicks[0]).toEqual({ accent: true, delay: 2.25 });
     // beat 4: accent = false, delay = 4 * 60 / 80 = 3.0s
     expect(fake.clicks[1]).toEqual({ accent: false, delay: 3.0 });
+  });
+
+  it('schedules muted strings at their strum offsets and forwards the pitch curve of a pluck', () => {
+    const { player } = fakePlayer();
+    const mute = vi.spyOn(player, 'mute');
+    const pluck = vi.spyOn(player, 'pluck');
+    const glide = bend(2);
+
+    playSound(player, { bpm: 120, events: [
+      { at: 1, midis: [40, 47], strum: true, mute: true },
+      { at: 2, midis: [60], glide, length: 2 },
+    ] }, { strumSpreadSec: 0.05 });
+
+    expect(mute.mock.calls).toEqual([[40, 0.5], [47, 0.55]]);
+    expect(pluck.mock.calls).toEqual([[60, 1, 1, glide]]);
   });
 
   it('offsets all plucks and clicks by leadInSec', () => {

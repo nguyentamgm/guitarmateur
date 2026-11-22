@@ -1,23 +1,23 @@
 # Theory sessions
 
-**Status:** built (Path 1, "Play songs by ear", 16 sessions, tracked in #292). This file describes
-how sessions work and how to extend them.
+**Status:** built (Path 1, 'Play songs by ear', 16 sessions, #292; Path 2, 'Lead guitar', 16 sessions, #332)
 
 ## What a session is
 
 Theory has two kinds of pages:
 
 - **Lessons** (`theory/src/lessons/`, `/theory/<slug>`): 13 pages grouped by topic. They stay as
-  they are and are listed under **Reference** (`/theory/library`).
+  they are and are listed under **Reference** (`/theory/library`). Sessions can embed their interactive scenes.
 - **Sessions** (`theory/src/sessions/`, `/theory/s/<slug>`): short sittings (15–20 minutes) in a
   fixed order, grouped into **paths**. A session is complete in itself: it repeats whatever theory
   it needs, so the learner never has to open another page. **Repeating theory between sessions is
   intended.**
 
 The far goal of Theory is still **lead guitar on electric**. Path 1, "Play songs by ear"
-(`accompany`), comes first because choosing notes for a lead needs an ear for chords. Path 2,
-"Lead guitar", will re-cut the 13 lessons into sessions later; until then the lessons are the way
-to learn lead.
+(`accompany`), comes first because choosing notes for a lead needs an ear for chords. Path 2, “Lead guitar” (`lead`),
+continues the same session order. Completing session 16 leads directly to session 17. Session 32
+ends with a Practice link for the full A blues. When every session is complete, the path page and
+the final checklist show links to Practice and Theory Review.
 
 ## The parts of a session
 
@@ -27,7 +27,7 @@ Every session has the same parts, in this order:
 | --- | --- |
 | goal | One sentence: "After this session you can …", and what is needed (a guitar in tune). |
 | recap | 0–3 short reminders of what earlier sessions taught and this one uses (none in session 1). |
-| `listen` | A short ear drill: hear it before it has a name. |
+| `listen` | A short listening task, sometimes with an answer to reveal. |
 | `understand` | Just enough theory to explain what was heard, with pictures. |
 | `play` | An exercise on the guitar, with the app playing along. |
 | `challenge` | One real task that joins the three parts above. |
@@ -51,6 +51,12 @@ No session is locked. The path page only suggests the next one.
 - Own words only: nothing copied from a book or a site.
 - The app never listens to the guitar (no microphone). Where the learner plays, they judge
   themselves and then reveal the answer.
+- Build around one short worked example. Reuse the phrase from the listening task when possible.
+  Give the key, a starting string and fret or beat, and one change to try on the next pass.
+  Check the instructions against the scene's actual notes, labels and controls. In the challenge,
+  give the learner something to hear on their own guitar before revealing feedback. See the
+  [author guidance in #332](https://github.com/nguyentamgm/guitarmateur/issues/332) and the
+  [worked examples for sessions 17 and 18 in #348](https://github.com/nguyentamgm/guitarmateur/pull/348).
 
 ## Rules for code
 
@@ -74,8 +80,8 @@ No session is locked. The path page only suggests the next one.
 
 ```ts
 // theory/src/sessions/types.ts
-export type PathId = 'accompany';
-export type StageId = 'A' | 'B' | 'C' | 'D';
+export type PathId = 'accompany' | 'lead';
+export type StageId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 export type PartId = 'listen' | 'understand' | 'play' | 'challenge';
 export const PARTS: readonly PartId[] = ['listen', 'understand', 'play', 'challenge'];
 
@@ -87,8 +93,20 @@ export type ChordSpec = number | { readonly root: DegreeLabel; readonly id: Chor
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
+  | { readonly kind: 'boxEcho'; readonly key: string; readonly tonic: string;
+      readonly scale?: 'minorPentatonic' | 'majorPentatonic' | 'minorBlues';
+      readonly notes: 3 | 4; readonly giveFirst?: boolean; readonly firstPhrase?: readonly DegreeLabel[] }
+  | { readonly kind: 'backingTrack'; readonly key: string; readonly in: SessionKey;
+      readonly bars: readonly ChordSpec[]; readonly style: BackingStyle; readonly bpm: number;
+      readonly scale?: ScaleId; readonly notesPerString?: 3; readonly keys?: readonly string[];
+      readonly fullChords?: boolean;
+      readonly guideTones?: boolean; readonly call?: readonly LickEvent[] }
   | { readonly kind: 'lesson'; readonly key: string; readonly lesson: string; readonly step: string }
-  | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[] }
+  | { readonly kind: 'tabPhrase'; readonly key: string; readonly notes: readonly LickNote[];
+      readonly bpm: number; readonly metronome?: boolean; readonly bars?: number }
+  | { readonly kind: 'powerRiff'; readonly key: string; readonly tonic: string; readonly keys: readonly string[] }
+  | { readonly kind: 'chords'; readonly key: string; readonly in: SessionKey; readonly chords: readonly ChordSpec[];
+      readonly upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel] }
   | { readonly kind: 'strumAlong'; readonly key: string; readonly in: SessionKey; readonly bars: readonly ChordSpec[];
       readonly bpm: number; readonly beatsPerBar?: 3 | 4; readonly pattern?: string; readonly keys?: readonly string[];
       readonly numeralsOnly?: boolean }
@@ -99,7 +117,8 @@ export type Block =
   | { readonly kind: 'changeTap'; readonly key: string; readonly in: SessionKey; readonly pool: readonly ChordSpec[];
       readonly holds: readonly (1 | 2)[]; readonly bars: number; readonly bpm: number }
   | { readonly kind: 'fillBars'; readonly key: string; readonly in: SessionKey; readonly keys?: readonly string[];
-      readonly pool: readonly ChordSpec[]; readonly bars: number; readonly bpm: number }
+      readonly pool: readonly ChordSpec[]; readonly bpm: number;
+      readonly bars: number | { readonly plan: readonly ChordSpec[]; readonly blanks: readonly number[] } }
   | { readonly kind: 'song'; readonly key: string; readonly song: SongId; readonly in: SessionKey;
       readonly pool: readonly ChordSpec[]; readonly start: 'all' | 'none'; readonly keys?: readonly string[];
       readonly bpm?: number }
@@ -126,6 +145,9 @@ export interface Session {
 export type SessionSettingId = 'strumSpeed';  // slow / medium / fast strum spread
 
 export interface SessionPractice {
+  readonly scale?: ScaleId;
+  readonly boxes?: readonly number[]; // lesson numbering, 1–5
+  readonly swing?: boolean;
   readonly in: SessionKey;
   readonly bars: readonly ChordSpec[];
 }
@@ -140,6 +162,7 @@ export interface SessionCopy {
   readonly blocks: Readonly<Record<string, BlockCopy>>;
   readonly check: readonly { readonly question: string; readonly options: readonly string[]; readonly why: string }[];
   readonly canDo: readonly string[];   // "I can …" boxes; all ticked = done
+  readonly practiceLabel?: string;    // optional custom label for the session's Practice link
 }
 ```
 
@@ -150,10 +173,14 @@ export interface SessionCopy {
 | kind | copy fields |
 | --- | --- |
 | `lesson` | `intro` (the scene itself uses the lesson's own scene copy) |
+| `tabPhrase` | `intro`, `label`, `play` |
+| `powerRiff` | `intro`, `grid`, `rest`, `articulation`, `muted`, `open` |
 | `chords` | `intro` |
 | `strumAlong` | `intro` |
 | `listen` | `intro`, `ask`, `answers` (label per answer id), `right`, `wrong` (may use `{answer}` and `{detail}`) |
-| `reveal` | `intro`, `ask`, `answer` (may use `{answer}` and `{detail}`) |
+| `reveal` | `intro`, `ask`, `answer` (may use `{answer}`, `{detail}` and named drill variables). Optional `replayAnswer` gives the answer sound its own button. |
+| `boxEcho` | `intro`, `ask`, `right`, `higher`, `lower`, `done` |
+| `backingTrack` | `intro` |
 | `melodyEcho` | `intro`, `ask`, `right`, `higher`, `lower`, `done` |
 | `changeTap` | `intro`, `ask`, `result` (may use `{caught}`, `{total}`, `{extra}`) |
 | `fillBars` | `intro`, `ask`, `allRight`, `someWrong` |
@@ -170,29 +197,40 @@ is empty or missing. The only id today is `'strumSpeed'`: blocks read it with
 **Rule: a session that strums chords anywhere declares `settings: ['strumSpeed']`; a session that
 never strums does not.** "Strums" means any block in `STRUMMING_KINDS` (`strumAlong`, `chords`,
 `changeTap`, `fillBars`, `song`, `transpose`), or a `listen` / `reveal` block whose drill's sound
-has a strummed event; `sessions.test.ts` checks it.
+has a strummed event, or a `backingTrack` with strum or comp style. `sessions.test.ts` checks it.
 
-**Links to other apps.**
-- **Ear training:** when `session.earLevel` (integer 1–15, checked by `sessions.test.ts`) is set,
+**Links to other apps**
+
+- **Ear training** opens when `session.earLevel` (integer 1–15, checked by `sessions.test.ts`) is set.
   `SessionPage.tsx` renders a plain `<a>` after the challenge part to
   `/ear-training?level=<n>&lang=<lang>`. Linked sessions: `major-or-minor` (5), `find-the-root`
-  (7), `melody-by-ear` (3), `chord-family` (6).
-- **Practice:** when `session.practice` (`{ in, bars }`, checked by `sessions.test.ts`) is set and
-  the session is marked done in `SessionDone.tsx`, a `TrainerLink` opens Practice on that key and
-  progression (set on `new-song`: G major, I–V–vi–IV).
+  (7), `melody-by-ear` (3), `chord-family` (6), `minor-pentatonic-box` (12),
+  `pentatonic-keys-and-modes` (10), `the-blue-note` (13), `first-blues-licks` (14),
+  `chord-tones-in-the-box` (9).
+- **Practice** links appear after the checklist is complete when `session.practice` is set.
+  `SessionDone.tsx` passes the key, bars and optional scale, boxes and swing to `TrainerLink`.
+  Session 16 opens the G pop form. Sessions 17 and 20 open A minor pentatonic
+  over Am–Dm, with box 1 or boxes 1–2 respectively. Sessions 21, 25 and 32 open the standard
+  12-bar A blues with swing. Sessions 25 and 32 specify box 1. Session 28 opens the A minor
+  rock form with minor pentatonic box 1. Without a scale override the key mode selects major
+  or natural minor.
 
 ## Blocks
 
 | kind | Component (`ui/sessions/`) | What the learner sees |
 | --- | --- | --- |
 | `lesson` | `LessonScene` (`ui/lessons/`) | One existing lesson scene, e.g. `chords` / `open`. |
+| `tabPhrase` | `TabPhrase.tsx` | A fixed playable tab with an optional metronome and a minimum length in bars to include a final rest. Connected notes use the pitch movement from the blues lesson. |
+| `powerRiff` | `PowerRiff.tsx` | Loops two eighth-note power chords on each of beats 1–3, with a rest on beat 4. Choose the key and whether to palm mute. |
 | `chords` | `ChordCards.tsx` | A card per chord: its symbol, Roman numeral, and shape on a small neck (open shape only for `OPEN_SHAPE_CHORDS`, otherwise lowest barre ≥ 1 from `barreOptions()`), click to strum. |
 | `listen` | `ListenDrill.tsx` | A multiple-choice ear drill of 8 questions. Play → answer. Only the first answer counts. Right: say so, Next. Wrong: play the comparison, say what it was, Next. Score for this visit only. |
-| `reveal` | `Reveal.tsx` | The app plays something; the learner finds or plays it on their own guitar; "Show answer" shows it. No score. |
+| `reveal` | `Reveal.tsx` | The app plays an example for the learner to work out on their guitar. Show answer displays the answer and, when supplied, plays its sound or shows its chord card. |
 | `strumAlong` | `StrumAlong.tsx` | Bars drawn as a grid, a metronome click and the app strumming each bar's chord; a tempo slider; optional key chips (`keys`) to move the same numbers to another key; `numeralsOnly` hides chord names. |
 | `melodyEcho` | `MelodyEcho.tsx` | The app plays 3–4 notes of a major scale on one string; the learner taps them back on a one-string neck. |
+| `boxEcho` | `BoxEcho.tsx` | The app plays 3–4 notes within a six-string box. Tap the notes in order with higher or lower feedback. A block can give the first note or start with a model specified by scale degree. |
+| `backingTrack` | `BackingTrack.tsx` | Loops a chord form with tempo and optional key controls. The current bar and any chord tones in the displayed scale light up. Blocks can use full rock chords, show additional guide tones, use a three-notes-per-string position or play a call with two bars free to answer. |
 | `changeTap` | `ChangeTap.tsx` | The app plays 8 bars; the learner taps a button each time the chord changes; then the grid shows where the changes were. |
-| `fillBars` | `FillBars.tsx` | The app plays 4 bars; the learner picks a Roman numeral for each bar; Check marks each bar. |
+| `fillBars` | `FillBars.tsx` | A random form gives the first bar. A fixed form takes one-based blank bar numbers and opens them for answers after a complete playback. The learner picks a Roman numeral for each blank. |
 | `song` | `SongBench.tsx` | The song bench: a public-domain melody over a grid of chord slots; the learner picks a chord per slot, hears the tune over their chords, and checks against a reference. Any key. |
 | `transpose` | `TransposeTable.tsx` | A table: the same progression by numbers in several keys, with an optional capo table; click a row to hear it. |
 
@@ -204,16 +242,19 @@ A drill's sound is pure data, so it can be tested and always plays the same:
 // theory/src/sessions/sound.ts
 export interface SoundEvent {
   readonly at: number;                 // beats from the start
-  readonly midis?: readonly number[];  // low to high; one note, or a chord
-  readonly strum?: boolean;            // spread the notes as a down strum
+  readonly midis?: readonly number[];  // one note or a chord, in sounding order
+  readonly strum?: boolean;            // spread the notes across the strum
   readonly length?: number;            // beats the note rings (default 1)
+  readonly glide?: Glide;              // shared pitch curve in seconds and semitones
+  readonly mute?: boolean;             // palm-muted attack
   readonly click?: 'accent' | 'plain'; // a metronome click instead of notes
 }
 export interface Sound { readonly bpm: number; readonly events: readonly SoundEvent[] }
 ```
 
 `ui/sessions/playSound.ts` hands every event to the player at once, each with its exact delay
-(`player.pluck(midi, delay, length)`, `player.click(accent, delay)`); `player.cancel()` stops it.
+through `player.pluck(midi, delay, length, glide)`, `player.mute(midi, delay)` or
+`player.click(accent, delay)`. Muted chords use the same strum offsets. `player.cancel()` stops playback.
 Never one `setTimeout` per note.
 
 ### Drills (for `listen` and `reveal`)
@@ -221,10 +262,13 @@ Never one `setTimeout` per note.
 ```ts
 // theory/src/sessions/drills/types.ts
 export interface DrillQuestion {
-  readonly answer: string;             // one of the drill's answer ids
+  readonly answer: string;             // an answer id or a value to reveal
   readonly sound: Sound;
   readonly compare?: Sound;            // played after a wrong answer
   readonly detail?: string;            // fills {detail} in copy: a chord symbol, a fret, a note name
+  readonly pos?: { readonly string: number; readonly fret: number };
+  readonly vars?: Readonly<Record<string, string | number>>;
+  readonly revealSound?: Sound;        // played when the answer is revealed
   readonly chord?: Chord;
   readonly run?: number;               // optional run count for repetition avoidance
 }
@@ -234,24 +278,42 @@ export interface Drill {
 }
 ```
 
-Each drill is one file in `theory/src/sessions/drills/` with a test, and one entry in `DRILLS`.
-A drill never asks the same answer three times in a row.
+Each drill lives in `theory/src/sessions/drills/` and has one entry in `DRILLS`. Multiple-choice
+drills avoid repeating the same answer three times in a row. Reveal drills hide the answer until
+the learner opens it and may play a reference note or show a chord shape then.
 
 | id | Session | Sound | Answers | After a wrong answer |
 | --- | --- | --- | --- | --- |
-| `quality` | 1 | One open chord strummed: root E, A or D, major or minor (`openVoicing()`). `detail`: its symbol. | `major`, `minor` | the other quality, then the chord again |
+| `quality` | 1 (listen and reveal) | One strummed open chord with root E, A or D. The reveal shows its symbol and shape. | `major`, `minor` | the other quality, then the chord again |
 | `onBeat` | 2 | Four clicks (first accented) at 80 BPM with an Em strum on every click, or every strum half a beat after its click. | `on`, `off` | the other version |
 | `finished` | 3 | Four strummed chords in a major key (G, A, D, C or E): I–IV–V–I, or stopping away from home (I–IV–I–V, I–V–I–IV). | `finished`, `notFinished` | the same four, then the I chord |
 | `rootNote` | 3 (reveal) | I–IV–V–I in a key whose tonic is a natural note, then the I chord held. `answer`: the root's fret on string 6 (`homeFret()`), `detail`: the note name. | (reveal) | — |
 | `moves` | 4 | Two notes of the G major scale: the second one scale step away, or 3–4 steps away, above or below. | `stepUp`, `stepDown`, `leapUp`, `leapDown` | both notes again, slower |
-| `chordCount` | 5 | Four strummed bars in G: two different chords (I–IV–I–IV, I–V–I–V) or three (I–IV–V–I, I–V–IV–I). | `two`, `three` | the same bars again |
+| `chordCount` | 5 | Four strummed bars in G with two different chords (I–IV–I–IV, I–V–I–V) or three (I–IV–V–I, I–V–IV–I). | `two`, `three` | the same bars, slower |
 | `fourOrFive` | 7 | I, then IV or V, then I, in G, D, A or C. | `IV`, `V` | the other one, then this one |
-| `minorBar` | 10 | Four bars from I, IV, V with exactly one vi in bar 2, 3 or 4. | `2`, `3`, `4` | the bars again, the vi bar held longer |
+| `minorBar` | 10 | Four bars in G starting on I, with exactly one vi in bar 2, 3 or 4. The other bars use I, IV or V. | `2`, `3`, `4` | the bars again with a single held strum on vi |
 | `keyMode` | 11 | I–IV–V–I in a major key or i–iv–V7–i in a minor key (tonic A, E or D). | `major`, `minor` | the other mode on the same tonic, then this one |
 | `seventh` | 12 | One open chord, plain major or dominant 7 (roots E, A, D, G). | `plain`, `seventh` | the other one, then this one |
-| `meter` | 13 | Two or three bars of clicks with strums, beat 1 accented, 3 or 4 beats in a bar. | `three`, `four` | the other meter |
+| `meter` | 13 | Three bars in 3/4 or two in 4/4, with a click and a G strum on each beat through the next downbeat. Beat 1 is accented. | `three`, `four` | the other meter |
 | `sameChord` | 14 | An open chord, then a barre chord: the same chord, or another chord of the same quality. | `same`, `different` | both again, then the second chord as an open chord |
 | `oddChord` | 15 | Four bars in a major key; bar 2, 3 or 4 is ♭VII, iv or III7, the rest are I, IV, V. | `2`, `3`, `4` | the bars again, then the same bars with the key's own chord in that bar |
+| `pentatonicOrMajor` | 17 | Five notes from minor pentatonic or the first five of the major scale, followed by the octave. | `pentatonic`, `majorScale` | the other scale on the same root, then the original |
+| `pentaMode` | 18 | A strummed major chord followed by a major or minor pentatonic phrase on its root. | `minorPenta`, `majorPenta` | the other phrase, then the original |
+| `octaveOrFifth` | 19 | A root and a fifth or octave, first separately and then together. | `octave`, `fifth` | the other interval from the same root, then the original |
+| `rootAcrossStrings` | 19 (reveal) | A note on string 6. The reveal gives and plays the same root on strings 6, 4 and 2. | (reveal) | — |
+| `sequenceKind` | 20 | A rising line in minor pentatonic box 1, straight, in groups of three or skipping every other note. | `straight`, `threes`, `skips` | the same line, slower |
+| `straightOrShuffle` | 21 | A single-note riff with clicks, played with straight or swung eighths. | `straight`, `shuffle` | the other feel, then the original |
+| `hasBlueNote` | 22 | A rising or falling five-note phrase with ♭5 or ♭7. | `withBlue`, `plain` | the other phrase in the same direction, then the original |
+| `bendPitch` | 23 (listen and challenge) | A reference pitch and a whole-step bend that lands flat, in tune or sharp. | `flat`, `inTune`, `sharp` | the reference and the in-tune bend |
+| `pickOrLegato` | 24 | Two box notes a whole step apart on one string, picked separately, joined by hammer-on or pull-off, or slid. | `picked`, `legato`, `slide` | the same pair, slower |
+| `callAndResponse` | 25 | A three-note call and an exact repeat or a reversed answer back to the root. | `response`, `repeat` | both bars again |
+| `muteOrOpen` | 26 (listen and challenge) | E5–G5–A5 in eighth-note pairs, muted or allowed to ring. Beat 4 is silent. | `muted`, `open` | the other articulation, then the original |
+| `singleDoubleOrOctave` | 27 | A four-note box phrase, single notes or doubled at a fourth or octave. | `single`, `doubleStop`, `octave` | the same phrase, slower |
+| `landedOnChordTone` | 28 | A strummed major or minor chord and a three-note phrase with a held final note. | `chordTone`, `outside` | the alternate landing, then the original |
+| `thirdOrRoot` | 29 | I7 to IV7 with an upper voice that either moves to the third of IV7 or stays on the key's root. | `third`, `root` | the alternate landing, then the original |
+| `motifOrNoodling` | 30 | Three bars of rock backing with a repeated idea and a new ending, or a continuous eighth-note run. | `motif`, `noodling` | the same take again |
+| `dupleOrTripletRun` | 31 | One bar of a scale run with clicks, at two or three notes per beat. | `eighths`, `triplets` | the other subdivision, then the original |
+| `soloKey` | 32 (reveal) | Four bars of G major pop or the A minor rock form, then a return to the first chord at 88 BPM. Both use full strummed chords. After revealing the key, replay the example and its reference root separately. | (reveal) | — |
 
 ## Path 1 · Play songs by ear (`accompany`)
 
@@ -282,8 +344,8 @@ Blocks are listed part by part. `lesson a/b` is the lesson block `{ lesson: 'a',
 
 | # | listen | understand | play | challenge |
 | --- | --- | --- | --- | --- |
-| 1 | `listen quality` | `lesson fretboard/strings`, `lesson chords/open` | `chords` Em, E (key E minor: 1; then `{root:'1', id:'major'}`) | `reveal quality`: hear E or Em, play it back, show the answer |
-| 2 | `listen onBeat` | `lesson rhythm/beat`, `lesson rhythm/counting` | `chords` Em, Am; `strumAlong` Em Em Am Am at 60 BPM, pattern all downs | `strumAlong` Em Am Em Am, one bar each, 80 BPM: 8 bars without a late change |
+| 1 | `listen quality` | `lesson fretboard/strings`, `lesson chords/open` | `chords` Em and E | `reveal quality`. Hear an E, A or D chord in major or minor, play it back and show the answer. |
+| 2 | `listen onBeat` | `lesson rhythm/beat`, `lesson rhythm/counting` | `chords` Em and Am, then `strumAlong` Em Em Am Am at 60 BPM, all downstrums | `strumAlong` Em Am Em Am at 80 BPM. Loop for eight bars without a late change. |
 | 3 | `listen finished` | `lesson fretboard/home` (string 6 naturals only) | `strumAlong` in G: G G G G (`symbolsOnly`, hum the root over it) | `reveal rootNote` (with string 6 neck) |
 | 4 | `listen moves` | `lesson major-scale/formula` | `melodyEcho` 3 notes, degrees 1–5 | `melodyEcho` the tune "Frère Jacques", phrase by phrase |
 | 5 | `listen chordCount` | `lesson keys/family` | `chords` G C D with numerals; `strumAlong` I IV V I in G | `strumAlong` I IV V I in G (`numeralsOnly`) |
@@ -319,6 +381,58 @@ A word may be used from the session that teaches it, never before.
 | 13 | time signature, 3/4 |
 | 14 | barre chord |
 | 15 | ♭VII, iv, III7 |
+
+## Path 2 · Lead guitar (`lead`)
+
+Stages E–H follow A–D on the path page. Global session numbers and next-session links follow
+registry order. The blocks below appear in the order learners use them.
+
+| # · stage | Session slug | Listen | Understand | Play | Challenge |
+| --- | --- | --- | --- | --- | --- |
+| 17 · E | `minor-pentatonic-box` | `boxEcho`. Hum a three-note call in A minor. | `lesson fretboard/tab`, `pentatonic-map/formula`, `pentatonic-map/boxes`. Find A–C–D. | `lesson rhythm/fingers`, rock `backingTrack`, then `listen pentatonicOrMajor` | `boxEcho`. Echo calls in box 1, then play A–C–D twice on guitar with a rest on beat four. |
+| 18 · E | `pentatonic-keys-and-modes` | `listen pentaMode` | `lesson pentatonic-map/keys`, `pentatonic-map/home`, `pentatonic/major` | Rock and pop `backingTrack` blocks. Move a phrase to a new key and try both pentatonics on A. | `lesson pentatonic/choose`. Choose the scale and find where box 1 starts. |
+| 19 · E | `octave-shapes` | `listen octaveOrFifth` | `lesson pentatonic-map/grid`, `fretboard/octaves` | `lesson fretboard/home`. Find the root and play its two higher octaves. | `reveal rootAcrossStrings`. Find the octaves on strings 4 and 2 before opening the answer. |
+| 20 · E | `five-boxes-and-sequences` | `listen sequenceKind` | `lesson pentatonic/connect`, `pentatonic/boxes` | `lesson pentatonic/sequences` | `lesson pentatonic/connect`. Cross into box 2 through a shared note and return in time. |
+| 21 · F | `shuffle-and-twelve-bar` | `listen straightOrShuffle` | `lesson blues/shuffle`, `blues/twelveBar`, `chord-table/openSevenths` | Shuffle `backingTrack` in A, E, G or D | `fillBars`. Hear the full A chorus before filling bars 5, 9 and 10. |
+| 22 · F | `the-blue-note` | `listen hasBlueNote` | `lesson blues/blueNote` | Shuffle `backingTrack` with the minor blues scale | `boxEcho`. Play a model that passes through ♭5 and lands on 5, then try another lick. |
+| 23 · F | `bends-and-vibrato` | `listen bendPitch` | `lesson blues/bends` | Slow shuffle `backingTrack`. Check the fretted pitch, bend to it and add vibrato. | `listen bendPitch`. Hear and distinguish the three bend landings. |
+| 24 · F | `legato-and-slides` | `listen pickOrLegato` | `lesson blues/legato` | Rock `backingTrack` with minor pentatonic box 1 | `tabPhrase` with hammer-on, pull-off and slide, then `boxEcho` |
+| 25 · F | `first-blues-licks` | `listen callAndResponse` | `lesson rhythm/lengths`, `blues/legato` | `tabPhrase` and shuffle `backingTrack`. Keep the same pitches and change the rhythm. | Shuffle `backingTrack` with two-bar calls. Answer each in the next two bars. |
+| 26 · G | `power-chords-and-palm-mute` | `listen muteOrOpen` | `lesson electric/power`, `electric/mute` | `powerRiff` in E, A or G and rock `backingTrack`. Play eighth-note pairs and rest on beat four of the model riff. | `listen muteOrOpen`. Recognise the articulation by ear. |
+| 27 · G | `double-stops-and-boogie` | `listen singleDoubleOrOctave` | `lesson major-scale/shapes`, `electric/doubleStops` | `lesson electric/boogie` | Shuffle `backingTrack`. Add a double-stop answer on bars 11–12. The optional octave exercise uses `lesson electric/octaves`. |
+| 28 · H | `chord-tones-in-the-box` | `listen landedOnChordTone` | `lesson major-scale/intervals`, `solo/scale`, `solo/tones` | Rock `backingTrack` in A minor, with audible thirds | Pop `backingTrack`. Land on a chord tone as each chord arrives. |
+| 29 · H | `guide-tones` | `listen thirdOrRoot` | `lesson solo/guide` and `chords` with upper-string voicings of A7 and D7 | Shuffle `backingTrack`. Guide tones, including notes outside the scale, show where G moves to F♯. | Jazz `backingTrack` in C with guide tones over ii–V7–I–I. |
+| 30 · H | `phrasing-and-motifs` | `listen motifOrNoodling` | `lesson solo/phrase` | Rock `backingTrack` with F shown in the same fret range as the A minor pentatonic box. Repeat a motif and land on F when the chord changes. | Four-bar `tabPhrase` with the changed landing and a bar of rest, then `lesson solo/ear` for more phrases. |
+| 31 · H | `three-notes-per-string` | `listen dupleOrTripletRun`, then a rock `backingTrack` that adds B to a familiar lick | `lesson major-scale/spelling`, `three-per-string/strings`, `three-per-string/tile` | `lesson three-per-string/triplets`, `three-per-string/keys` | Rock `backingTrack` in a three-notes-per-string position. Try B or F in an A minor pentatonic lick. |
+| 32 · H | `your-first-solo` | `reveal soloKey`. Sing and find the hidden root, then choose a pentatonic before revealing the answer. | Four-step solo routine and `lesson solo/scale` across blues, pop, rock and jazz | `lesson solo/guide` and a G major pop `backingTrack` at 88 BPM, transposable to C, D and A | `lesson solo/record`. Compare the original and fixed landings and try a revision. Then solo through the full form on guitar and check the form, motif and landings at two changes. |
+
+`standardBlues12` supplies the common form for session backing tracks and for the Practice handoffs
+in sessions 21, 25 and 32. The capstone's recording booth uses `fixLandings()` to move a bar's
+first note to the nearest chord tone in the box when that note falls outside the chord.
+The displayed chord-tone counts are feedback on tapped notes. All three guitar self-checks
+are required for completion, and planned rests count as part of the phrase.
+
+### Library step coverage
+
+Each number below refers to the session where the learner uses a scene and demonstrates
+the skill. Optional activities fit after the core challenge. Reference steps remain accessible
+at their existing lesson URLs.
+
+| Library lesson | Required steps, session and task | Optional extension | Reference only |
+| --- | --- | --- | --- |
+| `fretboard` | 1 `strings`: identify a string. 3 `semitones`, `home`: move a semitone and find the root on string 6. 17 `tab`: read a three-note call. 19 `octaves`: find the next two octaves. | — | — |
+| `rhythm` | 2 `beat`, `counting`: count and strum on the beat. 6 `strum`: keep the pattern through a change. 13 `beat`: hear the downbeat in 3/4. 17 `fingers`: coordinate one finger per fret with the pick. 25 `lengths`: hold across a bar line and rest. | — | — |
+| `major-scale` | 4 `formula`: find a melody by scale steps. 27 `shapes`: locate an interval on adjacent strings. 28 `intervals`: identify the interval of a chord tone. 31 `spelling`: name the two notes added to the pentatonic. | — | `degrees` |
+| `chords` | 1 `open`: play E and Em. | — | `stack`, `qualities`, `sus`, `build` |
+| `barre` | 14 `slide`, `eShape`, `aShape`: move each shape to play chords in a new key. | — | `find`, `changes` |
+| `keys` | 5 `family`, 7 `numbers`: play I, IV and V by ear. 10 `family`: add vi. 11 `relative`: find the relative minor. 12 `twoFive`: play the dominant resolving to I. | — | `home` |
+| `chord-table` | 12 `sevenths`: compare a triad and dominant 7. 21 `openSevenths`: play the dominant 7 chords of a blues. | — | `table`, `inversions`, `simplify` |
+| `pentatonic-map` | 17 `formula`, `boxes`: locate the five degrees in box 1. 18 `keys`, `home`: move the box and change the root. 19 `grid`: cross the G–B shift. | — | — |
+| `pentatonic` | 18 `major`, `choose`: choose a scale and place the box. 20 `boxes`, `connect`, `sequences`: locate adjacent boxes, cross between them and play a sequence. | — | — |
+| `blues` | 21 `shuffle`, `twelveBar`: play a shuffled chorus. 22 `blueNote`: resolve ♭5. 23 `bends`: match a target pitch. 24 and 25 `legato`: join notes with a single attack and use the slide in a phrase. | — | — |
+| `electric` | 26 `power`, `mute`: mute a power-chord riff. 27 `doubleStops`, `boogie`: insert a two-note answer in a boogie chorus. | 27 `octaves`: play a melody with the middle string muted. | — |
+| `solo` | 28 `scale`, `tones`: land on a tone of the sounding chord. 29 `guide`: connect two chords by a semitone. 30 `phrase`: vary a motif. 32 `scale`, `guide`, `record`: choose a scale, follow the changes, listen to a take and revise a landing. | 30 `ear`: echo another phrase with the first-note hint off. | — |
+| `three-per-string` | 31 `strings`, `tile`, `triplets`, `keys`: play triplets across adjacent positions and move the pattern to another key. | — | — |
 
 ## Songs (public domain melodies)
 
@@ -385,7 +499,8 @@ chords: - | I | I | IV | I | I | I | V | V
 - `theory.sessions` (`ui/sessionProgress.ts`): `{ v: 1, ticks: { [slug]: number[] } }`, the indexes
   of the "I can do this" boxes ticked in each session. A session is **done** when every box of its
   `canDo` is ticked; done is worked out, never stored. Read and written through
-  `platform/storage.ts`; never throws; unknown slugs are kept, broken entries dropped.
+  `platform/storage.ts`. If a write fails, the tab keeps the changed checkboxes in memory and
+  merges them with the latest stored ticks on the next save.
 - Check answers and drill scores are for the visit only (not stored).
 - `theory.strumSpeed` (`ui/sessions/strumSpeed.ts`): `'slow' | 'medium' | 'fast'`, default
   `'medium'`; the strum speed chosen in the settings bar, shared by every session. Read and written
@@ -438,10 +553,9 @@ chords: - | I | I | IV | I | I | I | V | V
 5. List the setting id in `settings` on the sessions that need it, and add a test that the choice
    is stored and changes what is played.
 
-## Future ideas (out of scope for Path 1)
+## Future ideas
 
 - Storing session drill scores and listing them on `/theory/review`.
 - Links from Ear training back to sessions.
 - More controls in the settings bar (e.g. melody / chord / click balance via `player.setLevels`,
   or a default tempo for every strum-along of a session).
-- Path 2, "Lead guitar": re-cutting the 13 lessons into sessions (see #292).

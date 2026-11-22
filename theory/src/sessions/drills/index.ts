@@ -1,39 +1,89 @@
 import type { DrillId } from '../types';
+import { bendPitch } from './bendPitch';
+import { callAndResponse } from './callAndResponse';
 import { chordCount } from './chordCount';
+import { dupleOrTripletRun } from './dupleOrTripletRun';
 import { finished } from './finished';
 import { fourOrFive } from './fourOrFive';
+import { hasBlueNote } from './hasBlueNote';
 import { keyMode } from './keyMode';
+import { landedOnChordTone } from './landedOnChordTone';
 import { minorBar } from './minorBar';
+import { motifOrNoodling } from './motifOrNoodling';
 import { moves } from './moves';
+import { muteOrOpen } from './muteOrOpen';
 import { oddChord } from './oddChord';
 import { onBeat } from './onBeat';
+import { pentatonicOrMajor } from './pentatonicOrMajor';
+import { pentaMode } from './pentaMode';
+import { pickOrLegato } from './pickOrLegato';
 import { quality } from './quality';
 import { rootNote } from './rootNote';
+import { octaveOrFifth } from './octaveOrFifth';
+import { rootAcrossStrings } from './rootAcrossStrings';
 import { sameChord } from './sameChord';
+import { sequenceKind } from './sequenceKind';
 import { seventh } from './seventh';
+import { singleDoubleOrOctave } from './singleDoubleOrOctave';
+import { soloKey } from './soloKey';
+import { straightOrShuffle } from './straightOrShuffle';
+import { thirdOrRoot } from './thirdOrRoot';
 import { meter } from './meter';
 import type { Drill } from './types';
 
 export * from './types';
+export { bendPitch } from './bendPitch';
+export { callAndResponse } from './callAndResponse';
 export { chordCount } from './chordCount';
+export { dupleOrTripletRun } from './dupleOrTripletRun';
 export { finished } from './finished';
 export { fourOrFive } from './fourOrFive';
+export { hasBlueNote } from './hasBlueNote';
 export { keyMode } from './keyMode';
+export { landedOnChordTone } from './landedOnChordTone';
 export { meter } from './meter';
 export { minorBar } from './minorBar';
+export { motifOrNoodling } from './motifOrNoodling';
 export { moves } from './moves';
+export { muteOrOpen } from './muteOrOpen';
 export { oddChord } from './oddChord';
 export { onBeat } from './onBeat';
+export { pentatonicOrMajor } from './pentatonicOrMajor';
+export { pentaMode } from './pentaMode';
+export { pickOrLegato } from './pickOrLegato';
 export { quality } from './quality';
 export { rootNote } from './rootNote';
+export { octaveOrFifth } from './octaveOrFifth';
+export { rootAcrossStrings } from './rootAcrossStrings';
 export { sameChord } from './sameChord';
+export { sequenceKind } from './sequenceKind';
 export { seventh } from './seventh';
+export { singleDoubleOrOctave } from './singleDoubleOrOctave';
+export { straightOrShuffle } from './straightOrShuffle';
+export { thirdOrRoot } from './thirdOrRoot';
 
 export const DRILLS: Partial<Record<DrillId, Drill>> = {
+  pentatonicOrMajor,
+  pentaMode,
   quality,
   onBeat,
   finished,
   rootNote,
+  octaveOrFifth,
+  rootAcrossStrings,
+  sequenceKind,
+  straightOrShuffle,
+  hasBlueNote,
+  bendPitch,
+  pickOrLegato,
+  callAndResponse,
+  muteOrOpen,
+  singleDoubleOrOctave,
+  soloKey,
+  landedOnChordTone,
+  thirdOrRoot,
+  motifOrNoodling,
+  dupleOrTripletRun,
   moves,
   chordCount,
   fourOrFive,

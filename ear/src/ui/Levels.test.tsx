@@ -528,7 +528,9 @@ describe('"I already know this: test me"', () => {
 });
 
 describe('in Vietnamese', () => {
-  it('the same path, every screen in Vietnamese', () => {
+  // The whole round, its end and the next level are walked in English above; here, each screen up
+  // to the first answer and its feedback in Vietnamese.
+  it('welcome, sound check, map, intro, a question and its feedback, in Vietnamese', () => {
     localStorage.setItem('gm.lang', 'vi');
     const { player, played } = fakePlayer();
     render(player);
@@ -545,14 +547,5 @@ describe('in Vietnamese', () => {
     const right = heardAnswer(played);
     click(answerButton({ same: 'Giống', different: 'Khác' }[right]!));
     expect(host.querySelector('.lv-right')!.textContent).toMatch(/^✓ Đúng: hai nốt /);
-    wait(2);
-    for (let i = 1; i < 10; i++) {
-      click(answerButton({ same: 'Giống', different: 'Khác' }[heardAnswer(played)]!));
-      wait(2);
-    }
-    expect(heading()).toBe('Đúng 10/10 câu!');
-    expect(text()).toContain('Xong cấp này! Giờ bạn đã nghe ra hai nốt giống hay khác nhau.');
-    click(button('Cấp tiếp theo'));
-    expect(heading()).toBe('Cấp 2 · Cao hơn hay thấp hơn?');
   });
 });

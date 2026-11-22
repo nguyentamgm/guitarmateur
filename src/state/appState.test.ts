@@ -57,11 +57,14 @@ describe('reducer', () => {
     expect(next.clickGain).toBe(0.3);
   });
 
-  it('setNoteGain updates noteGain', () => {
+  it('setNoteGain and setBackingGain update their gains', () => {
     const s = fresh();
     expect(s.noteGain).toBe(0.9);
+    expect(s.backingGain).toBe(0.5);
     const next = reducer(s, { type: 'setNoteGain', gain: 0.5 }, testNextSeed);
     expect(next.noteGain).toBe(0.5);
+    const backed = reducer(next, { type: 'setBackingGain', gain: 0.2 }, testNextSeed);
+    expect(backed.backingGain).toBe(0.2);
   });
 
   it('setBars toggles a single entry between 1 and 2 without touching others', () => {

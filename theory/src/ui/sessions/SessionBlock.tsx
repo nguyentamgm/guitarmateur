@@ -6,21 +6,27 @@ import type {
   FillBarsCopy,
   ListenCopy,
   MelodyEchoCopy,
+  PowerRiffCopy,
   RevealCopy,
   Session,
   SongCopy,
+  TabPhraseCopy,
   TransposeCopy,
 } from '../../sessions/types';
 import { useTheory } from '../context';
 import { LessonScene } from '../lessons/LessonScene';
+import { BackingTrack } from './BackingTrack';
+import { BoxEcho } from './BoxEcho';
 import { ChangeTap } from './ChangeTap';
 import { ChordCards } from './ChordCards';
 import { FillBars } from './FillBars';
 import { ListenDrill } from './ListenDrill';
 import { MelodyEcho } from './MelodyEcho';
+import { PowerRiff } from './PowerRiff';
 import { Reveal } from './Reveal';
 import { SongBench } from './SongBench';
 import { StrumAlong } from './StrumAlong';
+import { TabPhrase } from './TabPhrase';
 import { TransposeTable } from './TransposeTable';
 
 export function SessionBlock({ session, block }: { session: Session; block: Block }) {
@@ -32,6 +38,10 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
       const sceneCopy = lesson ? lesson.copy[lang].scene : undefined;
       return <LessonScene slug={block.lesson} step={block.step} copy={sceneCopy} inSession />;
     }
+    case 'tabPhrase':
+      return <TabPhrase block={block} copy={session.copy[lang].blocks[block.key] as TabPhraseCopy} />;
+    case 'powerRiff':
+      return <PowerRiff block={block} copy={session.copy[lang].blocks[block.key] as PowerRiffCopy} />;
     case 'listen': {
       const copy = session.copy[lang].blocks[block.key] as ListenCopy;
       const drill = DRILLS[block.drill]!;
@@ -43,11 +53,15 @@ export function SessionBlock({ session, block }: { session: Session; block: Bloc
       return <Reveal drill={drill} copy={copy} />;
     }
     case 'chords': {
-      const { in: key, chords } = block;
-      return <ChordCards in={key} chords={chords} />;
+      const { in: key, chords, upperDegrees } = block;
+      return <ChordCards in={key} chords={chords} upperDegrees={upperDegrees} />;
     }
     case 'strumAlong':
       return <StrumAlong block={block} />;
+    case 'backingTrack':
+      return <BackingTrack block={block} label={session.copy[lang].blocks[block.key]!.intro} />;
+    case 'boxEcho':
+      return <BoxEcho block={block} copy={session.copy[lang].blocks[block.key] as MelodyEchoCopy} />;
     case 'melodyEcho': {
       const copy = session.copy[lang].blocks[block.key] as MelodyEchoCopy;
       return <MelodyEcho block={block} copy={copy} />;

@@ -11,8 +11,9 @@ export type Position = NoteTag;
 export interface PlayOptions extends Omit<CompileOptions, 'repeats'> {
   /** Repeat the progression until stopped. */
   loop?: boolean;
-  /** The click / note mix, 0..1, applied as playback starts. */
+  /** The click / backing / note mix, 0..1, applied as playback starts. */
   clickGain?: number;
+  backingGain?: number;
   noteGain?: number;
 }
 
@@ -26,6 +27,7 @@ export interface UseTransport {
   play: (licks: Lick[], opts: PlayOptions) => void;
   stop: () => void;
   setClickGain: (value: number) => void;
+  setBackingGain: (value: number) => void;
   setNoteGain: (value: number) => void;
 }
 
@@ -62,9 +64,9 @@ export function useTransport(): UseTransport {
     (licks: Lick[], opts: PlayOptions) => {
       const sequencer = ensureSequencer();
       if (!sequencer) return;
-      const { loop = false, clickGain, noteGain, ...compile } = opts;
-      getPlayer().setLevels({ click: clickGain, note: noteGain });
-      if (licks.every((l) => l.notes.length === 0)) {
+      const { loop = false, clickGain, backingGain, noteGain, ...compile } = opts;
+      getPlayer().setLevels({ click: clickGain, backing: backingGain, note: noteGain });
+      if (licks.length === 0 || (licks.every((l) => l.notes.length === 0) && (!compile.chords || compile.chords.length === 0))) {
         sequencer.stop();
         return;
       }
@@ -82,6 +84,7 @@ export function useTransport(): UseTransport {
   }, []);
 
   const setClickGain = useCallback((value: number) => getPlayer().setLevels({ click: value }), []);
+  const setBackingGain = useCallback((value: number) => getPlayer().setLevels({ backing: value }), []);
   const setNoteGain = useCallback((value: number) => getPlayer().setLevels({ note: value }), []);
 
   useEffect(() => {
@@ -92,5 +95,5 @@ export function useTransport(): UseTransport {
     };
   }, []);
 
-  return { supported, isPlaying, position, bar, play, stop, setClickGain, setNoteGain };
+  return { supported, isPlaying, position, bar, play, stop, setClickGain, setBackingGain, setNoteGain };
 }

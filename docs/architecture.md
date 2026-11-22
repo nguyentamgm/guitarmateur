@@ -17,11 +17,11 @@ trainer built around a three-step practice loop:
 No accounts, no server-side state: the app is a fully static SPA on free-tier hosting, and
 everything the user does persists in `localStorage`.
 
-Two more pages share the site, its header and its look: **Theory** at `/theory`, guided
-ear-and-chord sessions ([`theory-sessions.md`](theory-sessions.md)) plus visual music-theory
-reference lessons ([`theory.md`](theory.md)), and **Ear training** at `/ear-training`, beginner
-ear-training levels ([`ear.md`](ear.md)). Each is a separate app that
-imports none of the others; what they share is in `shared/` (below).
+**Theory** at `/theory` has 32 guided sessions across Play songs by ear and Lead guitar, plus
+13 visual reference lessons at `/theory/library`. The final lead session uses Theory's recording
+booth and links to Practice on a full 12-bar A blues. **Ear training** at `/ear-training` has
+beginner ear-training levels. Each app imports its common code from `shared/`.
+See [Theory conventions](theory.md), [Theory sessions](theory-sessions.md) and [Ear training](ear.md).
 
 ## Repository layout
 
@@ -182,13 +182,13 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
 
 **Sound (`shared/core/audio`, Theory's).** Plucked strings and clicks rendered once into buffers
 and played by a `Player` (`createPlayer`): one AudioContext, created on the first sound (a user
-gesture); `setEnabled` turns it on or off, `setLevels({ note, click })` the mix, `now()` the audio
+gesture); `setEnabled` turns it on or off, `setLevels({ note, backing, click })` the mix, `now()` the audio
 clock, and `cancel()` stops every note and click scheduled or sounding, with a short fade. On it: `backing.ts` (shuffle, strum, rock, comp patterns per chord), `useClock` /
 `useBacking` (a step clock and a backing track over one chord per bar, swung when the style
-swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute) and clicks played
+swings), and `Sequencer`: a timeline of notes (with length, glide, palm mute, and channel `'note' | 'backing'`) and clicks played
 sample-accurately through the lookahead `Scheduler`, looping pass after pass, reporting each event
-as it sounds. Practice's licks reach it through `src/audio/sharedPasses.ts`: `compileProgression`
-still lays out count-in, swing, bars per chord and the metronome; `lickPasses` turns that into
+as it sounds. Practice's licks and chord backing reach it through `src/audio/sharedPasses.ts`: `compileProgression`
+still lays out count-in, swing, bars per chord, backing chords (`backingAt`) and the metronome; `lickPasses` turns that into
 sequencer passes (a note rings until the next one on its string; a technique becomes a glide).
 
 An app imports the CSS once, in order, from its entry (`tokens`, `base`, `controls`, `fretboard`,
@@ -236,7 +236,7 @@ title is left over.
 
 In `src/ui/`, `audioPlayer.ts` holds the page's one `Player`; `useTransport()` drives a
 `Sequencer` on it (play state, the sounding note for card/tab highlighting, the bar being heard
-for Step 2's bar grid, the click/note mix), and
+for Step 2's bar grid, the click/backing/note mix), and
 `notePlayer.ts` plucks a note clicked on a neck.
 
 **Autoplay gate**: the `AudioContext` is created on the first sound — the play button or a clicked

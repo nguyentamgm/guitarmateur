@@ -1,3 +1,5 @@
+import type { ChordSpec } from './types';
+
 function samePlan(a: readonly number[], b: readonly number[]): boolean {
   if (a.length !== b.length) return false;
   return a.every((v, i) => v === b[i]);
@@ -34,14 +36,26 @@ export function fillPlan(
   return fallback;
 }
 
-/** For each bar, whether the pick (an index into the pool, or null) is the plan's chord. Bar 0 is given, so always true. */
+/** Translate a written form into the pool indexes used by playback and guessing. */
+export function fixedFillPlan(pool: readonly ChordSpec[], plan: readonly ChordSpec[]): number[] {
+  return plan.map((chord) => {
+    const index = pool.findIndex((entry) => {
+      if (typeof chord === 'number' || typeof entry === 'number') return chord === entry;
+      return entry.root === chord.root && entry.id === chord.id;
+    });
+    if (index < 0) throw new RangeError('The fixed form uses a chord outside its pool');
+    return index;
+  });
+}
+
+/** Judge answers at the selected indexes. The random exercise gives the first bar. */
 export function judgeFill(
   plan: readonly number[],
   picks: readonly (number | null)[],
+  blanks?: readonly number[],
 ): boolean[] {
   return plan.map((chord, i) => {
-    if (i === 0) return true;
-    const pick = picks[i];
-    return pick !== null && pick !== undefined && pick === chord;
+    if (blanks ? !blanks.includes(i) : i === 0) return true;
+    return picks[i] === chord;
   });
 }

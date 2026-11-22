@@ -1,11 +1,13 @@
+import type { BackingStyle } from '../core/audio';
 import type { StringNumber } from '../core/fretboard';
-import type { ChordId, DegreeLabel, Mode } from '../core/music';
+import type { ChordId, DegreeLabel, Mode, ScaleId } from '../core/music';
 import type { Lang } from '../i18n';
 import type { ConceptId } from '../lessons';
+import type { LickEvent, LickNote } from '../lessons/blues';
 import type { SongId } from './songs';
 
-export type PathId = 'accompany';
-export type StageId = 'A' | 'B' | 'C' | 'D';
+export type PathId = 'accompany' | 'lead';
+export type StageId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 export type PartId = 'listen' | 'understand' | 'play' | 'challenge';
 export const PARTS: readonly PartId[] = ['listen', 'understand', 'play', 'challenge'];
 
@@ -32,10 +34,54 @@ export type DrillId =
   | 'seventh'
   | 'meter'
   | 'sameChord'
-  | 'oddChord';
+  | 'oddChord'
+  | 'pentatonicOrMajor'
+  | 'pentaMode'
+  | 'octaveOrFifth'
+  | 'rootAcrossStrings'
+  | 'sequenceKind'
+  | 'straightOrShuffle'
+  | 'hasBlueNote'
+  | 'bendPitch'
+  | 'pickOrLegato'
+  | 'callAndResponse'
+  | 'muteOrOpen'
+  | 'singleDoubleOrOctave'
+  | 'landedOnChordTone'
+  | 'thirdOrRoot'
+  | 'motifOrNoodling'
+  | 'dupleOrTripletRun'
+  | 'soloKey';
 
 /** One interactive piece of a part. `key` names its copy in `copy.blocks[key]`. */
 export type Block =
+  | {
+      readonly kind: 'boxEcho';
+      readonly key: string;
+      readonly tonic: string;
+      readonly scale?: 'minorPentatonic' | 'majorPentatonic' | 'minorBlues';
+      readonly notes: 3 | 4;
+      readonly giveFirst?: boolean;
+      /** A model of the same length as `notes`, as scale degrees. Further questions use random notes. */
+      readonly firstPhrase?: readonly DegreeLabel[];
+    }
+  | {
+      readonly kind: 'backingTrack';
+      readonly key: string;
+      readonly in: SessionKey;
+      readonly bars: readonly ChordSpec[];
+      readonly style: BackingStyle;
+      readonly bpm: number;
+      readonly scale?: ScaleId;
+      readonly notesPerString?: 3;
+      readonly keys?: readonly string[];
+      /** Include the whole chord in rock playback. */
+      readonly fullChords?: boolean;
+      /** Draw the sounding chord's 3rd and 7th inside the box, including pitches outside the scale. */
+      readonly guideTones?: boolean;
+      /** A two-bar box 1 lick that starts every four bars, leaving the other two bars to answer. */
+      readonly call?: readonly LickEvent[];
+    }
   | {
       readonly kind: 'lesson';
       readonly key: string;
@@ -43,10 +89,27 @@ export type Block =
       readonly step: string;
     }
   | {
+      readonly kind: 'tabPhrase';
+      readonly key: string;
+      readonly notes: readonly LickNote[];
+      readonly bpm: number;
+      readonly metronome?: boolean;
+      /** Duration in bars when the model ends with a full bar of rest. */
+      readonly bars?: number;
+    }
+  | {
+      readonly kind: 'powerRiff';
+      readonly key: string;
+      readonly tonic: string;
+      readonly keys: readonly string[];
+    }
+  | {
       readonly kind: 'chords';
       readonly key: string;
       readonly in: SessionKey;
       readonly chords: readonly ChordSpec[];
+      /** Chord degrees on strings 3, 2 and 1 for a three-note upper voicing. */
+      readonly upperDegrees?: readonly [DegreeLabel, DegreeLabel, DegreeLabel];
     }
   | {
       readonly kind: 'strumAlong';
@@ -87,7 +150,8 @@ export type Block =
       readonly in: SessionKey;
       readonly keys?: readonly string[];
       readonly pool: readonly ChordSpec[];
-      readonly bars: number;
+      /** A random form length, or a fixed progression and its one-based blank bar numbers. */
+      readonly bars: number | { readonly plan: readonly ChordSpec[]; readonly blanks: readonly number[] };
       readonly bpm: number;
     }
   | {
@@ -121,6 +185,8 @@ export interface RevealCopy {
   readonly intro: string;
   readonly ask: string;
   readonly answer: string;
+  /** Offers the answer sound separately and keeps Play again on the original example. */
+  readonly replayAnswer?: string;
 }
 
 export interface MelodyEchoCopy {
@@ -161,6 +227,19 @@ export interface BaseBlockCopy {
   readonly intro: string;
 }
 
+export interface TabPhraseCopy extends BaseBlockCopy {
+  readonly label: string;
+  readonly play: string;
+}
+
+export interface PowerRiffCopy extends BaseBlockCopy {
+  readonly grid: string;
+  readonly rest: string;
+  readonly articulation: string;
+  readonly muted: string;
+  readonly open: string;
+}
+
 export type BlockCopy =
   | BaseBlockCopy
   | ListenCopy
@@ -169,6 +248,8 @@ export type BlockCopy =
   | ChangeTapCopy
   | FillBarsCopy
   | SongCopy
+  | TabPhraseCopy
+  | PowerRiffCopy
   | TransposeCopy;
 
 /** The copy fields each block kind must have (checked by sessions.test.ts). */
@@ -178,6 +259,10 @@ export const BLOCK_COPY_FIELDS: Readonly<Record<Block['kind'], readonly string[]
   strumAlong: ['intro'],
   listen: ['intro', 'ask', 'answers', 'right', 'wrong'],
   reveal: ['intro', 'ask', 'answer'],
+  backingTrack: ['intro'],
+  tabPhrase: ['intro', 'label', 'play'],
+  powerRiff: ['intro', 'grid', 'rest', 'articulation', 'muted', 'open'],
+  boxEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   melodyEcho: ['intro', 'ask', 'right', 'higher', 'lower', 'done'],
   changeTap: ['intro', 'ask', 'result'],
   fillBars: ['intro', 'ask', 'allRight', 'someWrong'],
@@ -201,6 +286,7 @@ export interface SessionCopy {
     readonly why: string;
   }[];
   readonly canDo: readonly string[]; // "I can …" boxes; all ticked = done
+  readonly practiceLabel?: string;
 }
 
 export interface Session {
@@ -224,6 +310,9 @@ export type SessionSettingId = 'strumSpeed';
 
 /** A key and a progression (one chord per bar) to practise licks over in Practice. */
 export interface SessionPractice {
+  readonly scale?: ScaleId;
+  readonly boxes?: readonly number[];
+  readonly swing?: boolean;
   readonly in: SessionKey;
   readonly bars: readonly ChordSpec[];
 }

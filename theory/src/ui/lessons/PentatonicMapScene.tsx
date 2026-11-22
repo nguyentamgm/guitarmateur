@@ -11,6 +11,7 @@ import {
   boxes,
   formulaStrip,
   homeView,
+  keyComparison,
   keyView,
   slide,
   stringPairs,
@@ -221,11 +222,25 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
     (i) => select(FINDER_KEYS[(startAt.current + i + 1) % FINDER_KEYS.length]!),
     true,
   );
+  const comparison = useSequence(keyComparison.length, 520, (i) => {
+    const beat = keyComparison[i]!;
+    if (beat.startsPhrase) {
+      setTonic(beat.tonic);
+      setShift(i === 0 ? null : slide(EXAMPLE_TONIC, beat.tonic));
+    }
+    player.pluck(beat.note.midi);
+  });
+  const compare = () => {
+    seq.stop();
+    comparison.toggle();
+  };
   const cycle = () => {
+    comparison.stop();
     startAt.current = FINDER_KEYS.findIndex((k) => sameNote(k, tonic));
     seq.toggle();
   };
   const pick = (k: NoteName) => {
+    comparison.stop();
     seq.stop();
     select(k);
   };
@@ -247,11 +262,18 @@ function KeysScene({ copy }: { copy: SceneCopy['keys'] }) {
     <div className="board">
       <KeyFinder keys={FINDER_KEYS} label={copy.finder} value={tonic} onChange={pick} />
       <div className="controls">
+        <Button onClick={compare}>{comparison.playing ? copy.stop : copy.compare}</Button>
         <Button onClick={cycle} ghost>
           {seq.playing ? copy.stop : copy.cycle}
         </Button>
       </div>
-      <Fretboard geometry={g} dots={dots} label={caption} box={view.box1} />
+      <Fretboard
+        geometry={g}
+        dots={dots}
+        label={caption}
+        box={view.box1}
+        active={comparison.current === null ? [] : [posKey(keyComparison[comparison.current]!.note)]}
+      />
       <p className="caption" aria-live="polite">
         {caption}
       </p>

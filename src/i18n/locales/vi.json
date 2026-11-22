@@ -51,6 +51,7 @@
   "note.letter.F": "F",
   "note.letter.G": "G",
   "playback.audioUnavailable": "Trình duyệt này không phát được âm thanh. Tab và cần đàn vẫn dùng được.",
+  "playback.backing": "Backing",
   "playback.bpm": "BPM",
   "playback.click": "Click",
   "playback.countIn": "Count-in",

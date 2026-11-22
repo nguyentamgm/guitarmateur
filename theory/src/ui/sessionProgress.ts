@@ -51,48 +51,66 @@ function parseTicks(rawTicks: unknown): Record<string, readonly number[]> {
   return out;
 }
 
-/** Reads the raw stored envelope as is, or null if missing/corrupt/wrong version. */
-function readEnvelope(storage: KeyValue | null): { v: number; ticks: Record<string, unknown> } | null {
+/** Reads the raw ticks, including entries this version cannot interpret. */
+function readEnvelope(raw: string | null): Record<string, unknown> {
   try {
-    const raw = storage?.getItem(SESSIONS_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    const parsed: unknown = JSON.parse(raw ?? 'null');
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
     const env = parsed as Record<string, unknown>;
-    if (env.v !== 1) return null;
-    if (!env.ticks || typeof env.ticks !== 'object' || Array.isArray(env.ticks)) return null;
-    return { v: 1, ticks: env.ticks as Record<string, unknown> };
+    if (env.v !== 1) return {};
+    if (!env.ticks || typeof env.ticks !== 'object' || Array.isArray(env.ticks)) return {};
+    return env.ticks as Record<string, unknown>;
   } catch {
-    return null;
+    return {};
   }
 }
 
-/** Stored ticks; corrupt, missing, wrong version, or broken entries dropped. Never throws. */
-export function loadTicks(storage: KeyValue | null = browserStorage()): SessionTicks {
-  const env = readEnvelope(storage);
-  if (!env) return {};
-  return parseTicks(env.ticks);
-}
+/** Keep edits by checkbox until they can be written alongside the latest saved ticks. */
+export function createSessionProgress(storage: KeyValue | null = browserStorage()) {
+  let stored: Record<string, unknown> = {};
+  let canWrite = false;
+  const pending = new Map<string, Map<number, boolean>>();
 
-/**
- * Toggle one tick in storage and return the new ticks.
- * Reads storage first (so another tab's ticks are kept), toggles, writes back
- * keeping slugs it does not know, returns the new ticks. A storage failure is swallowed.
- */
-export function storeToggle(
-  slug: string,
-  index: number,
-  storage: KeyValue | null = browserStorage(),
-): SessionTicks {
-  const currentTicks = loadTicks(storage);
-  const nextTicks = toggleTick(currentTicks, slug, index);
-  try {
-    const env = readEnvelope(storage);
-    const rawTicks = env?.ticks ?? {};
-    const updatedRawTicks = { ...rawTicks, [slug]: nextTicks[slug] };
-    storage?.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: updatedRawTicks }));
-  } catch {
-    // Private mode, full or blocked storage: ticks last for this visit only.
+  function load(): SessionTicks {
+    try {
+      if (storage) {
+        stored = readEnvelope(storage.getItem(SESSIONS_STORAGE_KEY));
+        canWrite = true;
+      }
+    } catch {
+      // Keep the last readable copy if storage is temporarily blocked.
+      canWrite = false;
+    }
+    const ticks = parseTicks(stored);
+    for (const [slug, edits] of pending) {
+      const checked = new Set(ticks[slug]);
+      for (const [index, value] of edits) {
+        if (value) checked.add(index);
+        else checked.delete(index);
+      }
+      ticks[slug] = [...checked].sort((a, b) => a - b);
+    }
+    return ticks;
   }
-  return nextTicks;
+
+  function toggle(slug: string, index: number): SessionTicks {
+    const nextTicks = toggleTick(load(), slug, index);
+    const edits = pending.get(slug) ?? new Map<number, boolean>();
+    edits.set(index, nextTicks[slug]!.includes(index));
+    pending.set(slug, edits);
+    if (storage && canWrite) {
+      const nextStored = { ...stored };
+      for (const changed of pending.keys()) nextStored[changed] = nextTicks[changed];
+      try {
+        storage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify({ v: 1, ticks: nextStored }));
+        stored = nextStored;
+        pending.clear();
+      } catch {
+        // Subsequent ticks and reads still include the pending edits.
+      }
+    }
+    return nextTicks;
+  }
+
+  return { load, toggle };
 }

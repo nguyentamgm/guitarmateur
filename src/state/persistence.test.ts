@@ -17,8 +17,8 @@ afterEach(() => {
 });
 
 describe('persistence', () => {
-  it('save + load round-trips state (minus ui)', () => {
-    const state = defaultState(() => 42);
+  it('save + load round-trips state (minus ui), non-default swing and gains included', () => {
+    const state = { ...defaultState(() => 42), swingEnabled: true, clickGain: 0.3, backingGain: 0.4, noteGain: 0.7 };
     saveState(state);
     const loaded = loadState()!;
     expect(loaded.schemaVersion).toBe(7);
@@ -27,18 +27,12 @@ describe('persistence', () => {
     expect(loaded.level).toBe(state.level);
     expect(loaded.targetRole).toBe(state.targetRole);
     expect(loaded.progression.length).toBe(state.progression.length);
-    expect(loaded.swingEnabled).toBe(state.swingEnabled);
-    expect(loaded.clickGain).toBe(state.clickGain);
-    expect(loaded.noteGain).toBe(state.noteGain);
+    expect(loaded.swingEnabled).toBe(true);
+    expect(loaded.clickGain).toBe(0.3);
+    expect(loaded.backingGain).toBe(0.4);
+    expect(loaded.noteGain).toBe(0.7);
     // UI is not persisted
     expect(loaded.ui.advancedOpen).toBe(false);
-  });
-
-  it('save + load round-trips a non-default swingEnabled value', () => {
-    const state = { ...defaultState(() => 42), swingEnabled: true };
-    saveState(state);
-    const loaded = loadState()!;
-    expect(loaded.swingEnabled).toBe(true);
   });
 
   it('corrupt JSON returns defaults', () => {
@@ -128,14 +122,6 @@ describe('persistence', () => {
     expect(loaded.tempoBpm).toBe(100);
     expect(loaded.clickGain).toBe(0.6);
     expect(loaded.noteGain).toBe(0.9);
-  });
-
-  it('save + load round-trips non-default clickGain/noteGain values', () => {
-    const state = { ...defaultState(() => 42), clickGain: 0.3, noteGain: 0.7 };
-    saveState(state);
-    const loaded = loadState()!;
-    expect(loaded.clickGain).toBe(0.3);
-    expect(loaded.noteGain).toBe(0.7);
   });
 
   it('clamps an out-of-range persisted tempo', () => {

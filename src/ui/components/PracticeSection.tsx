@@ -57,6 +57,7 @@ export function PracticeSection({
   const [countIn, setCountIn] = useState(true);
   const [loop, setLoop] = useState(true);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
+  const chords = useMemo(() => state.progression.map((e) => e.chord), [state.progression]);
   const active = transport.position;
 
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -117,11 +118,13 @@ export function PracticeSection({
         dispatch={dispatch}
         transport={transport}
         licks={plainLicks}
+        chords={chords}
         tempoBpm={state.tempoBpm}
         countIn={countIn}
         loop={loop}
         swingEnabled={state.swingEnabled}
         clickGain={state.clickGain}
+        backingGain={state.backingGain}
         noteGain={state.noteGain}
       />
       <StepHead language={state.language} step="practice" />
@@ -193,6 +196,7 @@ export function PracticeSection({
             {/* Playback */}
             <PlaybackControls
               licks={plainLicks}
+              chords={chords}
               tempoBpm={state.tempoBpm}
               onTempoChange={(bpm) => dispatch({ type: 'setTempo', bpm })}
               transport={transport}
@@ -203,8 +207,10 @@ export function PracticeSection({
               swingEnabled={state.swingEnabled}
               onSwingChange={(v) => dispatch({ type: 'setSwing', value: v })}
               clickGain={state.clickGain}
+              backingGain={state.backingGain}
               noteGain={state.noteGain}
               onClickGainChange={(gain) => dispatch({ type: 'setClickGain', gain })}
+              onBackingGainChange={(gain) => dispatch({ type: 'setBackingGain', gain })}
               onNoteGainChange={(gain) => dispatch({ type: 'setNoteGain', gain })}
               language={state.language}
             />
