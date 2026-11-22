@@ -208,6 +208,14 @@ export function scoreLine(
 ): number {
   const n = line.length;
   const segmentEnds = new Set([...groupStarts(slots)].map((g) => g - 1));
+  if (
+    n >= 2 &&
+    slots[n - 1]!.startBeat >= 4 &&
+    slots[n - 1]!.startBeat % 4 === 0 &&
+    Math.abs(slots[n - 2]!.startBeat + slots[n - 2]!.durationBeats - slots[n - 1]!.startBeat) < 1e-9
+  ) {
+    segmentEnds.delete(n - 2);
+  }
   let score = 0;
   let sameRun = 1;
   for (let i = 0; i < n; i++) {
@@ -349,9 +357,9 @@ export function buildPhrase(
   if (fi < 0 || ti < 0) return null;
 
   const groups = groupStarts(slots);
-  // In a 2-bar lick, bar 1 is the call and bar 2 the response.
+  // In a 2-bar lick, bar 1 is the call and bar 2 the response (ignore a final downbeat slot at beat 4).
   const barTwo = slots.findIndex((sl) => sl.startBeat >= 4);
-  const responseStart = barTwo > 0 ? barTwo : undefined;
+  const responseStart = barTwo > 0 && barTwo < slots.length - 1 ? barTwo : undefined;
   const callEnd = responseStart !== undefined ? responseStart - 1 : undefined;
   const motifs = MOTIFS.filter((m) => m.minLevel <= level).map((m) => ({ item: m.moves, weight: m.weight }));
   let best: { path: FretNote[]; score: number } | null = null;

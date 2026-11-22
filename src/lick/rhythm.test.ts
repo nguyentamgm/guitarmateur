@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '@shared/core/rng';
-import { buildRhythm, pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
+import { buildRhythm, downbeatSlot, pickPattern, activeSlots, patternLengthBeats, LENGTH_BEATS } from './rhythm';
 
 describe('rhythm patterns', () => {
   it('every pattern sums to LENGTH_BEATS beats', () => {
@@ -99,5 +99,21 @@ describe('buildRhythm', () => {
     }
     expect(same).toBeGreaterThan(50);
     expect(same).toBeLessThan(100);
+  });
+
+  it('downbeat mode starts with a rest >= 0.5 beats and ends the last active slot at bars * 4', () => {
+    for (const level of [1, 2, 3, 4, 5] as const) {
+      for (const bars of [1, 2] as const) {
+        for (let seed = 0; seed < 20; seed++) {
+          const pattern = buildRhythm(level, bars, mulberry32(seed), true);
+          expect(patternLengthBeats(pattern)).toBe(bars * LENGTH_BEATS);
+          const act = activeSlots(pattern);
+          expect(act[0]!.startBeat).toBeGreaterThanOrEqual(0.5);
+          const last = act.at(-1)!;
+          expect(last.startBeat + last.durationBeats).toBe(bars * LENGTH_BEATS);
+        }
+      }
+    }
+    expect(downbeatSlot(4)).toEqual({ startBeat: 4, durationBeats: 1 });
   });
 });

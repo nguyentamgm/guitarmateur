@@ -64,6 +64,23 @@ describe('TabStaff beat ticks', () => {
     expect(container.querySelectorAll('line.tabbeat')).toHaveLength(6);
     await unmount();
   });
+
+  it('numbers Beat 1 of the next chord and keeps the downbeat note inside the viewBox when resolving across the barline', async () => {
+    const lick = makeLick(4, [
+      { string: 0, fret: 5, pitch: A2, startBeat: 0, durationBeats: 2 },
+      { string: 1, fret: 5, pitch: D3, startBeat: 2, durationBeats: 2 },
+      { string: 1, fret: 7, pitch: { letter: 'E', alter: 0, octave: 3 }, startBeat: 4, durationBeats: 1, role: 'R' },
+    ]);
+    const { container, unmount } = await mount({ lick });
+    expect(texts(container, 'text.tabbeatnum')).toEqual(['1', '2', '3', '4', '1']);
+    const vbWidth = Number(container.querySelector('svg')!.getAttribute('viewBox')!.split(' ')[2]);
+    const downbeatRect = [...container.querySelectorAll('g.tabnum rect')].at(-1)!;
+    const rx = Number(downbeatRect.getAttribute('x'));
+    const rw = Number(downbeatRect.getAttribute('width'));
+    expect(rx).toBeGreaterThanOrEqual(0);
+    expect(rx + rw).toBeLessThanOrEqual(vbWidth);
+    await unmount();
+  });
 });
 
 describe('TabStaff in Theory\'s look', () => {

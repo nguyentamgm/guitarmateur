@@ -29,6 +29,9 @@ each one:
 - **`turnaround`**: set on the last chord. Turnaround phrases are offered almost only there.
 - **`previousSource`**: the phrase the previous lick used, so the same one is not played twice in
   a row.
+- **`resolveToNext`**: when enabled and there is a following chord, the lick targets the next
+  chord's tone on Beat 1 of the next bar (`startBeat = lengthBeats`) and leaves Beat 1 of its own
+  first bar open (`notes[0].startBeat >= 0.5`) so consecutive licks chain seamlessly.
 
 ## The vocabulary (`vocabulary.ts`)
 

@@ -59,6 +59,9 @@ export function TabStaff({
   // Note order matches `lick.notes` (already ascending by startBeat), so the index lines up with
   // the transport's `noteIndex` for highlighting the currently-sounding note.
   const notes = [...lick.notes].sort((a, b) => a.startBeat - b.startBeat);
+  const maxStart = notes.reduce((m, n) => Math.max(m, n.startBeat), 0);
+  const hasDownbeat = maxStart >= beats;
+  const spanBeats = hasDownbeat ? maxStart + 1 : beats;
 
   const texts = notes.map((n, i) => tabText(n, notes[i - 1]));
   const boxes = texts.map(tabBoxWidth);
@@ -68,7 +71,7 @@ export function TabStaff({
   for (let i = 1; i < notes.length; i++) {
     const d = notes[i]!.startBeat - notes[i - 1]!.startBeat;
     const room = (boxes[i - 1]! + boxes[i]!) / 2 + BOX_GAP;
-    if (d > 0) stageW = Math.max(stageW, (room * beats) / d + LEAD);
+    if (d > 0) stageW = Math.max(stageW, (room * spanBeats) / d + LEAD);
   }
   const width = LEFT + stageW + RIGHT;
   const staffBottom = TOP + (numStrings - 1) * GAP;
@@ -78,7 +81,7 @@ export function TabStaff({
   const height = durY + 12;
 
   const y = (string: number) => TOP + (numStrings - 1 - string) * GAP;
-  const x = (beat: number) => LEFT + LEAD + (beat / beats) * (stageW - LEAD);
+  const x = (beat: number) => LEFT + LEAD + (beat / spanBeats) * (stageW - LEAD);
   /** Un-mirror a text glyph around its own x so the left-handed flip keeps it readable. */
   const unmirror = (cx: number): string | undefined => (leftHanded ? `translate(${cx} 0) scale(-1 1) translate(${-cx} 0)` : undefined);
 
@@ -122,13 +125,15 @@ export function TabStaff({
           const bx = x(b);
           // A bar line every 4 beats (and the closing one); a faint tick on the other beats.
           const bar = b % 4 === 0;
+          // The closing barline (b === beats) shows "1" when a note lands on the next chord's downbeat;
+          // otherwise it is only a barline end and carries no beat number.
+          const beatLabel = b < Math.floor(beats) ? b + 1 : hasDownbeat ? 1 : null;
           return (
             <g key={`b${b}`}>
               <line className={bar ? 'tabbar' : 'tabbeat'} x1={bx} x2={bx} y1={TOP} y2={staffBottom} />
-              {/* The final tick (b === beats) is the closing barline, not a beat start, so it is not numbered. */}
-              {b < Math.floor(beats) && (
+              {beatLabel !== null && (
                 <text className="tabbeatnum" x={bx} y={TOP - 18} transform={unmirror(bx)}>
-                  {b + 1}
+                  {beatLabel}
                 </text>
               )}
             </g>

@@ -64,4 +64,31 @@ describe('a solo across Am → G → F → G', () => {
     }
     expect(climax / 50).toBeGreaterThan(first / 50 + 3);
   });
+
+  it('resolveToNext: lands each lick on Beat 1 of the next chord and voice-leads smoothly into the next lick', () => {
+    let close = 0;
+    let changes = 0;
+    for (let seed = 0; seed < 30; seed++) {
+      let prev: number | undefined;
+      const licks = progression.map((chord, i) => {
+        const next = progression[(i + 1) % progression.length]!;
+        const lick = generateLick(box, chord, next, {
+          level: 3, targetRole: 'R', resolveToNext: true, seed: seed * 10 + i, arc: progressionArc(i, progression.length),
+        }, prev);
+        prev = midi(lick.notes.at(-1)!.pitch);
+        return lick;
+      });
+      for (let i = 0; i < licks.length; i++) {
+        const lick = licks[i]!;
+        expect(lick.notes[0]!.startBeat).toBeGreaterThanOrEqual(0.5);
+        expect(lick.notes.at(-1)!.startBeat).toBe(lick.lengthBeats);
+        if (i > 0) {
+          changes++;
+          const d = Math.abs(midi(lick.notes[0]!.pitch) - midi(licks[i - 1]!.notes.at(-1)!.pitch));
+          if (d <= 2) close++;
+        }
+      }
+    }
+    expect(close / changes).toBeGreaterThan(0.7);
+  });
 });
