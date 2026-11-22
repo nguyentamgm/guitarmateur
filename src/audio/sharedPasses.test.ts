@@ -115,6 +115,42 @@ describe("Practice's licks as passes for the shared sequencer", () => {
     expect(bars).toEqual(Array.from({ length: beats / 4 }, (_, i) => i));
     expect(seq.isPlaying).toBe(false);
   });
+
+  it('compiles only the selected card when cardIndex is set, and alternates call and silent-note response passes when trade is on', () => {
+    const prog: Lick[] = [
+      { lengthBeats: 8, difficulty: 1, notes: [n(0, A4)] },
+      { lengthBeats: 4, difficulty: 1, notes: [n(0, B4), n(2, A4)] },
+    ];
+    const chords = [
+      { tonic: { letter: 'A', alter: 0 }, quality: 'm' } as const,
+      { tonic: { letter: 'D', alter: 0 }, quality: 'm' } as const,
+    ];
+    const passes = lickPasses(prog, { tempoBpm: 60, countIn: true, cardIndex: 1, trade: true, chords }, true);
+
+    // Pass 1 (first, call): 4-beat count-in + 4-beat card 1 = 8s total. Notes carry entryIndex 1, bar is offset to bar 2.
+    expect(passes.first.durationSec).toBe(8);
+    const callNotes = passes.first.events.filter((e) => e.kind === 'note' && e.channel !== 'backing');
+    expect(callNotes.map((e) => e.tag)).toEqual([
+      { entryIndex: 1, noteIndex: 0 },
+      { entryIndex: 1, noteIndex: 1 },
+    ]);
+    const callDownbeats = passes.first.events.filter((e) => e.kind === 'click' && e.tag !== undefined);
+    expect(callDownbeats.map((e) => e.tag)).toEqual([{ bar: 2 }]);
+
+    // Pass 2 (first next(), response): 4s duration, lick notes silenced, clicks and backing preserved.
+    const pass2 = passes.next();
+    expect(pass2.durationSec).toBe(4);
+    expect(pass2.events.filter((e) => e.kind === 'note' && e.channel !== 'backing')).toEqual([]);
+    expect(pass2.events.filter((e) => e.kind === 'note' && e.channel === 'backing').length).toBeGreaterThan(0);
+    const respClicks = pass2.events.filter((e) => e.kind === 'click');
+    expect(respClicks).toHaveLength(4);
+    expect(respClicks[0]!.tag).toEqual({ bar: 2, entryIndex: 1, response: true });
+
+    // Pass 3 (second next(), call again without count-in): 4s duration, lick notes play again.
+    const pass3 = passes.next();
+    expect(pass3.durationSec).toBe(4);
+    expect(pass3.events.filter((e) => e.kind === 'note' && e.channel !== 'backing')).toHaveLength(2);
+  });
 });
 
 describe('expressive playback', () => {

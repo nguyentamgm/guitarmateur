@@ -56,6 +56,7 @@ export function PracticeSection({
   const transport = useTransport();
   const [countIn, setCountIn] = useState(true);
   const [loop, setLoop] = useState(true);
+  const [trade, setTrade] = useState(false);
   const plainLicks = useMemo(() => licks.map((l) => l.lick), [licks]);
   const chords = useMemo(() => state.progression.map((e) => e.chord), [state.progression]);
   const active = transport.position;
@@ -78,12 +79,12 @@ export function PracticeSection({
     onBar?.(bar);
   }, [bar, onBar]);
 
-  const { stop } = transport;
+  const { stop, cardIndex } = transport;
   useEffect(() => {
-    if (state.progression.length === 0) {
+    if (state.progression.length === 0 || (cardIndex !== null && cardIndex !== undefined && cardIndex >= state.progression.length)) {
       stop();
     }
-  }, [state.progression.length, stop]);
+  }, [state.progression.length, cardIndex, stop]);
 
   const { key: stateKey, progression: stateProgression } = state;
   const box = useMemo(() => {
@@ -104,13 +105,38 @@ export function PracticeSection({
   }, [stateProgression]);
 
   const targetLabel = t(`role.${state.targetRole}`);
-  // The chord of the card being heard (none while counting in), for the status region.
-  const heardEntry = active ? chordMap.get(licks[active.entryIndex]?.entryId ?? '') : undefined;
+  // The chord of the card being heard (none while counting in, unless a single card is pinned to loop), for the status region.
+  const activeEntryIndex = active?.entryIndex ?? (isPlaying ? (transport.cardIndex ?? undefined) : undefined);
+  const heardEntry = activeEntryIndex !== undefined ? chordMap.get(licks[activeEntryIndex]?.entryId ?? '') : undefined;
   const status = !isPlaying
     ? t('playback.statusStopped')
-    : heardEntry
-      ? t('playback.statusPlayingChord', { chord: chordLabel(heardEntry.chord) })
-      : t('playback.statusPlaying');
+    : transport.isResponding
+      ? heardEntry
+        ? t('playback.statusYourTurnChord', { chord: chordLabel(heardEntry.chord) })
+        : t('playback.statusYourTurn')
+      : heardEntry
+        ? t('playback.statusPlayingChord', { chord: chordLabel(heardEntry.chord) })
+        : t('playback.statusPlaying');
+
+  const toggleCardLoop = (index: number) => {
+    if (transport.isPlaying && transport.cardIndex === index) {
+      transport.stop();
+    } else {
+      transport.play(plainLicks, {
+        tempoBpm: state.tempoBpm,
+        countIn,
+        loop: true,
+        trade,
+        cardIndex: index,
+        metronome: true,
+        swing: state.swingEnabled ? 1 : 0,
+        chords,
+        clickGain: state.clickGain,
+        backingGain: state.backingGain,
+        noteGain: state.noteGain,
+      });
+    }
+  };
 
   return (
     <section style={{ marginBottom: 34 }}>
@@ -122,6 +148,7 @@ export function PracticeSection({
         tempoBpm={state.tempoBpm}
         countIn={countIn}
         loop={loop}
+        trade={trade}
         swingEnabled={state.swingEnabled}
         clickGain={state.clickGain}
         backingGain={state.backingGain}
@@ -129,7 +156,7 @@ export function PracticeSection({
       />
       <StepHead language={state.language} step="practice" />
       {/* Polite, and there from the first render: only a change (play, stop, the next chord) is read out. */}
-      <p className="sr-only" role="status">
+      <p className="sr-only" role="status" aria-live="polite">
         {status}
       </p>
       <Panel>
@@ -202,8 +229,10 @@ export function PracticeSection({
               transport={transport}
               countIn={countIn}
               loop={loop}
+              trade={trade}
               onCountInChange={setCountIn}
               onLoopChange={setLoop}
+              onTradeChange={setTrade}
               swingEnabled={state.swingEnabled}
               onSwingChange={(v) => dispatch({ type: 'setSwing', value: v })}
               clickGain={state.clickGain}
@@ -239,7 +268,9 @@ export function PracticeSection({
                 if (!entry) return null;
                 const chord: Chord = { tonic: entry.chord.tonic, quality: entry.chord.quality };
                 const targetTone = chordLabel(chord);
-                const isActiveCard = active?.entryIndex === i;
+                const isLoopingCard = isPlaying && transport.cardIndex === i;
+                const isActiveCard = active ? active.entryIndex === i : isLoopingCard;
+                const isCardNoteActive = active?.entryIndex === i && active.noteIndex >= 0;
 
                 // Find landing note (last note of the lick)
                 const lastNote = lick.notes.length > 0 ? lick.notes[lick.notes.length - 1] : undefined;
@@ -255,10 +286,40 @@ export function PracticeSection({
                       padding: 14,
                     }}
                   >
-                    {/* Chord label + roman */}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{targetTone}</span>
-                      <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{romanNumeral(state.key, chord)}</span>
+                    {/* Chord label + roman + playing status + per-card loop */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{targetTone}</span>
+                        <span style={{ fontSize: 11, color: theme.muted, fontFamily: font.mono }}>{romanNumeral(state.key, chord)}</span>
+                        {isPlaying && isActiveCard && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              color: theme.accent,
+                              background: theme.accentTint,
+                              padding: '1px 6px',
+                              borderRadius: 4,
+                            }}
+                          >
+                            {transport.isResponding ? t('practice.cardYourTurn') : t('practice.cardPlaying')}
+                          </span>
+                        )}
+                      </div>
+                      {transport.supported && (
+                        <PillButton
+                          selected={isLoopingCard}
+                          onClick={() => toggleCardLoop(i)}
+                          wide
+                          ariaLabel={
+                            isLoopingCard
+                              ? t('practice.stopCardAria', { chord: targetTone })
+                              : t('practice.loopCardAria', { chord: targetTone })
+                          }
+                        >
+                          {isLoopingCard ? `■ ${t('practice.loopCard')}` : `▶ ${t('practice.loopCard')}`}
+                        </PillButton>
+                      )}
                     </div>
 
                     {/* Target badge */}
@@ -315,7 +376,7 @@ export function PracticeSection({
                       lick={lick}
                       title={t('practice.lickTitle', { chord: targetTone })}
                       emptyLabel={t('tab.emptyLick')}
-                      activeNoteIndex={isActiveCard ? active?.noteIndex : undefined}
+                      activeNoteIndex={isCardNoteActive ? active?.noteIndex : undefined}
                       stringLabels={stringLabels}
                       leftHanded={state.leftHanded}
                       play={notePlayer(state.noteGain)}

@@ -7,19 +7,42 @@ import { createRoot } from 'react-dom/client';
  * renders inside the non-empty-progression branch, so there would be no visible stop control.
  */
 
-const T: { isPlaying: boolean; playCalls: number; stopCalls: number; position: { entryIndex: number; noteIndex: number } | null } = {
+const T: {
+  isPlaying: boolean;
+  playCalls: number;
+  stopCalls: number;
+  position: { entryIndex: number; noteIndex: number } | null;
+  cardIndex: number | null;
+  isResponding: boolean;
+  lastOpts: Record<string, unknown> | null;
+} = {
   isPlaying: false,
   playCalls: 0,
   stopCalls: 0,
   position: null,
+  cardIndex: null,
+  isResponding: false,
+  lastOpts: null,
 };
 vi.mock('../useTransport', () => ({
   useTransport: () => ({
     supported: true,
     isPlaying: T.isPlaying,
     position: T.position,
-    play: () => { T.playCalls++; T.isPlaying = true; },
-    stop: () => { T.stopCalls++; T.isPlaying = false; },
+    cardIndex: T.cardIndex,
+    isResponding: T.isResponding,
+    play: (_licks: unknown, opts: Record<string, unknown>) => {
+      T.playCalls++;
+      T.isPlaying = true;
+      T.lastOpts = opts;
+      T.cardIndex = (opts?.cardIndex as number | undefined) ?? null;
+    },
+    stop: () => {
+      T.stopCalls++;
+      T.isPlaying = false;
+      T.cardIndex = null;
+      T.isResponding = false;
+    },
     setClickGain: () => {},
     setNoteGain: () => {},
   }),
@@ -125,6 +148,35 @@ describe('PracticeSection playback status', () => {
 
     T.isPlaying = false; T.position = null;
     await rerender();
+    expect(status.textContent).toBe('Stopped');
+  });
+
+  it('loops a single chord card and announces Your turn during trade response passes', async () => {
+    T.isPlaying = false; T.position = null; T.cardIndex = null; T.isResponding = false; T.lastOpts = null;
+    Element.prototype.scrollIntoView = () => {};
+    await mount();
+    const status = container.querySelector('[role="status"]')!;
+    const rerender = () => act(async () => { byName(/TEST-REROLL/)!.click(); });
+
+    // Enable Trade bars on PlaybackControls, then click Loop on the second card (G).
+    await act(async () => { byName(/Trade bars on or off/)!.click(); });
+    await act(async () => { byName(/Loop lick for G/)!.click(); });
+    await rerender();
+
+    expect(T.lastOpts).toMatchObject({ cardIndex: 1, loop: true, trade: true });
+    expect(status.textContent).toBe('Playing: G');
+    expect(byName(/Stop looping G/)).not.toBeNull();
+
+    // Response pass (learner's turn): announces Your turn: G.
+    T.isResponding = true;
+    T.position = { entryIndex: 1, noteIndex: -1 };
+    await rerender();
+    expect(status.textContent).toBe('Your turn: G');
+
+    // Clicking Stop looping G stops playback.
+    await act(async () => { byName(/Stop looping G/)!.click(); });
+    await rerender();
+    expect(T.isPlaying).toBe(false);
     expect(status.textContent).toBe('Stopped');
   });
 });

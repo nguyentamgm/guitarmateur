@@ -18,6 +18,9 @@ export interface NoteTag {
 /** Which bar of the progression a downbeat click starts: for the bar grid. */
 export interface BarTag {
   readonly bar: number;
+  /** On a trade response pass, which card's bar this is and that it is the learner's turn. */
+  readonly entryIndex?: number;
+  readonly response?: boolean;
 }
 
 /** What a sounding event reports: a note (`NoteTag`) or a bar's downbeat (`BarTag`). */
@@ -71,7 +74,20 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i]!;
     if (e.kind === 'click') {
-      out[i] = { timeSec: e.timeSec, kind: 'click', accent: e.accented, ...(e.bar !== undefined && { tag: { bar: e.bar } }) };
+      out[i] = {
+        timeSec: e.timeSec,
+        kind: 'click',
+        accent: e.accented,
+        ...(e.bar !== undefined && {
+          tag: {
+            bar: e.bar,
+            ...(e.response && {
+              response: true,
+              ...(e.entryIndex !== undefined && { entryIndex: e.entryIndex }),
+            }),
+          },
+        }),
+      };
       continue;
     }
     if (e.kind === 'backing') {
@@ -109,16 +125,35 @@ export function toSeqEvents(events: readonly AudioEvent[], following: readonly A
 }
 
 /**
- * The first pass (with the count-in) and, for a loop, every pass after it (without). With `loop`,
- * each pass's last notes are damped by the next pass's first ones.
+ * The first pass (with the count-in) and, for a loop or trade mode, the passes after it (without).
+ * With `loop` (and not `trade`), each pass's last notes are damped by the next pass's first ones.
+ * With `trade`, odd passes play the lick and even passes silence the lick notes while keeping click
+ * and backing so the learner can play the lick back.
  */
 export function lickPasses(licks: Lick[], opts: CompileOptions, loop = false): { first: Pass<PlayTag>; next: () => Pass<PlayTag> } {
-  const first = compileProgression(licks, { ...opts, repeats: 1 });
-  const again = compileProgression(licks, { ...opts, countIn: false, repeats: 1 });
-  const after = (offset: number) => (loop ? again.events.map((e) => ({ ...e, timeSec: e.timeSec + offset })) : []);
+  const trade = Boolean(opts.trade);
+  const first = compileProgression(licks, { ...opts, trade: false, repeats: 1 });
+  const again = compileProgression(licks, { ...opts, countIn: false, trade: false, repeats: 1 });
+  const after = (offset: number) => (loop && !trade ? again.events.map((e) => ({ ...e, timeSec: e.timeSec + offset })) : []);
   const nextPass: Pass<PlayTag> = { events: toSeqEvents(again.events, after(again.musicDurationSec)), durationSec: again.musicDurationSec };
+  if (!trade) {
+    return {
+      first: { events: toSeqEvents(first.events, after(first.totalDurationSec)), durationSec: first.totalDurationSec },
+      next: () => nextPass,
+    };
+  }
+  const responseEvents = again.events
+    .filter((e) => e.kind !== 'pluck')
+    .map((e) => (e.kind === 'click' && e.bar !== undefined ? { ...e, response: true } : e));
+  const responsePass: Pass<PlayTag> = { events: toSeqEvents(responseEvents), durationSec: again.musicDurationSec };
+  const emptyPass: Pass<PlayTag> = { events: [], durationSec: 0 };
+  let passCount = 1;
   return {
-    first: { events: toSeqEvents(first.events, after(first.totalDurationSec)), durationSec: first.totalDurationSec },
-    next: () => nextPass,
+    first: { events: toSeqEvents(first.events), durationSec: first.totalDurationSec },
+    next: () => {
+      passCount++;
+      if (passCount % 2 === 0) return responsePass;
+      return loop ? nextPass : emptyPass;
+    },
   };
 }

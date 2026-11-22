@@ -17,8 +17,10 @@ export function PlaybackControls({
   transport,
   countIn,
   loop,
+  trade = false,
   onCountInChange,
   onLoopChange,
+  onTradeChange,
   swingEnabled,
   onSwingChange,
   clickGain,
@@ -36,8 +38,10 @@ export function PlaybackControls({
   transport: UseTransport;
   countIn: boolean;
   loop: boolean;
+  trade?: boolean;
   onCountInChange: (v: boolean) => void;
   onLoopChange: (v: boolean) => void;
+  onTradeChange?: (v: boolean) => void;
   swingEnabled: boolean;
   onSwingChange: (v: boolean) => void;
   clickGain: number;
@@ -85,7 +89,7 @@ export function PlaybackControls({
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.play(licks, { tempoBpm, countIn, loop, metronome: true, swing: swingEnabled ? 1 : 0, chords, clickGain, backingGain, noteGain });
+      transport.play(licks, { tempoBpm, countIn, loop, trade, metronome: true, swing: swingEnabled ? 1 : 0, chords, clickGain, backingGain, noteGain });
     }
   };
 
@@ -149,7 +153,7 @@ export function PlaybackControls({
         <span style={{ fontSize: 11, color: theme.subtle, fontFamily: font.mono }}>{t('playback.bpm')}</span>
       </label>
 
-      {/* Count-in / loop */}
+      {/* Count-in / loop / trade */}
       <div style={{ display: 'flex', gap: 6 }}>
         <PillButton selected={countIn} onClick={() => onCountInChange(!countIn)} wide ariaLabel={t('playback.countInAria')}>
           {t('playback.countIn')}
@@ -159,6 +163,9 @@ export function PlaybackControls({
         </PillButton>
         <PillButton selected={loop} onClick={() => onLoopChange(!loop)} wide ariaLabel={t('playback.loopAria')}>
           {t('playback.loop')}
+        </PillButton>
+        <PillButton selected={trade} onClick={() => onTradeChange?.(!trade)} wide ariaLabel={t('playback.tradeAria')}>
+          {t('playback.trade')}
         </PillButton>
         <PillButton selected={false} onClick={handleTap} wide ariaLabel={t('playback.tapAria')}>
           {t('playback.tap')}
