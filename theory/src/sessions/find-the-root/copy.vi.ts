@@ -2,8 +2,8 @@ import type { SessionCopy } from '../types';
 
 export const vi: SessionCopy = {
   title: 'Root: nốt nghe như về nhà',
-  summary: 'Nghe khi nào bài hát đã về nhà, ngân nga root của nó và tìm nốt đó trên dây 6.',
-  goal: 'Sau buổi học này bạn có thể nghe khi nào bài hát đã về nhà, ngân nga root của nó và tìm nốt đó trên dây to nhất.',
+  summary: 'Nghe khi nào đoạn nhạc đã kết thúc trọn vẹn, ngân nga root của nó và tìm nốt đó trên dây 6.',
+  goal: 'Sau buổi học này bạn có thể nghe khi nào đoạn nhạc đã kết thúc trọn vẹn, ngân nga root của nó và tìm nốt đó trên dây to nhất.',
   needs: 'Một cây đàn guitar đã lên dây chuẩn. Khoảng 15 phút.',
   recap: [
     'Hợp âm trưởng nghe tươi sáng và hợp âm thứ nghe trầm buồn.',
@@ -21,8 +21,8 @@ export const vi: SessionCopy = {
     understand: {
       title: 'Hiểu',
       body: [
-        'Mỗi bài hát có một nốt mà ở đó nó nghỉ lại và nghe như về nhà. Nốt đó là root.',
-        'Tập hợp các nốt và hợp âm quanh root đó là giọng của bài hát. Khi nói "bài này ở giọng G", G là root.',
+        'Mỗi bài nhạc có một nốt mà ở đó nó nghỉ lại và nghe như về nhà (trong nhạc lý thường gọi là âm chủ). Nốt đó gọi là nốt root (nốt gốc).',
+        'Tập hợp các nốt và hợp âm quanh root đó là giọng của bài nhạc. Khi nói "bài này ở giọng G", G là root.',
         'Lên một phím là nốt kế tiếp: cao hơn nửa cung.',
         'Trên dây to nhất, các nốt lần lượt là E (dây buông), F (phím 1), G (phím 3), A (phím 5), B (phím 7), C (phím 8) và D (phím 10).',
       ],
@@ -38,18 +38,18 @@ export const vi: SessionCopy = {
     challenge: {
       title: 'Thử thách',
       body: [
-        'Ứng dụng chơi bốn hợp âm ở một giọng nào đó. Hãy ngân nga nốt nghe như về nhà.',
+        'Ứng dụng chơi bốn hợp âm ở một giọng nào đó. Hãy ngân nga nốt cho cảm giác kết thúc trọn vẹn nhất.',
         'Bấm thử các phím trên dây 6 bên dưới (hoặc gảy trên đàn của bạn) để tìm đúng nốt đó, rồi mở đáp án.',
       ],
     },
   },
   blocks: {
     finished: {
-      intro: 'Nghe bốn hợp âm. Âm nhạc có dừng lại ở nhà không?',
+      intro: 'Nghe bốn hợp âm. Câu nhạc nghe đã trọn vẹn chưa, hay vẫn còn muốn đi tiếp?',
       ask: 'Đã kết thúc, hay chưa?',
       answers: { finished: 'Đã kết thúc', notFinished: 'Chưa kết thúc' },
       right: 'Đúng: {answer}.',
-      wrong: 'Đó là {answer}. Một câu nhạc chỉ kết thúc khi hợp âm cuối là hợp âm mà âm nhạc muốn nghỉ lại: {detail}. Hãy nghe lại bốn hợp âm, giờ có thêm {detail} ở cuối.',
+      wrong: 'Đó là {answer}. Một câu nhạc chỉ kết thúc khi hợp âm cuối là hợp âm mà câu nhạc muốn nghỉ lại: {detail}. Hãy nghe lại bốn hợp âm, giờ có thêm {detail} ở cuối.',
     },
     home: {
       intro: 'Bấm vào nốt bất kỳ trên dây 6 để nghe thử, rồi làm bài đố cho đến khi bạn tìm được G, A, C, D và E mà không cần đếm.',
@@ -58,7 +58,7 @@ export const vi: SessionCopy = {
       intro: 'Ngân nga theo hợp âm G cho đến khi một nốt nghe như được nghỉ ngơi. Rồi gảy G ở dây 6, phím 3, trên mỗi phách 1.',
     },
     root: {
-      intro: 'Nghe bốn hợp âm, ngân nga nốt nghe như về nhà, rồi dò tìm nó trên dây 6.',
+      intro: 'Nghe bốn hợp âm, ngân nga nốt root, rồi dò tìm nó trên dây 6.',
       ask: 'Tìm root trên dây 6.',
       answer: 'Root là {detail}: phím {answer} trên dây 6.',
     },
@@ -67,7 +67,7 @@ export const vi: SessionCopy = {
     {
       question: 'Root của một bài hát là…',
       options: ['nốt đầu tiên của bài hát.', 'nốt mà bài hát nghỉ lại.', 'nốt cao nhất của bài hát.'],
-      why: 'Root là nốt mà bài hát nghỉ lại: nó nghe như về nhà.',
+      why: 'Root là nốt mà bài hát nghỉ lại: nơi giai điệu khép lại trọn vẹn.',
     },
     {
       question: 'Lên một phím trên cùng một dây là…',

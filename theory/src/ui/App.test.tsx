@@ -1119,7 +1119,10 @@ describe('Theory app', () => {
     expect(text()).toContain('Beat and bar');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
+    expect(container.querySelector('.session-recap a.back[href="/theory/s/major-or-minor"]')?.textContent).toBe(
+      '← Back to previous session',
+    );
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1134,7 +1137,10 @@ describe('Theory app', () => {
     expect(text()).toContain('Phách và bar');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
+    expect(container.querySelector('.session-recap a.back[href="/theory/s/major-or-minor"]')?.textContent).toBe(
+      '← Quay lại buổi trước',
+    );
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1246,7 +1252,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Find a melody by ear');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1261,7 +1267,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Tìm giai điệu bằng tai');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1290,7 +1296,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Three chords that belong together');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1328,7 +1334,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Ba hợp âm thuộc về nhau');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1342,7 +1348,7 @@ describe('Theory app', () => {
     expect(text()).toContain('When do the chords change?');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1357,7 +1363,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Khi nào hợp âm thay đổi?');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1371,7 +1377,7 @@ describe('Theory app', () => {
     expect(text()).toContain('I, IV or V?');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1386,7 +1392,7 @@ describe('Theory app', () => {
     expect(text()).toContain('I, IV hay V?');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1420,7 +1426,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Your first song by ear');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1435,7 +1441,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Bài hát đầu tiên bằng tai');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1449,7 +1455,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Change the key');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1464,7 +1470,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Đổi giọng');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1543,7 +1549,7 @@ describe('Theory app', () => {
     expect(text()).toContain('The sad chord in a happy key: vi');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1558,7 +1564,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Hợp âm trầm trong giọng trưởng: vi');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1572,7 +1578,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Songs in a minor key');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1587,7 +1593,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Các bài hát ở giọng thứ');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1639,7 +1645,7 @@ describe('Theory app', () => {
     expect(text()).toContain('The 7th chord pulls home');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1654,7 +1660,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Hợp âm 7 hút về nhà');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1668,7 +1674,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Three beats in a bar');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1683,7 +1689,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Ba phách trong một bar');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1697,7 +1703,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Work out a new song');
     expect(text()).toContain('Goal');
     expect(text()).toContain('You will need');
-    expect(text()).toContain('Before you start');
+    expect(text()).toContain('From the last session');
     for (const p of PARTS) {
       expect(container.querySelector(`section#${p}`)).not.toBeNull();
     }
@@ -1742,7 +1748,7 @@ describe('Theory app', () => {
     expect(text()).toContain('Dò hợp âm một bài hát mới');
     expect(text()).toContain('Mục tiêu');
     expect(text()).toContain('Bạn sẽ cần');
-    expect(text()).toContain('Trước khi bắt đầu');
+    expect(text()).toContain('Từ buổi trước');
     const viListenSection = container.querySelector('section#listen')!;
     expect(viListenSection.querySelectorAll('p')).toHaveLength(5);
     expect(viListenSection.querySelector('button')).toBeNull();

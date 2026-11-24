@@ -27,6 +27,13 @@ body {
   font-size: 0.85rem;
   text-decoration: none;
 }
+.session-recap ul {
+  margin: 8px 0 12px;
+  padding-left: 1.2em;
+}
+.session-recap .back {
+  display: inline-block;
+}
 .notice {
   padding: 12px 14px;
   border: 1px solid var(--amber);

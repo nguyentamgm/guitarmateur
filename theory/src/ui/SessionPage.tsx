@@ -32,13 +32,21 @@ export function SessionPage({ session }: { session: Session }) {
             <p>{copy.needs}</p>
           </div>
           {copy.recap.length > 0 && (
-            <div className="prose">
+            <div className="prose muted session-recap">
               <span className="eyebrow">{ui.session.recapLabel}</span>
               <ul>
                 {copy.recap.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
               </ul>
+              {prev && (
+                <Link
+                  href={hrefFor({ page: 'session', slug: prev.slug })}
+                  className="back"
+                >
+                  {ui.session.backToPrev}
+                </Link>
+              )}
             </div>
           )}
         </section>
