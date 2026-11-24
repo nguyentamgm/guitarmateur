@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Chip, ChipGroup, KeyPicker, OnOff, Slider, Takeaways } from './controls';
+import { Button, Chip, ChipGroup, KeyPicker, OnOff, Slider, Takeaways, Toggle } from './controls';
 
 const roots: Root[] = [];
 function render(el: ReactElement) {
@@ -125,5 +125,40 @@ describe('shared controls', () => {
     // Named by the label alone, not the changing value or the badge.
     const id = input.getAttribute('aria-labelledby')!;
     expect([...c.querySelectorAll('[id]')].find((el) => el.id === id)!.textContent).toBe('Tempo');
+  });
+
+  it('Toggle: renders a switch, flips on click, and ignores clicks when disabled', () => {
+    const onChange = vi.fn();
+    const c = render(createElement(Toggle, { checked: false, onChange, label: 'Fingering' }));
+    const btn = c.querySelector<HTMLButtonElement>('button[role="switch"]')!;
+    expect(btn.getAttribute('aria-checked')).toBe('false');
+    expect(btn.classList.contains('toggle--on')).toBe(false);
+    act(() => btn.click());
+    expect(onChange).toHaveBeenCalledWith(true);
+
+    onChange.mockClear();
+    const d = render(createElement(Toggle, { checked: true, onChange, label: 'Fingering', disabled: true }));
+    const disabledBtn = d.querySelector<HTMLButtonElement>('button[role="switch"]')!;
+    expect(disabledBtn.disabled).toBe(true);
+    expect(disabledBtn.getAttribute('aria-checked')).toBe('true');
+    act(() => disabledBtn.click());
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('Button and Chip: respect disabled state', () => {
+    const onClick = vi.fn();
+    const c = render(
+      createElement(
+        'div',
+        null,
+        createElement(Button, { onClick, disabled: true, className: 'extra', children: 'Go' }),
+        createElement(Chip, { pressed: false, onClick, disabled: true, children: 'A' }),
+      ),
+    );
+    const buttons = [...c.querySelectorAll('button')];
+    expect(buttons.map((b) => b.disabled)).toEqual([true, true]);
+    expect(buttons[0]!.className).toBe('btn extra');
+    for (const b of buttons) act(() => b.click());
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

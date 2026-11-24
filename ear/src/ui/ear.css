@@ -438,7 +438,7 @@ button.lv-open:hover {
   color: var(--accent);
 }
 .lv-wrong > span {
-  color: var(--amber);
+  color: var(--amber-text);
 }
 .lv-foot {
   display: flex;

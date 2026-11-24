@@ -59,6 +59,8 @@ export function Chip({
   ariaLabel,
   radio,
   tabStop,
+  disabled,
+  className,
 }: {
   pressed: boolean;
   onClick(): void;
@@ -68,10 +70,20 @@ export function Chip({
   radio?: boolean;
   /** A radio that takes Tab though unchecked: the first one, while none is checked. */
   tabStop?: boolean;
+  disabled?: boolean;
+  className?: string;
 }) {
   const state = radio ? { role: 'radio', 'aria-checked': pressed, tabIndex: pressed || tabStop ? 0 : -1 } : { 'aria-pressed': pressed };
+  const base = words ? 'chip text' : 'chip';
   return (
-    <button type="button" className={words ? 'chip text' : 'chip'} {...state} aria-label={ariaLabel} onClick={onClick}>
+    <button
+      type="button"
+      className={className ? `${base} ${className}` : base}
+      {...state}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -182,11 +194,57 @@ export function Takeaways({
   );
 }
 
-export function Button({ onClick, children, ghost }: { onClick(): void; children: ReactNode; ghost?: boolean }) {
+export function Button({
+  onClick,
+  children,
+  ghost,
+  disabled,
+  className,
+}: {
+  onClick(): void;
+  children: ReactNode;
+  ghost?: boolean;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const base = ghost ? 'btn ghost' : 'btn';
   return (
-    <button type="button" className={ghost ? 'btn ghost' : 'btn'} onClick={onClick}>
+    <button type="button" className={className ? `${base} ${className}` : base} disabled={disabled} onClick={onClick}>
       {children}
     </button>
+  );
+}
+
+/** Boolean on/off switch. Track + thumb: `.toggle` in shared/ui/controls.css. */
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  ariaLabel,
+  disabled,
+}: {
+  checked: boolean;
+  onChange(value: boolean): void;
+  label?: ReactNode;
+  ariaLabel?: string;
+  disabled?: boolean;
+}) {
+  return (
+    // The label is the tap target (a click on it presses the switch): `.hit` gives it the 40px.
+    <label className="hit toggle-wrap">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={ariaLabel}
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className={`toggle${checked ? ' toggle--on' : ''}`}
+      >
+        <span className="toggle__thumb" />
+      </button>
+      {label !== undefined && <span className="toggle-label">{label}</span>}
+    </label>
   );
 }
 
