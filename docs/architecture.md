@@ -29,6 +29,7 @@ See [Theory conventions](theory.md), [Theory sessions](theory-sessions.md) and [
 /
 ├─ docs/
 │  ├─ architecture.md           # this file
+│  ├─ design-system.md          # shared tokens, contrast pairs, controls, breakpoints
 │  ├─ theory.md, ear.md         # Theory and ear-trainer conventions
 │  ├─ theory-sessions.md        # guided sessions (/theory, /theory/s/<slug>)
 │  ├─ i18n.md                   # how to add a language
@@ -131,7 +132,7 @@ accessor the apps use; and the shared look in `shared/ui/` (Theory's, the refere
   belongs to (`current`) and its languages. Links are plain `<a href>`s; Theory moves between its
   own pages client-side through `onNavigate`.
 
-- `tokens.css` — colours (light + dark), fonts, radius, spacing and type scale. Each app has its
+- `tokens.css` — colours (light + dark), fonts, radius, spacing, type scale and elevation (see [Design system](design-system.md)). Each app has its
   own `--accent`: Theory's blue by default; `<html data-app="practice">` (Practice's
   `index.html`, and `ear/index.html`) switches to lime.
   Each page's `index.html` loads the fonts (Bricolage Grotesque, Be Vietnam Pro, JetBrains Mono).
@@ -256,7 +257,7 @@ note (browsers require a user gesture) — never at module load.
   seeds, not expanded note lists.
 - **State is versioned** with a migration path; it must survive reload.
 - **Styling:** plain CSS + the shared design tokens (`shared/ui/tokens.css`, imported in
-  `src/main.tsx` before `src/ui/global.css`). Inline styles read them through `src/ui/theme.ts`,
+  `src/main.tsx` before `src/ui/global.css`; see [Design system](design-system.md)). Inline styles read them through `src/ui/theme.ts`,
   whose values are CSS variables (`var(--surface)`…); SVG paint goes in `style`, not the
   `fill`/`stroke` attributes. Light and dark follow the system, like Theory; only the accent
   differs (lime). Labels use the shared sans font; mono is for numbers (BPM, frets, tab, numerals).

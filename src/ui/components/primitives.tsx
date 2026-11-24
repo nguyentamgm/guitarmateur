@@ -111,35 +111,7 @@ export function PillButton({
   );
 }
 
-/** Boolean on/off switch, e.g. "Lead into the next chord". Track + thumb: `.toggle` in shared/ui/controls.css. */
-export function Toggle({
-  checked,
-  onChange,
-  label,
-  ariaLabel,
-}: {
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  label?: ReactNode;
-  ariaLabel?: string;
-}) {
-  return (
-    // The label is the tap target (a click on it presses the switch): `.hit` gives it the 40px.
-    <label className="hit" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={ariaLabel}
-        onClick={() => onChange(!checked)}
-        className={`toggle${checked ? ' toggle--on' : ''}`}
-      >
-        <span className="toggle__thumb" />
-      </button>
-      {label !== undefined && <span style={{ fontSize: 14, color: theme.text }}>{label}</span>}
-    </label>
-  );
-}
+export { Toggle } from '@shared/ui/controls';
 
 /** Underlined muted text button, e.g. "Reset to default" / "Clear all". */
 export function TextButton({

@@ -98,14 +98,22 @@
   background: transparent;
   color: var(--ink);
 }
-.chip:hover {
+.chip:hover:not(:disabled):not([aria-disabled='true']) {
   border-color: var(--muted);
+}
+.chip:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
 }
 .chip[aria-pressed='true'],
 .chip[aria-checked='true'] {
   background: var(--ink);
   color: var(--bg);
   border-color: var(--ink);
+}
+.chip:disabled,
+.chip[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* Button; `.ghost` is the outlined one. */
@@ -122,8 +130,16 @@
   background: transparent;
   color: var(--accent);
 }
-.btn:hover {
+.btn:hover:not(:disabled):not([aria-disabled='true']) {
   filter: brightness(1.07);
+}
+.btn:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* Slider: label, range, value (Slider); `.best` is an optional badge after it. */
@@ -205,13 +221,21 @@
 .finder button b {
   color: var(--accent);
 }
-.finder button:hover {
+.finder button:hover:not(:disabled):not([aria-disabled='true']) {
   border-color: var(--accent);
+}
+.finder button:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
 }
 .finder button[aria-checked='true'] {
   border-color: var(--accent);
   background: var(--bg);
   box-shadow: inset 0 0 0 1px var(--accent);
+}
+.finder button:disabled,
+.finder button[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* Bar grid (BarGrid): lines of four bars, degree above the chord, the bar being heard filled. */
@@ -253,7 +277,7 @@
   fill: var(--accent);
 }
 .bars .mark.bad {
-  fill: var(--amber);
+  fill: var(--amber-text);
 }
 
 /* A chip holding words rather than a short value: the body font. */
@@ -262,10 +286,25 @@
   padding: 5px 12px;
 }
 
-/* Switch (Practice's Toggle): a track and a thumb; on = accent. The button is the 34×20 track
+/* Switch (`Toggle`): a track and a thumb; on = accent. The button is the 34×20 track
    grown by --hit-x / --hit-y a side (0 here, 40px to tap at phone width) and pulled back by its
    margins; ::before draws the track. Its baseline is its bottom edge, so the margins keep that
    edge on the track's and `top` centres it. */
+.toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.toggle-wrap:has(.toggle:disabled),
+.toggle-wrap:has(.toggle[aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.toggle-label {
+  font-size: var(--t-small);
+  color: var(--ink);
+}
 .toggle {
   --hit-x: 0px;
   --hit-y: 0px;
@@ -278,6 +317,10 @@
   border: 0;
   background: none;
   flex-shrink: 0;
+}
+.toggle:disabled,
+.toggle[aria-disabled='true'] {
+  cursor: not-allowed;
 }
 .toggle::before {
   content: '';

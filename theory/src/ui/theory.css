@@ -109,7 +109,7 @@ body {
 }
 .reason.weak,
 .reason.stale {
-  color: var(--amber);
+  color: var(--amber-text);
 }
 .review-card.next .reason {
   color: var(--accent);
@@ -157,7 +157,7 @@ body {
   vertical-align: 0.2em;
 }
 .lesson-status.started {
-  color: var(--amber);
+  color: var(--amber-text);
 }
 .lesson-status.done {
   color: var(--accent);
@@ -327,7 +327,7 @@ body {
   fill: var(--amber);
 }
 .formula .half {
-  color: var(--amber);
+  color: var(--amber-text);
   border-color: var(--amber);
 }
 .swatch.whole {
@@ -605,7 +605,7 @@ body {
   text-align: right;
   grid-column: 2;
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .lesson-nav-links {
     grid-template-columns: 1fr;
   }
@@ -682,7 +682,7 @@ body {
   stroke-dasharray: 6 4;
 }
 .pitchcurve .target text {
-  fill: var(--amber);
+  fill: var(--amber-text);
   font-family: var(--f-mono);
   font-size: 11px;
   font-weight: 600;
@@ -927,7 +927,7 @@ body {
   font-weight: 600;
 }
 .numerals tr.on.major th {
-  color: var(--amber);
+  color: var(--amber-text);
 }
 .numerals tr.on.minor th {
   color: var(--accent);
@@ -954,7 +954,7 @@ body {
   color: var(--accent-ink);
   border-color: var(--accent);
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .degrees {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -990,7 +990,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 9999px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-float);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -1042,7 +1042,7 @@ body {
   flex: 1;
   gap: 4px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--r-chip);
   padding: 4px;
   background: var(--surface);
   min-width: 0;
@@ -1083,7 +1083,7 @@ body {
 }
 .song-slot.wrong {
   border-color: var(--amber);
-  color: var(--amber);
+  color: var(--amber-text);
 }
 .song-slot .slot-chord {
   display: inline-flex;
