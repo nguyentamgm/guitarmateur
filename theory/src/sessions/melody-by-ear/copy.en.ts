@@ -2,49 +2,50 @@ import type { SessionCopy } from '../types';
 
 export const en: SessionCopy = {
   title: 'Find a melody by ear',
-  summary: 'Hear whether a melody steps or leaps, and copy short phrases on one string.',
-  goal: 'After this session you can hear whether a melody steps or leaps, and copy a short tune on one string.',
+  summary: 'Tell a step from a leap, and find short tunes on one string.',
+  goal: 'After this session you can hear whether a melody moves by step or leap, and copy a short tune by ear on one string.',
   needs: 'A guitar in tune. About 15 minutes.',
   recap: [
     'The root is the note a song rests on and sounds like home.',
     'One fret up or down is one semitone.',
-    'G is the open third string and also fret 3 of string 6.',
+    'Open string 3 is G.',
   ],
   parts: {
     listen: {
       title: 'Listen',
       body: [
-        'A melody moves up or down, by small steps or by leaps.',
-        'A step moves to the very next note of the scale. A leap jumps across several notes.',
+        'A melody moves up or down from note to note.',
+        'Sometimes it moves to a close neighbour (a small step). Other times it jumps across several notes (a leap).',
       ],
     },
     understand: {
       title: 'Understand',
       body: [
-        'Most tunes use only seven notes around the root: the major scale.',
-        'We number them 1 to 7 from the root; 8 is the root again, higher. These numbers are degrees.',
-        'On one string the scale is a pattern of frets you can see: two frets, two frets, one fret, two, two, two, one.',
+        'Most melodies use only seven notes around the root: the major scale.',
+        'We number them 1 to 7 from the root, and 8 is the root again, higher. These numbers are degrees.',
+        'On one string, the major scale follows one fret pattern from the root: two frets, two frets, one fret, then two, two, two, one.',
+        'In G on string 3, the first five notes sit at frets 0 (G), 2 (A), 4 (B), 5 (C) and 7 (D).',
       ],
     },
     play: {
       title: 'Play',
       body: [
-        'Sing the phrase first, then tap it.',
-        'The first note is always the root (the open string).',
-        'If you miss, the app says whether the note you want is higher or lower.',
+        'Now copy three-note phrases in G on string 3 (degrees 1 to 5, frets 0 to 7).',
+        'Hum each phrase before you tap the neck on screen. Once you find it, play the same frets on your own guitar.',
       ],
     },
     challenge: {
       title: 'Challenge',
       body: [
-        'Three phrases of a tune you may know. Do not look it up: find it.',
-        'Then play all three in a row on your own guitar.',
+        'Find three phrases of a familiar tune in G on string 3 without looking it up.',
+        'Not every phrase starts on the open string here, so look at which dot is lit before you tap the rest.',
       ],
     },
   },
   blocks: {
     moves: {
-      intro: 'A melody moves up or down, by small steps or by leaps. Listen to two notes.',
+      intro:
+        'Press Start to hear two notes, then choose whether the second note moved up or down, by step or by leap.',
       ask: 'Step, or leap?',
       answers: {
         stepUp: 'A step up',
@@ -56,12 +57,13 @@ export const en: SessionCopy = {
       wrong: 'That was {answer}. Listen to the two notes again, slower.',
     },
     formula: {
-      intro: 'The major scale is a pattern of steps: whole, whole, half, whole, whole, whole, half.',
+      intro:
+        'Pick G below and play the run along string 5 to watch the +2 and +1 gaps, then switch keys to see the same pattern move.',
     },
     echo: {
       intro:
-        'Sing the phrase first, then tap it. The first note is always the root (the open string). If you miss, the app says whether the note you want is higher or lower.',
-      ask: 'Hear the phrase, then tap it back.',
+        'Press Start. The first note is already lit at fret 0 (open string 3). Tap the next two dots on screen; if you miss, the hint tells you whether the note is higher or lower. Try three or four phrases.',
+      ask: 'Hear the phrase, then tap it on string 3.',
       right: 'Right.',
       higher: 'The note you want is higher.',
       lower: 'The note you want is lower.',
@@ -69,7 +71,7 @@ export const en: SessionCopy = {
     },
     tune: {
       intro:
-        'Three phrases of a tune you may know. Do not look it up: find it. Then play all three in a row on your own guitar.',
+        'Work through each phrase by ear, then press Next. After the third phrase, play all three in a row on your own guitar and press Play again to check your playing.',
       ask: 'Find each phrase on string 3.',
       right: 'Right.',
       higher: 'The note you want is higher.',
@@ -81,7 +83,7 @@ export const en: SessionCopy = {
     {
       question: 'How many different notes are in a major scale?',
       options: ['5', '7', '12'],
-      why: 'A major scale has 7 different notes. Degree 8 is the root again, an octave higher.',
+      why: 'A major scale has 7 different notes. Degree 8 is the root again, higher.',
     },
     {
       question: 'Degree 1 of a scale is…',
@@ -96,7 +98,7 @@ export const en: SessionCopy = {
   ],
   canDo: [
     'I can tell a step from a leap.',
-    'I can copy a three-note phrase.',
-    'I can play the tune of the challenge on one string.',
+    'I can copy a three-note phrase by ear on string 3.',
+    'I can play all three phrases of the challenge tune on one string.',
   ],
 };
