@@ -11,6 +11,14 @@ import { SESSIONS } from '../sessions';
 
 const rules = avoidRules(glossary);
 
+/**
+ * Exceptions where an avoided term is permitted in copy, e.g. for a one-time
+ * clarifying gloss when introducing a concept for beginners.
+ */
+const EXCEPTIONS: ReadonlySet<string> = new Set([
+  'session:find-the-root.parts.understand.body.0:nốt gốc',
+]);
+
 /** Every string in a value, with its path: 'blues.steps.blueNote.body.0'. */
 function strings(value: unknown, path: string): [string, string][] {
   if (typeof value === 'string') return [[path, value]];
@@ -26,7 +34,9 @@ function misses(lang: Lang): GlossaryMiss[] {
     ...LESSONS.flatMap((l) => strings(l.copy[lang], l.slug)),
     ...SESSIONS.flatMap((s) => strings(s.copy[lang], `session:${s.slug}`)),
   ];
-  return all.flatMap(([where, text]) => findAvoided(text, rules, lang, where));
+  return all
+    .flatMap(([where, text]) => findAvoided(text, rules, lang, where))
+    .filter((m) => !EXCEPTIONS.has(`${m.where}:${m.term}`));
 }
 
 describe('Theory copy follows docs/glossary.md', () => {
